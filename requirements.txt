@@ -1,0 +1,15 @@
+streamlit
+pandas
+numpy
+pypdfium2
+pdfplumber
+pypdf
+python-docx
+openpyxl
+requests
+beautifulsoup4
+chromadb
+sentence-transformers
+tokenizers<=0.23.0
+pytest
+pytesseract

@@ -1,0 +1,12 @@
+.venv/ 
+__pycache__/ 
+.pytest_cache/ 
+*.pyc 
+data/ 
+mevzuat_deposu/ 
+.env 
+.env.* 
+*.key 
+*.pem 
+.streamlit/secrets.toml 
+*.bak 
