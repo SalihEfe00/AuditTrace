@@ -33,6 +33,15 @@ from mufettis.analysis.risk_engine import *
 from mufettis.importers.bulk_importer import *
 from mufettis.importers.bootstrapper import *
 from mufettis.scheduler.scheduler import *
+from repair.quarantine import (
+    list_quarantined_documents,
+    get_quarantine_detail,
+    review_quarantine_document,
+    retry_quarantined_document,
+    verify_quarantine_payload_integrity,
+)
+from repair.telemetry import compute_operational_telemetry
+from repair.audit import verify_audit_integrity, REPAIR_AUDIT_LOG_FILE, RepairAuditLogger
 
 def _get_rag(**kwargs):
     _dyn = resolve_dynamic("_get_rag", _get_rag)
@@ -49,7 +58,8 @@ def render_mevzuat_admin(
 ) -> None:
     """Kaynak ekleme/senkronizasyon/bootstrap/RAG rebuild yönetim alanı."""
     st.subheader("Mevzuat kaynak yönetimi")
-    rag = resolve_dynamic('_get_rag', _get_rag)(allow_download=allow_embedding_download)
+    if rag is None:
+        rag = resolve_dynamic('_get_rag', _get_rag)(allow_download=allow_embedding_download)
     st.write(f"Chroma kayıt sayısı: {rag.count() if rag else 0}")
 
     st.markdown("### RAG Envanteri")
@@ -570,6 +580,349 @@ def render_mevzuat_admin(
                 fetched += 1
             append_audit("official_gazette_sync", {"date": sync_date.isoformat(), "fetched": fetched})
             st.success(f"Senkronizasyon tamamlandı: {fetched} belge")
+
+    st.divider()
+    render_quarantine_admin_panel(rag=rag)
+
+    st.divider()
+    render_telemetry_admin_panel()
+
+    st.divider()
+    render_production_health_panel(rag=rag)
+
+
+def render_quarantine_admin_panel(
+    rag: Optional[LocalRAG] = None,
+    index: Optional[IngestIndex] = None,
+    audit_logger: Optional[RepairAuditLogger] = None,
+    cache_dir: Optional[Path] = None,
+) -> None:
+    """Quarantine management panel: list, inspect, review, and retry quarantined documents."""
+    if st is None:
+        return
+
+    st.subheader("🛡️ Karantina Yönetimi")
+    st.caption(
+        "Self-healing veya kalite eşiklerinden geçemeyen belgelerin izolasyon havuzu. "
+        "Yeniden deneme (retry) işlemleri doğrudan Chroma'ya yazmaz; "
+        "tüm VERIFY, RESCAN ve kalite kapılarını çalıştıran AutoHealingIngestionGate üzerinden yürütülür."
+    )
+
+    if index is None:
+        index = IngestIndex()
+
+    all_docs = list_quarantined_documents(index=index, cache_dir=cache_dir)
+    total_count = len(all_docs)
+    reviewed_count = sum(1 for d in all_docs if d.get("reviewed"))
+    unreviewed_count = total_count - reviewed_count
+    cached_payload_count = sum(1 for d in all_docs if d.get("has_cached_payload"))
+
+    # Summary metrics
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Karantinada", f"{total_count:,}")
+    m2.metric("İncelenmemiş", f"{unreviewed_count:,}")
+    m3.metric("İncelenmiş", f"{reviewed_count:,}")
+    m4.metric("Önbellekte (Payload)", f"{cached_payload_count:,}")
+
+    if not all_docs:
+        st.info("Karantinada bekleyen belge bulunmamaktadır.")
+        return
+
+    # Filter selection
+    filter_choice = st.radio(
+        "Filtrele",
+        options=["Tümü", "İncelenmemiş (Bekleyen)", "İncelenmiş"],
+        horizontal=True,
+        key="quarantine_filter_choice",
+    )
+
+    if filter_choice == "İncelenmemiş (Bekleyen)":
+        filtered_docs = [d for d in all_docs if not d.get("reviewed")]
+    elif filter_choice == "İncelenmiş":
+        filtered_docs = [d for d in all_docs if d.get("reviewed")]
+    else:
+        filtered_docs = all_docs
+
+    st.caption(f"{len(filtered_docs)} / {total_count} belge listeleniyor")
+
+    # Table view
+    display_rows = []
+    for d in filtered_docs:
+        display_rows.append({
+            "Dosya Hash": d.get("file_hash", "")[:12] + "...",
+            "Belge": d.get("title") or d.get("document_id") or "İsimsiz",
+            "Kaynak": d.get("source_id") or d.get("source_type") or "-",
+            "Karantina Tarihi": d.get("quarantined_at", "")[:19] if d.get("quarantined_at") else "-",
+            "Gerekçe": d.get("quarantine_reason", "")[:60] + ("..." if len(d.get("quarantine_reason", "")) > 60 else ""),
+            "Retry": d.get("retry_count", 0),
+            "İncelendi": "Evet" if d.get("reviewed") else "Hayır",
+            "Payload": "Var" if d.get("has_cached_payload") else "Yok",
+        })
+    if display_rows:
+        st.dataframe(pd.DataFrame(display_rows), use_container_width=True, hide_index=True)
+
+    # Document selection for details & operations
+    st.markdown("#### Belge Detayı ve Operasyonlar")
+    doc_options = {
+        d["file_hash"]: f"{d.get('title') or d.get('document_id') or d['file_hash'][:12]} ({d['file_hash'][:8]}...)"
+        for d in filtered_docs
+    }
+    selected_hash = st.selectbox(
+        "İşlem yapılacak belgeyi seçin",
+        options=list(doc_options.keys()),
+        format_func=lambda h: doc_options.get(h, h),
+        key="quarantine_selected_hash",
+    )
+
+    if not selected_hash:
+        return
+
+    detail = get_quarantine_detail(selected_hash, index=index, cache_dir=cache_dir)
+    if not detail:
+        st.warning("Belge detayları bulunamadı.")
+        return
+
+    with st.expander(f"Detaylar: {detail.get('title') or detail.get('document_id') or selected_hash[:12]}", expanded=True):
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown(f"**Belge Başlığı:** {detail.get('title') or '-'}")
+            st.markdown(f"**Belge Kimliği:** `{detail.get('document_id') or '-'}`")
+            st.markdown(f"**Kaynak:** `{detail.get('source_id') or detail.get('source_type') or '-'}`")
+            st.markdown(f"**Dosya Hash (SHA256):** `{selected_hash}`")
+            if detail.get("url"):
+                st.markdown(f"**URL:** {detail.get('url')}")
+        with c2:
+            st.markdown(f"**Karantina Zamanı:** {detail.get('quarantined_at') or '-'}")
+            st.markdown(f"**Karantina Gerekçesi:** `{detail.get('quarantine_reason') or '-'}`")
+            st.markdown(f"**Retry Sayısı:** {detail.get('retry_count', 0)}")
+            if detail.get("last_retry_at"):
+                st.markdown(f"**Son Retry:** {detail.get('last_retry_at')}")
+
+        issues = detail.get("quarantine_issues") or []
+        if issues:
+            st.markdown("**Tespit Edilen Sorunlar:**")
+            for iss in issues:
+                st.markdown(f"- {iss}")
+
+        # Payload integrity
+        valid, msg = verify_quarantine_payload_integrity(selected_hash, cache_dir=cache_dir)
+        p_col1, p_col2 = st.columns(2)
+        with p_col1:
+            st.markdown(f"**Önbellek Durumu:** Binary: {'Var' if detail.get('has_binary_cache') else 'Yok'} | Metin: {'Var' if detail.get('has_text_cache') else 'Yok'}")
+        with p_col2:
+            if valid:
+                st.success(f"Bütünlük Doğrulandı: {msg}")
+            else:
+                st.warning(f"Bütünlük Uyarısı: {msg}")
+
+        # Review section
+        st.divider()
+        st.markdown("**Operatör İncelemesi (Review & Notes)**")
+        if detail.get("reviewed"):
+            st.info(f"Bu belge daha önce incelendi: {detail.get('reviewed_by')} ({detail.get('reviewed_at')})")
+            if detail.get("review_notes"):
+                st.markdown(f"**Mevcut Not:** {detail.get('review_notes')}")
+
+        rev_user = st.text_input("İnceleyen Kullanıcı", value=detail.get("reviewed_by") or "operator", key=f"rev_user_{selected_hash}")
+        rev_notes = st.text_area("İnceleme Notu", value=detail.get("review_notes") or "", key=f"rev_notes_{selected_hash}")
+        if st.button("İncelemeyi Kaydet", key=f"btn_save_review_{selected_hash}"):
+            rev_res = review_quarantine_document(
+                file_hash=selected_hash,
+                reviewer=rev_user.strip() or "operator",
+                notes=rev_notes.strip(),
+                index=index,
+                audit_logger=audit_logger,
+            )
+            if rev_res.get("status") == "reviewed":
+                st.success(f"İnceleme kaydedildi: {rev_res.get('reviewed_by')} @ {rev_res.get('reviewed_at')}")
+            else:
+                st.error(f"İnceleme kaydedilemedi: {rev_res.get('error')}")
+
+        # Canonical Retry section
+        st.divider()
+        st.markdown("**Yeniden Deneme (Canonical Pipeline Retry)**")
+        st.caption(
+            "Bu işlem belgeyi AutoHealingIngestionGate üzerinden tam kalite, self-heal, staged ingest, "
+            "VERIFY ve RESCAN adımlarından geçirerek yeniden dener. Başarılı olursa karantinadan çıkar."
+        )
+        if st.button("Yeniden Dene (Retry Ingestion)", type="primary", key=f"btn_retry_{selected_hash}"):
+            if rag is None:
+                st.error("RAG hazır değil. Embedding modeli ve Chroma bağlantısını kontrol edin.")
+            else:
+                with st.spinner("Belge yeniden işleniyor (Self-healing & verification gate)..."):
+                    try:
+                        retry_res = retry_quarantined_document(
+                            rag=rag,
+                            index=index,
+                            file_hash=selected_hash,
+                            trigger="admin_ui_retry",
+                            actor=rev_user.strip() or "operator",
+                            cache_dir=cache_dir,
+                            audit_logger=audit_logger,
+                        )
+                        try:
+                            st.session_state[f"last_retry_result_{selected_hash}"] = retry_res
+                        except Exception:
+                            pass
+                        status = str(retry_res.get("status") or "").lower()
+                        if status == "quarantined" or retry_res.get("quarantined"):
+                            st.warning(f"Belge doğrulanamadı ve tekrar karantinaya alındı: {retry_res.get('quarantine_reason')}")
+                        elif status in ("indexed", "active", "updated", "ingested") or retry_res.get("count", 0) > 0:
+                            st.success(f"Belge başarıyla iyileştirildi ve indekslendi! Oluşturulan chunk sayısı: {retry_res.get('count', 0)}")
+                        elif status == "blocked":
+                            st.error(f"Retry engellendi: {retry_res.get('error')}")
+                        else:
+                            st.info(f"Sonuç: {retry_res.get('status')} {retry_res.get('error') or ''}")
+                    except Exception as exc:
+                        st.error(f"Retry işlemi sırasında hata oluştu: {exc}")
+
+
+def render_telemetry_admin_panel(
+    audit_path: Optional[Path] = None,
+    index: Optional[IngestIndex] = None,
+) -> None:
+    """Operational telemetry and quality improvement panel (Strictly Read-Only)."""
+    if st is None:
+        return
+
+    st.subheader("📊 Operasyonel Telemetri ve Self-Healing Metrikleri")
+    st.caption(
+        "Audit log ve IngestIndex verilerinden doğrudan türetilen operasyonel metrikler. "
+        "Olay (Event) sayıları ile Tekil Belge (Unique Document) sayıları net biçimde ayrıştırılmıştır."
+    )
+
+    if index is None:
+        index = IngestIndex()
+
+    telemetry = compute_operational_telemetry(log_path=audit_path, index=index)
+    ev = telemetry.get("event_metrics", {})
+    ud = telemetry.get("unique_document_metrics", {})
+    qm = telemetry.get("quality_metrics", {})
+
+    # Top metrics (Event vs Unique)
+    t1, t2, t3, t4 = st.columns(4)
+    t1.metric("İşlem Olayı / Belge", f"{ev.get('total_ingest_events', 0):,} / {ud.get('unique_documents_processed', 0):,}")
+    t2.metric("Kalite Geçen / Temiz", f"{ev.get('quality_passed_events', 0):,} / {ud.get('unique_documents_clean', 0):,}")
+    t3.metric("Onarılan (Self-Healed)", f"{ev.get('self_healed_events', 0):,} / {ud.get('unique_documents_healed', 0):,}")
+    t4.metric("Karantinada Olay / Belge", f"{ev.get('quarantined_events', 0):,} / {ud.get('unique_documents_in_quarantine', 0):,}")
+
+    # Rates & quality improvement
+    st.markdown("#### İyileştirme ve Başarı Oranları")
+    q1, q2, q3, q4 = st.columns(4)
+
+    avg_delta = qm.get("avg_quality_delta")
+    delta_str = f"+{avg_delta:.2f}" if avg_delta is not None and avg_delta > 0 else (f"{avg_delta:.2f}" if avg_delta is not None else "N/A")
+    q1.metric("Ortalama Δ Kalite", delta_str, help="Self-healing adımlarında ham metne kıyasla sağlanan ortalama kalite skoru artışı")
+
+    res_rate = qm.get("quarantine_resolution_rate")
+    res_str = f"%{res_rate * 100:.1f}" if res_rate is not None else "N/A"
+    q2.metric("Onarım Çözüm Oranı", res_str, help="Sorun tespit edilen belgelerin onarılarak başarıyla sisteme kazandırılma oranı")
+
+    ret_rate = qm.get("retry_success_rate")
+    ret_str = f"%{ret_rate * 100:.1f}" if ret_rate is not None else "N/A"
+    q3.metric("Retry Başarı Oranı", ret_str, help="Karantinadan başlatılan yeniden deneme işlemlerinin başarı yüzdesi")
+
+    q4.metric("Aktif Belge Havuzu", f"{ud.get('unique_documents_active', 0):,}")
+
+    # Stage Distribution and Failure Metrics
+    st.markdown("#### Aşama Dağılımı ve Güvenlik Olayları")
+    s1, s2 = st.columns(2)
+
+    with s1:
+        st.markdown("**Self-Healing Aşama Dağılımı**")
+        stages = qm.get("stage_distribution") or {}
+        st.write({
+            "Stage 1 - Mojibake Onarımı": stages.get("stage_1_mojibake", 0),
+            "Stage 2 - Bitişik Kelime / Boşluk": stages.get("stage_2_glued", 0),
+            "Stage 3 - Kaynak Fallback (Re-Extract)": stages.get("stage_3_source_fallback", 0),
+        })
+
+    with s2:
+        st.markdown("**Boru Hattı Koruma ve Geri Alma (Rollback) Olayları**")
+        st.write({
+            "Doğrulama Başarısızlığı (VERIFY)": ev.get("verification_failure_events", 0),
+            "Yeniden Tarama Başarısızlığı (RESCAN)": ev.get("rescan_failure_events", 0),
+            "Geri Alma (Rollback) Tetiklenmesi": ev.get("rollback_events", 0),
+            "Yeniden Deneme Girişimi (Retry)": ev.get("retry_attempt_events", 0),
+        })
+
+
+def render_production_health_panel(
+    rag: Optional[LocalRAG] = None,
+    index: Optional[IngestIndex] = None,
+    audit_path: Optional[Path] = None,
+) -> None:
+    """Read-only production data integrity & storage health check.
+    
+    CRITICAL: Strictly read-only; zero write mutations, zero rebuild/fix triggers.
+    """
+    if st is None:
+        return
+
+    st.subheader("🩺 Üretim Sağlık Durumu (Salt Okunur)")
+    st.caption(
+        "Üretim veritabanı, indeks, önbellek ve denetim zincirinin anlık sağlık durumu. "
+        "Bu panel kesinlikle salt okunurdur; hiçbir yazma, sıfırlama veya tetikleme işlemi yapmaz."
+    )
+
+    if index is None:
+        index = IngestIndex()
+
+    # 1. Chroma Embeddings Count
+    chroma_count = rag.count() if rag else 0
+
+    # 2. IngestIndex count
+    index_items = index.data.get("indexed_items", {}) if hasattr(index, "data") else (getattr(index, "indexed_items", {}) or {})
+    index_count = len(index_items)
+
+    # 3. SourceCache count
+    sc_dir = Path(SOURCE_CACHE_DIR)
+    source_cache_count = len(list(sc_dir.glob("*.txt"))) if sc_dir.is_dir() else 0
+
+    # 4. Audit entries count & integrity
+    actual_audit_path = Path(audit_path or REPAIR_AUDIT_LOG_FILE)
+    audit_count = 0
+    if actual_audit_path.is_file():
+        try:
+            with open(actual_audit_path, "r", encoding="utf-8") as f:
+                audit_count = sum(1 for line in f if line.strip())
+        except Exception:
+            audit_count = 0
+
+    chain_valid, chain_errors = verify_audit_integrity(actual_audit_path)
+
+    # 5. SQLite PRAGMA integrity_check
+    sqlite_status = "Bilinmiyor"
+    sqlite_file = Path(DB_PATH) / "chroma.sqlite3"
+    if sqlite_file.is_file():
+        import sqlite3
+        try:
+            conn = sqlite3.connect(f"file:{sqlite_file.resolve()}?mode=ro", uri=True)
+            cur = conn.cursor()
+            res = cur.execute("PRAGMA integrity_check;").fetchone()
+            sqlite_status = str(res[0]) if res else "Bilinmiyor"
+            conn.close()
+        except Exception as exc:
+            sqlite_status = f"Hata: {exc}"
+
+    h1, h2, h3, h4 = st.columns(4)
+    h1.metric("Chroma Vektör Sayısı", f"{chroma_count:,}")
+    h2.metric("İndeks Kayıt Sayısı", f"{index_count:,}")
+    h3.metric("Kaynak Önbellek (TXT)", f"{source_cache_count:,}")
+    h4.metric("Denetim Kayıtları (Audit)", f"{audit_count:,}")
+
+    c_status1, c_status2 = st.columns(2)
+    with c_status1:
+        if sqlite_status.lower() == "ok":
+            st.success(f"SQLite Bütünlüğü: {sqlite_status.upper()} (Sorunsuz)")
+        else:
+            st.error(f"SQLite Bütünlüğü: {sqlite_status}")
+
+    with c_status2:
+        if chain_valid:
+            st.success("Audit Hash-Zinciri: GEÇERLİ (Kriptografik Bütünlük Korundu)")
+        else:
+            st.error(f"Audit Hash-Zinciri: BOZUK ({len(chain_errors)} hata tespit edildi)")
 
 
 __all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
