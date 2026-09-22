@@ -314,15 +314,43 @@ class AutoHealingIngestionGate:
         meta: Dict[str, Any],
         reason: str,
         issues: List[str],
+        text: Optional[str] = None,
+        raw_bytes: Optional[bytes] = None,
     ) -> Dict[str, Any]:
-        """Safely rolls back any staged Chroma chunks and marks the document quarantined."""
+        """Safely rolls back any staged Chroma chunks, caches payload in quarantine cache, and marks quarantined."""
         try:
             rag.delete_hash(file_hash)
         except Exception as exc:
             logger.warning("Quarantine: Chroma cleanup warning for %s: %s", file_hash, exc)
 
+        # Isolated quarantine cache saving
+        try:
+            from repair.quarantine import save_quarantine_payload
+            cache_dir = None
+            if index is not None and getattr(index, "path", None):
+                from mufettis.config import DATA_DIR
+                idx_resolved = str(Path(index.path).resolve())
+                if not idx_resolved.startswith(str(DATA_DIR.resolve())):
+                    cache_dir = Path(index.path).parent / "quarantine_cache"
+            save_quarantine_payload(file_hash, text=text, raw_bytes=raw_bytes, cache_dir=cache_dir)
+        except Exception as exc:
+            logger.warning("Quarantine: payload caching failed for %s: %s", file_hash, exc)
+
         quarantine_meta = dict(meta or {})
         quarantine_meta.pop("raw_bytes", None)
+
+        existing = index.get(file_hash) if index is not None else None
+        existing_history = list((existing.get("quarantine_history") if existing else None) or quarantine_meta.get("quarantine_history") or [])
+        retry_count = int(quarantine_meta.get("retry_count", (existing.get("retry_count") if existing else 0) or 0))
+
+        history_entry = {
+            "attempt": retry_count,
+            "quarantined_at": now_iso(),
+            "reason": reason,
+            "issues": list(issues),
+        }
+        existing_history.append(history_entry)
+
         quarantine_meta.update({
             "status": "quarantined",
             "evidence_indexable": False,
@@ -331,6 +359,12 @@ class AutoHealingIngestionGate:
             "quarantine_reason": reason,
             "quarantine_issues": issues,
             "quarantined_at": now_iso(),
+            "retry_count": retry_count,
+            "quarantine_history": existing_history,
+            "reviewed": bool(quarantine_meta.get("reviewed", (existing.get("reviewed") if existing else False) or False)),
+            "reviewed_at": quarantine_meta.get("reviewed_at", existing.get("reviewed_at") if existing else None),
+            "reviewed_by": quarantine_meta.get("reviewed_by", existing.get("reviewed_by") if existing else None),
+            "review_notes": quarantine_meta.get("review_notes", existing.get("review_notes") if existing else None),
         })
 
         if index is not None:
@@ -349,7 +383,12 @@ class AutoHealingIngestionGate:
                     source_sha256=file_hash,
                     reason=reason,
                     status="QUARANTINED",
-                    details={"issues": issues, "reason": reason},
+                    details={
+                        "issues": issues,
+                        "reason": reason,
+                        "retry_count": retry_count,
+                        "is_retry": bool(meta.get("is_retry", False)),
+                    },
                 )
             except Exception as exc:
                 logger.warning("Quarantine audit emit failed: %s", exc)
@@ -361,6 +400,7 @@ class AutoHealingIngestionGate:
                 "document_id": meta.get("document_id"),
                 "reason": reason,
                 "issues": issues,
+                "retry_count": retry_count,
             },
         )
 
@@ -459,6 +499,8 @@ class AutoHealingIngestionGate:
                     meta=meta,
                     reason=reason,
                     issues=healed_metrics["issues"],
+                    text=effective_text or text,
+                    raw_bytes=effective_raw_bytes,
                 )
 
             effective_text = repaired_text
@@ -478,6 +520,8 @@ class AutoHealingIngestionGate:
                 meta=meta,
                 reason=reason,
                 issues=[str(exc)],
+                text=effective_text,
+                raw_bytes=effective_raw_bytes,
             )
 
         # 4. VERIFY Stage
@@ -491,6 +535,8 @@ class AutoHealingIngestionGate:
                 meta=meta,
                 reason=reason,
                 issues=v_errors,
+                text=effective_text,
+                raw_bytes=effective_raw_bytes,
             )
 
         # 5. RESCAN Stage
@@ -504,6 +550,8 @@ class AutoHealingIngestionGate:
                 meta=meta,
                 reason=reason,
                 issues=r_issues,
+                text=effective_text,
+                raw_bytes=effective_raw_bytes,
             )
 
         # 6. Commit Succeeded! Finalize Index and Cache
