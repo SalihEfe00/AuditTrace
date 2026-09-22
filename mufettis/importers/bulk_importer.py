@@ -222,7 +222,15 @@ class BulkRegulationImporter:
                     continue
 
                 meta = self._build_meta(path, file_hash, text, pages, ocr_used, size)
-                result = versioned_ingest_text(self.rag, self.index, text, meta, force=force)
+                result = versioned_ingest_text(
+                    self.rag,
+                    self.index,
+                    text,
+                    meta,
+                    force=force,
+                    raw_bytes=raw,
+                    source_path=str(path),
+                )
                 result_status = result.get("status", "")
                 result_meta = result.get("meta", meta)
                 chunk_count = int(result.get("count", 0) or 0)

@@ -443,6 +443,7 @@ def render_mevzuat_admin(
                                     payload["text"],
                                     meta,
                                     force=False,
+                                    raw_bytes=payload.get("raw_bytes"),
                                 )
                                 meta = version_result.get("meta", meta)
                                 meta["chunk_count"] = version_result.get("count", 0)
@@ -475,6 +476,7 @@ def render_mevzuat_admin(
                                     payload["text"],
                                     meta,
                                     force=False,
+                                    raw_bytes=payload.get("raw_bytes"),
                                 )
                                 meta = version_result.get("meta", meta)
                                 meta["chunk_count"] = version_result.get("count", 0)

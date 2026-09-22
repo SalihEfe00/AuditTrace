@@ -25,6 +25,7 @@ from mufettis.common.utils import safe_json
 from mufettis.extraction.text_repair import normalize_extracted_text
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.maintenance import versioned_ingest_text
+from repair.audit import RepairAuditLogger
 from repair.ingestion_gate import AutoHealingIngestionGate
 
 
@@ -156,8 +157,13 @@ class TestAutoHealingIngestionGate(unittest.TestCase):
         self.test_dir = Path(tempfile.mkdtemp(prefix="test_gate_"))
         self.index_path = self.test_dir / "ingest_index.json"
         self.index = IngestIndex(path=self.index_path)
+        self.audit_logger = RepairAuditLogger(log_path=self.test_dir / "repair_audit.jsonl")
         self.rag = MockLocalRAG()
-        self.gate = AutoHealingIngestionGate(rag=self.rag, index=self.index)
+        self.gate = AutoHealingIngestionGate(
+            rag=self.rag,
+            index=self.index,
+            audit_logger=self.audit_logger,
+        )
 
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
@@ -379,7 +385,8 @@ class TestAutoHealingIngestionGate(unittest.TestCase):
         }
 
         import unittest.mock
-        with unittest.mock.patch("mufettis.rag.maintenance.save_source_cache"):
+        with unittest.mock.patch("mufettis.rag.maintenance.save_source_cache"), \
+             unittest.mock.patch("repair.ingestion_gate.get_audit_logger", return_value=self.audit_logger):
             res = versioned_ingest_text(
                 rag=self.rag,
                 index=self.index,
@@ -399,6 +406,298 @@ class TestAutoHealingIngestionGate(unittest.TestCase):
         self.assertIn("Şirketleri", combined)
         self.assertIn("uyarınca", combined)
         self.assertNotIn("ÅŸ", combined)
+
+
+class TestStage3SourceFallback(unittest.TestCase):
+    """Specific test suite for FAZ 17 Stage 3 Source Fallback Re-Extraction."""
+
+    def setUp(self):
+        self.tmp_dir = tempfile.mkdtemp()
+        self.tmp_path = Path(self.tmp_dir)
+
+        index_file = self.tmp_path / "ingest_index.json"
+        self.index = IngestIndex(path=index_file)
+        self.audit_logger = RepairAuditLogger(log_path=self.tmp_path / "repair_audit.jsonl")
+
+        self.rag = MockLocalRAG()
+        self.gate = AutoHealingIngestionGate(
+            rag=self.rag,
+            index=self.index,
+            audit_logger=self.audit_logger,
+        )
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp_dir, ignore_errors=True)
+
+    def test_a_web_caller_raw_bytes_reextraction(self):
+        """Test A: Web caller with raw_bytes re-extracts clean candidate when text has unrecoverable corruption."""
+        unrecoverable_text = (
+            "MADDE 1 \ufffd\ufffd\ufffd bozuk text \ufffd\ufffd\ufffd unrecoverable "
+            "kimliksizlestirilemeyenlerdenmiscesinegluedwordthatcannotberepairedbyrule \ufffd\ufffd\ufffd"
+        )
+        clean_html = (
+            "<html><body>"
+            "<h1>Bankacılık Düzenleme ve Denetleme Kurumu Yönetmeliği</h1>"
+            "<p>MADDE 1 – Bu yönetmelik, bankaların iç sistemleri ve iç denetim mekanizmalarını düzenler.</p>"
+            "<p>MADDE 2 – Bu yönetmelik hükümlerini Kurul Başkanı yürütür.</p>"
+            "</body></html>"
+        ).encode("utf-8")
+
+        from mufettis.common.utils import sha256_bytes
+        file_hash = sha256_bytes(clean_html)
+        meta = {
+            "file_hash": file_hash,
+            "document_id": "bddk_web_001",
+            "title": "Bankacılık Düzenleme ve Denetleme Kurumu Yönetmeliği",
+            "is_pdf": False,
+            "source_type": "official",
+        }
+
+        res = self.gate.ingest(
+            rag=self.rag,
+            index=self.index,
+            text=unrecoverable_text,
+            meta=meta,
+            raw_bytes=clean_html,
+        )
+
+        self.assertEqual(res["status"], "repaired_and_indexed")
+        self.assertTrue(res["healed"])
+        self.assertTrue(res["meta"].get("source_fallback_used"))
+        self.assertGreater(res["count"], 0)
+
+        # Chroma chunks must contain re-extracted clean content
+        got = self.rag.collection.get(where={"file_hash": file_hash})
+        combined = " ".join(got["documents"])
+        self.assertIn("iç denetim mekanizmalarını", combined)
+        self.assertNotIn("\ufffd", combined)
+
+        # Index entry must be active and chunk_count > 0, raw_bytes must NOT leak to index
+        idx_entry = self.index.get(file_hash)
+        self.assertIsNotNone(idx_entry)
+        self.assertEqual(idx_entry["status"], "active")
+        self.assertNotIn("raw_bytes", idx_entry)
+
+    def test_b_local_file_source_path_reextraction(self):
+        """Test B: Local file caller with source_path triggers Stage 3 re-extraction from disk."""
+        local_file = self.tmp_path / "local_reg.html"
+        local_file.write_text(
+            "<html><body>"
+            "<h2>Finansal Kiralama ve Faktoring Faaliyet Tebliği</h2>"
+            "<p>MADDE 1 – Bu Tebliğin amacı faktoring işlemlerinde risk yönetimini sağlamaktır.</p>"
+            "<p>MADDE 2 – Bu Tebliğ hükümleri yayımı tarihinde yürürlüğe girer.</p>"
+            "</body></html>",
+            encoding="utf-8",
+        )
+
+        from mufettis.common.utils import sha256_bytes
+        file_hash = sha256_bytes(local_file.read_bytes())
+        unrecoverable_text = "MADDE 1 \ufffd\ufffd\ufffd \ufffd\ufffd\ufffd corrupt initial string \ufffd\ufffd\ufffd"
+
+        meta = {
+            "file_hash": file_hash,
+            "document_id": "bddk_local_002",
+            "title": "Finansal Kiralama ve Faktoring Faaliyet Tebliği",
+            "local_path": str(local_file),
+            "source_type": "official",
+            "is_pdf": False,
+        }
+
+        res = self.gate.ingest(
+            rag=self.rag,
+            index=self.index,
+            text=unrecoverable_text,
+            meta=meta,
+            source_path=str(local_file),
+        )
+
+        self.assertEqual(res["status"], "repaired_and_indexed")
+        self.assertTrue(res["healed"])
+        self.assertTrue(res["meta"].get("source_fallback_used"))
+        self.assertGreater(res["count"], 0)
+
+        got = self.rag.collection.get(where={"file_hash": file_hash})
+        combined = " ".join(got["documents"])
+        self.assertIn("risk yönetimini sağlamaktır", combined)
+        self.assertNotIn("\ufffd", combined)
+
+    def test_c_callers_without_source_backward_compatibility(self):
+        """Test C: Callers without raw_bytes or source_path still cleanly use Stage 1 and Stage 2."""
+        mojibake_text = (
+            "MADDE 1 â€“ TÃ¼rkiye Cumhuriyet Merkez BankasÄ± gÃ¶revlerini yerine getirir.\n\n"
+            "MADDE 2 â€“ Bu kanun hÃ¼kÃ¼mlerini Bakanlar Kurulu yÃ¼rÃ¼tÃ¼r."
+        )
+        meta = {
+            "file_hash": "compat003" * 4 + "abcdefgh",
+            "document_id": "tcmb_compat",
+            "title": "Merkez Bankası Kanunu",
+            "source_type": "official",
+        }
+
+        res = self.gate.ingest(
+            rag=self.rag,
+            index=self.index,
+            text=mojibake_text,
+            meta=meta,
+            raw_bytes=None,
+            source_path=None,
+        )
+
+        self.assertEqual(res["status"], "repaired_and_indexed")
+        self.assertTrue(res["healed"])
+        self.assertFalse(res["meta"].get("source_fallback_used", False))
+        self.assertGreater(res["count"], 0)
+
+        got = self.rag.collection.get(where={"file_hash": meta["file_hash"]})
+        combined = " ".join(got["documents"])
+        self.assertIn("Türkiye Cumhuriyet Merkez Bankası", combined)
+
+    def test_d_unrecoverable_source_fallback_failure_quarantined(self):
+        """Test D: If raw source fallback also fails or is empty, document is quarantined with 0 chunks."""
+        corrupt_text = "MADDE 1 \ufffd\ufffd\ufffd tamamen bozuk metin \ufffd\ufffd\ufffd"
+        corrupt_raw_bytes = b""  # Empty raw source bytes
+
+        meta = {
+            "file_hash": "unrec004" * 4 + "abcdefgh",
+            "document_id": "corrupt_doc",
+            "title": "Bozuk Belge",
+            "source_type": "official",
+        }
+
+        res = self.gate.ingest(
+            rag=self.rag,
+            index=self.index,
+            text=corrupt_text,
+            meta=meta,
+            raw_bytes=corrupt_raw_bytes,
+        )
+
+        self.assertEqual(res["status"], "quarantined")
+        self.assertEqual(res["count"], 0)
+
+        # 0 chunks in Chroma
+        got = self.rag.collection.get(where={"file_hash": meta["file_hash"]})
+        self.assertEqual(len(got.get("ids", [])), 0)
+
+        # Marked quarantined in index
+        idx_entry = self.index.get(meta["file_hash"])
+        self.assertEqual(idx_entry["status"], "quarantined")
+
+    def test_e_cross_document_identity_isolation_during_stage3(self):
+        """Test E: Cross-document identity collision blocks before Stage 3 or Chroma mutation."""
+        meta_original = {
+            "file_hash": "ident005" * 4 + "abcdefgh",
+            "document_id": "doc_alpha",
+            "title": "İlk Belge",
+            "status": "active",
+            "chunk_count": 5,
+        }
+        self.index.upsert(meta_original["file_hash"], meta_original)
+
+        # Incoming has same hash but conflicting document_id and corrupt text + raw_bytes
+        meta_incoming = {
+            "file_hash": "ident005" * 4 + "abcdefgh",
+            "document_id": "doc_beta",  # Collision!
+            "title": "Farklı Belge",
+        }
+
+        res = self.gate.ingest(
+            rag=self.rag,
+            index=self.index,
+            text="MADDE 1 \ufffd\ufffd\ufffd bozuk text \ufffd\ufffd\ufffd",
+            meta=meta_incoming,
+            raw_bytes=b"<html><body>Clean</body></html>",
+        )
+
+        self.assertEqual(res["status"], "blocked")
+        self.assertIn("collision", res["error"].lower())
+
+        # Existing index must be preserved unchanged
+        existing = self.index.get(meta_original["file_hash"])
+        self.assertEqual(existing["document_id"], "doc_alpha")
+
+    def test_f_fallback_priority_sequence_stage1_preempts_stage3(self):
+        """Test F: When Stage 1 cleans the text, Stage 3 source fallback is NOT triggered."""
+        mojibake_text = (
+            "MADDE 1 â€“ Sermaye PiyasasÄ± Kanunu hÃ¼kÃ¼mleri uygulanÄ±r.\n\n"
+            "MADDE 2 â€“ Bu tebliÄŸ yayÄ±mÄ± tarihinde yÃ¼rÃ¼rlÃ¼ÄŸe girer."
+        )
+        dummy_raw = b"<html><body>Unused raw content</body></html>"
+
+        meta = {
+            "file_hash": "priority006" * 4 + "abcdefgh",
+            "document_id": "spk_priority",
+            "title": "Sermaye Piyasası Tebliği",
+            "source_type": "official",
+        }
+
+        res = self.gate.ingest(
+            rag=self.rag,
+            index=self.index,
+            text=mojibake_text,
+            meta=meta,
+            raw_bytes=dummy_raw,
+        )
+
+        self.assertEqual(res["status"], "repaired_and_indexed")
+        self.assertTrue(res["healed"])
+        # Crucial: source fallback was NOT used because Stage 1 resolved the corruption
+        self.assertFalse(res["meta"].get("source_fallback_used", False))
+
+        got = self.rag.collection.get(where={"file_hash": meta["file_hash"]})
+        combined = " ".join(got["documents"])
+        self.assertIn("Sermaye Piyasası Kanunu", combined)
+        self.assertNotIn("Unused raw content", combined)
+
+    def test_g_versioned_ingest_text_end_to_end_forwarding(self):
+        """Test G: versioned_ingest_text seamlessly forwards raw_bytes and source_path to gate."""
+        raw_html = (
+            "<html><body>"
+            "<h1>Sigortacılık ve Özel Emeklilik Kanunu</h1>"
+            "<p>MADDE 1 – Bu Kanunun amacı sigortacılık sektörünü güvence altına almaktır.</p>"
+            "<p>MADDE 2 – Kurum bağımsız idari otoritedir.</p>"
+            "</body></html>"
+        ).encode("utf-8")
+
+        from mufettis.common.utils import sha256_bytes
+        file_hash = sha256_bytes(raw_html)
+        meta = {
+            "file_hash": file_hash,
+            "document_id": "seddk_doc_007",
+            "title": "Sigortacılık ve Özel Emeklilik Kanunu",
+            "source_type": "official",
+            "raw_bytes": raw_html,  # Injected directly in meta
+        }
+
+        corrupted_text = "MADDE 1 \ufffd\ufffd\ufffd corrupt input text \ufffd\ufffd\ufffd"
+
+        import unittest.mock
+        with unittest.mock.patch("mufettis.rag.maintenance.save_source_cache"), \
+             unittest.mock.patch("repair.ingestion_gate.get_audit_logger", return_value=self.audit_logger):
+            res = versioned_ingest_text(
+                rag=self.rag,
+                index=self.index,
+                text=corrupted_text,
+                meta=meta,
+                force=False,
+                auto_heal=True,
+            )
+
+        self.assertEqual(res["status"], "repaired_and_indexed")
+        self.assertTrue(res["healed"])
+        self.assertTrue(res["meta"].get("source_fallback_used"))
+        self.assertGreater(res["count"], 0)
+
+        # Chunks in Chroma are verified clean
+        got = self.rag.collection.get(where={"file_hash": file_hash})
+        combined = " ".join(got["documents"])
+        self.assertIn("sigortacılık sektörünü güvence altına almaktır", combined)
+        self.assertNotIn("\ufffd", combined)
+
+        # Index entry must not contain raw bytes
+        idx_entry = self.index.get(file_hash)
+        self.assertIsNotNone(idx_entry)
+        self.assertNotIn("raw_bytes", idx_entry)
 
 
 if __name__ == "__main__":

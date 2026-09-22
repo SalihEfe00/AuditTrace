@@ -49,8 +49,18 @@ class AutoHealingIngestionGate:
     ):
         self.rag = rag
         self.index = index
-        self.audit_logger = audit_logger or get_audit_logger()
         self.quality_threshold = float(quality_threshold)
+        if audit_logger is not None:
+            self.audit_logger = audit_logger
+        elif index is not None and getattr(index, "path", None):
+            from mufettis.config import DATA_DIR
+            idx_resolved = str(Path(index.path).resolve())
+            if not idx_resolved.startswith(str(DATA_DIR.resolve())):
+                self.audit_logger = RepairAuditLogger(log_path=Path(index.path).parent / "repair_audit.jsonl")
+            else:
+                self.audit_logger = get_audit_logger()
+        else:
+            self.audit_logger = get_audit_logger()
 
     # ── Quality Evaluation ────────────────────────────────────────────────────
 
@@ -166,18 +176,43 @@ class AutoHealingIngestionGate:
         eval_metrics = self.evaluate_text_quality(current_text, meta.get("title", ""))
         if not eval_metrics["is_clean"] and (raw_bytes or source_path):
             try:
+                candidate_text = None
                 from repair.extractor import extract_candidate
                 candidate = extract_candidate(
-                    doc_meta=meta,
                     source_path=source_path,
+                    meta=meta,
+                    expected_hash=meta.get("file_hash"),
                     raw_bytes=raw_bytes,
-                    force_reextract=True,
+                    title=meta.get("title", ""),
+                    document_type=meta.get("document_type", ""),
                 )
                 if candidate and candidate.status == "SUCCESS" and candidate.raw_text.strip():
-                    cand_metrics = self.evaluate_text_quality(candidate.raw_text, meta.get("title", ""))
-                    if cand_metrics["score"] > eval_metrics["score"]:
-                        current_text = candidate.raw_text
+                    candidate_text = candidate.raw_text
+                elif raw_bytes:
+                    # Direct raw_bytes fallback if extractor returned non-success
+                    if raw_bytes.startswith(b"%PDF") or meta.get("is_pdf"):
+                        from mufettis.harvesting.resmi_gazete import ResmiGazeteScraper
+                        scraper = ResmiGazeteScraper(local_only=True)
+                        extracted, _, _ = scraper._extract_pdf_text(raw_bytes)
+                        if extracted and extracted.strip():
+                            candidate_text = normalize_extracted_text(extracted)
+                            candidate_text = repair_extracted_spacing(candidate_text, meta.get("title", ""), meta.get("document_type", ""))
+                    else:
+                        from bs4 import BeautifulSoup
+                        soup = BeautifulSoup(raw_bytes.decode("utf-8", errors="replace"), "html.parser")
+                        for el in soup(["script", "style", "header", "footer", "nav"]):
+                            el.extract()
+                        raw_html = re.sub(r"\n\s*\n", "\n", soup.get_text(separator="\n")).strip()
+                        if raw_html:
+                            candidate_text = normalize_extracted_text(raw_html)
+                            candidate_text = repair_extracted_spacing(candidate_text, meta.get("title", ""), meta.get("document_type", ""))
+
+                if candidate_text:
+                    cand_metrics = self.evaluate_text_quality(candidate_text, meta.get("title", ""))
+                    if cand_metrics["is_clean"] or cand_metrics["score"] > eval_metrics["score"]:
+                        current_text = candidate_text
                         eval_metrics = cand_metrics
+                        meta["source_fallback_used"] = True
             except Exception as exc:
                 logger.warning("AutoHealing: fallback re-extraction stage failed: %s", exc)
 
@@ -287,6 +322,7 @@ class AutoHealingIngestionGate:
             logger.warning("Quarantine: Chroma cleanup warning for %s: %s", file_hash, exc)
 
         quarantine_meta = dict(meta or {})
+        quarantine_meta.pop("raw_bytes", None)
         quarantine_meta.update({
             "status": "quarantined",
             "evidence_indexable": False,
@@ -349,9 +385,31 @@ class AutoHealingIngestionGate:
         source_path: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Orchestrates the full auto-healing ingestion pipeline."""
+        meta = dict(meta or {})
         file_hash = str(meta.get("file_hash", "")).strip()
         if not file_hash:
             raise ValueError("meta['file_hash'] is required for ingestion gate")
+
+        # Resolve effective source_path and raw_bytes from parameters and meta
+        effective_source_path = source_path or meta.get("source_path") or meta.get("local_path")
+        effective_raw_bytes = raw_bytes if raw_bytes is not None else meta.pop("raw_bytes", None)
+
+        if effective_raw_bytes is None and effective_source_path:
+            sp = Path(effective_source_path)
+            if sp.is_file():
+                try:
+                    effective_raw_bytes = sp.read_bytes()
+                except Exception as exc:
+                    logger.warning("Could not read effective_source_path %s: %s", effective_source_path, exc)
+        # Ensure audit logging is strictly isolated if working with an isolated/test index
+        if index is not None and getattr(index, "path", None):
+            try:
+                from mufettis.config import DATA_DIR
+                idx_resolved = str(Path(index.path).resolve())
+                if not idx_resolved.startswith(str(DATA_DIR.resolve())):
+                    self.audit_logger = RepairAuditLogger(log_path=Path(index.path).parent / "repair_audit.jsonl")
+            except Exception:
+                pass
 
         # 1. Identity & Duplicate Check
         existing = index.get(file_hash) if index is not None else None
@@ -385,7 +443,10 @@ class AutoHealingIngestionGate:
         if not raw_metrics["is_clean"]:
             # CORRUPTED PATH -> Trigger Self-Healing
             is_improved, repaired_text, healed_metrics = self.attempt_self_healing(
-                text, meta, raw_bytes=raw_bytes, source_path=source_path
+                text,
+                meta,
+                raw_bytes=effective_raw_bytes,
+                source_path=effective_source_path,
             )
 
             if not is_improved or not healed_metrics["is_clean"]:

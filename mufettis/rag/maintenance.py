@@ -956,6 +956,9 @@ def versioned_ingest_text(
     effective_text = text
     was_healed = False
 
+    effective_source_path = source_path or meta.get("source_path") or meta.get("local_path")
+    effective_raw_bytes = raw_bytes if raw_bytes is not None else meta.pop("raw_bytes", None)
+
     if auto_heal:
         from repair.ingestion_gate import AutoHealingIngestionGate
 
@@ -966,8 +969,8 @@ def versioned_ingest_text(
             text=text,
             meta=meta,
             force=force,
-            raw_bytes=raw_bytes,
-            source_path=source_path,
+            raw_bytes=effective_raw_bytes,
+            source_path=effective_source_path,
         )
 
         if gate_res.get("status") in ("quarantined", "blocked", "skipped"):
@@ -1063,7 +1066,15 @@ def ingest_local_regulation_file(path: Path, rag: LocalRAG, index: Optional[Inge
         "local_path": str(path),
     }, "local_file"))
     pdf_diagnostic = dict(scraper._last_pdf_diagnostic) if path.suffix.lower() == ".pdf" else {}
-    result = versioned_ingest_text(rag, index, text, meta, force=force)
+    result = versioned_ingest_text(
+        rag,
+        index,
+        text,
+        meta,
+        force=force,
+        raw_bytes=data,
+        source_path=str(path),
+    )
     meta = result.get("meta", meta)
     meta["chunk_count"] = result.get("count", meta.get("chunk_count", 0))
     index.upsert(file_hash, meta)

@@ -324,7 +324,7 @@ class WebSourceHarvester:
             meta["previous_hash"] = previous.get("previous_hash", "")
         else:
             meta["status"] = "new"
-        return {"text": text, "meta": meta}
+        return {"text": text, "meta": meta, "raw_bytes": raw}
 
     def fetch_candidate_http_fast(
         self,
@@ -427,7 +427,7 @@ class WebSourceHarvester:
                 "verified_at":now_iso(),
             })
 
-            return {"status":"fetched","text":text_value,"meta":meta},None
+            return {"status":"fetched","text":text_value,"meta":meta,"raw_bytes":raw},None
         except Exception as exc:
             return None,str(exc)
         finally:

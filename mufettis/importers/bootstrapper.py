@@ -131,6 +131,7 @@ class RegulationBootstrapper:
                         payload["text"],
                         payload["meta"],
                         force=False,
+                        raw_bytes=payload.get("raw_bytes"),
                     )
                     meta = vr.get("meta", payload["meta"])
                     meta["bootstrap_source"] = source_id
@@ -176,6 +177,7 @@ class RegulationBootstrapper:
                     payload["text"],
                     payload["meta"],
                     force=False,
+                    raw_bytes=payload.get("raw_bytes"),
                 )
                 meta = vr.get("meta", payload["meta"])
                 meta["bootstrap_source"] = source_id
@@ -247,7 +249,14 @@ class RegulationBootstrapper:
                         text, meta = scraper.fetch_document_content(doc_info)
                         if not text or not meta:
                             continue
-                        vr = versioned_ingest_text(self.rag, index, text, meta, force=False)
+                        vr = versioned_ingest_text(
+                            self.rag,
+                            index,
+                            text,
+                            meta,
+                            force=False,
+                            raw_bytes=meta.get("raw_bytes"),
+                        )
                         m = vr.get("meta", meta)
                         index.upsert(m["file_hash"], m)
                         if vr.get("status") == "skipped":

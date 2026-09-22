@@ -339,6 +339,7 @@ class ResmiGazeteScraper:
                 "status": status,
                 "content_size": len(final_bytes),
             }, "resmi_gazete")
+            meta["raw_bytes"] = final_bytes
             return extracted_text, meta
         except Exception as exc:
             print(f"[İçerik] {url}: {exc}")
@@ -362,7 +363,14 @@ def sync_web_source(source_id: str, rag: LocalRAG, use_browser: bool = False, ma
             payload = harvester.fetch_candidate(candidate)
             if not payload:
                 continue
-            version_result = versioned_ingest_text(rag, harvester.index, payload["text"], payload["meta"], force=False)
+            version_result = versioned_ingest_text(
+                rag,
+                harvester.index,
+                payload["text"],
+                payload["meta"],
+                force=False,
+                raw_bytes=payload.get("raw_bytes"),
+            )
             meta = version_result.get("meta", payload["meta"])
             harvester.index.upsert(meta["file_hash"], meta)
             if version_result.get("status") == "skipped":
@@ -385,7 +393,14 @@ def sync_resmi_gazete_for_date(target_date: dt.date, rag: LocalRAG, filter_keywo
             text, meta = scraper.fetch_document_content(doc_info)
             if not text or not meta:
                 continue
-            version_result = versioned_ingest_text(rag, index, text, meta, force=False)
+            version_result = versioned_ingest_text(
+                rag,
+                index,
+                text,
+                meta,
+                force=False,
+                raw_bytes=meta.get("raw_bytes"),
+            )
             if version_result.get("status") == "skipped":
                 result["skipped"] += 1
             else:

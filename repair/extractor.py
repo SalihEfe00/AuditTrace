@@ -452,6 +452,7 @@ def extract_candidate(
     source_path: Optional[Path | str] = None,
     meta: Optional[Dict[str, Any]] = None,
     expected_sha256: Optional[str] = None,
+    raw_bytes: Optional[bytes] = None,
     **kwargs,
 ) -> ExtractionCandidate:
     """PDF dosyasından veya secondary web kaynağından doğrulanmış kaynak kontrolüyle bellek içi aday çıkarımı yapar.
@@ -462,12 +463,85 @@ def extract_candidate(
     effective_path = source_path if source_path is not None else pdf_path
     effective_hash = expected_hash or expected_sha256
     meta_dict = dict(meta or {})
+    effective_raw_bytes = raw_bytes if raw_bytes is not None else kwargs.get("raw_bytes")
     if not document_id:
         document_id = str(meta_dict.get("document_id") or meta_dict.get("source_id") or meta_dict.get("document_key") or "")
     if not title:
         title = str(meta_dict.get("title") or "")
     if not document_type:
         document_type = str(meta_dict.get("document_type") or "")
+
+    # Direct in-memory extraction if raw_bytes is provided and no local file exists
+    if effective_raw_bytes is not None and (not effective_path or not Path(str(effective_path)).is_file()):
+        doc_id = document_id or "in_memory_source"
+        src_doc_id = source_document_id or doc_id
+        actual_hash = sha256_bytes(effective_raw_bytes).lower()
+        if effective_hash and actual_hash != str(effective_hash).strip().lower():
+            return ExtractionCandidate(
+                document_id=doc_id,
+                source_document_id=src_doc_id,
+                source_path="",
+                source_sha256=actual_hash,
+                status="HASH_MISMATCH",
+                metadata={"expected_hash": effective_hash, "actual_hash": actual_hash},
+                in_memory_only=True,
+            )
+
+        is_pdf_data = effective_raw_bytes.startswith(b"%PDF") or bool(meta_dict.get("is_pdf"))
+        raw_text = ""
+        page_count = 0
+        ocr_used = False
+        try:
+            if is_pdf_data:
+                if custom_extractor is not None:
+                    raw_text, page_count, ocr_used = custom_extractor(effective_raw_bytes)
+                else:
+                    scraper = ResmiGazeteScraper(local_only=True)
+                    raw_text, page_count, ocr_used = scraper._extract_pdf_text(effective_raw_bytes)
+            else:
+                soup = BeautifulSoup(effective_raw_bytes.decode("utf-8", errors="replace"), "html.parser")
+                for el in soup(["script", "style", "header", "footer", "nav"]):
+                    el.extract()
+                raw_text = re.sub(r"\n\s*\n", "\n", soup.get_text(separator="\n")).strip()
+
+            if not raw_text or not raw_text.strip():
+                return ExtractionCandidate(
+                    document_id=doc_id,
+                    source_document_id=src_doc_id,
+                    source_path="",
+                    source_sha256=actual_hash,
+                    page_count=int(page_count or 0),
+                    raw_text="",
+                    status="EMPTY_EXTRACTION",
+                    in_memory_only=True,
+                )
+
+            normalized = normalize_extracted_text(raw_text)
+            normalized = repair_extracted_spacing(normalized, title, document_type)
+            chunk_meta = {**meta_dict, "file_hash": effective_hash or actual_hash}
+            chunks = split_legal_chunks(normalized, chunk_meta)
+            return ExtractionCandidate(
+                document_id=doc_id,
+                source_document_id=src_doc_id,
+                source_path="",
+                source_sha256=effective_hash or actual_hash,
+                page_count=int(page_count or 0),
+                raw_text=normalized,
+                chunks=chunks,
+                status="SUCCESS",
+                metadata={"in_memory_raw_bytes": True, "ocr_used": ocr_used},
+                in_memory_only=True,
+            )
+        except Exception as exc:
+            return ExtractionCandidate(
+                document_id=doc_id,
+                source_document_id=src_doc_id,
+                source_path="",
+                source_sha256=actual_hash,
+                status="EXTRACTION_FAILED",
+                metadata={"error": str(exc)},
+                in_memory_only=True,
+            )
 
     # Secondary web source veya URL kontrolü
     is_web = False
