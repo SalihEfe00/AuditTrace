@@ -11,7 +11,8 @@ PDFIUM_LOCK = threading.RLock()
 
 APP_VERSION = "0.13.81"
 BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
+# MUFETTIS_DATA_DIR verilirse tüm veri yolları oraya yönlenir (ör. testlerde izole kopya).
+DATA_DIR = Path(os.environ["MUFETTIS_DATA_DIR"]).resolve() if os.environ.get("MUFETTIS_DATA_DIR") else BASE_DIR / "data"
 DB_PATH = DATA_DIR / "mevzuat_db"
 LOG_DIR = DATA_DIR / "llm_logs"
 AUDIT_LOG_DIR = DATA_DIR / "audit_logs"

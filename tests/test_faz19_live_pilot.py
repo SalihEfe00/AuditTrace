@@ -10,11 +10,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import shutil
 import tempfile
 import unittest
-import urllib3
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -44,9 +44,13 @@ from mufettis.ui.admin import (
     render_production_health_panel,
 )
 
-urllib3.disable_warnings()
+LIVE_TESTS_ENABLED = os.environ.get("MUFETTIS_LIVE_TESTS", "").strip() == "1"
 
 
+@unittest.skipUnless(
+    LIVE_TESTS_ENABLED,
+    "Canlı ağ testi: çalıştırmak için MUFETTIS_LIVE_TESTS=1 ayarlayın.",
+)
 class TestFaz19LivePilot(unittest.TestCase):
     """End-to-end controlled pilot tests for FAZ 19 live web ingestion and operations."""
 
@@ -56,7 +60,7 @@ class TestFaz19LivePilot(unittest.TestCase):
         cls.live_url = "https://www.bddk.org.tr/Mevzuat"
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
         try:
-            resp = requests.get(cls.live_url, verify=False, timeout=12, headers=headers)
+            resp = requests.get(cls.live_url, timeout=12, headers=headers)
             cls.http_status = resp.status_code
             cls.raw_bytes = resp.content
             cls.raw_sha256 = hashlib.sha256(cls.raw_bytes).hexdigest()
@@ -64,7 +68,7 @@ class TestFaz19LivePilot(unittest.TestCase):
         except Exception as exc:
             # Fallback to secondary official endpoint if temporary network glitch
             cls.live_url = "https://www.resmigazete.gov.tr/fihrist"
-            resp = requests.get(cls.live_url, verify=False, timeout=12, headers=headers)
+            resp = requests.get(cls.live_url, timeout=12, headers=headers)
             cls.http_status = resp.status_code
             cls.raw_bytes = resp.content
             cls.raw_sha256 = hashlib.sha256(cls.raw_bytes).hexdigest()
@@ -372,19 +376,19 @@ class TestFaz19LivePilot(unittest.TestCase):
         self.assertEqual(prag, "ok")
 
         # IngestIndex count = 95, SHA matches baseline
-        idx_bytes = Path("data/ingest_index.json").read_bytes()
+        idx_bytes = (DATA_DIR / "ingest_index.json").read_bytes()
         idx_hash = hashlib.sha256(idx_bytes).hexdigest()
         self.assertEqual(idx_hash, "2ef19a8d5a1d9ac89bb9f1eef1d70bb034e78434f343f8b129396aa92729322e")
 
         # SourceCache count = 100
-        sc_count = len(list(Path("data/source_cache").glob("*.txt")))
+        sc_count = len(list((DATA_DIR / "source_cache").glob("*.txt")))
         self.assertEqual(sc_count, 100)
 
         # Audit count = 392, SHA matches baseline, hash-chain valid
-        audit_bytes = Path("data/audit/repair_audit.jsonl").read_bytes()
+        audit_bytes = (DATA_DIR / "audit/repair_audit.jsonl").read_bytes()
         audit_hash = hashlib.sha256(audit_bytes).hexdigest()
         self.assertEqual(audit_hash, "0065bd13c2fbe356fc0b7f7279b7f1051c3c3d1d981d6f0ebcca589b42354443")
-        chain_valid, _ = verify_audit_integrity(Path("data/audit/repair_audit.jsonl"))
+        chain_valid, _ = verify_audit_integrity((DATA_DIR / "audit/repair_audit.jsonl"))
         self.assertTrue(chain_valid)
 
 

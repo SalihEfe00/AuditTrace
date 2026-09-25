@@ -401,24 +401,24 @@ class TestQuarantineAdminUI(unittest.TestCase):
         self.assertEqual(prag, "ok")
 
         # 2. IngestIndex count & hash
-        idx_bytes = Path("data/ingest_index.json").read_bytes()
+        idx_bytes = (DATA_DIR / "ingest_index.json").read_bytes()
         idx_hash = hashlib.sha256(idx_bytes).hexdigest()
         self.assertEqual(idx_hash, "2ef19a8d5a1d9ac89bb9f1eef1d70bb034e78434f343f8b129396aa92729322e")
         idx_data = json.loads(idx_bytes)
         self.assertEqual(len(idx_data.get("indexed_items", {})), 95)
 
         # 3. SourceCache count
-        sc_count = len(list(Path("data/source_cache").glob("*.txt")))
+        sc_count = len(list((DATA_DIR / "source_cache").glob("*.txt")))
         self.assertEqual(sc_count, 100)
 
         # 4. Audit Log lines & hash-chain
-        audit_bytes = Path("data/audit/repair_audit.jsonl").read_bytes()
+        audit_bytes = (DATA_DIR / "audit/repair_audit.jsonl").read_bytes()
         audit_hash = hashlib.sha256(audit_bytes).hexdigest()
         self.assertEqual(audit_hash, "0065bd13c2fbe356fc0b7f7279b7f1051c3c3d1d981d6f0ebcca589b42354443")
         audit_lines = len([l for l in audit_bytes.splitlines() if l.strip()])
         self.assertEqual(audit_lines, 392)
 
-        chain_valid, chain_errs = verify_audit_integrity(Path("data/audit/repair_audit.jsonl"))
+        chain_valid, chain_errs = verify_audit_integrity((DATA_DIR / "audit/repair_audit.jsonl"))
         self.assertTrue(chain_valid)
 
 

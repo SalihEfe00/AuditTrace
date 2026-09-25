@@ -41,6 +41,7 @@ from repair.models import (
     WaveDocumentStatus,
 )
 from repair.wave import WaveOrchestrator
+from mufettis.config import DATA_DIR
 
 
 class TestGluedTokenResolution(unittest.TestCase):
@@ -344,7 +345,7 @@ class TestGluedTokenResolution(unittest.TestCase):
 
     def test_i_zero_production_writes_during_unit_tests(self):
         """Test I: Confirms test operations do not mutate production audit, store, or cache."""
-        audit_file = Path("data/audit/repair_audit.jsonl")
+        audit_file = (DATA_DIR / "audit/repair_audit.jsonl")
         self.assertTrue(audit_file.exists())
         # Check that importing and testing glued resolution did not append any live events
         before_size = audit_file.stat().st_size
