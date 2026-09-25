@@ -1,0 +1,242 @@
+# -*- coding: utf-8 -*-
+"""
+Müfettiş AI - FAZ 19.9: Stage 4 Analysis Intelligence
+Analysis Presenter / UI Adapter.
+
+Orchestrates DocumentUnderstanding, DocumentClassifier, AnalysisPlanner,
+RetrievalPlanner, and AnalysisEngine into a coherent, safe workflow for
+Streamlit UI and other user-facing presentation layers.
+
+Core principles:
+- UI strictly does presentation, input gathering, and review recording.
+- No legal reasoning, retrieval logic, or citation validation is done in the UI.
+- All domain logic remains firmly encapsulated in mufettis.analysis components.
+- Zero mutation of production databases from presentation adapters.
+"""
+from __future__ import annotations
+
+import time
+from dataclasses import dataclass, field
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+from mufettis.analysis.classifier import DocumentClassifierService
+from mufettis.analysis.document_understanding import DocumentUnderstandingService
+from mufettis.analysis.engine import AnalysisEngine
+from mufettis.analysis.models import (
+    AnalysisPlan,
+    AnalysisResult,
+    DocumentClassification,
+    DocumentUnderstanding,
+    Evidence,
+    Finding,
+    RetrievalPlan,
+)
+from mufettis.analysis.planner import AnalysisPlannerService
+from mufettis.analysis.retrieval_planner import RetrievalPlannerService
+from mufettis.audit.service import append_audit
+from mufettis.common.utils import mask_sensitive, now_iso
+
+
+# Pipeline aşamaları (anahtar, kullanıcıya gösterilen etiket); ilerleme bildirimi bu sırayla yapılır.
+PIPELINE_STAGES: List[Tuple[str, str]] = [
+    ("document_understanding", "Belge anlamsal varlıkları ve iddiaları çözümleniyor..."),
+    ("classification", "Belge türü ve konusu sınıflandırılıyor..."),
+    ("analysis_planning", "Mevzuat analiz planı formüle ediliyor..."),
+    ("retrieval_planning", "Retrieval planı oluşturuluyor..."),
+    ("evidence_retrieval", "Mevzuat kanıtları sorgulanıyor..."),
+    ("analysis_engine", "Kanıtlar eşleştiriliyor, alıntılar doğrulanıyor ve bulgular üretiliyor..."),
+]
+_STAGE_LABELS = dict(PIPELINE_STAGES)
+
+ProgressCallback = Callable[[int, str, str], None]
+
+
+@dataclass
+class AnalysisExecutionResult:
+    """Encapsulates the complete outcome of an analysis run for UI presentation."""
+    success: bool
+    result: Optional[AnalysisResult] = None
+    retrieved_evidence: List[Evidence] = field(default_factory=list)
+    execution_time_sec: float = 0.0
+    error_message: Optional[str] = None
+    stage_durations: Dict[str, float] = field(default_factory=dict)
+
+
+class AnalysisPresenter:
+    """Presenter service bridging UI inputs to the Analysis Intelligence pipeline."""
+
+    def __init__(
+        self,
+        doc_service: Optional[DocumentUnderstandingService] = None,
+        classifier: Optional[DocumentClassifierService] = None,
+        planner: Optional[AnalysisPlannerService] = None,
+        retrieval_planner: Optional[RetrievalPlannerService] = None,
+        engine: Optional[AnalysisEngine] = None,
+        audit_sink: Optional[Callable[[str, Dict[str, Any]], None]] = None,
+    ):
+        self.doc_service = doc_service or DocumentUnderstandingService()
+        self.classifier = classifier or DocumentClassifierService()
+        self.planner = planner or AnalysisPlannerService()
+        self.retrieval_planner = retrieval_planner or RetrievalPlannerService()
+        self.engine = engine or AnalysisEngine()
+        self.audit_sink = audit_sink or append_audit
+
+    @staticmethod
+    def _notify(progress_callback: Optional[ProgressCallback], stage_key: str) -> None:
+        """Reports the stage about to run; a failing callback never breaks the analysis."""
+        if progress_callback is None:
+            return
+        index = next(i for i, (key, _) in enumerate(PIPELINE_STAGES, 1) if key == stage_key)
+        try:
+            progress_callback(index, stage_key, _STAGE_LABELS[stage_key])
+        except Exception:
+            pass
+
+    def validate_input(self, text: Optional[str]) -> Tuple[bool, Optional[str]]:
+        """Validates that document input is non-empty and contains substantive content."""
+        if text is None:
+            return False, "Lütfen analiz edilecek belge metnini giriniz."
+        cleaned = text.strip()
+        if not cleaned:
+            return False, "Belge metni boş veya yalnızca boşluklardan oluşamaz."
+        if len(cleaned) < 15:
+            return False, "Belge metni çok kısa. Lütfen en az 15 karakter içeren anlamlı bir metin giriniz."
+        return True, None
+
+    def execute_analysis(
+        self,
+        text: str,
+        title: Optional[str] = None,
+        source: Optional[str] = None,
+        date: Optional[str] = None,
+        rag_client: Optional[Any] = None,
+        sample_evidence: Optional[List[Evidence]] = None,
+        progress_callback: Optional[ProgressCallback] = None,
+    ) -> AnalysisExecutionResult:
+        """Executes the full Analysis Intelligence pipeline and returns an AnalysisExecutionResult."""
+        start_time = time.perf_counter()
+        stage_durations: Dict[str, float] = {}
+
+        # 1. Input validation
+        is_valid, err = self.validate_input(text)
+        if not is_valid:
+            return AnalysisExecutionResult(
+                success=False,
+                error_message=err,
+                execution_time_sec=0.0,
+            )
+
+        try:
+            # 2. Document Understanding
+            self._notify(progress_callback, "document_understanding")
+            t0 = time.perf_counter()
+            meta = {}
+            if title:
+                meta["title"] = title
+            if source:
+                meta["source"] = source
+            if date:
+                meta["date"] = date
+            doc = self.doc_service.analyze(
+                text=text,
+                metadata=meta,
+            )
+            stage_durations["document_understanding"] = round(time.perf_counter() - t0, 3)
+
+            # 3. Document Classification
+            self._notify(progress_callback, "classification")
+            t0 = time.perf_counter()
+            classification = self.classifier.classify(doc)
+            stage_durations["classification"] = round(time.perf_counter() - t0, 3)
+
+            # 4. Analysis Planning
+            self._notify(progress_callback, "analysis_planning")
+            t0 = time.perf_counter()
+            analysis_plan = self.planner.plan(doc, classification)
+            stage_durations["analysis_planning"] = round(time.perf_counter() - t0, 3)
+
+            # 5. Retrieval Planning
+            self._notify(progress_callback, "retrieval_planning")
+            t0 = time.perf_counter()
+            retrieval_plan = self.retrieval_planner.plan_retrieval(analysis_plan, doc)
+            stage_durations["retrieval_planning"] = round(time.perf_counter() - t0, 3)
+
+            # 6. Evidence Retrieval
+            self._notify(progress_callback, "evidence_retrieval")
+            t0 = time.perf_counter()
+            if sample_evidence is not None:
+                evidence_pool = list(sample_evidence)
+            elif rag_client is not None:
+                evidence_pool = self.engine.retrieve_evidence(retrieval_plan, rag_client)
+            else:
+                evidence_pool = []
+            stage_durations["evidence_retrieval"] = round(time.perf_counter() - t0, 3)
+
+            # 7. Analysis Engine & Citation Validation
+            self._notify(progress_callback, "analysis_engine")
+            t0 = time.perf_counter()
+            result = self.engine.analyze(
+                doc=doc,
+                classification=classification,
+                analysis_plan=analysis_plan,
+                retrieval_plan=retrieval_plan,
+                retrieved_evidence=evidence_pool,
+            )
+            stage_durations["analysis_engine"] = round(time.perf_counter() - t0, 3)
+
+            total_elapsed = round(time.perf_counter() - start_time, 3)
+
+            return AnalysisExecutionResult(
+                success=True,
+                result=result,
+                retrieved_evidence=evidence_pool,
+                execution_time_sec=total_elapsed,
+                stage_durations=stage_durations,
+            )
+
+        except Exception as exc:
+            total_elapsed = round(time.perf_counter() - start_time, 3)
+            return AnalysisExecutionResult(
+                success=False,
+                error_message=f"Analiz sırasında bir sorun oluştu: {exc}",
+                execution_time_sec=total_elapsed,
+                stage_durations=stage_durations,
+            )
+
+    @staticmethod
+    def apply_reviewer_action(
+        result: AnalysisResult,
+        status: str,
+        note: Optional[str] = None,
+        reviewer: Optional[str] = None,
+    ) -> AnalysisResult:
+        """Applies human reviewer action to an AnalysisResult in a safe, traceable manner."""
+        result_dict = result.model_dump()
+        result_dict["reviewer_status"] = str(status or "Bekliyor").strip()
+        result_dict["reviewer_note"] = str(note or "").strip() if note else None
+        result_dict["reviewer_name"] = str(reviewer or "").strip() or None
+        result_dict["reviewed_at"] = now_iso()
+
+        updated = AnalysisResult.model_validate(result_dict)
+        return updated
+
+    def record_review(self, result: AnalysisResult) -> Dict[str, Any]:
+        """Writes the reviewer decision of an AnalysisResult to the audit log.
+
+        Free-text fields are masked before writing; only review metadata and
+        summary counts are persisted, never the full document text.
+        """
+        payload = {
+            "analysis_id": result.analysis_id,
+            "document_title": mask_sensitive(result.document.title or ""),
+            "document_type": result.classification.document_type,
+            "analysis_status": result.status,
+            "finding_count": len(result.findings),
+            "unsupported_claim_count": len(result.unsupported_claims),
+            "reviewer_status": result.reviewer_status,
+            "reviewer_name": result.reviewer_name or "Belirtilmedi",
+            "reviewer_note": mask_sensitive(result.reviewer_note or ""),
+            "reviewed_at": result.reviewed_at,
+        }
+        self.audit_sink("document_analysis_review", payload)
+        return payload

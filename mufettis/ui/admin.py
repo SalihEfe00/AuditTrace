@@ -50,6 +50,21 @@ def _get_rag(**kwargs):
     from mufettis.ui.app import _get_rag as _fn
     return _fn(**kwargs)
 
+
+def normalize_display_boolean(val: Any) -> bool:
+    """Normalizes mixed bool/str/None representations to clean boolean for Arrow/UI display."""
+    if val is None or (isinstance(val, float) and pd.isna(val)):
+        return False
+    if isinstance(val, bool):
+        return val
+    s = str(val).strip().lower()
+    if s in ("true", "1", "t", "yes", "y", "evet"):
+        return True
+    if s in ("false", "0", "f", "no", "n", "hayir", "hayır", ""):
+        return False
+    return bool(val)
+
+
 def render_mevzuat_admin(
     rag: Optional[LocalRAG],
     local_only: bool,
@@ -114,7 +129,6 @@ def render_mevzuat_admin(
                     ),
                     axis=1,
                 )
-
             display_inventory_cols = [
                 "source", "title", "document_type", "law_number", "document_number",
                 "status", "effective_date", "chunk_count",
@@ -123,6 +137,12 @@ def render_mevzuat_admin(
                 "evidence_indexable_reason", "url",
             ]
             display_inventory_cols = [c for c in display_inventory_cols if c in doc_view.columns]
+
+            # Boolean kolonları Arrow serileştirme hatasını (mixed type object) önlemek için normalize et
+            for bool_col in ("legal_structure_resolved", "document_indexable", "evidence_indexable"):
+                if bool_col in doc_view.columns:
+                    doc_view[bool_col] = doc_view[bool_col].apply(normalize_display_boolean).astype(bool)
+
             st.caption(f"{len(doc_view):,} / {len(doc_df):,} belge gösteriliyor")
             st.dataframe(
                 doc_view[display_inventory_cols],

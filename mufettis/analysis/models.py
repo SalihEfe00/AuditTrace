@@ -9,6 +9,7 @@ and Findings.
 """
 from __future__ import annotations
 
+import uuid
 from enum import Enum
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -200,4 +201,7 @@ class AnalysisResult(BaseModel):
     inspector_summary: str = Field(default="", description="Structured textual summary for the inspector")
     reviewer_status: Optional[str] = Field(default=None, description="Human reviewer state: Bekliyor, Doğrulandı, etc.")
     reviewer_note: Optional[str] = Field(default=None, description="Human reviewer notes")
+    reviewer_name: Optional[str] = Field(default=None, description="Human reviewer name or registry number")
+    reviewed_at: Optional[str] = Field(default=None, description="Timestamp of the latest human review")
+    analysis_id: str = Field(default_factory=lambda: uuid.uuid4().hex, description="Unique identifier for audit traceability")
 

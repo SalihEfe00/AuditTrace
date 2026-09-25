@@ -88,6 +88,9 @@ class AnalysisEngine:
         seen_keys = set()
 
         for query_str in retrieval_plan.queries:
+            if len(evidence_items) >= retrieval_plan.max_evidence_items:
+                break
+
             try:
                 results = rag_client.query(query_str, k=retrieval_plan.max_evidence_items)
             except Exception:
@@ -106,7 +109,7 @@ class AnalysisEngine:
                 ev = self.chunk_to_evidence(r)
                 evidence_items.append(ev)
 
-                if len(evidence_items) >= retrieval_plan.max_evidence_items * 2:
+                if len(evidence_items) >= retrieval_plan.max_evidence_items:
                     break
 
         return evidence_items

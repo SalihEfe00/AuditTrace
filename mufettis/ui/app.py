@@ -5,6 +5,7 @@ import datetime as dt
 import html
 import io
 import json
+import os
 import time
 import unittest
 from pathlib import Path
@@ -37,6 +38,7 @@ from mufettis.scheduler.scheduler import *
 from mufettis.llm.client import *
 from mufettis.exports.report_generator import *
 from mufettis.ui.admin import *
+from mufettis.ui.analysis_view import render_analysis_page
 def run_self_tests(*args, **kwargs):
     from mufettis.tests.runner import run_self_tests as _fn
     return _fn(*args, **kwargs)
@@ -51,9 +53,17 @@ def _get_rag(
     if chromadb is None or SentenceTransformer is None:
         return None
     try:
+        if st is not None:
+            cache_key = f"_shared_rag_{allow_download}"
+            if cache_key in st.session_state and st.session_state[cache_key] is not None:
+                return st.session_state[cache_key]
+            rag = LocalRAG(allow_download=allow_download)
+            st.session_state[cache_key] = rag
+            return rag
         return LocalRAG(allow_download=allow_download)
     except Exception as exc:
-        st.session_state["rag_error"] = str(exc)
+        if st is not None:
+            st.session_state["rag_error"] = str(exc)
         return None
 def render_self_test_result(result: unittest.result.TestResult) -> None:
     """Self-test sonucunu UI'da test isimleri ve hata özetiyle gösterir."""
@@ -85,6 +95,9 @@ def run_streamlit() -> None:
     with st.sidebar:
         st.header("Sistem")
         local_only = st.checkbox("Tam yerel mod", value=True, help="Resmî Gazete senkronizasyonu ve ilk model indirmeyi kapatır.")
+        if local_only:
+            os.environ.setdefault("HF_HUB_OFFLINE", "1")
+            os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
         allow_embedding_download = st.checkbox("İlk embedding model indirmesine izin ver", value=False, disabled=local_only)
         auto_update = st.checkbox("Arka planda günlük mevzuat güncellemesi", value=False, disabled=local_only, help="Uygulama açıkken her gün 00:05 Europe/Istanbul saatinde BDDK + Resmî Gazete senkronizasyonunu çalıştırır.")
         use_browser_bddk = st.checkbox("BDDK için Playwright kullan", value=True, disabled=local_only, help="JavaScript ile yüklenen linklerde requests/BeautifulSoup yerine headless Chromium kullanır.")
@@ -128,7 +141,14 @@ def run_streamlit() -> None:
             result = run_self_tests()
             render_self_test_result(result)
 
-    tabs = st.tabs(["1. Veri Analizi", "2. Mevzuat RAG", "3. İnceleme", "4. Rapor", "5. Admin"])
+    tabs = st.tabs([
+        "1. Veri Analizi",
+        "2. Belge Analizi (Müfettiş AI)",
+        "3. Mevzuat RAG",
+        "4. İnceleme",
+        "5. Rapor",
+        "6. Admin",
+    ])
 
     # TAB 1 ------------------------------------------------------------------
     with tabs[0]:
@@ -270,8 +290,13 @@ def run_streamlit() -> None:
                 ]
                 st.dataframe(view[display_cols], use_container_width=True)
 
-    # TAB 2 ------------------------------------------------------------------
+    # TAB 2 (Müfettiş AI Belge Analizi) --------------------------------------
     with tabs[1]:
+        rag_analysis = _get_rag(allow_download=allow_embedding_download)
+        render_analysis_page(rag_client=rag_analysis)
+
+    # TAB 3 ------------------------------------------------------------------
+    with tabs[2]:
         st.subheader("Mevzuat RAG")
         rag = _get_rag(allow_download=allow_embedding_download)
         st.write(f"Chroma kayıt sayısı: {rag.count() if rag else 0}")
@@ -494,8 +519,8 @@ def run_streamlit() -> None:
 
 
 
-    # TAB 3 ------------------------------------------------------------------
-    with tabs[2]:
+    # TAB 4 ------------------------------------------------------------------
+    with tabs[3]:
         st.subheader("İnsan inceleme / yanlış pozitif yönetimi")
         analysis = st.session_state.get("analysis")
         if not analysis:
@@ -526,8 +551,8 @@ def run_streamlit() -> None:
                     st.success("İnceleme kaydedildi.")
                 st.dataframe(apply_reviews(fdf), use_container_width=True)
 
-    # TAB 4 ------------------------------------------------------------------
-    with tabs[3]:
+    # TAB 5 ------------------------------------------------------------------
+    with tabs[4]:
         st.subheader("Rapor / çıktı")
         analysis = st.session_state.get("analysis")
         if not analysis:
@@ -604,8 +629,8 @@ def run_streamlit() -> None:
                 st.text_area("AI rapor taslağı", value=st.session_state["rag_answer"], height=500)
                 st.download_button("AI taslağını TXT indir", data=st.session_state["rag_answer"].encode("utf-8"), file_name=f"ai_taslak_{summary['audit_run_id']}.txt", mime="text/plain")
 
-    # TAB 5 ------------------------------------------------------------------
-    with tabs[4]:
+    # TAB 6 ------------------------------------------------------------------
+    with tabs[5]:
         st.subheader("Admin")
         st.caption(
             "Yerel mevzuat yükleme, toplu içe aktarma, resmi kaynak senkronizasyonu, "
