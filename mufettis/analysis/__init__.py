@@ -28,6 +28,7 @@ from .models import (
     Evidence,
     Citation,
     Finding,
+    AnalysisResult,
 )
 
 from .validator import (
@@ -49,4 +50,14 @@ from .classifier import DocumentClassifierService
 from .planner import AnalysisPlannerService
 from .retrieval_planner import RetrievalPlannerService
 from .llm_support import extract_json_from_llm_response, execute_structured_llm_call
+from .citation_validator import CitationValidator, ValidationReport
+from .engine import AnalysisEngine
+from .gold_set import (
+    GoldTestCase,
+    CaseEvaluationResult,
+    GoldSetEvaluationReport,
+    build_semantic_gold_set,
+    evaluate_semantic_gold_set,
+)
+
 

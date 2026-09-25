@@ -177,6 +177,27 @@ class Finding(BaseModel):
 
     issue: str = Field(..., min_length=1, description="Issue or risk identified")
     evidence: List[Evidence] = Field(default_factory=list, description="Supporting evidence items")
+    citations: List[Citation] = Field(default_factory=list, description="Verified citations associated with this finding")
     regulation_reference: str = Field(..., min_length=1, description="Relevant regulation or article reference")
     explanation: str = Field(..., min_length=1, description="Objective explanation of the finding")
     inspector_action: str = Field(..., min_length=1, description="Recommended concrete step for inspector")
+    claim_reference_id: Optional[str] = Field(default=None, description="Linked document claim ID")
+    model_interpretation: Optional[str] = Field(default=None, description="Distinct model analytical interpretation")
+    risk_level: Optional[str] = Field(default=None, description="Risk level (Yüksek, Orta, Düşük, Belirsiz)")
+
+
+class AnalysisResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    document: DocumentUnderstanding = Field(..., description="Processed input document understanding")
+    classification: DocumentClassification = Field(..., description="Document classification result")
+    analysis_plan: AnalysisPlan = Field(..., description="Formulated analysis plan")
+    retrieval_plan: RetrievalPlan = Field(..., description="Actionable retrieval plan")
+    findings: List[Finding] = Field(default_factory=list, description="Validated substantive findings")
+    unsupported_claims: List[DocumentClaim] = Field(default_factory=list, description="Claims without adequate regulatory evidence")
+    warnings: List[str] = Field(default_factory=list, description="Pipeline warnings or data limitations")
+    status: str = Field(default="completed", description="Overall execution status")
+    inspector_summary: str = Field(default="", description="Structured textual summary for the inspector")
+    reviewer_status: Optional[str] = Field(default=None, description="Human reviewer state: Bekliyor, Doğrulandı, etc.")
+    reviewer_note: Optional[str] = Field(default=None, description="Human reviewer notes")
+
