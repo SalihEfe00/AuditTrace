@@ -82,6 +82,10 @@ if __name__ == "__main__":
 
     if args.self_test:
         result = run_self_tests()
+        print(getattr(result, "output", ""), end="")
+        for test, detail in result.errors:
+            if str(test) in {"self_test_subprocess", "production_data_isolation"}:
+                print(f"\n[{test}]\n{detail}")
         raise SystemExit(0 if result.wasSuccessful() else 1)
     if args.repair_audit or args.repair_audit_repair_id or args.repair_audit_document:
         from repair.audit import (
