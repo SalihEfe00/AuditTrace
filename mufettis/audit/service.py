@@ -12,14 +12,19 @@ from mufettis.config import AUDIT_LOG_DIR, REVIEW_FILE
 from mufettis.common.utils import (
     atomic_write_json,
     load_json,
+    mask_sensitive_payload,
     now_iso,
     safe_json,
 )
 
 def append_audit(event: str, payload: Dict[str, Any]) -> None:
-    """Sadece gerçekten gerçekleşen olaylarda çağrılır; Streamlit rerunlarında otomatik yazılmaz."""
+    """Sadece gerçekten gerçekleşen olaylarda çağrılır; Streamlit rerunlarında otomatik yazılmaz.
+
+    Tüm metin değerleri yazılmadan önce maskelenir (IBAN, kart, TCKN/VKN, telefon,
+    e-posta); çağıranın maskelemeyi unutması kişisel verinin loga düşmesine yol açmaz.
+    """
     AUDIT_LOG_DIR.mkdir(parents=True, exist_ok=True)
-    item = {"timestamp": now_iso(), "event": event, "payload": safe_json(payload)}
+    item = {"timestamp": now_iso(), "event": event, "payload": mask_sensitive_payload(safe_json(payload))}
     path = AUDIT_LOG_DIR / f"audit_{dt.date.today().isoformat()}.jsonl"
     with path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(item, ensure_ascii=False) + "\n")

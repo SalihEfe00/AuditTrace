@@ -43,7 +43,8 @@ def ollama_health() -> Dict[str, Any]:
 def ollama_generate(prompt: str, model: str = DEFAULT_LLM, temperature: float = 0.1, timeout: int = 300) -> str:
     payload = {
         "model": model,
-        "prompt": prompt,
+        # Tek LLM taşıma noktası: çağıran maskelemeyi unutsa bile kişisel veri gönderilmez.
+        "prompt": mask_sensitive(prompt),
         "system": OLLAMA_SYSTEM_PROMPT,
         "stream": True,
         "options": {"temperature": temperature, "num_ctx": 4096, "repeat_penalty": 1.15},

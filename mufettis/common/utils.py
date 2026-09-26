@@ -116,17 +116,52 @@ def load_json(path: Path, default: Any) -> Any:
         return default
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+# Kişisel/finansal veri kalıpları. Sıra önemlidir: uzun ve özgül kalıplar (IBAN, kart)
+# genel rakam dizilerinden (TCKN/VKN) önce uygulanır. Denetim ve LLM bağlamında fazla
+# maskeleme kabul edilebilir; eksik maskeleme edilemez.
+_SENSITIVE_PATTERNS = [
+    # E-posta
+    (re.compile(r"\b[\w.+-]+@[\w-]+(?:\.[\w-]+)+\b"), "[E-POSTA]"),
+    # IBAN: bitişik ya da 4'lü gruplar halinde; eksik yazılmış (kısaltılmış) IBAN'lar da maskelenir.
+    # TR IBAN'ında ülke kodundan sonrası yalnızca rakamdır (harf kabul etmek sonraki kelimeyi yutar).
+    (re.compile(r"\bTR\d{2}(?:[ ]?\d{4}){2,5}(?:[ ]?\d{1,4})?\b", re.I), "[IBAN]"),
+    # Kart numarası: 13-19 hane, boşluk/tire ile 4'lü gruplar dahil (Luhn aranmaz: hatalı
+    # yazılmış kart numarası da kişisel veridir).
+    (re.compile(r"\b\d{4}(?:[ -]?\d{4}){2}[ -]?\d{1,7}\b"), "[KART]"),
+    (re.compile(r"\b\d{4}[ -]?\d{6}[ -]?\d{5}\b"), "[KART]"),  # American Express 4-6-5
+    # Cep telefonu: +90 / 0 önekli ya da öneksiz 5xx
+    (re.compile(r"(?:\+90[ ]?|\b0[ ]?|\b)5\d{2}[ .-]?\d{3}[ .-]?\d{2}[ .-]?\d{2}\b"), "[TELEFON]"),
+    # TCKN (11 hane) ve VKN (10 hane)
+    (re.compile(r"\b\d{11}\b"), "[TCKN/VKN]"),
+    (re.compile(r"\b\d{10}\b"), "[TCKN/VKN]"),
+]
+
+
 def mask_sensitive(text: str) -> str:
+    """LLM/audit loglarında kişisel/finansal değerleri maskele.
+
+    Kapsam: e-posta, IBAN (boşluklu/kısmi dahil), kart numarası, cep telefonu,
+    TCKN (11 hane) ve VKN (10 hane).
+    """
     _dyn = resolve_dynamic("mask_sensitive", mask_sensitive)
     if _dyn is not None and _dyn is not mask_sensitive:
         return _dyn(text)
-    """LLM/audit loglarında temel kişisel/finansal değerleri maskele."""
     if not text:
         return text
-    text = re.sub(r"\bTR\d{2}[A-Z0-9]{20,28}\b", "[IBAN]", text, flags=re.I)
-    text = re.sub(r"\b\d{11}\b", "[TCKN/VKN]", text)
-    text = re.sub(r"\b(?:\+90\s?)?5\d{2}[ .-]?\d{3}[ .-]?\d{2}[ .-]?\d{2}\b", "[TELEFON]", text)
+    for pattern, replacement in _SENSITIVE_PATTERNS:
+        text = pattern.sub(replacement, text)
     return text
+
+
+def mask_sensitive_payload(value: Any) -> Any:
+    """Sözlük/liste içindeki tüm metin değerlerini mask_sensitive ile maskeler (anahtarlar korunur)."""
+    if isinstance(value, str):
+        return mask_sensitive(value)
+    if isinstance(value, dict):
+        return {k: mask_sensitive_payload(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [mask_sensitive_payload(v) for v in value]
+    return value
 def atomic_csv_write(df: pd.DataFrame, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile("w", delete=False, encoding="utf-8-sig", suffix=".tmp", dir=path.parent) as tmp:

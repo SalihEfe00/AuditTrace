@@ -12,6 +12,8 @@ import json
 import re
 from typing import Any, Callable, Dict, Optional
 
+from mufettis.common.utils import mask_sensitive
+
 
 def extract_json_from_llm_response(text: str) -> Optional[Dict[str, Any]]:
     """Safely extracts and parses JSON from raw LLM output.
@@ -65,7 +67,8 @@ def execute_structured_llm_call(
     and returns the result or the fallback if parsing fails or LLM errors.
     """
     try:
-        raw_response = generate_fn(prompt)
+        # Kişisel/finansal veriler LLM'e hiçbir çağrı yolunda maskelenmeden gitmez.
+        raw_response = generate_fn(mask_sensitive(prompt))
         if not raw_response or raw_response.startswith("[LLM HATASI]"):
             return fallback_factory()
 
