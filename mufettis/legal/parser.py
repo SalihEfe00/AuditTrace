@@ -290,6 +290,40 @@ def classify_legal_structure(
 # kaldırıldığını göstermez; önceden bunlar yürürlükteki kanunları aramadan dışlıyordu.
 STATUS_HEADER_CHARS = 600
 LAW_REFERENCE_HEADER_CHARS = 1500
+
+# Kanun metinleri adlarını "Kanun Numarası : N" beyanından hemen önceki büyük harfli satırlarda
+# verir (resmî mevzuat portalı formatı). Tarayıcı çıktısının sayfa başlığı ("4.09.2026 18:58
+# Mevzuat Bilgi Sistemi") ad değildir.
+_LAW_NUMBER_DECLARATION_RE = re.compile(r"(?m)^\s*Kanun\s+Numarası\s*[:№.-]?\s*\d{2,8}\b")
+_PRINT_HEADER_RE = re.compile(r"^\d{1,2}[./]\d{1,2}[./]\d{4}\s+\d{1,2}:\d{2}\b")
+_GENERIC_TITLE_WORDS = frozenset({"KANUN", "KANUNU", "HAKKINDA", "DAİR", "İLİŞKİN", "VE", "İLE"})
+DECLARED_TITLE_MAX_LINES = 4
+DECLARED_TITLE_MAX_CHARS = 250
+
+
+def extract_declared_title(text: str) -> str:
+    """Belgenin kendi beyan ettiği ad; bulunamazsa "". Yalnızca kanun numarası beyanına bitişik,
+    tamamı büyük harfli satır bloğu kabul edilir. Blok yalnızca genel sözcüklerden oluşuyorsa
+    ("HAKKINDA KANUN": adın ilk satırı sayfa başlığına karışmış) ad eksiktir ve kullanılmaz."""
+    head = str(text or "")[:LAW_REFERENCE_HEADER_CHARS]
+    match = _LAW_NUMBER_DECLARATION_RE.search(head)
+    if not match:
+        return ""
+    lines = head[:match.start()].splitlines()
+    while lines and not lines[-1].strip():
+        lines.pop()
+    block: List[str] = []
+    while lines and len(block) < DECLARED_TITLE_MAX_LINES:
+        line = re.sub(r"\s+", " ", lines.pop()).strip()
+        letters = [ch for ch in line if ch.isalpha()]
+        if not line or _PRINT_HEADER_RE.match(line) or not letters or any(ch.islower() for ch in letters):
+            break
+        block.insert(0, line)
+    title = " ".join(block)
+    words = re.findall(r"[A-ZÇĞİÖŞÜÂÎÛ]+", title)
+    if not title or len(title) > DECLARED_TITLE_MAX_CHARS or not set(words) - _GENERIC_TITLE_WORDS:
+        return ""
+    return title
 # Kaynak sistemin verdiği durumlar metinden yeniden hesaplanarak ezilmez (yeniden parçalama
 # önceden "superseded" belgeleri tekrar "active" yapıyordu).
 PRESERVED_STATUSES = {"superseded", "quarantined"}
@@ -391,6 +425,7 @@ def extract_legal_metadata(
         "document_type":doc_type,
         "document_number":number,
         "law_number":law_number,
+        "declared_title":extract_declared_title(head),
         "article_hint":article,
         "official_date_hint":official_date,
         "effective_date":effective_date,

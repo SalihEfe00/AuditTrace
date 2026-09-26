@@ -373,3 +373,35 @@ class TestEvidenceDisplayTitle(unittest.TestCase):
         self.assertEqual(evidence_display_title(_law()), "ÖRNEK KARTLAR KANUNU")
         # Kanun numarası beyan etmeyen sayısal başlık (yayıncı kimliği) olduğu gibi kalır.
         self.assertEqual(evidence_display_title(_regulation()), "900001")
+
+    def test_declared_title_beats_file_name_and_browser_page_title(self):
+        from mufettis.analysis.engine import evidence_display_title
+
+        meta = _law(title="Mevzuat Bilgi Sistemi", declared_title="ÖRNEK VE İLGİLİ KARTLAR KANUNU")
+        self.assertEqual(evidence_display_title(meta), "99001 sayılı Örnek ve İlgili Kartlar Kanunu")
+
+
+class TestDeclaredTitle(unittest.TestCase):
+    def test_title_block_above_law_number_declaration(self):
+        from mufettis.legal.parser import extract_declared_title
+
+        text = ("7.09.2026 19:59 Mevzuat Bilgi Sistemi\n\nÖRNEK ALACAKLARIN YAPILANDIRILMASI İLE BAZI\n"
+                "KANUNLARDA DEĞİŞİKLİK YAPILMASINA DAİR KANUN\nKanun Numarası : 99002\nKabul Tarihi : 1.1.2020\n")
+        self.assertEqual(extract_declared_title(text),
+                         "ÖRNEK ALACAKLARIN YAPILANDIRILMASI İLE BAZI KANUNLARDA DEĞİŞİKLİK YAPILMASINA DAİR KANUN")
+        self.assertEqual(extract_declared_title("ÖRNEK KARTLAR KANUNU\n\nKanun Numarası : 99001\n"),
+                         "ÖRNEK KARTLAR KANUNU")
+
+    def test_incomplete_or_missing_titles_are_rejected(self):
+        from mufettis.legal.parser import extract_declared_title
+
+        # Adın ilk satırı sayfa başlığına karışmış: kalan kısım yalnızca genel sözcükler.
+        self.assertEqual(extract_declared_title("4.09.2026 18:58 Mevzuat Bilgi Sistemi\nHAKKINDA KANUN\n"
+                                                "Kanun Numarası : 99003\n"), "")
+        self.assertEqual(extract_declared_title("Bu metin 5411 sayılı Kanuna atıf yapar.\nMADDE 1 –"), "")
+        self.assertEqual(extract_declared_title("Karışık Harfli Başlık\nKanun Numarası : 99004\n"), "")
+
+    def test_metadata_carries_declared_title(self):
+        meta = extract_legal_metadata("55555", "ÖRNEK KARTLAR KANUNU\n\nKanun Numarası : 99001\nMADDE 1 – Amaç.",
+                                      {"source_id": "local_file"})
+        self.assertEqual(meta["declared_title"], "ÖRNEK KARTLAR KANUNU")

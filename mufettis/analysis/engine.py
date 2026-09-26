@@ -69,11 +69,28 @@ def _evidence_units(text: str) -> List[str]:
     return [u.strip() for u in _EVIDENCE_UNIT_SPLIT.split(text or "") if u.strip()]
 
 
+_TITLE_CONNECTORS = frozenset({"ve", "ile", "veya", "ya", "da", "de", "dair", "hakkında", "ilişkin"})
+
+
+def _turkish_title_case(text: str) -> str:
+    words = turkish_lower(text).split()
+    return " ".join(
+        w if i and w in _TITLE_CONNECTORS else (w[:1].replace("i", "İ").upper() + w[1:])
+        for i, w in enumerate(words)
+    )
+
+
 def evidence_display_title(meta: Dict[str, Any]) -> str:
-    """Kanıtın atıflarda görünen adı. Yüklenen dosyanın adı tanımlayıcı değilse ("55555") ve belge
-    kendi kanun numarasını beyan ediyorsa "7440 sayılı Kanun" gösterilir; kayıt değişmez."""
-    title = str(meta.get("title") or "").strip()
+    """Kanıtın atıflarda görünen adı. Belge kendi adını beyan ediyorsa (kanun numarası beyanının
+    üstündeki ad) o kullanılır: dosya adları ("55555") ve tarayıcı sayfa başlıkları ("Mevzuat Bilgi
+    Sistemi") belgenin adı değildir. Ad yoksa ve dosya adı tanımlayıcı değilse "7440 sayılı Kanun"
+    gösterilir. Kayıt değişmez."""
+    declared = str(meta.get("declared_title") or "").strip()
     law_number = str(meta.get("law_number") or "").strip()
+    if declared:
+        name = _turkish_title_case(declared)
+        return f"{law_number} sayılı {name}" if law_number.isdigit() else name
+    title = str(meta.get("title") or "").strip()
     descriptive = bool(re.search(r"[A-Za-zÇĞİÖŞÜçğıöşü]{3,}", title))
     if not descriptive and law_number.isdigit() and canonical_view(meta).instrument_type == InstrumentType.LAW:
         return f"{law_number} sayılı Kanun"

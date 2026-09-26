@@ -39,6 +39,7 @@ from mufettis.corpus.canonical import DERIVATION_INPUTS
 from mufettis.corpus.identity import content_fingerprint
 from mufettis.corpus.model import CANONICAL_FIELDS
 from mufettis.corpus.provenance import reconcile_fingerprints
+from mufettis.legal.parser import extract_declared_title
 
 
 def _cache_text(file_hash: str) -> str:
@@ -46,8 +47,12 @@ def _cache_text(file_hash: str) -> str:
     return path.read_text(encoding="utf-8") if path.exists() else ""
 
 
+# Kanonik türetmeye girmeyen ama belge düzeyinde parçalara da taşınan alanlar.
+DOCUMENT_FIELDS = ("verified_against", "title", "title_normalized", "declared_title")
+
+
 def _canonical_part(meta: Dict[str, Any]) -> Dict[str, str]:
-    return {k: str(meta.get(k, "")) for k in (*CANONICAL_FIELDS, "verified_against", "title", "title_normalized")}
+    return {k: str(meta.get(k, "")) for k in (*CANONICAL_FIELDS, *DOCUMENT_FIELDS)}
 
 
 # Eski yönetim ekranı yüklenen dosyayı "upload_<uuid>_<ad>" geçici adıyla içe aktarıyordu ve başlık
@@ -69,6 +74,8 @@ def plan_index(items: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
     for h, rec in items.items():
         rec = clean_legacy_title(rec)
         text = _cache_text(h)
+        if text.strip():
+            rec = {**rec, "declared_title": extract_declared_title(text)}
         fresh[h] = with_canonical(rec, text) if text.strip() else with_canonical(rec)
     # Özdeş içerik doğrulaması tüm corpus üzerinde yapılır.
     by_manifestation = {rec["manifestation_id"]: h for h, rec in fresh.items()}
@@ -127,6 +134,7 @@ def _chunk_target(meta: Dict[str, Any], record: Dict[str, Any] | None) -> Dict[s
         for key in DERIVATION_INPUTS:
             if key != "structure_type":
                 inputs[key] = record.get(key) or ""
+        inputs["declared_title"] = record.get("declared_title") or ""
     return {k: ("" if v is None else str(v)) for k, v in with_canonical(inputs).items()}
 
 
