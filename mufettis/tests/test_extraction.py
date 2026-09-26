@@ -33,6 +33,7 @@ from mufettis.rag.index import *
 from mufettis.rag.engine import *
 from mufettis.rag.maintenance import *
 from mufettis.analysis.risk_engine import *
+from mufettis.tests.patching import module_overrides
 
 class TestV1345PdfDependencyAndExtraction(unittest.TestCase):
     def test_pdf_dependencies_are_available(self):
@@ -416,11 +417,11 @@ class TestV1342TextIntegrity(unittest.TestCase):
         self.assertEqual(re.sub(r"\s+", "", repaired).lower(), original.lower())
 class TestV1349RawQualityOrdering(unittest.TestCase):
     def test_quality_runs_on_raw_before_repair_and_repair_runs_after_selection(self):
-        original_pdfium = globals()["_extract_pdfium_pages"]
-        original_plumber = globals()["_extract_pdf_with_pdfplumber_pages"]
-        original_pypdf = globals()["PdfReader"]
-        original_gate = globals()["_pdf_quality_gate"]
-        original_repair = globals()["repair_extracted_spacing"]
+        original_pdfium = module_overrides["_extract_pdfium_pages"]
+        original_plumber = module_overrides["_extract_pdf_with_pdfplumber_pages"]
+        original_pypdf = module_overrides["PdfReader"]
+        original_gate = module_overrides["_pdf_quality_gate"]
+        original_repair = module_overrides["repair_extracted_spacing"]
         try:
             raw = "RAWGLUEDTEXT " * 12
             repaired = "REPAIRED TEXT " * 12
@@ -441,10 +442,10 @@ class TestV1349RawQualityOrdering(unittest.TestCase):
                 events.append(("repair", value))
                 return repaired
 
-            globals()["_extract_pdfium_pages"] = lambda pdf_bytes: [raw.strip()]
-            globals()["_extract_pdf_with_pdfplumber_pages"] = lambda pdf_bytes: []
-            globals()["_pdf_quality_gate"] = fake_gate
-            globals()["repair_extracted_spacing"] = fake_repair
+            module_overrides["_extract_pdfium_pages"] = lambda pdf_bytes: [raw.strip()]
+            module_overrides["_extract_pdf_with_pdfplumber_pages"] = lambda pdf_bytes: []
+            module_overrides["_pdf_quality_gate"] = fake_gate
+            module_overrides["repair_extracted_spacing"] = fake_repair
 
             scraper = object.__new__(ResmiGazeteScraper)
             scraper._ocr_pdf = lambda pdf_bytes: ""
@@ -456,11 +457,11 @@ class TestV1349RawQualityOrdering(unittest.TestCase):
             self.assertEqual(events[0], ("quality", raw.strip()))
             self.assertEqual(events[1], ("repair", raw.strip()))
         finally:
-            globals()["_extract_pdfium_pages"] = original_pdfium
-            globals()["_extract_pdf_with_pdfplumber_pages"] = original_plumber
-            globals()["PdfReader"] = original_pypdf
-            globals()["_pdf_quality_gate"] = original_gate
-            globals()["repair_extracted_spacing"] = original_repair
+            module_overrides["_extract_pdfium_pages"] = original_pdfium
+            module_overrides["_extract_pdf_with_pdfplumber_pages"] = original_plumber
+            module_overrides["PdfReader"] = original_pypdf
+            module_overrides["_pdf_quality_gate"] = original_gate
+            module_overrides["repair_extracted_spacing"] = original_repair
 class TestV1344PdfTextReconstruction(unittest.TestCase):
     def test_spatial_reconstruction_inserts_gap_as_word_boundary(self):
         # rawdict benzeri veri üzerinden geometri mantığını temsil eden küçük smoke testi.
@@ -616,65 +617,65 @@ class TestV1373EngineSelection(unittest.TestCase):
         }
 
     def test_b3_selects_highest_combined_candidate(self):
-        original = globals()["_pdf_quality_gate"]
+        original = module_overrides["_pdf_quality_gate"]
         try:
             scores = {"pypdfium2": ("RETRY", 0.60), "pdfplumber": ("HIGH_CONFIDENCE", 0.93)}
-            globals()["_pdf_quality_gate"] = lambda pages: self._fake_quality(*scores[pages[0]])
+            module_overrides["_pdf_quality_gate"] = lambda pages: self._fake_quality(*scores[pages[0]])
             decision = _select_pdf_engine_b3([("pypdfium2", ["pypdfium2"]), ("pdfplumber", ["pdfplumber"])])
             self.assertEqual(decision["selected_engine"], "pdfplumber")
             self.assertFalse(decision["ocr_required"])
         finally:
-            globals()["_pdf_quality_gate"] = original
+            module_overrides["_pdf_quality_gate"] = original
 
     def test_b3_prefers_pdfium_on_true_tie(self):
-        original = globals()["_pdf_quality_gate"]
+        original = module_overrides["_pdf_quality_gate"]
         try:
-            globals()["_pdf_quality_gate"] = lambda pages: self._fake_quality("HIGH_CONFIDENCE", 0.90)
+            module_overrides["_pdf_quality_gate"] = lambda pages: self._fake_quality("HIGH_CONFIDENCE", 0.90)
             decision = _select_pdf_engine_b3([("pypdfium2", ["a"]), ("pdfplumber", ["b"])])
             self.assertEqual(decision["selected_engine"], "pypdfium2")
         finally:
-            globals()["_pdf_quality_gate"] = original
+            module_overrides["_pdf_quality_gate"] = original
 
     def test_b3_requires_ocr_when_all_candidates_are_too_weak(self):
-        original = globals()["_pdf_quality_gate"]
+        original = module_overrides["_pdf_quality_gate"]
         try:
-            globals()["_pdf_quality_gate"] = lambda pages: self._fake_quality("OCR", 0.20)
+            module_overrides["_pdf_quality_gate"] = lambda pages: self._fake_quality("OCR", 0.20)
             decision = _select_pdf_engine_b3([("pypdfium2", ["a"]), ("pdfplumber", ["b"]), ("pypdf", ["c"])])
             self.assertTrue(decision["ocr_required"])
             self.assertEqual(decision["selected_status"], "OCR")
         finally:
-            globals()["_pdf_quality_gate"] = original
+            module_overrides["_pdf_quality_gate"] = original
 
     def test_b3_does_not_require_ocr_for_usable_retry_candidate(self):
-        original = globals()["_pdf_quality_gate"]
+        original = module_overrides["_pdf_quality_gate"]
         try:
-            globals()["_pdf_quality_gate"] = lambda pages: self._fake_quality("RETRY", 0.70)
+            module_overrides["_pdf_quality_gate"] = lambda pages: self._fake_quality("RETRY", 0.70)
             decision = _select_pdf_engine_b3([("pypdfium2_spatial", ["a"])])
             self.assertFalse(decision["ocr_required"])
             self.assertEqual(decision["selected_engine"], "pypdfium2_spatial")
         finally:
-            globals()["_pdf_quality_gate"] = original
+            module_overrides["_pdf_quality_gate"] = original
 
     def test_b3_extraction_records_engine_decision(self):
-        original_pdfium = globals()["_extract_pdfium_pages"]
-        original_spatial = globals()["_extract_pdfium_spatial_pages"]
-        original_plumber = globals()["_extract_pdf_with_pdfplumber_pages"]
-        original_pypdf = globals()["PdfReader"]
-        original_gate = globals()["_pdf_quality_gate"]
-        original_repair = globals()["repair_extracted_spacing"]
+        original_pdfium = module_overrides["_extract_pdfium_pages"]
+        original_spatial = module_overrides["_extract_pdfium_spatial_pages"]
+        original_plumber = module_overrides["_extract_pdf_with_pdfplumber_pages"]
+        original_pypdf = module_overrides["PdfReader"]
+        original_gate = module_overrides["_pdf_quality_gate"]
+        original_repair = module_overrides["repair_extracted_spacing"]
         try:
-            globals()["_extract_pdfium_pages"] = lambda _: ["raw"]
-            globals()["_extract_pdfium_spatial_pages"] = lambda _: ["spatial"]
-            globals()["_extract_pdf_with_pdfplumber_pages"] = lambda _: []
-            globals()["PdfReader"] = lambda _: (_ for _ in ()).throw(RuntimeError("skip"))
+            module_overrides["_extract_pdfium_pages"] = lambda _: ["raw"]
+            module_overrides["_extract_pdfium_spatial_pages"] = lambda _: ["spatial"]
+            module_overrides["_extract_pdf_with_pdfplumber_pages"] = lambda _: []
+            module_overrides["PdfReader"] = lambda _: (_ for _ in ()).throw(RuntimeError("skip"))
             calls = []
             def fake_gate(pages):
                 calls.append(pages[0])
                 if pages[0] == "raw":
                     return self._fake_quality("RETRY", 0.50)
                 return self._fake_quality("HIGH_CONFIDENCE", 0.95)
-            globals()["_pdf_quality_gate"] = fake_gate
-            globals()["repair_extracted_spacing"] = lambda value, *args, **kwargs: value
+            module_overrides["_pdf_quality_gate"] = fake_gate
+            module_overrides["repair_extracted_spacing"] = lambda value, *args, **kwargs: value
             scraper = object.__new__(ResmiGazeteScraper)
             scraper._last_pdf_diagnostic = {}
             scraper._ocr_pdf = lambda _: ""
@@ -684,12 +685,12 @@ class TestV1373EngineSelection(unittest.TestCase):
             self.assertEqual(scraper._last_pdf_diagnostic["selected_engine"], "pypdfium2_spatial")
             self.assertIn("engine_decision", scraper._last_pdf_diagnostic)
         finally:
-            globals()["_extract_pdfium_pages"] = original_pdfium
-            globals()["_extract_pdfium_spatial_pages"] = original_spatial
-            globals()["_extract_pdf_with_pdfplumber_pages"] = original_plumber
-            globals()["PdfReader"] = original_pypdf
-            globals()["_pdf_quality_gate"] = original_gate
-            globals()["repair_extracted_spacing"] = original_repair
+            module_overrides["_extract_pdfium_pages"] = original_pdfium
+            module_overrides["_extract_pdfium_spatial_pages"] = original_spatial
+            module_overrides["_extract_pdf_with_pdfplumber_pages"] = original_plumber
+            module_overrides["PdfReader"] = original_pypdf
+            module_overrides["_pdf_quality_gate"] = original_gate
+            module_overrides["repair_extracted_spacing"] = original_repair
 class TestV1374RealOcrRegression(unittest.TestCase):
     """v0.13.74: C3 gerçek image-only PDF -> OCR regression testi."""
 

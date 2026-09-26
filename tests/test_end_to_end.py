@@ -58,6 +58,7 @@ from mufettis.llm.client import *
 from mufettis.exports.report_generator import *
 from mufettis.ui.admin import *
 from mufettis.ui.app import *
+from mufettis.tests.patching import module_overrides
 
 class TestVersioningAndScheduler(unittest.TestCase):
     def test_scheduler_time_math(self):
@@ -167,12 +168,12 @@ class TestV1380FinalE2ERegression(unittest.TestCase):
         cls.tmp_dir = Path(tempfile.mkdtemp(prefix="mufettis_g_final_"))
         cls.db_path = cls.tmp_dir / "chroma"
         cls.cache_dir = cls.tmp_dir / "source_cache"
-        cls.old_cache_dir = globals().get("SOURCE_CACHE_DIR")
-        globals()["SOURCE_CACHE_DIR"] = cls.cache_dir
+        cls.old_cache_dir = module_overrides.get("SOURCE_CACHE_DIR")
+        module_overrides["SOURCE_CACHE_DIR"] = cls.cache_dir
 
         cls.pdf_path = cls._find_real_bddk_pdf()
         if cls.pdf_path is None:
-            globals()["SOURCE_CACHE_DIR"] = cls.old_cache_dir
+            module_overrides["SOURCE_CACHE_DIR"] = cls.old_cache_dir
             shutil.rmtree(cls.tmp_dir, ignore_errors=True)
             raise unittest.SkipTest(
                 "G final testi için gerçek BDDK PDF bulunamadı. "
@@ -293,9 +294,9 @@ class TestV1380FinalE2ERegression(unittest.TestCase):
     def tearDownClass(cls):
         try:
             if getattr(cls, "old_cache_dir", None) is not None:
-                globals()["SOURCE_CACHE_DIR"] = cls.old_cache_dir
+                module_overrides["SOURCE_CACHE_DIR"] = cls.old_cache_dir
             else:
-                globals().pop("SOURCE_CACHE_DIR", None)
+                module_overrides.pop("SOURCE_CACHE_DIR", None)
         finally:
             shutil.rmtree(getattr(cls, "tmp_dir", Path(".")), ignore_errors=True)
 

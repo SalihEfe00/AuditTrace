@@ -32,6 +32,7 @@ from mufettis.rag.index import *
 from mufettis.rag.engine import *
 from mufettis.rag.maintenance import *
 from mufettis.analysis.risk_engine import *
+from mufettis.tests.patching import module_overrides
 
 class TestV1337FinalPipeline(unittest.TestCase):
     def test_glued_uppercase_financial_words_are_repaired(self):
@@ -387,9 +388,9 @@ class TestV1334IndexabilityBoundary(unittest.TestCase):
         self.assertTrue(all(not c.get("article_no") for c in chunks))
 
     def test_current_chroma_chunk_overrides_stale_false_without_cache(self):
-        original = globals()["load_source_cache"]
+        original = module_overrides["load_source_cache"]
         try:
-            globals()["load_source_cache"] = lambda file_hash: ""
+            module_overrides["load_source_cache"] = lambda file_hash: ""
             resolved = resolve_inventory_evidence_meta({
                 "file_hash": "already-indexed",
                 "title": "Yapılandırılmamış BDDK Belgesi",
@@ -402,7 +403,7 @@ class TestV1334IndexabilityBoundary(unittest.TestCase):
             self.assertTrue(resolved["document_indexable"])
             self.assertIn("RAG chunk", resolved["evidence_indexable_reason"])
         finally:
-            globals()["load_source_cache"] = original
+            module_overrides["load_source_cache"] = original
 
     def test_legal_structure_failure_does_not_equal_index_failure(self):
         text = ("Bu metin özel bir hukuki bölüm işareti taşımıyor ancak gerçek içerik içeriyor. " * 25).strip()
@@ -502,13 +503,13 @@ class TestV1379SourceCacheRechunkReindex(unittest.TestCase):
         self.cache_dir = self.tmp_dir / "source_cache"
         self.db_path = self.tmp_dir / "chroma"
         self.index_path = self.tmp_dir / "ingest_index.json"
-        self.old_cache_dir = globals().get("SOURCE_CACHE_DIR")
-        globals()["SOURCE_CACHE_DIR"] = self.cache_dir
+        self.old_cache_dir = module_overrides.get("SOURCE_CACHE_DIR")
+        module_overrides["SOURCE_CACHE_DIR"] = self.cache_dir
         self.file_hash = "f" * 64
         self.title = "F Test Belgesi"
 
     def tearDown(self):
-        globals()["SOURCE_CACHE_DIR"] = self.old_cache_dir
+        module_overrides["SOURCE_CACHE_DIR"] = self.old_cache_dir
         shutil.rmtree(self.tmp_dir, ignore_errors=True)
 
     def _meta(self):
@@ -620,8 +621,8 @@ class TestV1381ProductionRepairScanner(unittest.TestCase):
         self.tmp_dir = Path(tempfile.mkdtemp(prefix="mufettis_g_scanner_"))
         self.cache_dir = self.tmp_dir / "source_cache"
         self.index_path = self.tmp_dir / "ingest_index.json"
-        self.old_cache_dir = globals().get("SOURCE_CACHE_DIR")
-        globals()["SOURCE_CACHE_DIR"] = self.cache_dir
+        self.old_cache_dir = module_overrides.get("SOURCE_CACHE_DIR")
+        module_overrides["SOURCE_CACHE_DIR"] = self.cache_dir
         self.bad_hash = "a" * 64
         self.clean_hash = "b" * 64
         self.index = IngestIndex(self.index_path)
@@ -644,7 +645,7 @@ class TestV1381ProductionRepairScanner(unittest.TestCase):
         save_source_cache(self.clean_hash, "MADDE 1 - Ülkemizde tedavülde bulunan banknot ve madeni paralar.")
 
     def tearDown(self):
-        globals()["SOURCE_CACHE_DIR"] = self.old_cache_dir
+        module_overrides["SOURCE_CACHE_DIR"] = self.old_cache_dir
         shutil.rmtree(self.tmp_dir, ignore_errors=True)
 
     def test_f6_scanner_flags_glued_cache_without_mutation(self):
@@ -746,11 +747,11 @@ class TestV1376RealChromaRetrieval(unittest.TestCase):
         cls.tmp_dir = Path(tempfile.mkdtemp(prefix="mufettis_e_rag_"))
         cls.db_path = cls.tmp_dir / "chroma"
         cls.cache_dir = cls.tmp_dir / "source_cache"
-        cls._old_cache_dir = globals().get("SOURCE_CACHE_DIR")
-        globals()["SOURCE_CACHE_DIR"] = cls.cache_dir
+        cls._old_cache_dir = module_overrides.get("SOURCE_CACHE_DIR")
+        module_overrides["SOURCE_CACHE_DIR"] = cls.cache_dir
         cls.pdf_path = BASE_DIR / "111.pdf"
         if not cls.pdf_path.exists() or pdfium is None:
-            globals()["SOURCE_CACHE_DIR"] = cls._old_cache_dir
+            module_overrides["SOURCE_CACHE_DIR"] = cls._old_cache_dir
             shutil.rmtree(cls.tmp_dir, ignore_errors=True)
             raise unittest.SkipTest("Gerçek 111.pdf veya PDFium yok")
         pdf_bytes = cls.pdf_path.read_bytes()
@@ -781,9 +782,9 @@ class TestV1376RealChromaRetrieval(unittest.TestCase):
     def tearDownClass(cls):
         try:
             if getattr(cls, "_old_cache_dir", None) is not None:
-                globals()["SOURCE_CACHE_DIR"] = cls._old_cache_dir
+                module_overrides["SOURCE_CACHE_DIR"] = cls._old_cache_dir
             else:
-                globals().pop("SOURCE_CACHE_DIR", None)
+                module_overrides.pop("SOURCE_CACHE_DIR", None)
         finally:
             shutil.rmtree(getattr(cls, "tmp_dir", Path(".")), ignore_errors=True)
 

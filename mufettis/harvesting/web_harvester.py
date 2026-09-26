@@ -40,7 +40,6 @@ from mufettis.config import (
     WEB_HTTP_CACHE_DIR,
     WEB_SOURCE_MAX_DEPTH,
     WEB_SOURCE_MAX_PAGES,
-    resolve_dynamic,
 )
 from mufettis.common.http import SystemTrustAdapter
 from mufettis.common.utils import (

@@ -44,9 +44,6 @@ from repair.telemetry import compute_operational_telemetry
 from repair.audit import verify_audit_integrity, REPAIR_AUDIT_LOG_FILE, RepairAuditLogger
 
 def _get_rag(**kwargs):
-    _dyn = resolve_dynamic("_get_rag", _get_rag)
-    if _dyn is not None and _dyn is not _get_rag:
-        return _dyn(**kwargs)
     from mufettis.ui.app import _get_rag as _fn
     return _fn(**kwargs)
 
@@ -74,7 +71,7 @@ def render_mevzuat_admin(
     """Kaynak ekleme/senkronizasyon/bootstrap/RAG rebuild yönetim alanı."""
     st.subheader("Mevzuat kaynak yönetimi")
     if rag is None:
-        rag = resolve_dynamic('_get_rag', _get_rag)(allow_download=allow_embedding_download)
+        rag = _get_rag(allow_download=allow_embedding_download)
     st.write(f"Chroma kayıt sayısı: {rag.count() if rag else 0}")
 
     st.markdown("### RAG Envanteri")

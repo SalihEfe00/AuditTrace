@@ -12,7 +12,7 @@ try:
 except Exception:
     requests = None
 
-from mufettis.config import DEFAULT_LLM, LOG_DIR, OLLAMA_URL, resolve_dynamic
+from mufettis.config import DEFAULT_LLM, LOG_DIR, OLLAMA_URL
 from mufettis.common.utils import mask_sensitive, now_iso, safe_json
 from mufettis.audit.service import append_audit, apply_reviews
 from mufettis.extraction.text_repair import clean_evidence_text
@@ -20,9 +20,6 @@ from mufettis.analysis.risk_engine import attach_regulation_matches
 
 def _get_rag(**kwargs):
     from mufettis.ui.app import _get_rag as _canonical_get_rag
-    _dyn = resolve_dynamic("_get_rag", _canonical_get_rag)
-    if _dyn is not None and _dyn is not _canonical_get_rag:
-        return _dyn(**kwargs)
     return _canonical_get_rag(**kwargs)
 
 OLLAMA_SYSTEM_PROMPT = """

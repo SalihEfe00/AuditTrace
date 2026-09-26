@@ -4,7 +4,6 @@ from __future__ import annotations
 import html
 import re
 from typing import Any, Dict, List, Optional, Tuple
-from mufettis.config import resolve_dynamic
 
 def repair_mojibake(value: Any) -> str:
     """UTF-8/Windows mojibake'i doğru Türkçe karakterlerle birlikte güvenle onar."""
@@ -233,9 +232,6 @@ def repair_account_code_spacing(value: str, account_code: str = "") -> str:
     s = re.sub(rf"(?<!\d)({re.escape(code)})(?=[{upper}])", r"\1 ", s)
     return s
 def repair_extracted_spacing(value: str, title: str = "", document_type: str = "") -> str:
-    _dyn = resolve_dynamic("repair_extracted_spacing", repair_extracted_spacing)
-    if _dyn is not None and _dyn is not repair_extracted_spacing:
-        return _dyn(value, title, document_type)
     """PDF/HTML extractionındaki kayıp kelime ve yapı boşluklarını temkinli onarır.
 
     Amaç genel metne rastgele boşluk serpiştirmek değil; PDF extractor'ın sıkça

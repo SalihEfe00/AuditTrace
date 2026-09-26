@@ -56,6 +56,7 @@ from mufettis.llm.client import *
 from mufettis.exports.report_generator import *
 from mufettis.ui.admin import *
 from mufettis.ui.app import *
+from mufettis.tests.patching import module_overrides
 
 class TestMufettisAI(unittest.TestCase):
     def test_run_analysis_source(self):
@@ -681,9 +682,9 @@ class TestV1318ReportAndAdmin(unittest.TestCase):
         self.assertEqual(p["unmatched_findings"], 1)
 
     def test_report_prepare_without_rag_is_explicit(self):
-        original = globals().get("_get_rag")
+        original = module_overrides.get("_get_rag")
         try:
-            globals()["_get_rag"] = lambda **kwargs: None
+            module_overrides["_get_rag"] = lambda **kwargs: None
             prepared, status = prepare_report_findings(
                 [{"bulgu_id": "x", "mevzuat_eslesmeleri": []}],
                 pd.DataFrame(),
@@ -694,7 +695,7 @@ class TestV1318ReportAndAdmin(unittest.TestCase):
             self.assertTrue(status["errors"])
         finally:
             if original is not None:
-                globals()["_get_rag"] = original
+                module_overrides["_get_rag"] = original
 
     def test_docx_no_match_is_explicit(self):
         summary = {
@@ -795,10 +796,10 @@ class TestV1319Performance(unittest.TestCase):
             (len(texts),4),dtype=np.float32
         ).tolist()
 
-        original_split=globals()["split_legal_chunks"]
-        original_mask=globals()["mask_sensitive"]
+        original_split=module_overrides["split_legal_chunks"]
+        original_mask=module_overrides["mask_sensitive"]
         try:
-            globals()["split_legal_chunks"]=lambda text: [
+            module_overrides["split_legal_chunks"]=lambda text, *args, **kwargs: [
                 {
                     "text":f"chunk-{i}",
                     "article_prefix":"",
@@ -814,7 +815,7 @@ class TestV1319Performance(unittest.TestCase):
                 }
                 for i in range(70)
             ]
-            globals()["mask_sensitive"]=lambda x:x
+            module_overrides["mask_sensitive"]=lambda x:x
             result=rag.ingest_text(
                 "sample",
                 {"file_hash":"abcdef0123456789","title":"Test"},
@@ -825,8 +826,8 @@ class TestV1319Performance(unittest.TestCase):
             total_upserted=sum(len(x["ids"]) for x in rag.collection.upserts)
             self.assertEqual(total_upserted,70)
         finally:
-            globals()["split_legal_chunks"]=original_split
-            globals()["mask_sensitive"]=original_mask
+            module_overrides["split_legal_chunks"]=original_split
+            module_overrides["mask_sensitive"]=original_mask
 class TestV1320PerformancePipeline(unittest.TestCase):
     def test_web_cache_key_is_stable(self):
         self.assertEqual(web_cache_key("https://example.com/a"), web_cache_key("https://example.com/a"))
@@ -874,23 +875,23 @@ class TestV1320PerformancePipeline(unittest.TestCase):
             def get(self,**kwargs): return {"ids":[]}
             def upsert(self,**kwargs): self.n+=len(kwargs["ids"])
         rag.collection=Coll()
-        original_split=globals()["split_legal_chunks"]
-        original_mask=globals()["mask_sensitive"]
+        original_split=module_overrides["split_legal_chunks"]
+        original_mask=module_overrides["mask_sensitive"]
         try:
-            globals()["split_legal_chunks"]=lambda text:[
+            module_overrides["split_legal_chunks"]=lambda text, *args, **kwargs:[
                 {"text":f"c{i}","article_prefix":"","article_no":"1","article_title":"",
                  "paragraph_no":"1","item_no":"","subitem_no":"","section_no":"",
                  "chunk_type":"paragraph","subchunk_no":0,"chunk_no":i}
                 for i in range(65)
             ]
-            globals()["mask_sensitive"]=lambda x:x
+            module_overrides["mask_sensitive"]=lambda x:x
             r=rag.ingest_text("x",{"file_hash":"perf001","title":"x"})
             self.assertEqual(r["count"],65)
             self.assertEqual(sum(calls),65)
             self.assertEqual(rag.collection.n,65)
         finally:
-            globals()["split_legal_chunks"]=original_split
-            globals()["mask_sensitive"]=original_mask
+            module_overrides["split_legal_chunks"]=original_split
+            module_overrides["mask_sensitive"]=original_mask
 class TestV1331NonArticleEvidence(unittest.TestCase):
     def test_bddk_guidance_is_evidence_indexable(self):
         text = """İYİ UYGULAMA REHBERİ\nBİRİNCİ KISIM\n1- Bu rehberin amacı ve kapsamıdır.\n2- Uygulama esasları aşağıda açıklanmıştır.\n3- Kuruluşlar gerekli kontrolleri yapar."""
@@ -955,9 +956,9 @@ Limitler düzenli olarak izlenir."""
         self.assertGreaterEqual(meta["account_code_count"], 5)
 
     def test_inventory_source_cache_overrides_stale_false_and_reason(self):
-        original = globals()["load_source_cache"]
+        original = module_overrides["load_source_cache"]
         try:
-            globals()["load_source_cache"] = lambda file_hash: """010 KASA
+            module_overrides["load_source_cache"] = lambda file_hash: """010 KASA
 011 EFEKTİF DEPOSU
 012 YOLDAKİ PARALAR
 013 TAKAS HESAPLARI
@@ -973,7 +974,7 @@ Limitler düzenli olarak izlenir."""
             self.assertTrue(resolved["evidence_indexable"])
             self.assertIn("Hesap planı", resolved["evidence_indexable_reason"])
         finally:
-            globals()["load_source_cache"] = original
+            module_overrides["load_source_cache"] = original
 
     def test_splitter_preserves_hierarchical_section_identity(self):
         text = """2.3.1 Kredi değerlendirme
@@ -1027,12 +1028,12 @@ class TestV1380FinalE2ERegression(unittest.TestCase):
         cls.tmp_dir = Path(tempfile.mkdtemp(prefix="mufettis_g_final_"))
         cls.db_path = cls.tmp_dir / "chroma"
         cls.cache_dir = cls.tmp_dir / "source_cache"
-        cls.old_cache_dir = globals().get("SOURCE_CACHE_DIR")
-        globals()["SOURCE_CACHE_DIR"] = cls.cache_dir
+        cls.old_cache_dir = module_overrides.get("SOURCE_CACHE_DIR")
+        module_overrides["SOURCE_CACHE_DIR"] = cls.cache_dir
 
         cls.pdf_path = cls._find_real_bddk_pdf()
         if cls.pdf_path is None:
-            globals()["SOURCE_CACHE_DIR"] = cls.old_cache_dir
+            module_overrides["SOURCE_CACHE_DIR"] = cls.old_cache_dir
             shutil.rmtree(cls.tmp_dir, ignore_errors=True)
             raise unittest.SkipTest(
                 "G final testi için gerçek BDDK PDF bulunamadı. "
@@ -1153,9 +1154,9 @@ class TestV1380FinalE2ERegression(unittest.TestCase):
     def tearDownClass(cls):
         try:
             if getattr(cls, "old_cache_dir", None) is not None:
-                globals()["SOURCE_CACHE_DIR"] = cls.old_cache_dir
+                module_overrides["SOURCE_CACHE_DIR"] = cls.old_cache_dir
             else:
-                globals().pop("SOURCE_CACHE_DIR", None)
+                module_overrides.pop("SOURCE_CACHE_DIR", None)
         finally:
             shutil.rmtree(getattr(cls, "tmp_dir", Path(".")), ignore_errors=True)
 

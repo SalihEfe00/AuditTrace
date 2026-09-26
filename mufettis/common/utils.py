@@ -24,7 +24,6 @@ from mufettis.config import (
     SOURCE_HOST_ALIASES,
     SOURCE_REGISTRY_FILE,
     WEB_HTTP_CACHE_DIR,
-    resolve_dynamic,
 )
 
 def canonical_source_id(source_id: str) -> str:
@@ -143,9 +142,6 @@ def mask_sensitive(text: str) -> str:
     Kapsam: e-posta, IBAN (boşluklu/kısmi dahil), kart numarası, cep telefonu,
     TCKN (11 hane) ve VKN (10 hane).
     """
-    _dyn = resolve_dynamic("mask_sensitive", mask_sensitive)
-    if _dyn is not None and _dyn is not mask_sensitive:
-        return _dyn(text)
     if not text:
         return text
     for pattern, replacement in _SENSITIVE_PATTERNS:

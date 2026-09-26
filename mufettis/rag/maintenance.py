@@ -47,7 +47,7 @@ def save_source_cache(file_hash: str, text: str) -> Path:
     metnin kalmasını önlemek için mevcut cache artık sessizce korunmaz;
     güncel metin güvenli geçici dosya üzerinden atomik olarak değiştirilir.
     """
-    cache_dir = resolve_dynamic('SOURCE_CACHE_DIR', SOURCE_CACHE_DIR)
+    cache_dir = SOURCE_CACHE_DIR
     cache_dir.mkdir(parents=True, exist_ok=True)
     path = cache_dir / f"{file_hash}.txt"
     payload = str(text or "")
@@ -56,10 +56,7 @@ def save_source_cache(file_hash: str, text: str) -> Path:
     tmp.replace(path)
     return path
 def load_source_cache(file_hash: str) -> str:
-    _dyn = resolve_dynamic("load_source_cache", load_source_cache)
-    if _dyn is not None and _dyn is not load_source_cache:
-        return _dyn(file_hash)
-    cache_dir = resolve_dynamic("SOURCE_CACHE_DIR", SOURCE_CACHE_DIR)
+    cache_dir = SOURCE_CACHE_DIR
     path = cache_dir / f"{file_hash}.txt"
     try:
         return path.read_text(encoding="utf-8") if path.exists() else ""

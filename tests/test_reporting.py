@@ -58,6 +58,7 @@ from mufettis.llm.client import *
 from mufettis.exports.report_generator import *
 from mufettis.ui.admin import *
 from mufettis.ui.app import *
+from mufettis.tests.patching import module_overrides
 
 class TestV1318ReportAndAdmin(unittest.TestCase):
     def test_report_preflight_counts(self):
@@ -71,9 +72,9 @@ class TestV1318ReportAndAdmin(unittest.TestCase):
         self.assertEqual(p["unmatched_findings"], 1)
 
     def test_report_prepare_without_rag_is_explicit(self):
-        original = globals().get("_get_rag")
+        original = module_overrides.get("_get_rag")
         try:
-            globals()["_get_rag"] = lambda **kwargs: None
+            module_overrides["_get_rag"] = lambda **kwargs: None
             prepared, status = prepare_report_findings(
                 [{"bulgu_id": "x", "mevzuat_eslesmeleri": []}],
                 pd.DataFrame(),
@@ -84,7 +85,7 @@ class TestV1318ReportAndAdmin(unittest.TestCase):
             self.assertTrue(status["errors"])
         finally:
             if original is not None:
-                globals()["_get_rag"] = original
+                module_overrides["_get_rag"] = original
 
     def test_docx_no_match_is_explicit(self):
         summary = {

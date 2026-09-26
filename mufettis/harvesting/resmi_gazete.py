@@ -24,7 +24,6 @@ from mufettis.config import (
     SOURCE_DEFINITIONS,
     WEB_SOURCE_MAX_DEPTH,
     WEB_SOURCE_MAX_PAGES,
-    resolve_dynamic,
 )
 from mufettis.common.http import SystemTrustAdapter
 from mufettis.common.utils import (
@@ -239,8 +238,7 @@ class ResmiGazeteScraper:
             candidates.append(("pdfplumber", plumber_pages))
 
         try:
-            PdfReader_cls = resolve_dynamic('PdfReader', PdfReader)
-            reader = PdfReader_cls(io.BytesIO(pdf_bytes))
+            reader = PdfReader(io.BytesIO(pdf_bytes))
             pypdf_pages: List[str] = []
             for page in reader.pages:
                 try:

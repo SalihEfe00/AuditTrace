@@ -30,7 +30,6 @@ from mufettis.config import (
     EMBED_BATCH_SIZE_GPU,
     EMBEDDING_MODEL,
     MAX_RAG_RESULTS,
-    resolve_dynamic,
 )
 from mufettis.common.utils import canonical_source_id, now_iso, safe_json, mask_sensitive
 from mufettis.extraction.text_repair import normalize_extracted_text, repair_extracted_spacing

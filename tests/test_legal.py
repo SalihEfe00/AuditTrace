@@ -58,6 +58,7 @@ from mufettis.llm.client import *
 from mufettis.exports.report_generator import *
 from mufettis.ui.admin import *
 from mufettis.ui.app import *
+from mufettis.tests.patching import module_overrides
 
 class TestV1311Hierarchy(unittest.TestCase):
     def test_valid_parent_chain(self):
@@ -221,9 +222,9 @@ Limitler düzenli olarak izlenir."""
         self.assertGreaterEqual(meta["account_code_count"], 5)
 
     def test_inventory_source_cache_overrides_stale_false_and_reason(self):
-        original = globals()["load_source_cache"]
+        original = module_overrides["load_source_cache"]
         try:
-            globals()["load_source_cache"] = lambda file_hash: """010 KASA
+            module_overrides["load_source_cache"] = lambda file_hash: """010 KASA
 011 EFEKTİF DEPOSU
 012 YOLDAKİ PARALAR
 013 TAKAS HESAPLARI
@@ -239,7 +240,7 @@ Limitler düzenli olarak izlenir."""
             self.assertTrue(resolved["evidence_indexable"])
             self.assertIn("Hesap planı", resolved["evidence_indexable_reason"])
         finally:
-            globals()["load_source_cache"] = original
+            module_overrides["load_source_cache"] = original
 
     def test_splitter_preserves_hierarchical_section_identity(self):
         text = """2.3.1 Kredi değerlendirme

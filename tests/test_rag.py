@@ -58,6 +58,7 @@ from mufettis.llm.client import *
 from mufettis.exports.report_generator import *
 from mufettis.ui.admin import *
 from mufettis.ui.app import *
+from mufettis.tests.patching import module_overrides
 
 class TestRAGReranking(unittest.TestCase):
     def test_query_aware_reranking_prefers_relevant_official_result(self):
@@ -310,9 +311,9 @@ class TestV1334IndexabilityBoundary(unittest.TestCase):
         self.assertTrue(all(not c.get("article_no") for c in chunks))
 
     def test_current_chroma_chunk_overrides_stale_false_without_cache(self):
-        original = globals()["load_source_cache"]
+        original = module_overrides["load_source_cache"]
         try:
-            globals()["load_source_cache"] = lambda file_hash: ""
+            module_overrides["load_source_cache"] = lambda file_hash: ""
             resolved = resolve_inventory_evidence_meta({
                 "file_hash": "already-indexed",
                 "title": "Yapılandırılmamış BDDK Belgesi",
@@ -325,7 +326,7 @@ class TestV1334IndexabilityBoundary(unittest.TestCase):
             self.assertTrue(resolved["document_indexable"])
             self.assertIn("RAG chunk", resolved["evidence_indexable_reason"])
         finally:
-            globals()["load_source_cache"] = original
+            module_overrides["load_source_cache"] = original
 
     def test_legal_structure_failure_does_not_equal_index_failure(self):
         text = ("Bu metin özel bir hukuki bölüm işareti taşımıyor ancak gerçek içerik içeriyor. " * 25).strip()
@@ -537,13 +538,13 @@ class TestV1379SourceCacheRechunkReindex(unittest.TestCase):
         self.cache_dir = self.tmp_dir / "source_cache"
         self.db_path = self.tmp_dir / "chroma"
         self.index_path = self.tmp_dir / "ingest_index.json"
-        self.old_cache_dir = globals().get("SOURCE_CACHE_DIR")
-        globals()["SOURCE_CACHE_DIR"] = self.cache_dir
+        self.old_cache_dir = module_overrides.get("SOURCE_CACHE_DIR")
+        module_overrides["SOURCE_CACHE_DIR"] = self.cache_dir
         self.file_hash = "f" * 64
         self.title = "F Test Belgesi"
 
     def tearDown(self):
-        globals()["SOURCE_CACHE_DIR"] = self.old_cache_dir
+        module_overrides["SOURCE_CACHE_DIR"] = self.old_cache_dir
         shutil.rmtree(self.tmp_dir, ignore_errors=True)
 
     def _meta(self):
@@ -657,8 +658,8 @@ class TestV1381ProductionRepairScanner(unittest.TestCase):
         self.tmp_dir = Path(tempfile.mkdtemp(prefix="mufettis_g_scanner_"))
         self.cache_dir = self.tmp_dir / "source_cache"
         self.index_path = self.tmp_dir / "ingest_index.json"
-        self.old_cache_dir = globals().get("SOURCE_CACHE_DIR")
-        globals()["SOURCE_CACHE_DIR"] = self.cache_dir
+        self.old_cache_dir = module_overrides.get("SOURCE_CACHE_DIR")
+        module_overrides["SOURCE_CACHE_DIR"] = self.cache_dir
         self.bad_hash = "a" * 64
         self.clean_hash = "b" * 64
         self.index = IngestIndex(self.index_path)
@@ -681,7 +682,7 @@ class TestV1381ProductionRepairScanner(unittest.TestCase):
         save_source_cache(self.clean_hash, "MADDE 1 - Ülkemizde tedavülde bulunan banknot ve madeni paralar.")
 
     def tearDown(self):
-        globals()["SOURCE_CACHE_DIR"] = self.old_cache_dir
+        module_overrides["SOURCE_CACHE_DIR"] = self.old_cache_dir
         shutil.rmtree(self.tmp_dir, ignore_errors=True)
 
     def test_f6_scanner_flags_glued_cache_without_mutation(self):
@@ -785,11 +786,11 @@ class TestV1376RealChromaRetrieval(unittest.TestCase):
         cls.tmp_dir = Path(tempfile.mkdtemp(prefix="mufettis_e_rag_"))
         cls.db_path = cls.tmp_dir / "chroma"
         cls.cache_dir = cls.tmp_dir / "source_cache"
-        cls._old_cache_dir = globals().get("SOURCE_CACHE_DIR")
-        globals()["SOURCE_CACHE_DIR"] = cls.cache_dir
+        cls._old_cache_dir = module_overrides.get("SOURCE_CACHE_DIR")
+        module_overrides["SOURCE_CACHE_DIR"] = cls.cache_dir
         cls.pdf_path = BASE_DIR / "111.pdf"
         if not cls.pdf_path.exists() or pdfium is None:
-            globals()["SOURCE_CACHE_DIR"] = cls._old_cache_dir
+            module_overrides["SOURCE_CACHE_DIR"] = cls._old_cache_dir
             shutil.rmtree(cls.tmp_dir, ignore_errors=True)
             raise unittest.SkipTest("Gerçek 111.pdf veya PDFium yok")
         pdf_bytes = cls.pdf_path.read_bytes()
@@ -820,9 +821,9 @@ class TestV1376RealChromaRetrieval(unittest.TestCase):
     def tearDownClass(cls):
         try:
             if getattr(cls, "_old_cache_dir", None) is not None:
-                globals()["SOURCE_CACHE_DIR"] = cls._old_cache_dir
+                module_overrides["SOURCE_CACHE_DIR"] = cls._old_cache_dir
             else:
-                globals().pop("SOURCE_CACHE_DIR", None)
+                module_overrides.pop("SOURCE_CACHE_DIR", None)
         finally:
             shutil.rmtree(getattr(cls, "tmp_dir", Path(".")), ignore_errors=True)
 
@@ -928,10 +929,10 @@ class TestV1319Performance(unittest.TestCase):
             (len(texts),4),dtype=np.float32
         ).tolist()
 
-        original_split=globals()["split_legal_chunks"]
-        original_mask=globals()["mask_sensitive"]
+        original_split=module_overrides["split_legal_chunks"]
+        original_mask=module_overrides["mask_sensitive"]
         try:
-            globals()["split_legal_chunks"]=lambda text: [
+            module_overrides["split_legal_chunks"]=lambda text, *args, **kwargs: [
                 {
                     "text":f"chunk-{i}",
                     "article_prefix":"",
@@ -947,7 +948,7 @@ class TestV1319Performance(unittest.TestCase):
                 }
                 for i in range(70)
             ]
-            globals()["mask_sensitive"]=lambda x:x
+            module_overrides["mask_sensitive"]=lambda x:x
             result=rag.ingest_text(
                 "sample",
                 {"file_hash":"abcdef0123456789","title":"Test"},
@@ -958,8 +959,8 @@ class TestV1319Performance(unittest.TestCase):
             total_upserted=sum(len(x["ids"]) for x in rag.collection.upserts)
             self.assertEqual(total_upserted,70)
         finally:
-            globals()["split_legal_chunks"]=original_split
-            globals()["mask_sensitive"]=original_mask
+            module_overrides["split_legal_chunks"]=original_split
+            module_overrides["mask_sensitive"]=original_mask
 
 
 class TestV1320PerformancePipeline(unittest.TestCase):
@@ -1009,21 +1010,21 @@ class TestV1320PerformancePipeline(unittest.TestCase):
             def get(self,**kwargs): return {"ids":[]}
             def upsert(self,**kwargs): self.n+=len(kwargs["ids"])
         rag.collection=Coll()
-        original_split=globals()["split_legal_chunks"]
-        original_mask=globals()["mask_sensitive"]
+        original_split=module_overrides["split_legal_chunks"]
+        original_mask=module_overrides["mask_sensitive"]
         try:
-            globals()["split_legal_chunks"]=lambda text:[
+            module_overrides["split_legal_chunks"]=lambda text, *args, **kwargs:[
                 {"text":f"c{i}","article_prefix":"","article_no":"1","article_title":"",
                  "paragraph_no":"1","item_no":"","subitem_no":"","section_no":"",
                  "chunk_type":"paragraph","subchunk_no":0,"chunk_no":i}
                 for i in range(65)
             ]
-            globals()["mask_sensitive"]=lambda x:x
+            module_overrides["mask_sensitive"]=lambda x:x
             r=rag.ingest_text("x",{"file_hash":"perf001","title":"x"})
             self.assertEqual(r["count"],65)
             self.assertEqual(sum(calls),65)
             self.assertEqual(rag.collection.n,65)
         finally:
-            globals()["split_legal_chunks"]=original_split
-            globals()["mask_sensitive"]=original_mask
+            module_overrides["split_legal_chunks"]=original_split
+            module_overrides["mask_sensitive"]=original_mask
 

@@ -107,33 +107,4 @@ for _d in [DATA_DIR, DB_PATH, LOG_DIR, AUDIT_LOG_DIR, EXPORT_DIR]:
     _d.mkdir(parents=True, exist_ok=True)
 
 
-def resolve_dynamic(name: str, fallback: Any = None) -> Any:
-    """Test monkeypatching desteği: test modülleri veya __main__'de override edilmiş değerleri yakalar."""
-    # 1. Önce aktif test modüllerini tara
-    for mod_name, mod in list(sys.modules.items()):
-        if mod is not None and ("test" in mod_name):
-            if name in mod.__dict__:
-                val = mod.__dict__[name]
-                if fallback is not None:
-                    if callable(fallback) and val is not fallback:
-                        return val
-                    elif not callable(fallback) and val != fallback:
-                        return val
-                else:
-                    return val
-    # 2. Sonra __main__ ve app
-    for mod_name in ("__main__", "app"):
-        mod = sys.modules.get(mod_name)
-        if mod is not None and name in mod.__dict__:
-            val = mod.__dict__[name]
-            if fallback is not None:
-                if callable(fallback) and val is not fallback:
-                    return val
-                elif not callable(fallback) and val != fallback:
-                    return val
-            else:
-                return val
-    return fallback
-
-
 __all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]

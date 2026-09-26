@@ -608,8 +608,7 @@ class TestAnalysisUI(unittest.TestCase):
         from mufettis.ui import admin as admin_mod
 
         sentinel = object()
-        with patch.object(admin_mod, "resolve_dynamic", lambda name, fallback=None: fallback), \
-                patch("mufettis.ui.app._get_rag", lambda **kwargs: sentinel):
+        with patch("mufettis.ui.app._get_rag", lambda **kwargs: sentinel):
             self.assertIs(admin_mod._get_rag(allow_download=False), sentinel)
 
     # ── 27. Progress callback reports real pipeline stages in order ───────────

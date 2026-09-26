@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-from mufettis.config import MAX_FINDINGS_FOR_MATCH, resolve_dynamic
+from mufettis.config import MAX_FINDINGS_FOR_MATCH
 from mufettis.common.utils import mask_sensitive, now_iso, safe_json
 from mufettis.audit.service import append_audit, apply_reviews
 from mufettis.legal.parser import split_legal_chunks

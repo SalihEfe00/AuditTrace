@@ -14,7 +14,6 @@ from mufettis.rag.index import IngestIndex
 from mufettis.config import (
     CHUNK_SCHEMA_VERSION,
     SOURCE_DEFINITIONS,
-    resolve_dynamic,
 )
 from mufettis.common.utils import canonical_source_id, normalize_title, source_profile
 from mufettis.extraction.text_repair import (
@@ -692,12 +691,6 @@ def split_legal_chunks(
     MADDE yapısının yanında BDDK rehberlerindeki numaralı hükümleri ve
     Tekdüzen Hesap Planı'ndaki hesap kodlarını da kendi hiyerarşileriyle tutar.
     """
-    _dyn = resolve_dynamic('split_legal_chunks', split_legal_chunks)
-    if _dyn is not None and _dyn is not split_legal_chunks:
-        try:
-            return _dyn(text, max_chars, overlap, title, document_type)
-        except TypeError:
-            return _dyn(text)
     clean=normalize_legal_whitespace(text)
     clean=repair_extracted_spacing(clean)
     if not clean:

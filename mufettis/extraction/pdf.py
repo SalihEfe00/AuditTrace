@@ -21,7 +21,7 @@ try:
 except Exception:
     pdfplumber = None
 
-from mufettis.config import PDFIUM_LOCK, resolve_dynamic
+from mufettis.config import PDFIUM_LOCK
 from mufettis.extraction.text_repair import (
     clean_evidence_text,
     extract_legal_identifier,
@@ -119,9 +119,6 @@ def _select_best_pdf_raw_candidate(
 
 
 def _extract_pdfium_pages(pdf_bytes: bytes) -> List[str]:
-    _dyn = resolve_dynamic("_extract_pdfium_pages", _extract_pdfium_pages)
-    if _dyn is not None and _dyn is not _extract_pdfium_pages:
-        return _dyn(pdf_bytes)
     """pypdfium2 Fast Pass: PDF'yi sayfa sayfa ham metin olarak çıkarır."""
     if pdfium is None:
         return []
@@ -720,9 +717,6 @@ def _render_pdf_physical_page_model(model: Dict[str, Any]) -> str:
 
 
 def _extract_pdfium_spatial_pages(pdf_bytes: bytes) -> List[str]:
-    _dyn = resolve_dynamic("_extract_pdfium_spatial_pages", _extract_pdfium_spatial_pages)
-    if _dyn is not None and _dyn is not _extract_pdfium_spatial_pages:
-        return _dyn(pdf_bytes)
     """A1+A2: Generic physical model + reading-order Fast Pass.
 
     Karakterleri yeniden yazmaz; öncelikle PDF extractor'ın mevcut metin sınırlarını
@@ -778,9 +772,6 @@ def _reconstruct_pdf_spatial_text(pdf_bytes: bytes) -> str:
 
 
 def _extract_pdf_with_pdfplumber_pages(pdf_bytes: bytes) -> List[str]:
-    _dyn = resolve_dynamic("_extract_pdf_with_pdfplumber_pages", _extract_pdf_with_pdfplumber_pages)
-    if _dyn is not None and _dyn is not _extract_pdf_with_pdfplumber_pages:
-        return _dyn(pdf_bytes)
     """pdfplumber ile sayfa bazlı ikinci extraction adayı üret."""
     if pdfplumber is None:
         return []
@@ -1253,9 +1244,6 @@ def _select_pdf_engine_b3(
 
 
 def _pdf_quality_gate(page_texts: List[str]) -> Dict[str, Any]:
-    _dyn = resolve_dynamic("_pdf_quality_gate", _pdf_quality_gate)
-    if _dyn is not None and _dyn is not _pdf_quality_gate:
-        return _dyn(page_texts)
     """Sayfa kalite sonuçlarını belge seviyesinde karar haline getirir."""
     if not page_texts:
         return {"status": "OCR", "score": 0.0, "pages": [], "retry_pages": [], "ocr_pages": [], "table_pages": []}
