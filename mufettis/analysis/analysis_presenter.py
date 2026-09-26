@@ -58,6 +58,26 @@ PIPELINE_STAGES: List[Tuple[str, str]] = [
 ]
 _STAGE_LABELS = dict(PIPELINE_STAGES)
 
+# Katalog, ingest index dosyası değişmedikçe yeniden kurulmaz: büyük korpusta index'i her analizde
+# baştan okumak saniyeler ve yüzlerce MB bellek tutar. Anahtar dosyanın yolu, zamanı ve boyutudur.
+_CATALOG_CACHE: Dict[Tuple[str, int, int], List[CatalogEntry]] = {}
+
+
+def _index_catalog() -> List[CatalogEntry]:
+    from mufettis.rag.index import IngestIndex
+
+    path = IngestIndex.default_path()
+    try:
+        stat = path.stat()
+        key = (str(path), stat.st_mtime_ns, stat.st_size)
+    except OSError:
+        key = (str(path), 0, 0)
+    if key not in _CATALOG_CACHE:
+        items = IngestIndex(path=path).data.get("indexed_items", {})
+        _CATALOG_CACHE.clear()
+        _CATALOG_CACHE[key] = catalog_from_index(items, evidence_display_title)
+    return _CATALOG_CACHE[key]
+
 ProgressCallback = Callable[[int, str, str], None]
 
 
@@ -164,10 +184,8 @@ class AnalysisPresenter:
             return self.catalog_fn()
         if sample_evidence is not None or rag_client is None:
             return None
-        from mufettis.rag.index import IngestIndex
-
         try:
-            return catalog_from_index(IngestIndex().data.get("indexed_items", {}), evidence_display_title)
+            return _index_catalog()
         except Exception as exc:
             logger.warning("Mevzuat kataloğu okunamadı: %s", exc)
             return None

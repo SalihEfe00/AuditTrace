@@ -14,6 +14,10 @@ from mufettis.common.utils import (
 )
 
 class IngestIndex:
+    @staticmethod
+    def default_path() -> Path:
+        return INGEST_INDEX_FILE
+
     def __init__(self, path: Path = INGEST_INDEX_FILE):
         self.path = path
         self.data = load_json(path, {"version": "2.0", "indexed_items": {}})

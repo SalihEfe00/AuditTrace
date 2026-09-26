@@ -124,5 +124,30 @@ class TestPresenterAndReport(unittest.TestCase):
         self.assertEqual({c.status for c in result.cited_regulations}, {NOT_CHECKED})
 
 
+class TestCatalogCache(unittest.TestCase):
+    def test_catalog_rebuilt_only_when_index_file_changes(self):
+        import json
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+
+        from mufettis.analysis import analysis_presenter
+        from mufettis.rag.index import IngestIndex
+
+        def write(path, items):
+            path.write_text(json.dumps({"version": "2.0", "indexed_items": items}), encoding="utf-8")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "ingest_index.json"
+            write(path, {"a": {"title": "BANKACILIK KANUNU", "law_number": "5411", "document_type": "Kanun"}})
+            with patch.object(IngestIndex, "default_path", staticmethod(lambda: path)):
+                first = analysis_presenter._index_catalog()
+                with patch.object(analysis_presenter, "catalog_from_index", side_effect=AssertionError("yeniden")):
+                    self.assertIs(analysis_presenter._index_catalog(), first)
+                write(path, {"a": {"title": "BANKACILIK KANUNU", "law_number": "5411", "document_type": "Kanun"},
+                             "b": {"title": "ÖRNEK KARTLAR KANUNU", "law_number": "99001", "document_type": "Kanun"}})
+                self.assertEqual(len(analysis_presenter._index_catalog()), 2)
+
+
 if __name__ == "__main__":
     unittest.main()
