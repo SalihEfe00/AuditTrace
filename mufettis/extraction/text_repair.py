@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import html
 import re
+from collections import Counter
 from typing import Any, Dict, List, Optional, Tuple
 
 def repair_mojibake(value: Any) -> str:
@@ -294,11 +295,85 @@ def repair_extracted_spacing(value: str, title: str = "", document_type: str = "
     s = re.sub(r"\n[ \t]+", "\n", s)
     s = re.sub(r"\n{3,}", "\n\n", s)
     return s.strip()
+_SPLIT_LETTERS = "A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû"
+_SPLIT_WORD_RE = re.compile(rf"[{_SPLIT_LETTERS}]+")
+# İki parça da metinde bu bölünmenin dışında kendi başına geçiyorsa ikisi de gerçek kelimedir
+# ("yurt dışında", "için de", "iş yerinin"); birleşik biçim metinde (ör. bitişik çıkarılmış bir
+# satırda) geçse bile birleştirilmez. Birleştirmek için en az bir parçanın yalnızca parça olması gerekir.
+_SPLIT_FREE_WORD_MIN = 1
+
+
+def _split_key(word: str) -> str:
+    return word.replace("I", "ı").replace("İ", "i").lower()
+
+
+def repair_split_words(value: str) -> str:
+    """PDF çıkarımının kelime içine koyduğu sahte boşlukları kaldırır ("de ğerlendirme", "R İSK", "s ayılı").
+
+    Karar yalnızca metnin kendisine dayanır (korpusa ya da dış sözlüğe değil); aynı girdi her zaman aynı
+    çıktıyı verir. İki parça arasında tek boşluk/sekme varsa birleştirilir, eğer:
+    * ikinci parça "ğ" ile başlıyorsa (Türkçede hiçbir kelime "ğ" ile başlamaz), veya
+    * birleşik biçim aynı metinde bölünmeden en az bölünmüş hâli kadar geçiyorsa ve parçalardan biri
+      metinde bu bölünmenin dışında hiç geçmiyorsa (yalnızca parçaysa).
+    Satır sonları ve diğer boşluklar olduğu gibi kalır.
+    """
+    s = str(value or "")
+    # Bir birleştirme başka bir bölünmenin kanıtı olabilir ("ka psamlı" -> "kapsamlı" ile "kap samlı");
+    # sonuç değişmeyene kadar tekrarlanır, böylece fonksiyon idempotenttir.
+    for _ in range(5):
+        repaired = _repair_split_words_once(s)
+        if repaired == s:
+            break
+        s = repaired
+    return s
+
+
+def _repair_split_words_once(s: str) -> str:
+    spans = [(m.start(), m.end()) for m in _SPLIT_WORD_RE.finditer(s)]
+    if len(spans) < 2:
+        return s
+    keys = [_split_key(s[a:b]) for a, b in spans]
+    intact = Counter(keys)
+    gaps = [s[spans[i][1]:spans[i + 1][0]] for i in range(len(spans) - 1)]
+    pairs = Counter((keys[i], keys[i + 1]) for i, gap in enumerate(gaps) if gap in (" ", "\t"))
+
+    def join(left: str, right: str, n_pair: int) -> bool:
+        if right[0] == "ğ" and len(right) >= 2:
+            return True
+        whole = left + right
+        # Tek bir bitişik örnek, yapışık çıkarılmış iki kelime olabilir ("rejimikapsamında"); tek
+        # harfli/iki harfli parça ("s ayılı", "v e") ise kelime olamayacağından tek örnek yeter.
+        evidence = 1 if min(len(left), len(right)) <= 2 else 2
+        if intact[whole] < max(evidence, n_pair):
+            return False
+        free_left, free_right = intact[left] - n_pair, intact[right] - n_pair
+        return not (free_left >= _SPLIT_FREE_WORD_MIN and free_right >= _SPLIT_FREE_WORD_MIN)
+
+    out: List[str] = [s[:spans[0][0]]]
+    current = keys[0]  # zincirde birleşmiş sol parça ("ka psam lı")
+    out.append(s[spans[0][0]:spans[0][1]])
+    for i, gap in enumerate(gaps):
+        right = keys[i + 1]
+        if gap in (" ", "\t") and join(current, right, pairs[(keys[i], right)]):
+            current += right
+        else:
+            out.append(gap)
+            current = right
+        out.append(s[spans[i + 1][0]:spans[i + 1][1]])
+    out.append(s[spans[-1][1]:])
+    return "".join(out)
+
+
 _C0_CONTROL_RE = re.compile(r"[\x01-\x08\x0b\x0c\x0e-\x1f\x7f]")
 
 
 def normalize_extracted_text(value: str) -> str:
-    """Extraction metnini normalize eder; mevcut yatay whitespace'i korur."""
+    """Extraction metnini normalize eder; mevcut yatay whitespace'i korur (kelime içine düşmüş
+    sahte boşluklar hariç: onlar en son, diğer onarımlardan sonra kaldırılır; bkz. repair_split_words)."""
+    return repair_split_words(_normalize_extracted_text(value))
+
+
+def _normalize_extracted_text(value: str) -> str:
     protected = {}
     original_horizontal_whitespace = [
         m.group(0) for m in re.finditer(r"[ \t]+", str(value or ""))
@@ -407,7 +482,8 @@ def normalize_legal_whitespace(value: str) -> str:
     for key,original in protected.items():
         s=s.replace(key,original)
 
-    return s.strip()
+    # Boşluk sadeleştirmesi yeni tek boşluklu bölünmeler açığa çıkarabilir.
+    return repair_split_words(s.strip())
 def clean_evidence_text(value: Any, max_chars: int = 1800) -> str:
     """RAG/DOCX için HTML/XML artıkları ve encoding kalıntılarını temizle."""
     s = repair_mojibake(value)

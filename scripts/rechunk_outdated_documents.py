@@ -13,6 +13,7 @@ Veri dizini MUFETTIS_DATA_DIR ile değiştirilebilir (ör. production'ın bir ko
 Kullanım:
   python scripts/rechunk_outdated_documents.py            # plan
   python scripts/rechunk_outdated_documents.py --apply    # yedek + uygula + doğrula
+  python scripts/rechunk_outdated_documents.py --only 1282,943   # yalnızca bu belgeler
 """
 from __future__ import annotations
 
@@ -39,9 +40,9 @@ def _cache_text(file_hash: str) -> str:
 
 
 def _norm(text: str) -> str:
-    # Yalnızca boşluk farkı (boşluk onarımındaki iyileştirmeler) yeniden gömmeyi gerektirmez;
-    # parça sınırı veya içerik farkı gerektirir.
-    return re.sub(r"\s+", "", str(text or ""))
+    # Boşluk dizisinin uzunluğu/türü önemsizdir; kelime sınırı ise önemlidir: "de ğerlendirme" ile
+    # "değerlendirme" farklı arama terimleri ve farklı gömmelerdir (bkz. repair_split_words).
+    return re.sub(r"\s+", " ", str(text or "")).strip()
 
 
 def expected_chunks(text: str, record: Dict[str, Any]) -> List[str]:
@@ -57,20 +58,25 @@ def expected_chunks(text: str, record: Dict[str, Any]) -> List[str]:
 
 
 def stored_chunks(rag) -> Dict[str, List[str]]:
-    got = rag.collection.get(include=["documents", "metadatas"])
+    from mufettis.rag.paging import iter_pages
+
     rows: Dict[str, List[tuple]] = defaultdict(list)
-    for doc, meta in zip(got.get("documents") or [], got.get("metadatas") or []):
-        meta = meta or {}
-        rows[str(meta.get("file_hash", ""))].append((int(meta.get("chunk_no", 0) or 0), _norm(doc)))
+    for _, docs, metas in iter_pages(rag.collection):
+        for doc, meta in zip(docs, metas):
+            meta = meta or {}
+            rows[str(meta.get("file_hash", ""))].append((int(meta.get("chunk_no", 0) or 0), _norm(doc)))
     return {h: [t for _, t in sorted(r)] for h, r in rows.items()}
 
 
-def plan(rag, index) -> Dict[str, Any]:
+def plan(rag, index, only: frozenset = frozenset()) -> Dict[str, Any]:
+    """`only`: yalnızca bu başlık veya dosya özetine sahip belgeler (boşsa hepsi)."""
     items = index.data.get("indexed_items", {})
     stored = stored_chunks(rag)
     targets = []
     for h, rec in items.items():
         if rec.get("status") in INACTIVE_STATUSES:
+            continue
+        if only and h not in only and str(rec.get("title", "")) not in only:
             continue
         cache = _cache_text(h)
         if not cache.strip() or h not in stored:
@@ -110,7 +116,9 @@ def apply(rag, index, the_plan: Dict[str, Any]) -> List[Dict[str, Any]]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--apply", action="store_true", help="Yedek al, uygula ve doğrula")
+    parser.add_argument("--only", default="", help="Virgülle ayrılmış belge başlıkları veya dosya özetleri")
     args = parser.parse_args()
+    only = frozenset(x.strip() for x in args.only.split(",") if x.strip())
 
     from mufettis.rag.engine import LocalRAG
     from mufettis.rag.index import IngestIndex
@@ -120,14 +128,14 @@ def main() -> int:
     rag = LocalRAG(allow_download=False)
     index = IngestIndex()
 
-    the_plan = plan(rag, index)
+    the_plan = plan(rag, index, only)
     print(json.dumps({"data_dir": str(DATA_DIR), "plan": the_plan}, ensure_ascii=False, indent=2))
     if not args.apply:
         print("\nPLAN (hiçbir şey yazılmadı). Uygulamak için --apply")
         return 0
 
     results = apply(rag, index, the_plan)
-    remaining = plan(rag, index)["outdated"]
+    remaining = plan(rag, index, only)["outdated"]
     rejected = [r for r in results if r["status"] in ("quarantined", "blocked")]
     report = {"results": results, "remaining_outdated": remaining, "backup": str(backup_dir)}
     (backup_dir / "manifest.json").write_text(json.dumps({"plan": the_plan, "report": report},
