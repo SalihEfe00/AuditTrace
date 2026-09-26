@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import re
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 from mufettis.analysis.citation_validator import CitationValidator
 from mufettis.analysis.document_understanding import DocumentUnderstandingService
@@ -37,6 +37,7 @@ from mufettis.analysis.turkish_text import (
     turkish_lower,
 )
 from mufettis.common.utils import canonical_source_id
+from mufettis.config import MAX_RAG_RESULTS
 from mufettis.extraction.text_repair import clean_evidence_text, normalize_legal_whitespace
 
 # Bir kanıtın bir iddiayla ilişkilendirilmesi için gereken en az farklı içerik terimi
@@ -49,6 +50,14 @@ MIN_CLAIM_STATEMENT_TERMS = 1
 # sorguların en iyi sonuçları 0.8-1.3 aralığında kaldığından mesafe tek başına
 # alaka kanıtı değildir; yalnızca açıkça uzak sonuçları elemek için kullanılır.
 MAX_RELEVANT_DISTANCE = 1.2
+
+# Mesafe sınırını aşan bir kanıt, tek cümlede bu kadar farklı kök eşleşiyorsa yine kabul edilir
+# (bu köklerden en az STRONG_LEXICAL_DISTINCTIVE tanesi iddia cümlesinden ve ayırt edici olmalı).
+STRONG_LEXICAL_STEMS = 4
+STRONG_LEXICAL_DISTINCTIVE = 2
+
+# Yapı dışlaması varken RAG'dan istenen sonuç çarpanı (bkz. retrieve_evidence).
+EXCLUSION_OVERFETCH = 4
 
 # Kanıt metnini alaka için cümle/satır birimlerine böler (çıkarım kaynaklı yapışık
 # metinlerde nokta olmayabileceği için satır sonları ve ; : da sınır sayılır).
@@ -86,6 +95,15 @@ class AnalysisEngine:
 
     def __init__(self, citation_validator: Optional[CitationValidator] = None):
         self.validator = citation_validator or CitationValidator()
+        # Varsayılan: sabit WEAK_DOMAIN_WORDS. Gerçek korpusla çalışırken use_term_stats ile
+        # belge frekansına dayalı yüklem verilir (bkz. mufettis.analysis.term_stats).
+        self.is_weak_term: Callable[[str], bool] = is_weak_term
+
+    def use_term_stats(self, stats: Optional[Dict[str, Any]]) -> None:
+        """Korpus terim istatistiğini kullan; None veya yetersizse sabit listeye döner."""
+        from mufettis.analysis.term_stats import weak_term_predicate
+
+        self.is_weak_term = weak_term_predicate(stats)
 
     @staticmethod
     def chunk_to_evidence(chunk: Dict[str, Any]) -> Evidence:
@@ -151,16 +169,25 @@ class AnalysisEngine:
         """
         scope = {canonical_source_id(s) for s in (retrieval_plan.source_scope or [])}
         law_filter = str((retrieval_plan.filters or {}).get("law_number", "") or "").strip()
+        excluded_structures = {
+            str(s) for s in ((retrieval_plan.filters or {}).get("exclude_structure_types") or [])
+        }
         limit = retrieval_plan.max_evidence_items
+        # Dışlanan yapılar sonuçların çoğunu tutabildiğinden (hesap planları) fazladan istenir.
+        fetch_k = min(MAX_RAG_RESULTS, limit * EXCLUSION_OVERFETCH) if excluded_structures else limit
         collected: List[Tuple[int, int, Evidence]] = []
         seen_keys = set()
+        query_kwargs: Dict[str, Any] = {}
+        # Yetenek açıkça bildirilmeli (LocalRAG); test sahteleri her argümanı kabul ediyor görünebilir.
+        if excluded_structures and getattr(rag_client, "supports_structure_exclusion", False) is True:
+            query_kwargs["exclude_structure_types"] = sorted(excluded_structures)
 
         for query_str in retrieval_plan.queries:
             if len(collected) >= limit:
                 break
 
             try:
-                results = rag_client.query(query_str, k=limit)
+                results = rag_client.query(query_str, k=fetch_k, **query_kwargs)
             except Exception as exc:
                 # Hata çağırana bildirilir; aksi halde erişim hatası "kanıt yok" gibi görünürdü.
                 if errors is not None:
@@ -171,6 +198,8 @@ class AnalysisEngine:
                 meta = r.get("metadata", {}) or {}
                 source_id = str(meta.get("source_id", "") or "").strip()
                 if scope and source_id and canonical_source_id(source_id) not in scope:
+                    continue
+                if excluded_structures and str(meta.get("structure_type", "")) in excluded_structures:
                     continue
                 text = str(r.get("document", "") or "")
                 key = (
@@ -371,7 +400,10 @@ class AnalysisEngine:
         - İddia cümlesinden gelen terimlerden en az biri ayırt edici olmalı; yalnızca sık geçen
           terimler (kredi, ödeme, faiz ..., bkz. WEAK_DOMAIN_WORDS) ya da konu anahtar kelime
           listesinden gelen bağlam terimleri (ör. "anapara") ortaklığı yetmez.
-        - RAG mesafesi biliniyorsa MAX_RELEVANT_DISTANCE değerini aşmamalı.
+        - RAG mesafesi biliniyorsa MAX_RELEVANT_DISTANCE değerini aşmamalı; ancak tek cümlede
+          STRONG_LEXICAL_STEMS farklı kök (en az STRONG_LEXICAL_DISTINCTIVE tanesi iddia
+          cümlesinden ve ayırt edici) eşleşiyorsa mesafe engel değildir: kısa başlık parçaları
+          ("4) Kişisel Verilerin Üçüncü Kişilere Aktarılması") anlamsal olarak uzak düşebilir.
         Kanıt başlığı tek başına yetmez, yalnızca sıralamada kullanılır. Adaylar en iyi cümlenin
         eşleşmesine, parçanın toplam eşleşmesine, başlık eşleşmesine ve mesafeye göre sıralanır.
         """
@@ -383,19 +415,23 @@ class AnalysisEngine:
 
         for ev in evidence_pool:
             distance = ev.metadata.get("retrieval_distance")
-            if distance is not None and float(distance) > MAX_RELEVANT_DISTANCE:
-                continue
+            too_far = distance is not None and float(distance) > MAX_RELEVANT_DISTANCE
             best_unit_stems = 0
+            strong_lexical = False
             for unit in _evidence_units(ev.text_span):
                 unit_matched = matched_terms(all_terms, content_terms(unit))
                 unit_stems = len(distinct_stems(unit_matched))
+                distinctive = distinct_stems(t for t in unit_matched & statement_terms if not self.is_weak_term(t))
                 if (
                     unit_stems >= MIN_MATCHED_TERMS
                     and len(distinct_stems(unit_matched & statement_terms)) >= MIN_CLAIM_STATEMENT_TERMS
-                    and any(not is_weak_term(t) for t in unit_matched & statement_terms)
+                    and distinctive
                 ):
                     best_unit_stems = max(best_unit_stems, unit_stems)
-            if not best_unit_stems:
+                    strong_lexical = strong_lexical or (
+                        unit_stems >= STRONG_LEXICAL_STEMS and len(distinctive) >= STRONG_LEXICAL_DISTINCTIVE
+                    )
+            if not best_unit_stems or (too_far and not strong_lexical):
                 continue
             text_matched = matched_terms(all_terms, content_terms(ev.text_span))
             title_only = {

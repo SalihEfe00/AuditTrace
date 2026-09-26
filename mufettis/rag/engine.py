@@ -7,7 +7,7 @@ import shutil
 import uuid
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -312,7 +312,36 @@ class LocalRAG:
         return exact
 
 
-    def query(self, query: str, k: int=5) -> List[Dict[str,Any]]:
+    # AnalysisEngine.retrieve_evidence bu yeteneği kontrol ederek exclude_structure_types gönderir.
+    supports_structure_exclusion = True
+
+    def _identity_matches(self, document_ref: Optional[str], account_ref: Optional[str]) -> List[Dict[str, Any]]:
+        """Belge kimliği (source_document_id) / hesap kodu (account_code) meta veride birebir eşleşen,
+        erişilebilir güncel parçalar."""
+        clauses: List[Dict[str, Any]] = [{"chunk_schema_version": CHUNK_SCHEMA_VERSION}]
+        if document_ref:
+            clauses.append({"source_document_id": str(document_ref)})
+        if account_ref:
+            clauses.append({"account_code": str(account_ref)})
+        try:
+            got = self.collection.get(where={"$and": clauses}, include=["documents", "metadatas"])
+        except Exception as exc:
+            raise RuntimeError(f"Güncel RAG kayıtları okunamadı: {exc}") from exc
+        return [
+            {"document": clean_evidence_text(doc, 12000), "metadata": meta or {}, "distance": None}
+            for doc, meta in zip(got.get("documents") or [], got.get("metadatas") or [])
+            if _chunk_is_retrievable(meta or {}, doc)
+        ]
+
+    def query(
+        self,
+        query: str,
+        k: int=5,
+        exclude_structure_types: Optional[Sequence[str]] = None,
+    ) -> List[Dict[str,Any]]:
+        """exclude_structure_types: serbest (anlamsal) aramada bu yapılar Chroma sorgusunda
+        dışlanır. Sonradan elemek yetmez: hesap planları (~17 bin parça) bir şikâyet cümlesinin
+        ilk 100 anlamsal sonucunun tamamını doldurabiliyor."""
         if not query.strip():
             return []
 
@@ -346,6 +375,14 @@ class LocalRAG:
         # Açık belge/h hesap kimliğinde metadata where filtresi tek otorite değildir.
         # Rebuild sonrası eksik/stale kimlik metadata'sını gerçek chunk metniyle de doğrula.
         if document_ref or account_ref:
+            limit=max(1,min(k,MAX_RAG_RESULTS))
+            # Hızlı yol: kimliği meta veride birebir eşleşen parçalar sıralamada (belge +1.80,
+            # hesap +2.00 bonusu; eşleşmeyene -1.20/-1.35 ceza) tam taramadaki her aday parçanın
+            # önündedir. En az `limit` tane varsa ilk sonuçlar tam taramayla aynıdır; tüm
+            # koleksiyonu (~26 bin parça) okumak hesap kodu sorgusunu ~22 sn sürdürüyordu.
+            fast=self._identity_matches(document_ref, account_ref)
+            if len(fast) >= limit:
+                return prefer_official_matches(fast, limit=limit, query=query, resolved_refs=(document_ref, account_ref))
             try:
                 current=self.collection.get(where={"chunk_schema_version":CHUNK_SCHEMA_VERSION}, include=["documents","metadatas"])
             except Exception as exc:
@@ -363,14 +400,20 @@ class LocalRAG:
                     continue
                 out.append({"document":clean_evidence_text(doc,12000),"metadata":meta,"distance":None})
             if out:
-                return prefer_official_matches(out, limit=max(1,min(k,MAX_RAG_RESULTS)), query=query)
+                return prefer_official_matches(out, limit=limit, query=query, resolved_refs=(document_ref, account_ref))
             return []
 
         # Serbest sorgular semantic retrieval kullanır.
+        semantic_where: Dict[str, Any] = {"chunk_schema_version":CHUNK_SCHEMA_VERSION}
+        if exclude_structure_types:
+            semantic_where = {"$and":[
+                semantic_where,
+                {"structure_type":{"$nin":[str(s) for s in exclude_structure_types]}},
+            ]}
         result=self.collection.query(
             query_embeddings=[embedding],
             n_results=min(max(k*20,50),MAX_RAG_RESULTS),
-            where={"chunk_schema_version":CHUNK_SCHEMA_VERSION},
+            where=semantic_where,
         )
         docs=result.get("documents",[[]])[0]
         metas=result.get("metadatas",[[]])[0]

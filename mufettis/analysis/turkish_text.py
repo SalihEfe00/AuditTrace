@@ -50,7 +50,8 @@ GENERIC_DOMAIN_WORDS = (
 # Alaka hesabında sayılırlar; ancak bir eşleşme yalnızca bunlardan oluşamaz (en az bir
 # "güçlü" terim gerekir). Örn. "konut kredisi erken ödeme" iddiası ile "Kredi Kartı
 # Ödemelerinden ... izlenir" satırı yalnızca kredi+ödeme ortaklığı taşır.
-# TODO: sabit liste yerine Chroma korpusundan hesaplanan belge frekansı (IDF) kullanılabilir.
+# Gerçek korpusla çalışırken bu listeye korpusta çok yaygın kökler eklenir
+# (bkz. mufettis.analysis.term_stats.weak_term_predicate).
 WEAK_DOMAIN_WORDS = (
     "kredi", "kart", "ödeme", "faiz", "mevduat", "finansal", "ücret", "borç", "alacak",
     "sözleşme", "tüketici", "hizmet", "bilgi", "kuruluş", "sermaye", "risk",
@@ -63,6 +64,9 @@ CONCEPT_SYNONYMS = {
     "yetkisiz": ("bilgim dışında", "onayım olmadan", "onayım alınmadan", "rızam olmadan",
                  "izinsiz", "habersiz", "haberim olmadan", "talimatım olmadan"),
 }
+
+# Yoksunluk eki (-sız/-siz/-suz/-süz): kökün tersini anlatır.
+PRIVATIVE_SUFFIX_RE = re.compile(r"s[ıiuü]z")
 
 MIN_TERM_LENGTH = 3
 STEM_LENGTH = 5
@@ -122,6 +126,9 @@ def terms_match(a: str, b: str) -> bool:
         return True
     shorter, longer = (a, b) if len(a) <= len(b) else (b, a)
     if len(shorter) < MIN_PREFIX_MATCH:
+        return False
+    # Yoksunluk eki anlamı tersine çevirir: "yetkisiz" ~ "yetki", "ücretsiz" ~ "ücret" değildir.
+    if PRIVATIVE_SUFFIX_RE.match(longer[len(shorter):]) and longer.startswith(shorter):
         return False
     need = min(STEM_LENGTH, len(shorter))
     return stem(shorter)[:need] == stem(longer)[:need]

@@ -199,8 +199,12 @@ class AnalysisPlannerService:
         classification: DocumentClassification,
     ) -> AnalysisPlan:
         scope = ["genel_bankacilik_mevzuati"]
-        keywords = doc.subjects or ["bankacılık", "mevzuat", "denetim"]
-        queries = ["5411 sayılı Bankacılık Kanunu temel yükümlülükler ve denetim"]
+        # Konu kimlikleri ("ücret_ve_komisyon") sorgu metnine girer; okunur hale getirilir.
+        keywords = [s.replace("_", " ") for s in doc.subjects] or ["bankacılık", "mevzuat", "denetim"]
+        # Belgenin kendi cümleleri önce gelir. Önceden yalnızca "5411 sayılı …" sorgusu vardı;
+        # bu sorgu RAG'da açık kanun yoluna düştüğü için kart veya KVKK konulu bir metin bile
+        # yalnızca Bankacılık Kanunu maddeleriyle eşleştiriliyordu.
+        queries = self._document_queries(doc) + ["5411 sayılı Bankacılık Kanunu temel yükümlülükler ve denetim"]
 
         retrieval_scope = RetrievalScope(
             target_domains=scope,

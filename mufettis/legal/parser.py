@@ -488,12 +488,21 @@ def _legal_rerank(
     results: List[Dict[str, Any]],
     query: str,
     limit: int = 5,
+    resolved_refs: Optional[Tuple[Optional[str], Optional[str]]] = None,
 ) -> List[Dict[str, Any]]:
-    """Semantic + lexical + resmi kaynak + açık mevzuat kimliği yeniden sıralaması."""
+    """Semantic + lexical + resmi kaynak + açık mevzuat kimliği yeniden sıralaması.
+
+    resolved_refs: (belge kimliği, hesap kodu) LocalRAG.query'nin koleksiyona bakarak çözdüğü
+    değerler. Verilmezse sorgudan yeniden çıkarılır; ancak o zaman "934 bilgi sistemleri"
+    gibi bir sorgu, koleksiyonda 934 belgesi olduğu halde yeniden hesap kodu sayılırdı.
+    """
     terms = _query_terms(query)
     legal_id = extract_legal_identifier(query)
-    document_ref = extract_query_document_reference(query)
-    account_ref = extract_query_account_code(query)
+    if resolved_refs is not None:
+        document_ref, account_ref = resolved_refs
+    else:
+        document_ref = extract_query_document_reference(query)
+        account_ref = extract_query_account_code(query)
     scored = []
 
     for item in results:
@@ -693,13 +702,14 @@ def prefer_official_matches(
     results: List[Dict[str, Any]],
     limit: int = 5,
     query: str = "",
+    resolved_refs: Optional[Tuple[Optional[str], Optional[str]]] = None,
 ) -> List[Dict[str, Any]]:
     """Sorgu verilmişse hukuk odaklı reranking, yoksa eski resmi-kaynak sıralaması."""
     if not results:
         return []
 
     if query.strip():
-        return _legal_rerank(results, query=query, limit=limit)
+        return _legal_rerank(results, query=query, limit=limit, resolved_refs=resolved_refs)
 
     ranked = []
     for item in results:

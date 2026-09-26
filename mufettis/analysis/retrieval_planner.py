@@ -13,10 +13,14 @@ from typing import List, Optional
 
 from mufettis.analysis.models import (
     AnalysisPlan,
+    AnalysisType,
     DocumentUnderstanding,
     RetrievalPlan,
 )
 from mufettis.analysis.validator import assert_valid_retrieval_plan
+
+# Kural koymayan belge yapıları: yalnızca uyum (iç yazışma) analizinde kanıt olabilir.
+NON_RULE_STRUCTURE_TYPES = ("accounting_plan",)
 
 
 class RetrievalPlannerService:
@@ -60,6 +64,11 @@ class RetrievalPlannerService:
         filters = {}
         if len(scope.explicit_laws) == 1:
             filters["law_number"] = str(scope.explicit_laws[0])
+        if analysis_plan.analysis_type != AnalysisType.COMPLIANCE.value:
+            # Hesap planı satırları yükümlülük değil muhasebe kaydı tanımıdır; şikâyete dayanak
+            # olamaz. Ayrıca ~17 bin parçayla havuzu doldurup asıl kanunları dışarıda bırakıyordu
+            # ("zararımın karşılanması" ~ "beklenen zarar karşılığı" gibi yanlış eşleşmeler).
+            filters["exclude_structure_types"] = list(NON_RULE_STRUCTURE_TYPES)
 
         max_items = max(3, min(20, scope.top_k_per_query * len(queries[:4])))
 

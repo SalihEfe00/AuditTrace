@@ -15,6 +15,7 @@ Core principles:
 """
 from __future__ import annotations
 
+import logging
 import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -35,6 +36,8 @@ from mufettis.analysis.planner import AnalysisPlannerService
 from mufettis.analysis.retrieval_planner import RetrievalPlannerService
 from mufettis.audit.service import append_audit
 from mufettis.common.utils import mask_sensitive, now_iso
+
+logger = logging.getLogger(__name__)
 
 
 # Pipeline aşamaları (anahtar, kullanıcıya gösterilen etiket); ilerleme bildirimi bu sırayla yapılır.
@@ -103,6 +106,22 @@ class AnalysisPresenter:
             return False, "Belge metni çok kısa. Lütfen en az 15 karakter içeren anlamlı bir metin giriniz."
         return True, None
 
+    def _use_corpus_term_stats(self, rag_client: Any) -> List[str]:
+        """Zayıf terimleri korpus belge frekansından belirler. Hesaplanamazsa analiz durmaz,
+        sabit listeye dönülür ve bu durum uyarı olarak raporlanır."""
+        from mufettis.analysis.term_stats import corpus_weak_keys, ensure_term_stats
+        from mufettis.rag.index import IngestIndex
+
+        try:
+            stats = ensure_term_stats(rag_client, IngestIndex())
+        except Exception as exc:
+            logger.warning("Korpus terim istatistiği hesaplanamadı: %s", exc)
+            return [f"Korpus terim istatistiği hesaplanamadı ({exc}); sabit zayıf terim listesi kullanıldı."]
+        self.engine.use_term_stats(stats)
+        if corpus_weak_keys(stats) is None:
+            return ["Korpusta yeterli belge yok; sabit zayıf terim listesi kullanıldı."]
+        return []
+
     def execute_analysis(
         self,
         text: str,
@@ -165,9 +184,12 @@ class AnalysisPresenter:
             self._notify(progress_callback, "evidence_retrieval")
             t0 = time.perf_counter()
             retrieval_warnings: List[str] = []
+            # Örnek kanıtla (test/gold set) sabit liste kullanılır; sonuçlar korpusa bağlı olmaz.
+            self.engine.use_term_stats(None)
             if sample_evidence is not None:
                 evidence_pool = list(sample_evidence)
             elif rag_client is not None:
+                retrieval_warnings.extend(self._use_corpus_term_stats(rag_client))
                 retrieval_errors: List[str] = []
                 evidence_pool = self.engine.retrieve_evidence(retrieval_plan, rag_client, errors=retrieval_errors)
                 # Tüm sorgular başarısızsa RetrievalUnavailableError: analiz "kanıt yok" yerine hata verir.
