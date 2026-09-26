@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 from typing import List, Tuple
 
+from mufettis.analysis.turkish_text import turkish_lower
 from mufettis.analysis.models import (
     DocumentClassification,
     DocumentType,
@@ -107,7 +108,7 @@ class DocumentClassifierService:
         signals: List[str] = []
         reasons: List[str] = []
         score = 0.0
-        lower = text.lower()
+        lower = turkish_lower(text)
 
         matched_kws = [kw for kw in self.COMPLAINT_KEYWORDS if kw in lower]
         if matched_kws:

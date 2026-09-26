@@ -70,7 +70,10 @@ class LocalRAG:
         if self._model is not None:
             return self._model
         try:
-            self._model = SentenceTransformer(self.model_name)
+            # İndirme izni yoksa yalnızca yerel önbellek kullanılır. HF_HUB_OFFLINE ortam
+            # değişkeni huggingface_hub import edilirken okunduğu için çalışma anında
+            # ayarlanması etkisizdir; çevrimdışı mod burada zorlanır.
+            self._model = SentenceTransformer(self.model_name, local_files_only=not self.allow_download)
             return self._model
         except Exception as exc:
             if not self.allow_download:

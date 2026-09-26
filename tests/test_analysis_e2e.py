@@ -124,11 +124,18 @@ class TestAnalysisE2E:
     def test_c_semantic_gold_set_evaluation(self):
         report: GoldSetEvaluationReport = evaluate_semantic_gold_set(engine=self.engine)
 
-        assert report.total_cases == 14
+        assert report.total_cases == 18
         assert report.fail_count == 0
-        assert report.accuracy >= 0.85
-        assert report.false_positives == 0  # Zero hallucinated findings on negative/empty cases
+        assert report.accuracy >= 0.9
+        # Sıfır uydurma bulgu: çeldirici (ilgisiz kanıt) vakaları dahil hiçbir negatif vakada bulgu olmamalı.
+        assert report.false_positives == 0
+        assert report.false_negatives <= 1
         assert report.unsupported_claims_caught >= 1
+
+        distractor_ids = {"TC-15", "TC-16", "TC-17", "TC-18"}
+        distractor_results = [cr for cr in report.case_results if cr.case_id in distractor_ids]
+        assert len(distractor_results) == 4
+        assert all(cr.findings_count == 0 for cr in distractor_results)
 
         # Check that individual case results are properly populated
         for cr in report.case_results:

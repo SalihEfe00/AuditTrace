@@ -246,7 +246,7 @@ class TestAnalysisUI(unittest.TestCase):
         cit = citations[0]
         self.assertEqual(cit.document_identity, self.mock_fee_evidence.document_identity)
         self.assertIn(cit.text_span, self.mock_fee_evidence.text_span)
-        self.assertTrue(cit.metadata.get("is_valid", True))
+        self.assertIs(cit.metadata.get("is_valid"), True)
 
     # ── 10. Invalid Citation Visibly Rejected ─────────────────────────────────
     def test_10_invalid_citation_visibly_rejected(self):
@@ -747,6 +747,25 @@ class TestAnalysisUI(unittest.TestCase):
         mock_st = self._render_result_with_mock_st(res)
         self.assertFalse(any("İhlal" in t or "ihlal" in t for t in self._call_texts(mock_st.success)))
         self.assertTrue(any("uygunluk teyidi değildir" in t for t in self._call_texts(mock_st.info)))
+
+    # ── 35/36. Citation badge truthfulness and evidence list immutability ─────
+    def test_35_citation_badge_reflects_engine_validation_only(self):
+        from mufettis.ui.analysis_view import citation_badge
+
+        def cit(meta):
+            return Citation(source="s", document_identity="d", reference="r", text_span="t", metadata=meta)
+
+        self.assertIn("doğrulandı", citation_badge(cit({"is_valid": True})))
+        self.assertIn("doğrulanamadı", citation_badge(cit({"is_valid": False})))
+        self.assertIn("bilgisi yok", citation_badge(cit({})))
+
+    def test_36_render_does_not_mutate_stored_evidence_list(self):
+        res = self.presenter.execute_analysis(text=SAMPLE_COMPLAINT_TEXT, sample_evidence=[self.mock_fee_evidence])
+        self.assertTrue(res.result.findings)
+        res.retrieved_evidence = []  # arayüz, bulgulardaki kanıtla yedek liste oluşturur
+        self._render_result_with_mock_st(res)
+        self._render_result_with_mock_st(res)
+        self.assertEqual(res.retrieved_evidence, [])
 
     # ── 34. Save button records the review through the presenter ──────────────
     def test_34_save_review_button_records_audit_event(self):

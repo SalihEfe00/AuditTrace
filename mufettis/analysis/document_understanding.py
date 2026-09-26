@@ -20,9 +20,16 @@ from mufettis.analysis.models import (
     DocumentType,
     DocumentUnderstanding,
 )
+from mufettis.analysis.turkish_text import contains_phrase, turkish_lower
 from mufettis.extraction.text_repair import (
     normalize_extracted_text,
     repair_mojibake,
+)
+
+
+# İç yazışmalarda denetim tespitini taşıyan cümle işaretleri (iddia çıkarılamadığında).
+_OBSERVATION_MARKERS = re.compile(
+    r"tespit\s+edil|belirlen|aşılarak|aşıldığı|ihlal|yenilenmedi|gecikme|gecikti|bildirilmedi|kesinti",
 )
 
 
@@ -59,10 +66,11 @@ class DocumentUnderstandingService:
     }
 
     CLAIM_MARKERS = [
-        r"kesildi", r"tahsil\s*edildi", r"iade\s*edilmedi", r"onayım\s*olmadan",
+        r"kesildi", r"kesilmiş", r"tahsil\s*edildi", r"tahsil\s*et(?:ti|miştir)", r"iade\s*edilmedi", r"onayım\s*olmadan",
         r"bilgim\s*dışında", r"mağdur\s*edildim", r"haksız\s*(?:yere|olarak)?",
         r"talep\s*ediyorum", r"şikayetçiyim", r"zarara\s*uğratıldım",
         r"bilgi\s*verilmedi", r"teslim\s*edilmedi", r"cevap\s*verilmedi",
+        r"kesintisi", r"(?:hukuka|yasaya|mevzuata)\s*aykırı", r"usulsüz",
     ]
 
     def analyze(
@@ -189,13 +197,41 @@ class DocumentUnderstandingService:
 
         return entities
 
+    @staticmethod
+    def observation_statement(doc: DocumentUnderstanding, max_chars: int = 400) -> str:
+        """İddia çıkarılamayan belgede tespit cümlelerini (yoksa başlığı) iddia metni olarak döndürür."""
+        text = doc.normalized_text or doc.text or ""
+        sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+|\n+", text) if len(s.strip()) >= 15]
+        observations = [s for s in sentences if _OBSERVATION_MARKERS.search(turkish_lower(s))]
+        if observations:
+            return " ".join(observations)[:max_chars]
+        if doc.title and doc.title != "Belge Metni":
+            return doc.title
+        return ""
+
     def _extract_subjects(self, text: str) -> List[str]:
-        subjects: List[str] = []
-        lower = text.lower()
-        for category, keywords in self.SUBJECT_KEYWORDS.items():
-            if any(re.search(rf"\b{re.escape(kw)}\b", lower) for kw in keywords):
-                subjects.append(category)
-        return subjects
+        """Metindeki konu kategorileri; Türkçe ekler tolere edilir (kredi -> kredisi)."""
+        return [
+            category
+            for category, keywords in self.SUBJECT_KEYWORDS.items()
+            if any(contains_phrase(text, kw) for kw in keywords)
+        ]
+
+    def _claim_subject(self, sentence: str, doc_subjects: List[str]) -> str:
+        """İddianın kendi cümlesindeki en belirgin konu; yoksa belgenin ilk konusu.
+
+        Eşleşen anahtar kelime sayısı eşitse daha uzun (daha özgül) ifade kazanır:
+        "kredi kartımdan bilgim dışında" -> "bilgim dışında" (yetkisiz_islem) > "kredi".
+        """
+        best, best_rank = "", (0, 0)
+        for category in doc_subjects:
+            hits = [kw for kw in self.SUBJECT_KEYWORDS.get(category, []) if contains_phrase(sentence, kw)]
+            rank = (len(hits), max((len(kw) for kw in hits), default=0))
+            if rank > best_rank:
+                best, best_rank = category, rank
+        if best:
+            return best
+        return doc_subjects[0] if doc_subjects else "genel_sikayet"
 
     def _extract_claims(
         self,
@@ -216,13 +252,13 @@ class DocumentUnderstandingService:
                 continue
 
             if marker_re.search(sentence_clean):
-                stmt_key = sentence_clean.lower()
+                stmt_key = turkish_lower(sentence_clean)
                 if stmt_key not in seen_statements:
                     seen_statements.add(stmt_key)
                     involved = [
-                        e.text for e in entities if e.text.lower() in sentence_clean.lower()
+                        e.text for e in entities if turkish_lower(e.text) in stmt_key
                     ]
-                    subj = subjects[0] if subjects else "genel_sikayet"
+                    subj = self._claim_subject(sentence_clean, subjects)
                     claims.append(
                         DocumentClaim(
                             claim_id=f"claim_{claim_idx}",
@@ -254,7 +290,7 @@ class DocumentUnderstandingService:
                 if m:
                     date_val = m.group(1).strip()
                     involved = [
-                        e.text for e in entities if e.text.lower() in sentence_clean.lower()
+                        e.text for e in entities if turkish_lower(e.text) in turkish_lower(sentence_clean)
                     ]
                     events.append(
                         DocumentEvent(

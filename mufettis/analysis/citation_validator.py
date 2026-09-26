@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from mufettis.analysis.models import Citation, Evidence, Finding
+from mufettis.analysis.turkish_text import turkish_lower
 from mufettis.extraction.text_repair import normalize_legal_whitespace, repair_mojibake
 
 
@@ -36,7 +37,7 @@ class CitationValidator:
         if not text:
             return ""
         repaired = repair_mojibake(str(text))
-        cleaned = normalize_legal_whitespace(repaired).lower()
+        cleaned = turkish_lower(normalize_legal_whitespace(repaired))
         # Collapse multiple spaces and remove non-alphanumeric noise for substring matching
         cleaned = re.sub(r"[\"“”'’`.,;:!?()\[\]{}/\\]+", " ", cleaned)
         return re.sub(r"\s+", " ", cleaned).strip()

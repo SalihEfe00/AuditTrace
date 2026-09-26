@@ -5,7 +5,6 @@ import datetime as dt
 import html
 import io
 import json
-import os
 import time
 import unittest
 from pathlib import Path
@@ -43,6 +42,16 @@ def run_self_tests(*args, **kwargs):
     from mufettis.tests.runner import run_self_tests as _fn
     return _fn(*args, **kwargs)
 
+def _create_rag(allow_download: bool) -> LocalRAG:
+    return LocalRAG(allow_download=allow_download)
+
+
+# Embedding modeli ve Chroma istemcisi süreç başına bir kez yüklenir ve tüm
+# oturumlarca paylaşılır (session_state'te tutmak her oturumda modeli yeniden yükler).
+# Oluşturma hatası önbelleğe alınmaz; sonraki çağrı yeniden dener.
+_create_rag_cached = st.cache_resource(show_spinner=False)(_create_rag) if st is not None else _create_rag
+
+
 def _get_rag(
     allow_download: bool = False,
     allow_embedding_download: Optional[bool] = None,
@@ -53,14 +62,7 @@ def _get_rag(
     if chromadb is None or SentenceTransformer is None:
         return None
     try:
-        if st is not None:
-            cache_key = f"_shared_rag_{allow_download}"
-            if cache_key in st.session_state and st.session_state[cache_key] is not None:
-                return st.session_state[cache_key]
-            rag = LocalRAG(allow_download=allow_download)
-            st.session_state[cache_key] = rag
-            return rag
-        return LocalRAG(allow_download=allow_download)
+        return _create_rag_cached(bool(allow_download))
     except Exception as exc:
         if st is not None:
             st.session_state["rag_error"] = str(exc)
@@ -95,10 +97,8 @@ def run_streamlit() -> None:
     with st.sidebar:
         st.header("Sistem")
         local_only = st.checkbox("Tam yerel mod", value=True, help="Resmî Gazete senkronizasyonu ve ilk model indirmeyi kapatır.")
-        if local_only:
-            os.environ.setdefault("HF_HUB_OFFLINE", "1")
-            os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
-        allow_embedding_download = st.checkbox("İlk embedding model indirmesine izin ver", value=False, disabled=local_only)
+        # Devre dışı checkbox son değerini döndürmeye devam eder; tam yerel modda indirme izni zorla kapatılır.
+        allow_embedding_download = st.checkbox("İlk embedding model indirmesine izin ver", value=False, disabled=local_only) and not local_only
         auto_update = st.checkbox("Arka planda günlük mevzuat güncellemesi", value=False, disabled=local_only, help="Uygulama açıkken her gün 00:05 Europe/Istanbul saatinde BDDK + Resmî Gazete senkronizasyonunu çalıştırır.")
         use_browser_bddk = st.checkbox("BDDK için Playwright kullan", value=True, disabled=local_only, help="JavaScript ile yüklenen linklerde requests/BeautifulSoup yerine headless Chromium kullanır.")
         st.markdown("### Analiz ayarları")

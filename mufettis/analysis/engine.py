@@ -10,10 +10,12 @@ actionable Inspector Reports without fabricating legal findings.
 """
 from __future__ import annotations
 
+import hashlib
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mufettis.analysis.citation_validator import CitationValidator
+from mufettis.analysis.document_understanding import DocumentUnderstandingService
 from mufettis.analysis.models import (
     AnalysisPlan,
     AnalysisResult,
@@ -25,7 +27,36 @@ from mufettis.analysis.models import (
     Finding,
     RetrievalPlan,
 )
+from mufettis.analysis.turkish_text import (
+    concept_terms,
+    content_terms,
+    distinct_stems,
+    is_weak_term,
+    matched_terms,
+    matches_any,
+    turkish_lower,
+)
+from mufettis.common.utils import canonical_source_id
 from mufettis.extraction.text_repair import clean_evidence_text, normalize_legal_whitespace
+
+# Bir kanıtın bir iddiayla ilişkilendirilmesi için gereken en az farklı içerik terimi
+# (genel bankacılık kelimeleri ve durak kelimeler sayılmaz).
+MIN_MATCHED_TERMS = 2
+# Terimlerden en az biri iddia cümlesinin kendisinden gelmeli (konu anahtar
+# kelimeleri veya belge başlığı tek başına yetmez).
+MIN_CLAIM_STATEMENT_TERMS = 1
+# Normalize gömmelerde L2^2 mesafesi (0 = aynı, 2 = dik). Ölçümlerde ilgisiz
+# sorguların en iyi sonuçları 0.8-1.3 aralığında kaldığından mesafe tek başına
+# alaka kanıtı değildir; yalnızca açıkça uzak sonuçları elemek için kullanılır.
+MAX_RELEVANT_DISTANCE = 1.2
+
+# Kanıt metnini alaka için cümle/satır birimlerine böler (çıkarım kaynaklı yapışık
+# metinlerde nokta olmayabileceği için satır sonları ve ; : da sınır sayılır).
+_EVIDENCE_UNIT_SPLIT = re.compile(r"(?<=[.!?;:])\s+|\n+")
+
+
+def _evidence_units(text: str) -> List[str]:
+    return [u.strip() for u in _EVIDENCE_UNIT_SPLIT.split(text or "") if u.strip()]
 
 
 class AnalysisEngine:
@@ -37,8 +68,10 @@ class AnalysisEngine:
     @staticmethod
     def chunk_to_evidence(chunk: Dict[str, Any]) -> Evidence:
         """Adapts an existing LocalRAG.query() result item into a typed Evidence model."""
-        meta = chunk.get("metadata", {}) or {}
+        meta = dict(chunk.get("metadata", {}) or {})
         raw_doc = str(chunk.get("document", "") or "").strip()
+        if chunk.get("distance") is not None:
+            meta["retrieval_distance"] = float(chunk["distance"])
 
         # Build clean hierarchical reference
         article_no = str(meta.get("article_no", "") or "").strip()
@@ -63,11 +96,13 @@ class AnalysisEngine:
         chunk_ref = " ".join(ref_parts) if ref_parts else f"Parça ({chunk_type})"
 
         source_doc = meta.get("title") or meta.get("source") or "Resmi Mevzuat Belgesi"
+        # Kimlik bulunamazsa belge başlığından türetilir; sabit bir yedek değer farklı
+        # belgeleri aynı kimlikte birleştirip belgeler arası tutarlılık kontrolünü etkisizleştirirdi.
         doc_identity = (
             str(meta.get("law_number", "") or "").strip()
             or str(meta.get("document_key", "") or "").strip()
             or str(meta.get("file_hash", "") or "").strip()
-            or "mevzuat_kaydi"
+            or "kayit_" + hashlib.sha1(str(source_doc).encode("utf-8")).hexdigest()[:12]
         )
 
         return Evidence(
@@ -83,36 +118,54 @@ class AnalysisEngine:
         retrieval_plan: RetrievalPlan,
         rag_client: Any,
     ) -> List[Evidence]:
-        """Executes retrieval queries against existing LocalRAG and returns deduplicated Evidence."""
-        evidence_items: List[Evidence] = []
+        """Executes retrieval queries against existing LocalRAG and returns deduplicated Evidence.
+
+        - Kaynak kapsamı (source_scope) dışındaki kaynaklardan gelen parçalar alınmaz;
+          source_id taşımayan parçalar kapsam bilinmediği için elenmez.
+        - filters["law_number"] verildiyse o kanuna ait parçalar sıralamada öne alınır.
+        - Tekilleştirme belge kimliği + parça konumu + metin özeti ile yapılır; metadata
+          eksik olsa bile farklı parçalar birleşmez.
+        """
+        scope = {canonical_source_id(s) for s in (retrieval_plan.source_scope or [])}
+        law_filter = str((retrieval_plan.filters or {}).get("law_number", "") or "").strip()
+        limit = retrieval_plan.max_evidence_items
+        collected: List[Tuple[int, int, Evidence]] = []
         seen_keys = set()
 
         for query_str in retrieval_plan.queries:
-            if len(evidence_items) >= retrieval_plan.max_evidence_items:
+            if len(collected) >= limit:
                 break
 
             try:
-                results = rag_client.query(query_str, k=retrieval_plan.max_evidence_items)
+                results = rag_client.query(query_str, k=limit)
             except Exception:
                 continue
 
             for r in results:
                 meta = r.get("metadata", {}) or {}
+                source_id = str(meta.get("source_id", "") or "").strip()
+                if scope and source_id and canonical_source_id(source_id) not in scope:
+                    continue
+                text = str(r.get("document", "") or "")
                 key = (
-                    meta.get("file_hash", ""),
+                    meta.get("file_hash") or meta.get("document_key") or meta.get("title") or "",
                     meta.get("chunk_no", ""),
                     meta.get("article_no", ""),
+                    meta.get("paragraph_no", ""),
+                    meta.get("item_no", ""),
+                    hashlib.sha1(normalize_legal_whitespace(text).encode("utf-8")).hexdigest()[:16],
                 )
                 if key in seen_keys:
                     continue
                 seen_keys.add(key)
-                ev = self.chunk_to_evidence(r)
-                evidence_items.append(ev)
+                law_rank = 0 if law_filter and str(meta.get("law_number", "")).strip() == law_filter else 1
+                collected.append((law_rank, len(collected), self.chunk_to_evidence(r)))
 
-                if len(evidence_items) >= retrieval_plan.max_evidence_items:
+                if len(collected) >= limit:
                     break
 
-        return evidence_items
+        collected.sort(key=lambda item: (item[0], item[1]))
+        return [ev for _, _, ev in collected]
 
     def analyze(
         self,
@@ -162,6 +215,10 @@ class AnalysisEngine:
         for candidate in candidate_findings:
             report = self.validator.validate_finding(candidate, retrieved_evidence=evidence_pool)
             if report.is_valid:
+                # Doğrulama sonucu alıntıya işlenir; arayüz rozeti bu değeri gösterir.
+                for citation in candidate.citations:
+                    citation.metadata["is_valid"] = True
+                    citation.metadata["validation_method"] = "grounded_in_retrieved_evidence"
                 validated_findings.append(candidate)
             else:
                 warnings.append(
@@ -198,16 +255,19 @@ class AnalysisEngine:
 
         claims_to_process = list(doc.claims)
         if not claims_to_process:
-            # Fallback if no specific claims extracted: create a synthetic claim from subjects/summary
+            # Şikâyet kalıbı taşımayan belgeler (ör. iç denetim notu) için iddia, belgenin
+            # tespit cümlelerinden kurulur; içeriksiz sentetik bir cümle eşleşme üretmemeli.
             synth_subject = doc.subjects[0] if doc.subjects else "genel_uyum"
-            claims_to_process = [
-                DocumentClaim(
-                    claim_id="claim_general",
-                    statement=f"Belgede belirtilen {synth_subject} kapsamındaki iddia ve işlemler",
-                    subject=synth_subject,
-                    involved_entities=[e.text for e in doc.entities[:2]],
-                )
-            ]
+            statement = DocumentUnderstandingService.observation_statement(doc)
+            if statement:
+                claims_to_process = [
+                    DocumentClaim(
+                        claim_id="claim_general",
+                        statement=statement,
+                        subject=synth_subject,
+                        involved_entities=[e.text for e in doc.entities[:2]],
+                    )
+                ]
 
         for claim in claims_to_process:
             matched_ev = self._find_best_evidence_for_claim(claim, doc.subjects, evidence_pool, doc=doc)
@@ -216,7 +276,10 @@ class AnalysisEngine:
                 continue
 
             # Build grounded Finding
-            verbatim_span = self._extract_verbatim_span(matched_ev.text_span)
+            statement_terms, context_terms = self._claim_terms(claim, doc)
+            verbatim_span = self._extract_verbatim_span(
+                matched_ev.text_span, focus_terms=statement_terms | context_terms
+            )
             citation = Citation(
                 source=str(matched_ev.metadata.get("source") or "BDDK / Resmi Gazete"),
                 document_identity=matched_ev.document_identity,
@@ -227,7 +290,7 @@ class AnalysisEngine:
 
             # Determine risk level objectively
             risk = "Orta"
-            statement_lower = claim.statement.lower()
+            statement_lower = turkish_lower(claim.statement)
             if any(w in statement_lower for w in ["yetkisiz", "dolandırıcılık", "şüpheli", "onayım olmadan"]):
                 risk = "Yüksek"
             elif any(e.entity_type == "amount" for e in doc.entities):
@@ -269,52 +332,100 @@ class AnalysisEngine:
         evidence_pool: List[Evidence],
         doc: Optional[DocumentUnderstanding] = None,
     ) -> Optional[Evidence]:
-        """Finds the most semantically relevant Evidence item for a claim."""
-        claim_text = (
-            claim.statement.replace("_", " ")
-            + " "
-            + " ".join(subjects).replace("_", " ")
-        )
-        if doc and doc.title:
-            claim_text += " " + doc.title.replace("_", " ")
+        """İddiayla en ilgili kanıtı seçer; yeterli alaka yoksa None döner.
 
-        raw_terms = set(re.findall(r"[a-zçğıöşüA-ZÇĞİÖŞÜ0-9]{3,}", claim_text.lower()))
-        stop_words = {
-            "olan", "olarak", "veya", "için", "icin", "göre", "gore",
-            "belgede", "belirtilen", "iddia", "işlemler", "kapsamındaki",
-            "tarafından", "tarafindan", "edilmektedir", "edilmiştir",
-        }
-        claim_terms = {t for t in raw_terms if t not in stop_words}
+        Kabul ölçütü (hepsi gerekir), kanıtın TEK BİR cümlesi/satırı için:
+        - O cümleyle kök düzeyinde en az MIN_MATCHED_TERMS farklı içerik kökü ortak olmalı
+          (genel bankacılık kelimeleri, durak kelimeler ve kurum adları sayılmaz). Terimlerin
+          aynı cümlede birlikte geçmesi şartı, uzun parçalara dağılmış tesadüfi eşleşmeleri
+          (ör. Tekdüzen Hesap Planı'nda farklı hesaplardaki "finansal" ve "ücret") eler.
+        - Bu köklerden en az MIN_CLAIM_STATEMENT_TERMS tanesi iddia cümlesinin kendisinden gelmeli.
+        - İddia cümlesinden gelen terimlerden en az biri ayırt edici olmalı; yalnızca sık geçen
+          terimler (kredi, ödeme, faiz ..., bkz. WEAK_DOMAIN_WORDS) ya da konu anahtar kelime
+          listesinden gelen bağlam terimleri (ör. "anapara") ortaklığı yetmez.
+        - RAG mesafesi biliniyorsa MAX_RELEVANT_DISTANCE değerini aşmamalı.
+        Kanıt başlığı tek başına yetmez, yalnızca sıralamada kullanılır. Adaylar en iyi cümlenin
+        eşleşmesine, parçanın toplam eşleşmesine, başlık eşleşmesine ve mesafeye göre sıralanır.
+        """
+        statement_terms, context_terms = self._claim_terms(claim, doc)
+        all_terms = statement_terms | context_terms
 
         best_ev: Optional[Evidence] = None
-        best_score = -1.0
+        best_rank: Tuple[float, ...] = (-1.0,)
 
         for ev in evidence_pool:
-            score = 0.0
-            ev_text_lower = ev.text_span.lower()
-            ev_title_lower = ev.source_document.lower()
+            distance = ev.metadata.get("retrieval_distance")
+            if distance is not None and float(distance) > MAX_RELEVANT_DISTANCE:
+                continue
+            best_unit_stems = 0
+            for unit in _evidence_units(ev.text_span):
+                unit_matched = matched_terms(all_terms, content_terms(unit))
+                unit_stems = len(distinct_stems(unit_matched))
+                if (
+                    unit_stems >= MIN_MATCHED_TERMS
+                    and len(distinct_stems(unit_matched & statement_terms)) >= MIN_CLAIM_STATEMENT_TERMS
+                    and any(not is_weak_term(t) for t in unit_matched & statement_terms)
+                ):
+                    best_unit_stems = max(best_unit_stems, unit_stems)
+            if not best_unit_stems:
+                continue
+            text_matched = matched_terms(all_terms, content_terms(ev.text_span))
+            title_only = {
+                t for t in matched_terms(all_terms, content_terms(ev.source_document))
+                if not matches_any(t, text_matched)
+            }
+            rank = (
+                float(best_unit_stems),
+                float(len(distinct_stems(text_matched))),
+                float(len(distinct_stems(title_only))),
+                -float(distance) if distance is not None else 0.0,
+            )
+            if rank > best_rank:
+                best_rank, best_ev = rank, ev
 
-            for term in claim_terms:
-                if term in ev_text_lower:
-                    score += 1.0
-                if term in ev_title_lower:
-                    score += 1.5
+        return best_ev
 
-            if score > best_score:
-                best_score = score
-                best_ev = ev
+    @staticmethod
+    def _claim_terms(
+        claim: DocumentClaim,
+        doc: Optional[DocumentUnderstanding],
+    ) -> Tuple[Set[str], Set[str]]:
+        """(iddia cümlesi terimleri, bağlam terimleri: konu anahtar kelimeleri + belge başlığı).
 
-        # Require minimal relevance threshold
-        if best_score >= 1.0:
-            return best_ev
-        return None
+        Kurum adları (ör. "Finansbank") mevzuatla anlam ilişkisi taşımadığı ve önek
+        eşleşmesinde yanıltıcı olduğu ("finansal") için terimlerden çıkarılır.
+        """
+        excluded: Set[str] = set()
+        if doc:
+            for entity in doc.entities:
+                if entity.entity_type == "institution":
+                    excluded |= content_terms(entity.text)
+        # Eş anlamlı ifadeler ("bilgim dışında") iddianın kendi kavramı ("yetkisiz") sayılır.
+        statement_terms = (content_terms(claim.statement) | concept_terms(claim.statement)) - excluded
+        context_text = " ".join(DocumentUnderstandingService.SUBJECT_KEYWORDS.get(claim.subject, []))
+        if doc and doc.title and doc.title != "Belge Metni":
+            context_text += " " + doc.title
+        context_terms = {
+            t for t in content_terms(context_text) - excluded if not matches_any(t, statement_terms)
+        }
+        return statement_terms, context_terms
 
-    def _extract_verbatim_span(self, text: str, max_chars: int = 250) -> str:
-        """Extracts an exact verbatim sentence from the evidence text for truthful citation."""
+    def _extract_verbatim_span(
+        self,
+        text: str,
+        max_chars: int = 250,
+        focus_terms: Optional[Set[str]] = None,
+    ) -> str:
+        """Kanıt metninden birebir bir cümle seçer; focus_terms verilirse en çok terim içeren cümle."""
         sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
-        for s in sentences:
-            if 30 <= len(s) <= max_chars:
-                return s
+        candidates = [s for s in sentences if 30 <= len(s) <= max_chars]
+        if candidates and focus_terms:
+            scored = [(len(matched_terms(focus_terms, content_terms(s))), -i, s) for i, s in enumerate(candidates)]
+            best_hits, _, best_sentence = max(scored)
+            if best_hits > 0:
+                return best_sentence
+        if candidates:
+            return candidates[0]
         if sentences:
             return sentences[0][:max_chars]
         return text[:max_chars]

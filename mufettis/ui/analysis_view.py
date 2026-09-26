@@ -71,6 +71,23 @@ SAMPLE_UNSUPPORTED_TEXT = (
 )
 
 
+CITATION_SCOPE_NOTE = (
+    "Alıntı doğrulaması, iktibas edilen cümlenin getirilen mevzuat parçasında (boşluk ve "
+    "noktalama farkları gözetilmeden) geçtiğini gösterir. Hükmün somut olaya uygulanabilirliği "
+    "denetçi değerlendirmesine bağlıdır."
+)
+
+
+def citation_badge(citation: Citation) -> str:
+    """Alıntının doğrulama durumunu, yalnızca motorun yazdığı sonuca göre gösterir."""
+    status = citation.metadata.get("is_valid")
+    if status is True:
+        return "✅ Alıntı kanıt metninde doğrulandı"
+    if status is False:
+        return "❌ Alıntı doğrulanamadı"
+    return "⚪ Doğrulama bilgisi yok"
+
+
 def render_evidence_text_html(text_span: str) -> str:
     """Formats evidence text into a high-contrast HTML block resilient to theme changes.
 
@@ -324,7 +341,8 @@ def render_analysis_page(
 
     # ── Section 3: Retrieved Evidence ─────────────────────────────────────────
     st.markdown("### 4. İlgili Mevzuat Kanıtları (Retrieved Evidence)")
-    evidence_items = exec_result.retrieved_evidence
+    # Kopya: aşağıdaki yedek doldurma oturumda saklanan listeyi değiştirmemeli.
+    evidence_items = list(exec_result.retrieved_evidence)
     if not evidence_items:
         # Fallback to evidence attached to findings if retrieved_evidence pool was empty
         seen_ev = set()
@@ -406,15 +424,15 @@ def render_analysis_page(
 
                 # Citations Sub-Panel
                 if finding.citations:
-                    st.markdown("**5. Doğrulanmış Mevzuat Alıntıları (Citations):**")
+                    st.markdown("**5. Mevzuat Alıntıları (Citations):**")
                     for c_idx, cit in enumerate(finding.citations, 1):
-                        is_valid = bool(cit.metadata.get("is_valid", True))
-                        val_badge = "✅ DOĞRULANDI (Exact Substring Match)" if is_valid else "❌ DOĞRULANAMADI (Reddedildi)"
+                        val_badge = citation_badge(cit)
                         st.markdown(
                             f"- **Alıntı #{c_idx} — {val_badge}**\n"
                             f"  - **Kaynak:** `{cit.document_identity}` ({cit.reference})\n"
                             f"  - **Birebir İktibas:** *\"{cit.text_span}\"*"
                         )
+                    st.caption(CITATION_SCOPE_NOTE)
 
                 st.divider()
 
@@ -449,7 +467,8 @@ def render_analysis_page(
         "İnceleme Durumu",
         options=status_options,
         index=status_index,
-        key="analysis_reviewer_status_select",
+        # Anahtar analize özgü: yeni analizde önceki inceleme durumu/notu taşınmaz.
+        key=f"analysis_reviewer_status_select_{result.analysis_id}",
     )
 
     reviewer_name = r_col1.text_input(
@@ -463,7 +482,7 @@ def render_analysis_page(
         value=result.reviewer_note or "",
         height=100,
         placeholder="Bulguya ilişkin nihai kanaatinizi veya yapılması gereken ilave kontrolleri yazınız...",
-        key="analysis_reviewer_notes_input",
+        key=f"analysis_reviewer_notes_input_{result.analysis_id}",
     )
 
     if st.button("💾 İncelemeyi Kaydet", key="save_analysis_review_btn"):
@@ -484,4 +503,4 @@ def render_analysis_page(
             st.success(f"İnceleme kaydedildi: {new_status} (Zaman: {updated_result.reviewed_at})")
 
 
-__all__ = ["render_analysis_page", "render_evidence_text_html"]
+__all__ = ["render_analysis_page", "render_evidence_text_html", "citation_badge"]

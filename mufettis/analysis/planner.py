@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import List
 
+from mufettis.analysis.document_understanding import DocumentUnderstandingService
 from mufettis.analysis.models import (
     AnalysisParameters,
     AnalysisPlan,
@@ -43,6 +44,31 @@ class AnalysisPlannerService:
 
         assert_valid_analysis_plan(plan)
         return plan
+
+    @staticmethod
+    def _document_queries(doc: DocumentUnderstanding, limit: int = 2, max_chars: int = 200) -> List[str]:
+        """Belgenin kendi içeriğinden sorgular: anlamlı başlık ve iddia/tespit cümleleri.
+
+        Şablon sorgular konu kategorisine göre genel kalır; belgedeki olayın kendisiyle
+        yapılan anlamsal arama çoğu zaman en isabetli kanıtı getirir.
+        """
+        candidates: List[str] = []
+        if doc.title and doc.title != "Belge Metni":
+            candidates.append(doc.title)
+        candidates.extend(claim.statement for claim in doc.claims)
+        if not doc.claims:
+            observation = DocumentUnderstandingService.observation_statement(doc)
+            if observation:
+                candidates.append(observation)
+
+        queries: List[str] = []
+        for text in candidates:
+            query = " ".join(text.split())[:max_chars].strip()
+            if query and query not in queries:
+                queries.append(query)
+            if len(queries) >= limit:
+                break
+        return queries
 
     def _plan_complaint(
         self,
@@ -83,7 +109,7 @@ class AnalysisPlannerService:
             target_domains=scope,
             explicit_laws=["5411", "6502", "5464"],
             keywords=list(set(keywords)),
-            generated_queries=queries,
+            generated_queries=self._document_queries(doc) + queries,
             top_k_per_query=3,
         )
 
@@ -135,7 +161,7 @@ class AnalysisPlannerService:
             target_domains=scope,
             explicit_laws=["5411"],
             keywords=keywords,
-            generated_queries=queries,
+            generated_queries=self._document_queries(doc) + queries,
             top_k_per_query=3,
         )
 

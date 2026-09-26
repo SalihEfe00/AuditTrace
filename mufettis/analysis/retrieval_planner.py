@@ -22,7 +22,9 @@ from mufettis.analysis.validator import assert_valid_retrieval_plan
 class RetrievalPlannerService:
     """Creates actionable, prioritized RetrievalPlans from an AnalysisPlan."""
 
-    DEFAULT_SOURCES = ["bddk_official", "resmi_gazete"]
+    # Resmî kaynaklar + kullanıcının yerel olarak yüklediği mevzuat. İkincil kaynaklar
+    # (ör. mevzuat_org) tek başına hukuki dayanak sayılmadığı için kapsam dışıdır.
+    DEFAULT_SOURCES = ["bddk_official", "resmi_gazete", "local_file"]
 
     def plan_retrieval(
         self,
