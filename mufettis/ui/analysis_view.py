@@ -115,6 +115,49 @@ def load_uploaded_document(name: str, data: bytes) -> UploadedDocument:
     return UploadedDocument(text=text, title=Path(name).stem, info=", ".join(parts))
 
 
+REVIEW_HISTORY_COLUMNS = [
+    ("reviewed_at", "İnceleme zamanı"),
+    ("document_title", "Belge"),
+    ("document_type", "Tür"),
+    ("reviewer_status", "Karar"),
+    ("reviewer_name", "Denetçi"),
+    ("finding_count", "Bulgu"),
+    ("unsupported_claim_count", "Dayanaksız iddia"),
+    ("reviewer_note", "Not"),
+    ("analysis_id", "Analiz kimliği"),
+]
+
+
+def review_history_rows(history: List[Dict[str, Any]], status: str = "") -> List[Dict[str, Any]]:
+    """Denetim kaydındaki inceleme kararlarını tablo satırlarına çevirir; status verilirse süzer."""
+    return [
+        {label: row.get(key, "") for key, label in REVIEW_HISTORY_COLUMNS}
+        for row in history
+        if not status or row.get("reviewer_status") == status
+    ]
+
+
+def render_review_history() -> None:
+    from mufettis.audit.service import analysis_review_history
+
+    with st.expander("📚 İnceleme geçmişi (kaydedilmiş denetçi kararları)", expanded=False):
+        try:
+            history, unreadable = analysis_review_history()
+        except Exception as exc:
+            st.error(f"Denetim kaydı okunamadı: {exc}")
+            return
+        if unreadable:
+            st.warning(f"Denetim kaydında okunamayan {unreadable} satır atlandı.")
+        if not isinstance(history, list) or not history:
+            st.caption("Henüz kaydedilmiş inceleme yok.")
+            return
+        statuses = sorted({str(r.get("reviewer_status") or "") for r in history} - {""})
+        status = st.selectbox("Karara göre süz", [""] + statuses, format_func=lambda s: s or "Tümü",
+                              key="analysis_review_history_filter")
+        st.dataframe(review_history_rows(history, status if isinstance(status, str) else ""),
+                     use_container_width=True, hide_index=True)
+
+
 def citation_badge(citation: Citation) -> str:
     """Alıntının doğrulama durumunu, yalnızca motorun yazdığı sonuca göre gösterir."""
     status = citation.metadata.get("is_valid")
@@ -309,6 +352,8 @@ def render_analysis_page(
                 st.error(exec_result.error_message or "Bilinmeyen bir hata oluştu.")
                 st.session_state["analysis_exec_result"] = None
                 return
+
+    render_review_history()
 
     # ── Display Analysis Results ──────────────────────────────────────────────
     exec_result: Optional[AnalysisExecutionResult] = st.session_state.get("analysis_exec_result")
