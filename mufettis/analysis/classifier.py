@@ -19,6 +19,28 @@ from mufettis.analysis.models import (
 )
 
 
+# Birinci tekil kişi anlatımı (tüketici sesi). Yalnızca belirsiz olmayan işaretler sayılır: zamirler,
+# 1. tekil geçmiş zaman ("bunaldım", "gittim"), şimdiki zaman ("istiyorum") ve gelecek zaman
+# ("yapacağım"). İyelik eki ("kartım") sayılmaz: kökü -m ile biten adlarla ("sistem", "denetim")
+# karışır. Resmî iç yazışma bu kişiyi kullanmaz; kapanışı ("arz ederim") geniş zamandır.
+_FIRST_PERSON_PRONOUN_RE = re.compile(r"\b(?:ben|bana|beni|benim|bende|benden)\b")
+# Geçmiş zaman eki -dım; sert ünsüzden sonra -tım ("gittim", "baktım"). "kartım" / "denetim" gibi
+# yumuşak ünsüz veya ünlüden sonraki -tım iyelik ekidir ve sayılmaz.
+_FIRST_PERSON_VERB_RE = re.compile(
+    r"\b[a-zçğıöşü]+(?:[a-zçğıöşü]d[ıiuü]m|[çfhkpsşt]t[ıiuü]m|[ıiuü]?yorum|[ae]c[ae][ğk][ıi]m|m[ıiuü]şt[ıiuü]m)\b"
+)
+# -dım/-tım ile biten sık adlar fiil değildir.
+_NOT_FIRST_PERSON_VERBS = frozenset({"yardım", "adım", "kadim"})
+MIN_FIRST_PERSON_MARKERS = 1
+
+
+def first_person_markers(lower_text: str) -> List[str]:
+    found = _FIRST_PERSON_PRONOUN_RE.findall(lower_text) + [
+        w for w in _FIRST_PERSON_VERB_RE.findall(lower_text) if w not in _NOT_FIRST_PERSON_VERBS
+    ]
+    return sorted(set(found))
+
+
 class DocumentClassifierService:
     """Classifies operational documents into complaint, internal_correspondence, or unknown."""
 
@@ -121,6 +143,13 @@ class DocumentClassifierService:
             score += min(0.35, len(doc.claims) * 0.15)
             signals.append(f"grievance_claims:{len(doc.claims)}")
             reasons.append(f"Identified {len(doc.claims)} specific grievance/claim statements")
+
+        # Tüketici anlatımı: kişinin kendi hesabı/kartı/verisi hakkında birinci kişi anlatımı.
+        voice = first_person_markers(lower)
+        if len(voice) >= MIN_FIRST_PERSON_MARKERS:
+            score += 0.25
+            signals.append(f"first_person_voice:{len(voice)}")
+            reasons.append(f"First-person consumer narrative: {', '.join(voice[:4])}")
 
         # Demand indicators
         if re.search(r"iadesini\s+talep|tutarın\s+hesabıma|mağduriyetimin\s+gideril", lower):

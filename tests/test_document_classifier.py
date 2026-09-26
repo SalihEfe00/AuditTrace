@@ -68,3 +68,34 @@ class TestDocumentClassifier:
         doc = self.doc_service.analyze("Kısa şikayet metni şikayetçiyim mağdurum.")
         result = self.classifier.classify(doc)
         assert 0.0 <= result.confidence <= 1.0
+
+
+class TestFirstPersonConsumerVoice:
+    """Tüketici anlatımı birinci tekil kişi işaretleriyle tanınır; iyelik eki (kartım/denetim)
+    belirsiz olduğu için sayılmaz, resmî kapanış ("arz ederim") işaret değildir."""
+
+    def test_unambiguous_markers_only(self):
+        from mufettis.analysis.classifier import first_person_markers
+
+        found = first_person_markers("gittim baktım bunaldım istiyorum yapacağım kartım denetim işletim yardım arz ederim")
+        assert found == ["baktım", "bunaldım", "gittim", "istiyorum", "yapacağım"]
+
+    def test_plain_first_person_complaint_is_a_complaint(self):
+        from mufettis.analysis.classifier import DocumentClassifierService
+        from mufettis.analysis.document_understanding import DocumentUnderstandingService
+
+        doc = DocumentUnderstandingService().analyze(
+            "Bankanız kredi kartım için bana önceden bildirmeden yıllık aidat ücreti tahsil etmiştir. "
+            "Sözleşmede böyle bir ücret yazmıyor."
+        )
+        assert DocumentClassifierService().classify(doc).document_type == "complaint"
+
+    def test_formal_memo_is_not_turned_into_a_complaint(self):
+        from mufettis.analysis.classifier import DocumentClassifierService
+        from mufettis.analysis.document_understanding import DocumentUnderstandingService
+
+        doc = DocumentUnderstandingService().analyze(
+            "Sayı: 2026/TK-3\nKonu: Denetim Sistemi\nTeftiş Kurulu Başkanlığına\n"
+            "İşletim sisteminin denetim kayıtlarının saklanmadığı tespit edilmiştir.\nBilgilerinize arz ederim."
+        )
+        assert DocumentClassifierService().classify(doc).document_type == "internal_correspondence"
