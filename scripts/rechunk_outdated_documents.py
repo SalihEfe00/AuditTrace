@@ -29,7 +29,7 @@ from typing import Any, Dict, List
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from mufettis.config import DATA_DIR, DB_PATH, INGEST_INDEX_FILE, SOURCE_CACHE_DIR
+from mufettis.config import DATA_DIR, DB_PATH, SOURCE_CACHE_DIR
 
 INACTIVE_STATUSES = {"quarantined", "superseded"}
 
@@ -91,7 +91,9 @@ def plan(rag, index, only: frozenset = frozenset()) -> Dict[str, Any]:
 def backup(stamp: str) -> Path:
     target = DATA_DIR / "backups" / f"rechunk_{stamp}"
     target.mkdir(parents=True, exist_ok=False)
-    shutil.copy2(INGEST_INDEX_FILE, target / "ingest_index.json")
+    from mufettis.rag.index import IngestIndex
+
+    IngestIndex().backup(target / "ingest_index.sqlite3")  # tutarlı SQLite yedeği
     shutil.copytree(DB_PATH, target / "mevzuat_db")  # Chroma açılmadan önce
     return target
 

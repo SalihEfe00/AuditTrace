@@ -35,7 +35,7 @@ from typing import Any, Dict, List, Tuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from mufettis.config import BASE_DIR, CHUNK_SCHEMA_VERSION, DATA_DIR, DB_PATH, INGEST_INDEX_FILE, SOURCE_CACHE_DIR
+from mufettis.config import BASE_DIR, CHUNK_SCHEMA_VERSION, DATA_DIR, DB_PATH, SOURCE_CACHE_DIR
 
 DEPOSIT_DIR = BASE_DIR / "mevzuat_deposu"
 VERIFY_QUERIES = [
@@ -96,7 +96,9 @@ def plan(rag, index) -> Dict[str, Any]:
 def backup(stamp: str) -> Path:
     target = DATA_DIR / "backups" / f"e7_legacy_recovery_{stamp}"
     target.mkdir(parents=True)
-    shutil.copy2(INGEST_INDEX_FILE, target / "ingest_index.json")
+    from mufettis.rag.index import IngestIndex
+
+    IngestIndex().backup(target / "ingest_index.sqlite3")  # tutarlı SQLite yedeği
     shutil.copytree(SOURCE_CACHE_DIR, target / "source_cache")
     shutil.copytree(DB_PATH, target / "mevzuat_db")  # Chroma açılmadan önce
     return target

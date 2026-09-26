@@ -49,7 +49,7 @@ from mufettis.config import (
     SOURCE_CACHE_DIR,
 )
 from mufettis.rag.engine import LocalRAG
-from mufettis.rag.index import IngestIndex
+from mufettis.rag.index import IngestIndex, store_path
 
 from repair.audit import RepairAuditLogger, get_audit_logger
 from repair.classifier import classify_document
@@ -139,7 +139,7 @@ def check_production_corpus(
         "db_exists": db_exists,
         "db_size": db_size,
         "embeddings_count": 0,
-        "index_exists": idx_p.exists(),
+        "index_exists": idx_p.exists() or store_path(idx_p).exists(),
         "index_documents_count": 0,
         "cache_exists": cache_exists,
         "cache_files_count": cache_count,
@@ -195,20 +195,9 @@ def check_production_corpus(
                 details["db_error"] = f"Chroma sqlite storage not found in {db_p}"
 
     # 2. Ingest Index check (schema 2.0 indexed_items + backward compatibility with documents)
-    if idx_p.exists() and idx_p.is_file():
+    if store_path(idx_p).is_file() or idx_p.is_file():
         try:
-            idx_data = json.loads(idx_p.read_text(encoding="utf-8"))
-            if isinstance(idx_data, dict):
-                items = idx_data.get("indexed_items")
-                docs = idx_data.get("documents")
-                if isinstance(items, (dict, list)) and len(items) > 0:
-                    details["index_documents_count"] = len(items)
-                elif isinstance(docs, (dict, list)):
-                    details["index_documents_count"] = len(docs)
-                elif isinstance(items, (dict, list)):
-                    details["index_documents_count"] = len(items)
-                elif "version" not in idx_data and all(isinstance(v, dict) for v in idx_data.values()):
-                    details["index_documents_count"] = len(idx_data)
+            details["index_documents_count"] = IngestIndex(path=idx_p).count()
         except Exception as exc:
             details["index_error"] = str(exc)
 

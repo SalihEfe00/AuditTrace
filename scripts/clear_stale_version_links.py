@@ -24,7 +24,7 @@ from typing import Any, Dict, List
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from mufettis.config import DATA_DIR, INGEST_INDEX_FILE
+from mufettis.config import DATA_DIR
 
 CLEARED = {"status": "active", "superseded_by": "", "valid_to": ""}
 
@@ -60,7 +60,9 @@ def backup(stamp: str) -> Path:
 
     target = DATA_DIR / "backups" / f"version_links_{stamp}"
     target.mkdir(parents=True, exist_ok=False)
-    shutil.copy2(INGEST_INDEX_FILE, target / INGEST_INDEX_FILE.name)
+    from mufettis.rag.index import IngestIndex
+
+    IngestIndex().backup(target / "ingest_index.sqlite3")  # tutarlı SQLite yedeği
     shutil.copytree(DB_PATH, target / DB_PATH.name)
     return target
 

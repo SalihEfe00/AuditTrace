@@ -33,7 +33,7 @@ from typing import Any, Dict, List
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from mufettis.config import CHROMA_UPSERT_BATCH_SIZE, DATA_DIR, DB_PATH, INGEST_INDEX_FILE, SOURCE_CACHE_DIR
+from mufettis.config import CHROMA_UPSERT_BATCH_SIZE, DATA_DIR, DB_PATH, SOURCE_CACHE_DIR
 from mufettis.corpus import CANONICAL_SCHEMA, with_canonical
 from mufettis.corpus.canonical import DERIVATION_INPUTS
 from mufettis.corpus.identity import content_fingerprint
@@ -143,7 +143,9 @@ def _chunk_target(meta: Dict[str, Any], record: Dict[str, Any] | None) -> Dict[s
 def backup(stamp: str) -> Path:
     target = DATA_DIR / "backups" / f"canonical_backfill_{stamp}"
     target.mkdir(parents=True, exist_ok=False)
-    shutil.copy2(INGEST_INDEX_FILE, target / "ingest_index.json")
+    from mufettis.rag.index import IngestIndex
+
+    IngestIndex().backup(target / "ingest_index.sqlite3")  # tutarlı SQLite yedeği
     shutil.copytree(DB_PATH, target / "mevzuat_db")  # Chroma açılmadan önce
     return target
 

@@ -31,6 +31,7 @@ from mufettis.corpus.identity import content_fingerprint
 from mufettis.extraction.text_repair import repair_extracted_spacing
 from mufettis.legal.parser import clean_evidence_text
 from mufettis.rag.engine import LocalRAG
+from mufettis.rag.index import IngestIndex, store_path
 from repair.models import (
     BeforeSnapshot,
     CommitResult,
@@ -278,13 +279,10 @@ def capture_before_snapshot(
     # 2. Index snapshot
     index_existed = False
     index_record = None
-    if idx_p.exists():
+    if store_path(idx_p).exists() or Path(idx_p).exists():
         try:
-            idx_data = json.loads(idx_p.read_text(encoding="utf-8"))
-            items = idx_data.get("indexed_items", {})
-            if source_sha256 in items:
-                index_existed = True
-                index_record = items[source_sha256]
+            index_record = IngestIndex(path=idx_p).get(source_sha256)
+            index_existed = index_record is not None
         except Exception as exc:
             # Sessizce geçmek "kayıt yoktu" demektir; geri alma mevcut indeks kaydını silerdi.
             raise RuntimeError(f"Önceki durum anlık görüntüsü alınamadı (ingest index): {exc}") from exc
