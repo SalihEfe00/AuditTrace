@@ -52,6 +52,7 @@ from mufettis.extraction.text_repair import (
     repair_extracted_spacing,
     repair_mojibake,
 )
+from mufettis.harvesting.web_harvester import sync_playwright
 from mufettis.llm.client import (
     build_ai_report_prompt,
     ollama_generate,
@@ -130,7 +131,17 @@ def run_streamlit() -> None:
         # Devre dışı checkbox son değerini döndürmeye devam eder; tam yerel modda indirme izni zorla kapatılır.
         allow_embedding_download = st.checkbox("İlk embedding model indirmesine izin ver", value=False, disabled=local_only) and not local_only
         auto_update = st.checkbox("Arka planda günlük mevzuat güncellemesi", value=False, disabled=local_only, help="Uygulama açıkken her gün 00:05 Europe/Istanbul saatinde BDDK + Resmî Gazete senkronizasyonunu çalıştırır.")
-        use_browser_bddk = st.checkbox("BDDK için Playwright kullan", value=True, disabled=local_only, help="JavaScript ile yüklenen linklerde requests/BeautifulSoup yerine headless Chromium kullanır.")
+        playwright_available = sync_playwright is not None
+        use_browser_bddk = st.checkbox(
+            "BDDK için Playwright kullan",
+            value=playwright_available,
+            disabled=local_only or not playwright_available,
+            help=(
+                "JavaScript ile yüklenen linklerde requests/BeautifulSoup yerine headless Chromium kullanır."
+                if playwright_available
+                else "Playwright kurulu değil (requirements-optional.txt); BDDK HTTP toplayıcıyla taranır."
+            ),
+        ) and playwright_available
         st.markdown("### Analiz ayarları")
         z_threshold_ui = st.number_input(
             "Z-score eşiği",

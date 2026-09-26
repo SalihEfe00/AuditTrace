@@ -352,11 +352,17 @@ def sync_web_source(source_id: str, rag: LocalRAG, use_browser: bool = False, ma
     from mufettis.harvesting.web_harvester import (
         BrowserWebSourceHarvester,
         WebSourceHarvester,
+        sync_playwright,
     )
-    Harvester = BrowserWebSourceHarvester if use_browser else WebSourceHarvester
+    # Playwright kurulu değilse tarayıcı yolu her çalıştırmada hata verip kaynağı hiç
+    # toplamıyordu; bootstrapper'daki gibi HTTP toplayıcıya geçilir ve sonuçta belirtilir.
+    browser_fallback = bool(use_browser and sync_playwright is None)
+    Harvester = BrowserWebSourceHarvester if use_browser and not browser_fallback else WebSourceHarvester
     harvester = Harvester(source_id, index=IngestIndex(), local_only=False)
     candidates = harvester.collect_candidates(max_depth=max_depth, max_pages=max_pages)
     result = {"source": source_id, "found": len(candidates), "ingested": 0, "skipped": 0, "errors": 0, "versions_changed": 0}
+    if browser_fallback:
+        result["browser_fallback"] = "Playwright kurulu değil; HTTP toplayıcı kullanıldı."
     for candidate in candidates:
         try:
             payload = harvester.fetch_candidate(candidate)

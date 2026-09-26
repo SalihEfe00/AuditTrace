@@ -52,6 +52,11 @@ if __name__ == "__main__":
     parser.add_argument("--repair-verify", action="store_true", help="Commit sonrası POST-REPAIR VERIFICATION çalıştırır (production write: 0)")
     parser.add_argument("--repair-rollback", type=str, default="", help="Commit ID'ye ait tamiri güvenle geri alır (production write: explicit)")
     parser.add_argument("--repair-rollback-dry-run", action="store_true", help="Rollback işlemini simüle eder (production write: 0)")
+    parser.add_argument(
+        "--repair-rollback-force",
+        action="store_true",
+        help="Daha önce geri alınmış bir commit'i yeniden geri alır (sonradan yapılan değişikliklerin üzerine yazar)",
+    )
     parser.add_argument("--repair-audit", action="store_true", help="Son onarım audit özetlerini listeler (read-only)")
     parser.add_argument("--repair-audit-repair-id", type=str, default="", help="Belirtilen repair_id'ye ait audit olaylarını gösterir (read-only)")
     parser.add_argument("--repair-audit-document", type=str, default="", help="Belirtilen document_id'ye ait audit olaylarını gösterir (read-only)")
@@ -65,8 +70,10 @@ if __name__ == "__main__":
     parser.add_argument("--repair-wave-scope", type=str, default="pilot", choices=["pilot", "small_batch", "medium_batch", "bddk_active", "other_sources", "all", "custom"], help="Dalga kapsamı")
     parser.add_argument("--repair-wave-doc-id", type=str, default="", help="Hedef belge kimliği")
     parser.add_argument("--repair-wave-limit", type=int, default=1, help="Dalga belge limiti")
-    parser.add_argument("--repair-wave-dry-run", action="store_true", default=True, help="Dalga simülasyonu (yazma yok)")
-    parser.add_argument("--repair-wave-execute", action="store_true", help="Gerçek onarımı aktifleştirir")
+    # Varsayılan kuru çalıştırmadır; ikisi birlikte verilemez.
+    wave_mode = parser.add_mutually_exclusive_group()
+    wave_mode.add_argument("--repair-wave-dry-run", action="store_true", help="Dalga simülasyonu (yazma yok; varsayılan)")
+    wave_mode.add_argument("--repair-wave-execute", action="store_true", help="Gerçek onarımı aktifleştirir")
     parser.add_argument("--repair-wave-allow-production", action="store_true", help="Production onarımı için zorunlu açık onay bayrağı")
     parser.add_argument("--repair-wave-env", type=str, default="rag_lab", choices=["rag_lab", "production"], help="Dalga hedef ortamı")
     args = parser.parse_args()
@@ -146,7 +153,9 @@ if __name__ == "__main__":
             rag=rag,
             index=index,
             dry_run=bool(args.repair_rollback_dry_run),
-            force=True,
+            # Tekrar koruması varsayılan açık: aynı commit ikinci kez geri alınırsa
+            # sonradan yapılmış değişikliklerin üzerine yazılmaz.
+            force=bool(args.repair_rollback_force),
         )
         print(f"Rollback Status : {res.status}")
         print(f"Cache           : {res.cache_status}")
