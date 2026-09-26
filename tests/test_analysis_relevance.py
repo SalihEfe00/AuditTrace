@@ -217,6 +217,48 @@ class TestUnderstandingAndPlanning(unittest.TestCase):
         self.assertIn("hesap işletim ücreti kesilmiştir", queries[1])
 
 
+class TestRetrievalErrorsAreNotHidden(unittest.TestCase):
+    """RAG erişim hatası denetçiye "kanıt bulunamadı" olarak gösterilmemeli."""
+
+    def test_all_queries_failing_is_an_error_not_insufficient_evidence(self):
+        rag = MagicMock()
+        rag.query.side_effect = RuntimeError("chroma kilitli")
+        res = AnalysisPresenter().execute_analysis(text=FEE_COMPLAINT, rag_client=rag)
+        self.assertFalse(res.success)
+        self.assertIsNone(res.result)
+        self.assertIn("erişilemedi", res.error_message)
+        self.assertIn("chroma kilitli", res.error_message)
+
+    def test_partial_query_failure_is_reported_as_warning(self):
+        calls = []
+
+        def query(q, k=5):
+            calls.append(q)
+            if len(calls) == 1:
+                raise RuntimeError("geçici hata")
+            return [{"document": FEE_EVIDENCE.text_span, "metadata": {"file_hash": "fee", "title": FEE_EVIDENCE.source_document}}]
+
+        rag = MagicMock()
+        rag.query.side_effect = query
+        res = AnalysisPresenter().execute_analysis(text=FEE_COMPLAINT, rag_client=rag)
+        self.assertTrue(res.success)
+        self.assertTrue(any("hata verdi" in w and "geçici hata" in w for w in res.result.warnings))
+
+    def test_engine_analyze_with_unreachable_rag_raises(self):
+        from mufettis.analysis.engine import RetrievalUnavailableError
+
+        doc = DocumentUnderstandingService().analyze(FEE_COMPLAINT)
+        classification = DocumentClassifierService().classify(doc)
+        plan = AnalysisPlannerService().plan(doc, classification)
+        from mufettis.analysis.retrieval_planner import RetrievalPlannerService
+
+        retrieval_plan = RetrievalPlannerService().plan_retrieval(plan, doc)
+        rag = MagicMock()
+        rag.query.side_effect = RuntimeError("bağlantı yok")
+        with self.assertRaises(RetrievalUnavailableError):
+            AnalysisEngine().analyze(doc, classification, plan, retrieval_plan, rag_client=rag)
+
+
 class TestOfflineModelLoading(unittest.TestCase):
     def test_model_load_is_local_only_without_download_permission(self):
         from mufettis.rag import engine as rag_engine

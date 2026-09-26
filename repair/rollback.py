@@ -158,8 +158,9 @@ def restore_source_cache(
         if before_file.exists():
             try:
                 content = before_file.read_text(encoding="utf-8")
-            except Exception:
-                pass
+            except Exception as exc:
+                # Boş içerikle "başarılı" geri yükleme yapmak veriyi sessizce siler.
+                return False, f"Önceki cache içeriği okunamadı (before_cache.txt): {exc}"
 
     random_hex = binascii.hexlify(os.urandom(4)).decode()
     tmp_file = cache_dir / f"{source_sha256}.txt.restore_tmp_{random_hex}"
@@ -270,6 +271,10 @@ def restore_chroma_state(
 # Fingerprint Calculator
 # ---------------------------------------------------------------------------
 
+# Okuma hatasında kullanılır; hiçbir gerçek SHA-256 değeriyle eşleşmez.
+_FINGERPRINT_ERROR = "__read_error__"
+
+
 def calculate_state_fingerprint(
     source_sha256: str,
     cache_dir: Path,
@@ -280,13 +285,16 @@ def calculate_state_fingerprint(
     cache_file = cache_dir / f"{source_sha256}.txt"
     cache_hash = ""
     cache_size = 0
+    errors = []
     if cache_file.exists():
         try:
             c = cache_file.read_text(encoding="utf-8")
             cache_hash = hashlib.sha256(c.encode("utf-8")).hexdigest()
             cache_size = len(c.encode("utf-8"))
-        except Exception:
-            pass
+        except Exception as exc:
+            # Boş hash "cache yok" durumuyla eşleşip doğrulamayı yanlışlıkla geçirebilirdi.
+            cache_hash = _FINGERPRINT_ERROR
+            errors.append(f"cache: {exc}")
 
     idx_hash = ""
     if index is not None:
@@ -311,10 +319,14 @@ def calculate_state_fingerprint(
                 for cid, cdoc, cm in zip(cids, cdocs, cmetas)
             )
             chroma_hash = hashlib.sha256(chroma_data_str.encode("utf-8")).hexdigest() if cids else ""
-        except Exception:
-            pass
+        except Exception as exc:
+            # chunk_count=0 "parça yok" durumuyla eşleşip doğrulamayı yanlışlıkla geçirebilirdi.
+            chroma_hash = _FINGERPRINT_ERROR
+            chunk_count = -1
+            errors.append(f"chroma: {exc}")
 
     return {
+        "errors": errors,
         "cache_hash": cache_hash,
         "cache_size": cache_size,
         "index_hash": idx_hash,
@@ -425,8 +437,20 @@ def rollback_commit(
                 warnings=["Bu commit daha önce başarıyla rollback edilmiş."],
                 dry_run=dry_run,
             )
-        except Exception:
-            pass
+        except Exception as exc:
+            # İşaret dosyası varsa rollback yapılmıştır; okunamıyor diye tekrar koruması
+            # atlanırsa eski anlık görüntü sonraki değişikliklerin üzerine yazılır.
+            return RollbackResult(
+                status=RollbackStatus.ROLLBACK_BLOCKED.value,
+                rollback_id=rollback_id,
+                commit_id=commit_id,
+                candidate_id=document_id or "",
+                document_id=document_id or "",
+                source_sha256=source_sha256 or "",
+                failures=[f"Rollback işaret dosyası okunamadı ({exc}); tekrar rollback için force gerekir."],
+                dry_run=dry_run,
+                error=f"Unreadable rollback marker: {exc}",
+            )
 
     # 4. Read and validate snapshot
     snapshot_file = staging_dir / "snapshot.json"

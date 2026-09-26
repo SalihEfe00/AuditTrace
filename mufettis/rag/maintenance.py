@@ -705,8 +705,15 @@ def reset_chroma_collection(rag: LocalRAG) -> None:
     """Mevcut mevzuat koleksiyonunu tamamen silip temiz koleksiyon oluştur."""
     try:
         rag.client.delete_collection(name=CHROMA_COLLECTION)
-    except Exception:
-        pass
+    except Exception as exc:
+        # Koleksiyon hiç yoksa sorun değil; varsa ve silinemediyse eski parçalar üzerine
+        # "temiz" yeniden oluşturma yapılmamalı.
+        try:
+            rag.client.get_collection(name=CHROMA_COLLECTION)
+        except Exception:
+            pass
+        else:
+            raise RuntimeError(f"Chroma koleksiyonu sıfırlanamadı: {exc}") from exc
     rag.collection = rag.client.get_or_create_collection(
         name=CHROMA_COLLECTION,
         embedding_function=None,

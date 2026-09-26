@@ -460,7 +460,8 @@ class TestFaz15RepairAudit(unittest.TestCase):
         ok, evt, err = bad_logger.log_event(event)
         self.assertFalse(ok)
         self.assertIsNotNone(err)
-        self.assertIn("Audit storage write error", err)
+        # Okuma (zincir başı) ya da yazma aşamasında raporlanabilir; önemli olan sessizce yutulmaması.
+        self.assertIn("Audit storage", err)
 
     # 29. Temporary test isolation
     def test_29_temporary_test_isolation(self):

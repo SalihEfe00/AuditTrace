@@ -928,6 +928,8 @@ class TestFaz16IsolatedRagLabAutomation(unittest.TestCase):
         )
 
         cls.prod_size_before = (DB_PATH / "chroma.sqlite3").stat().st_size if (DB_PATH / "chroma.sqlite3").exists() else 0
+        # Sabit dosya sayısı yerine başlangıç anındaki önbellek içeriğiyle karşılaştırılır.
+        cls.prod_cache_before = sorted(p.name for p in SOURCE_CACHE_DIR.glob("*.txt"))
 
     @classmethod
     def tearDownClass(cls):
@@ -943,7 +945,7 @@ class TestFaz16IsolatedRagLabAutomation(unittest.TestCase):
         prod_sqlite = DB_PATH / "chroma.sqlite3"
         self.assertTrue(prod_sqlite.exists())
         self.assertEqual(prod_sqlite.stat().st_size, self.prod_size_before)
-        self.assertEqual(len(list(SOURCE_CACHE_DIR.glob("*.txt"))), 100)
+        self.assertEqual(sorted(p.name for p in SOURCE_CACHE_DIR.glob("*.txt")), self.prod_cache_before)
 
     def test_sandbox_03_run_cycle_scan_only_no_changes(self):
         """Running cycle with scan_only on sandbox corpus makes zero modifications."""

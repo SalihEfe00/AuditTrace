@@ -362,8 +362,9 @@ class WaveOrchestrator:
                 active_repaired = repaired - rolled_back
                 if active_repaired:
                     targets = [t for t in targets if t.get("source_hash") not in active_repaired]
-            except Exception:
-                pass
+            except Exception as exc:
+                # Hedefler daraltılamadı: daha önce doğrulanmış onarımlar da listede kalır.
+                logger.error("Onarılmış belgeler hedeften çıkarılamadı (audit okunamadı): %s", exc)
 
         if scope == WaveScope.BDDK_ACTIVE.value:
             targets = [

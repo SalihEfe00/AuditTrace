@@ -59,6 +59,28 @@ def _evidence_units(text: str) -> List[str]:
     return [u.strip() for u in _EVIDENCE_UNIT_SPLIT.split(text or "") if u.strip()]
 
 
+class RetrievalUnavailableError(RuntimeError):
+    """Hiçbir mevzuat sorgusu çalıştırılamadı (veritabanı erişim hatası)."""
+
+
+def retrieval_error_warnings(retrieval_plan: RetrievalPlan, errors: List[str]) -> List[str]:
+    """Sorgu hatalarını değerlendirir.
+
+    Tüm sorgular başarısızsa RetrievalUnavailableError fırlatır: erişim hatası, denetçiye
+    "mevzuatta kanıt bulunamadı" gibi gösterilmemelidir. Kısmi hatalar uyarı olarak döner.
+    """
+    if not errors:
+        return []
+    if len(errors) >= len(retrieval_plan.queries):
+        raise RetrievalUnavailableError(
+            f"Mevzuat veritabanına erişilemedi; {len(errors)} sorgunun hiçbiri çalıştırılamadı. İlk hata: {errors[0]}"
+        )
+    return [
+        f"{len(errors)}/{len(retrieval_plan.queries)} mevzuat sorgusu hata verdi; kanıt havuzu eksik olabilir. "
+        f"İlk hata: {errors[0]}"
+    ]
+
+
 class AnalysisEngine:
     """Core analysis engine for operational document compliance inspection."""
 
@@ -117,6 +139,7 @@ class AnalysisEngine:
         self,
         retrieval_plan: RetrievalPlan,
         rag_client: Any,
+        errors: Optional[List[str]] = None,
     ) -> List[Evidence]:
         """Executes retrieval queries against existing LocalRAG and returns deduplicated Evidence.
 
@@ -138,7 +161,10 @@ class AnalysisEngine:
 
             try:
                 results = rag_client.query(query_str, k=limit)
-            except Exception:
+            except Exception as exc:
+                # Hata çağırana bildirilir; aksi halde erişim hatası "kanıt yok" gibi görünürdü.
+                if errors is not None:
+                    errors.append(f"{query_str[:60]}: {type(exc).__name__}: {exc}")
                 continue
 
             for r in results:
@@ -183,7 +209,9 @@ class AnalysisEngine:
         if retrieved_evidence is not None:
             evidence_pool = list(retrieved_evidence)
         elif rag_client is not None:
-            evidence_pool = self.retrieve_evidence(retrieval_plan, rag_client)
+            retrieval_errors: List[str] = []
+            evidence_pool = self.retrieve_evidence(retrieval_plan, rag_client, errors=retrieval_errors)
+            warnings.extend(retrieval_error_warnings(retrieval_plan, retrieval_errors))
         else:
             evidence_pool = []
 

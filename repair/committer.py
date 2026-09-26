@@ -261,8 +261,9 @@ def capture_before_snapshot(
             cache_hash = hashlib.sha256(cache_content.encode("utf-8")).hexdigest()
             # Save copy in staging
             (staging_dir / "before_cache.txt").write_text(cache_content, encoding="utf-8")
-        except Exception:
-            pass
+        except Exception as exc:
+            # Sessizce geçmek "önbellek vardı ama boştu" kaydı üretir; geri alma dosyayı boşaltırdı.
+            raise RuntimeError(f"Önceki durum anlık görüntüsü alınamadı (source cache): {exc}") from exc
 
     cache_state = {
         "existed": cache_existed,
@@ -282,8 +283,9 @@ def capture_before_snapshot(
             if source_sha256 in items:
                 index_existed = True
                 index_record = items[source_sha256]
-        except Exception:
-            pass
+        except Exception as exc:
+            # Sessizce geçmek "kayıt yoktu" demektir; geri alma mevcut indeks kaydını silerdi.
+            raise RuntimeError(f"Önceki durum anlık görüntüsü alınamadı (ingest index): {exc}") from exc
 
     index_state = {
         "existed": index_existed,
@@ -308,8 +310,9 @@ def capture_before_snapshot(
                 chroma_docs = list(got.get("documents", []) or [])
                 chroma_metas = list(got.get("metadatas", []) or [])
                 chroma_existed = len(chroma_ids) > 0
-        except Exception:
-            pass
+        except Exception as exc:
+            # Sessizce geçmek "parça yoktu" demektir; commit eski parçaları silip geri getiremezdi.
+            raise RuntimeError(f"Önceki durum anlık görüntüsü alınamadı (Chroma): {exc}") from exc
 
     chroma_state = {
         "existed": chroma_existed,

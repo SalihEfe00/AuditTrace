@@ -21,7 +21,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from mufettis.analysis.classifier import DocumentClassifierService
 from mufettis.analysis.document_understanding import DocumentUnderstandingService
-from mufettis.analysis.engine import AnalysisEngine
+from mufettis.analysis.engine import AnalysisEngine, RetrievalUnavailableError, retrieval_error_warnings
 from mufettis.analysis.models import (
     AnalysisPlan,
     AnalysisResult,
@@ -164,10 +164,14 @@ class AnalysisPresenter:
             # 6. Evidence Retrieval
             self._notify(progress_callback, "evidence_retrieval")
             t0 = time.perf_counter()
+            retrieval_warnings: List[str] = []
             if sample_evidence is not None:
                 evidence_pool = list(sample_evidence)
             elif rag_client is not None:
-                evidence_pool = self.engine.retrieve_evidence(retrieval_plan, rag_client)
+                retrieval_errors: List[str] = []
+                evidence_pool = self.engine.retrieve_evidence(retrieval_plan, rag_client, errors=retrieval_errors)
+                # Tüm sorgular başarısızsa RetrievalUnavailableError: analiz "kanıt yok" yerine hata verir.
+                retrieval_warnings = retrieval_error_warnings(retrieval_plan, retrieval_errors)
             else:
                 evidence_pool = []
             stage_durations["evidence_retrieval"] = round(time.perf_counter() - t0, 3)
@@ -182,6 +186,7 @@ class AnalysisPresenter:
                 retrieval_plan=retrieval_plan,
                 retrieved_evidence=evidence_pool,
             )
+            result.warnings.extend(retrieval_warnings)
             stage_durations["analysis_engine"] = round(time.perf_counter() - t0, 3)
 
             total_elapsed = round(time.perf_counter() - start_time, 3)
@@ -194,6 +199,14 @@ class AnalysisPresenter:
                 stage_durations=stage_durations,
             )
 
+        except RetrievalUnavailableError as exc:
+            total_elapsed = round(time.perf_counter() - start_time, 3)
+            return AnalysisExecutionResult(
+                success=False,
+                error_message=f"Analiz tamamlanamadı: {exc}",
+                execution_time_sec=total_elapsed,
+                stage_durations=stage_durations,
+            )
         except Exception as exc:
             total_elapsed = round(time.perf_counter() - start_time, 3)
             return AnalysisExecutionResult(

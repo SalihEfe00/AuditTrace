@@ -110,9 +110,10 @@ class RepairAuditLogger:
                         last_seq = data.get("sequence_no", last_seq)
                         last_hash = data.get("event_hash", last_hash)
                     except Exception:
-                        continue
-        except Exception:
-            pass
+                        continue  # bozuk satır verify_audit_integrity tarafından raporlanır
+        except OSError as exc:
+            # Dosya okunamıyorsa başlangıç değerlerine dönmek zinciri sessizce koparırdı.
+            raise RuntimeError(f"Audit log okunamadı, zincir bağlantısı kurulamıyor: {exc}") from exc
         return last_seq, last_hash
 
     def log_event(self, event: AuditEvent) -> Tuple[bool, AuditEvent, Optional[str]]:
@@ -123,7 +124,10 @@ class RepairAuditLogger:
                 return True, event, "DUPLICATE_IGNORED"
 
             # 2. Sequence and Hash-Chain Link
-            last_seq, last_hash = self._get_last_event_info()
+            try:
+                last_seq, last_hash = self._get_last_event_info()
+            except RuntimeError as exc:
+                return False, event, f"Audit storage read error: {exc}"
             if not event.sequence_no or event.sequence_no <= last_seq:
                 event.sequence_no = last_seq + 1
             if not event.previous_event_hash or event.previous_event_hash == "0" * 64:
