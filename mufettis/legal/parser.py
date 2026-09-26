@@ -301,6 +301,26 @@ DECLARED_TITLE_MAX_LINES = 4
 DECLARED_TITLE_MAX_CHARS = 250
 
 
+# Resmî yazışmada belge konusunu "Konu:" satırında beyan eder; genelgeler ayrıca "GENELGE (2025/1)"
+# numarası taşır. Konu bir sonraki satıra taşabilir; tür başlığında veya boş satırda biter.
+_SUBJECT_RE = re.compile(r"(?m)^\s*Konu\s*:\s*(\S.*(?:\n(?!\s*$)(?!\s*(?:GENELGE|T\.\s*C|Sayı)\b).*)?)")
+_CIRCULAR_NUMBER_RE = re.compile(r"(?m)^\s*GENELGE\s*\n?\s*\(?\s*(\d{4}\s*/\s*\d{1,3})\s*\)?")
+DECLARED_SUBJECT_MAX_CHARS = 200
+
+
+def extract_declared_subject(text: str) -> str:
+    """Yazışma biçimindeki belgenin beyan ettiği konu ("Genelge 2025/1: <konu>"); yoksa ""."""
+    head = str(text or "")[:LAW_REFERENCE_HEADER_CHARS]
+    match = _SUBJECT_RE.search(head)
+    if not match:
+        return ""
+    subject = re.sub(r"\s+", " ", match.group(1)).strip(" .")
+    if not re.search(r"[A-Za-zÇĞİÖŞÜçğıöşü]{3,}", subject) or len(subject) > DECLARED_SUBJECT_MAX_CHARS:
+        return ""
+    circular = _CIRCULAR_NUMBER_RE.search(head[match.end():])
+    return f"Genelge {re.sub(r'\s+', '', circular.group(1))}: {subject}" if circular else subject
+
+
 def extract_declared_title(text: str) -> str:
     """Belgenin kendi beyan ettiği ad; bulunamazsa "". Yalnızca kanun numarası beyanına bitişik,
     tamamı büyük harfli satır bloğu kabul edilir. Blok yalnızca genel sözcüklerden oluşuyorsa
@@ -426,6 +446,7 @@ def extract_legal_metadata(
         "document_number":number,
         "law_number":law_number,
         "declared_title":extract_declared_title(head),
+        "declared_subject":extract_declared_subject(head),
         "article_hint":article,
         "official_date_hint":official_date,
         "effective_date":effective_date,

@@ -83,8 +83,8 @@ def _turkish_title_case(text: str) -> str:
 def evidence_display_title(meta: Dict[str, Any]) -> str:
     """Kanıtın atıflarda görünen adı. Belge kendi adını beyan ediyorsa (kanun numarası beyanının
     üstündeki ad) o kullanılır: dosya adları ("55555") ve tarayıcı sayfa başlıkları ("Mevzuat Bilgi
-    Sistemi") belgenin adı değildir. Ad yoksa ve dosya adı tanımlayıcı değilse "7440 sayılı Kanun"
-    gösterilir. Kayıt değişmez."""
+    Sistemi") belgenin adı değildir. Ad yoksa ve başlık yalnızca bir numaraysa ("1296") belgenin
+    beyan ettiği konu, o da yoksa "7440 sayılı Kanun" gösterilir. Kayıt değişmez."""
     declared = str(meta.get("declared_title") or "").strip()
     law_number = str(meta.get("law_number") or "").strip()
     if declared:
@@ -92,6 +92,9 @@ def evidence_display_title(meta: Dict[str, Any]) -> str:
         return f"{law_number} sayılı {name}" if law_number.isdigit() else name
     title = str(meta.get("title") or "").strip()
     descriptive = bool(re.search(r"[A-Za-zÇĞİÖŞÜçğıöşü]{3,}", title))
+    subject = str(meta.get("declared_subject") or "").strip()
+    if not descriptive and subject:
+        return subject
     if not descriptive and law_number.isdigit() and canonical_view(meta).instrument_type == InstrumentType.LAW:
         return f"{law_number} sayılı Kanun"
     return title or str(meta.get("source") or "") or "Resmi Mevzuat Belgesi"

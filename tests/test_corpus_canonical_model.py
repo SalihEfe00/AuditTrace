@@ -401,6 +401,20 @@ class TestDeclaredTitle(unittest.TestCase):
         self.assertEqual(extract_declared_title("Bu metin 5411 sayılı Kanuna atıf yapar.\nMADDE 1 –"), "")
         self.assertEqual(extract_declared_title("Karışık Harfli Başlık\nKanun Numarası : 99004\n"), "")
 
+    def test_correspondence_subject_and_circular_number(self):
+        from mufettis.analysis.engine import evidence_display_title
+        from mufettis.legal.parser import extract_declared_subject
+
+        text = ("T. C\nÖRNEK DÜZENLEME KURUMU\nSayı: 1-2\nKonu: Örnek Hesaplardan Kaynaklanan Faiz\n"
+                "Oranı Riskinin Ölçülmesi Hk.\nGENELGE\n(2025/1)\nBilindiği üzere ...")
+        subject = extract_declared_subject(text)
+        self.assertEqual(subject, "Genelge 2025/1: Örnek Hesaplardan Kaynaklanan Faiz Oranı Riskinin Ölçülmesi Hk")
+        self.assertEqual(extract_declared_subject("Konu yok.\nMADDE 1 –"), "")
+        # Yalnızca başlık bir numaraysa kullanılır; tanımlayıcı başlık korunur.
+        self.assertEqual(evidence_display_title(_regulation(declared_subject=subject)), subject)
+        self.assertEqual(evidence_display_title(_regulation(title="Örnek Genelge", declared_subject=subject)),
+                         "Örnek Genelge")
+
     def test_metadata_carries_declared_title(self):
         meta = extract_legal_metadata("55555", "ÖRNEK KARTLAR KANUNU\n\nKanun Numarası : 99001\nMADDE 1 – Amaç.",
                                       {"source_id": "local_file"})
