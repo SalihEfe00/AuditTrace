@@ -36,7 +36,11 @@ _PRODUCTION_DATA_DIR = Path(
     os.environ.get("MUFETTIS_TEST_SOURCE_DATA_DIR") or (_REPO_ROOT / "data")
 ).resolve()
 
-_TEST_ROOT, _TEST_DATA_DIR = _isolation.create_isolated_data_copy(_PRODUCTION_DATA_DIR)
+_TEST_DATA_PREFIX = "mufettis_test_data_"
+# Önceki oturumlardan kilit nedeniyle silinemeyen kopyalar (her biri ~200 MB) temizlenir.
+# Bir oturum birkaç dakika sürdüğünden 15 dakikadan eski kopyalar artık kullanılmıyordur.
+_isolation.cleanup_stale_copies(_TEST_DATA_PREFIX, max_age_seconds=900)
+_TEST_ROOT, _TEST_DATA_DIR = _isolation.create_isolated_data_copy(_PRODUCTION_DATA_DIR, prefix=_TEST_DATA_PREFIX)
 os.environ["MUFETTIS_DATA_DIR"] = str(_TEST_DATA_DIR)
 _PRODUCTION_SNAPSHOT = _isolation.snapshot(_PRODUCTION_DATA_DIR)
 

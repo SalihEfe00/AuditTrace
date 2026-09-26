@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-from mufettis.tests.isolation import create_isolated_data_copy, diff, snapshot
+from mufettis.tests.isolation import cleanup_stale_copies, create_isolated_data_copy, diff, snapshot
 
 from mufettis.tests.test_extraction import (
     TestV1345PdfDependencyAndExtraction,
@@ -178,6 +178,7 @@ def run_self_tests(test_names: Optional[Sequence[str]] = None) -> unittest.TestR
 
     result = IsolatedSelfTestResult()
     production_before = snapshot(DATA_DIR)
+    cleanup_stale_copies("mufettis_self_test_")
     temp_root, isolated_dir = create_isolated_data_copy(DATA_DIR, prefix="mufettis_self_test_")
     result.isolated_data_dir = str(isolated_dir)
     json_out = temp_root / "self_test_result.json"

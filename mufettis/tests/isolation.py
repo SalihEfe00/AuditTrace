@@ -45,6 +45,31 @@ def diff(before: Snapshot, after: Snapshot) -> List[str]:
     return changes
 
 
+def cleanup_stale_copies(prefix: str, max_age_seconds: float = 3600.0, temp_dir: Path | None = None) -> List[Path]:
+    """Önceki oturumlardan kalan `prefix*` geçici kopyalarını siler; silinenleri döndürür.
+
+    Windows'ta Chroma'nın SQLite dosyaları oturum sonunda hâlâ açık olabildiğinden
+    anlık silme başarısız olur; bu kopyalar bir sonraki oturumda (süreç bittiği için
+    kilitsizken) temizlenir. Eşzamanlı çalışan bir oturumun kopyasına dokunmamak için
+    yalnızca max_age_seconds'tan eski olanlar silinir.
+    """
+    import time
+
+    base = Path(temp_dir or tempfile.gettempdir())
+    removed: List[Path] = []
+    now = time.time()
+    for candidate in base.glob(f"{prefix}*"):
+        try:
+            if not candidate.is_dir() or now - candidate.stat().st_mtime < max_age_seconds:
+                continue
+        except OSError:
+            continue
+        shutil.rmtree(candidate, ignore_errors=True)
+        if not candidate.exists():
+            removed.append(candidate)
+    return removed
+
+
 def create_isolated_data_copy(source_data_dir: Path, prefix: str = "mufettis_test_data_") -> Tuple[Path, Path]:
     """source_data_dir'i geçici bir köke kopyalar; (geçici_kök, veri_dizini) döndürür.
 

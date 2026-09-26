@@ -64,6 +64,35 @@ class TestIsolationHelpers(unittest.TestCase):
         finally:
             shutil.rmtree(src_root, ignore_errors=True)
 
+    def test_cleanup_removes_only_old_copies_with_prefix(self):
+        import os
+        import shutil
+        import tempfile
+        import time
+
+        from mufettis.tests.isolation import cleanup_stale_copies
+
+        base = Path(tempfile.mkdtemp(prefix="iso_cleanup_"))
+        try:
+            old = base / "mufettis_test_data_old"
+            fresh = base / "mufettis_test_data_fresh"
+            other = base / "baska_klasor_old"
+            for d in (old, fresh, other):
+                (d / "data").mkdir(parents=True)
+                (d / "data" / "x.txt").write_text("x", encoding="utf-8")
+            two_hours_ago = time.time() - 7200
+            for d in (old, other):
+                os.utime(d, (two_hours_ago, two_hours_ago))
+
+            removed = cleanup_stale_copies("mufettis_test_data_", max_age_seconds=3600, temp_dir=base)
+
+            self.assertEqual(removed, [old])
+            self.assertFalse(old.exists())
+            self.assertTrue(fresh.exists(), "Yeni (eşzamanlı oturuma ait olabilecek) kopya silinmemeli")
+            self.assertTrue(other.exists(), "Önek dışı klasörlere dokunulmamalı")
+        finally:
+            shutil.rmtree(base, ignore_errors=True)
+
     def test_missing_source_creates_empty_data_dir(self):
         import shutil
 
