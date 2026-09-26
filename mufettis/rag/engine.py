@@ -51,6 +51,12 @@ from mufettis.legal.parser import (
     split_legal_chunks,
 )
 from mufettis.rag.index import IngestIndex
+from mufettis.rag.lexical import LexicalIndex, query_terms
+
+# Serbest aramada vektör adaylarına eklenen sözcüksel (BM25) aday sayısı: max(alt sınır, k * çarpan).
+LEXICAL_CANDIDATES_MIN = 10
+LEXICAL_CANDIDATES_PER_K = 2
+
 
 class LocalRAG:
     def __init__(self, db_path: Path = DB_PATH, model_name: str = EMBEDDING_MODEL, allow_download: bool = False):
@@ -110,6 +116,7 @@ class LocalRAG:
         return np.asarray(arr, dtype=np.float32).tolist()
 
     def delete_hash(self, file_hash: str) -> None:
+        self._mutations = getattr(self, "_mutations", 0) + 1
         try:
             self.collection.delete(where={"file_hash": file_hash})
         except Exception:
@@ -151,7 +158,7 @@ class LocalRAG:
                 # aranamaz durumdadır. Atlamak yerine eski parçalar silinip güncel şemayla yüklenir.
                 self.delete_hash(file_hash)
 
-        chunks = split_legal_chunks(text)
+        chunks = split_legal_chunks(text, title=str(meta.get("title", "") or ""))
         if not chunks:
             return {"status": "empty_chunks", "count": 0, "chunks": []}
 
@@ -245,6 +252,7 @@ class LocalRAG:
                     metadatas=metadatas[start + up_start:start + up_end],
                 )
 
+        self._mutations = getattr(self, "_mutations", 0) + 1
         return {"status": "ingested", "count": total, "chunks": chunks, "canonical": {
             k: meta[k] for k in ("work_id", "expression_id", "normative_role", "verification")
         }}
@@ -437,13 +445,60 @@ class LocalRAG:
         docs=result.get("documents",[[]])[0]
         metas=result.get("metadatas",[[]])[0]
         distances=result.get("distances",[[]])[0]
+        ids=(result.get("ids") or [[]])[0] or [None]*len(docs)
         out=[]
-        for doc,meta,distance in zip(docs,metas,distances):
+        for cid,doc,meta,distance in zip(ids,docs,metas,distances):
             meta=meta or {}
             if not _chunk_is_retrievable(meta, doc):
                 continue
-            out.append({"document":clean_evidence_text(doc,12000),"metadata":meta,"distance":float(distance) if distance is not None else None})
+            out.append({"id":cid,"document":clean_evidence_text(doc,12000),"metadata":meta,"distance":float(distance) if distance is not None else None})
+        # Hibrit aday üretimi: vektör aramasının kaçırdığı, sorgu terimlerini taşıyan parçalar da
+        # aynı alaka sıralamasına girer (uzaklıkları gerçek embedding'lerden hesaplanır).
+        seen={r["id"] for r in out if r["id"] is not None}
+        lexical_n=max(LEXICAL_CANDIDATES_MIN, k*LEXICAL_CANDIDATES_PER_K)
+        out.extend(r for r in self._lexical_candidates(query, embedding, lexical_n, eligibility) if r["id"] not in seen)
         return prefer_official_matches(out, limit=max(1,min(k,MAX_RAG_RESULTS)), query=query)
+
+    def _lexical_index(self) -> LexicalIndex:
+        """Güncel şemadaki parçaların BM25 indeksi; koleksiyon değişince yeniden kurulur."""
+        signature=(self.collection.count(), getattr(self, "_mutations", 0))
+        cached=getattr(self, "_lexical_cache", None)
+        if cached is not None and cached[0]==signature:
+            return cached[1]
+        got=self.collection.get(where={"chunk_schema_version":CHUNK_SCHEMA_VERSION}, include=["documents","metadatas"])
+        index=LexicalIndex(got.get("ids") or [], got.get("documents") or [], got.get("metadatas") or [])
+        self._lexical_cache=(signature, index)
+        return index
+
+    def _lexical_candidates(
+        self,
+        query: str,
+        embedding: List[float],
+        n: int,
+        eligibility: Optional[EligibilityPolicy],
+    ) -> List[Dict[str, Any]]:
+        terms=query_terms(query)
+        if not terms:
+            return []
+        hits=self._lexical_index().search(terms, n, admit=eligibility.admits if eligibility else None)
+        if not hits:
+            return []
+        got=self.collection.get(ids=[cid for cid,_ in hits], include=["documents","metadatas","embeddings"])
+        embeddings=got.get("embeddings")
+        if embeddings is None:
+            return []
+        q=np.asarray(embedding, dtype=np.float32)
+        out=[]
+        for cid,doc,meta,emb in zip(got.get("ids") or [], got.get("documents") or [], got.get("metadatas") or [], embeddings):
+            meta=meta or {}
+            if not _chunk_is_retrievable(meta, doc):
+                continue
+            if eligibility and not eligibility.admits(meta):
+                continue
+            # Koleksiyonun uzaklığı (Chroma varsayılanı) normalize vektörlerde kare L2'dir.
+            distance=float(np.sum((np.asarray(emb, dtype=np.float32)-q)**2))
+            out.append({"id":cid,"document":clean_evidence_text(doc,12000),"metadata":meta,"distance":distance})
+        return out
 
     def count(self) -> int:
         try:

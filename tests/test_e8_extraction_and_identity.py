@@ -180,3 +180,60 @@ class TestChromaBatchLimits(unittest.TestCase):
             self.assertEqual(len(collection.records), 25)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+
+class TestInlineArticleHeaders(unittest.TestCase):
+    """PDF çıkarımının önceki cümleye yapıştırdığı madde başlıkları ayrı madde olur."""
+
+    def test_inline_headers_start_new_articles_but_references_do_not(self):
+        from mufettis.legal.parser import split_legal_chunks
+
+        text = ("GEÇİCİ MADDE 3 –Kuruluşlar uygun hale getirmek zorundadırlar. Ancak 24 üncü MADDE hükmü "
+                "saklıdır; 5 inci Madde uyarınca işlem yapılır. GEÇİCİ MADDE 4 –Borçlular taksitle öder. "
+                "Madde 15 — (Değişik: 1/1/2020) Bağımsız denetim yapılır.")
+        chunks = [(c["article_prefix"], c["article_no"]) for c in split_legal_chunks(text)]
+        self.assertEqual(chunks, [("GEÇİCİ", "3"), ("GEÇİCİ", "4"), ("", "15")])
+
+
+class TestAccountingPlanDetectionIsDensityBased(unittest.TestCase):
+    """Hesap planı kipi kod yoğunluğuna veya belgenin kendi başlığına dayanır; birkaç sayı
+    veya gövdede geçen "Tekdüzen Hesap Planı" atfı bir belgeyi hesap planı yapmaz."""
+
+    BOARD_DECISION = (
+        "Bankacılık Düzenleme ve Denetleme Kurumundan:\nKURUL KARARI\nKarar Sayısı:\n"
+        "11237 Karar Tarihi: 07.07.2025\n(10.07.2025 tarih ve 32952 sayılı Resmî Gazete'de yayımlanmıştır.)\n"
+        "Kurulun 07.07.2025 tarihli toplantısında 159540 sayılı yazı ile 11036 sayılı Kararı "
+        "ve 20145 sayılı yazısı incelenmiş, 30011 sayılı başvuru uygun bulunmuştur.\n"
+    )
+
+    def test_board_decision_numbers_are_not_account_codes(self):
+        from mufettis.legal.parser import classify_legal_structure, split_legal_chunks
+
+        chunks = split_legal_chunks(self.BOARD_DECISION, title="11237")
+        self.assertFalse([c for c in chunks if c["chunk_type"] == "accounting_code"])
+        self.assertNotEqual(classify_legal_structure("11237", self.BOARD_DECISION, "BDDK Belge")["structure_type"],
+                            "accounting_plan")
+
+    def test_body_reference_to_chart_does_not_make_a_law_a_chart(self):
+        from mufettis.legal.parser import is_accounting_plan_text
+
+        law = ("VERGİ USUL KANUNU\n" + "Mükellefler defterlerini tutar. " * 40
+               + "Tekdüzen Hesap Planı uygulanır.\n100 KASA HESABI\n120 ALICILAR\n" + "Hüküm devam eder. " * 40)
+        self.assertFalse(is_accounting_plan_text(law, "Vergi Usul Kanunu"))
+
+    def test_dense_chart_is_detected_with_or_without_title(self):
+        from mufettis.legal.parser import is_accounting_plan_text
+
+        chart = "\n".join(f"{100 + i} HESAP ADI {i}" for i in range(60))
+        self.assertTrue(is_accounting_plan_text(chart))
+        self.assertTrue(is_accounting_plan_text("010 KASA\n011 EFEKTİF DEPOSU", "Tekdüzen Hesap Planı"))
+
+
+class TestControlCharactersAreRemoved(unittest.TestCase):
+    def test_unmapped_glyph_codes_do_not_survive_normalization(self):
+        from mufettis.extraction.text_repair import normalize_extracted_text
+
+        out = normalize_extracted_text("Tablo 1: Şok Oranı\n±\x02\x03\x04\x05\x07\x08  400 baz puan\x0c\n\tDevam\x1f.")
+        self.assertFalse([c for c in out if ord(c) < 32 and c not in "\n\t\r"])
+        self.assertIn("400 baz puan", out)
+        self.assertIn("\n", out)

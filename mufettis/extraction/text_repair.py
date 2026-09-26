@@ -294,6 +294,9 @@ def repair_extracted_spacing(value: str, title: str = "", document_type: str = "
     s = re.sub(r"\n[ \t]+", "\n", s)
     s = re.sub(r"\n{3,}", "\n\n", s)
     return s.strip()
+_C0_CONTROL_RE = re.compile(r"[\x01-\x08\x0b\x0c\x0e-\x1f\x7f]")
+
+
 def normalize_extracted_text(value: str) -> str:
     """Extraction metnini normalize eder; mevcut yatay whitespace'i korur."""
     protected = {}
@@ -326,7 +329,10 @@ def normalize_extracted_text(value: str) -> str:
         protect,
         raw,
     )
-    s = repair_mojibake(raw).replace("\x00", " ")
+    # C0 kontrol karakterleri (sekme/satır sonu hariç) metin değildir: PDF'te Unicode eşlemesi
+    # olmayan glifler (ör. tablo sembolleri) bu kodlarla gelir. Önceden yalnızca NUL temizleniyordu;
+    # kalanlar parçalara girip kapının kalite taramasında belgeyi reddettiriyordu.
+    s = _C0_CONTROL_RE.sub("", repair_mojibake(raw).replace("\x00", " "))
 
     # C: Mevcut whitespace'i değiştirmemesi gereken sıradan metinlerde
     # destructive spacing-repair katmanına hiç girme. Yalnızca gerçekten

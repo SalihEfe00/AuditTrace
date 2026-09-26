@@ -97,6 +97,32 @@ def extract_first(text: str, patterns: Iterable[str]) -> Optional[str]:
         if m:
             return m.group(1).strip()
     return None
+# Hesap planı: belgenin omurgası "kod + başlık" satırlarıdır; belirleyici olan kodların metne göre
+# YOĞUNLUĞUDUR (küçük bir hesap planı alıntısı da hesap planıdır). Ölçüm: hesap planlarında 1000
+# karakterde 12-18 kod; hesap planına atıf yapan vergi kanunlarında <1; kurul kararlarında birkaç
+# "NNNNN sayılı" sayısı (küçük harfle devam ettiği için kod sayılmaz).
+ACCOUNTING_MIN_CODES = 5
+ACCOUNTING_MIN_CODES_PER_1000_CHARS = 3.0
+_ACCOUNT_LINE_RE = re.compile(r"(?m)^\s*\d{3,6}\s+[A-ZÇĞİÖŞÜa-zçğıöşü0-9][^\n]{2,160}$")
+_ACCOUNT_INLINE_RE = re.compile(r"(?<![\d.,/])\d{3,6}(?=\s+[A-ZÇĞİÖŞÜ])")
+
+
+# Belgenin kendi başlığı onu hesap planı olarak adlandırıyorsa az sayıda kod yeter. İfade yalnızca
+# başlıkta / metnin başlık bölgesinde aranır: gövdede geçmesi atıftır (ör. Vergi Usul Kanunu).
+_ACCOUNTING_TITLE_RE = re.compile(r"(?i)hesap\s+plan[ıi]")
+ACCOUNTING_HEADING_CHARS = 300
+
+
+def is_accounting_plan_text(text: str, title: str = "") -> bool:
+    body = str(text or "")
+    if not body.strip():
+        return False
+    codes = max(len(_ACCOUNT_LINE_RE.findall(body)), len(_ACCOUNT_INLINE_RE.findall(body)))
+    if codes >= 2 and _ACCOUNTING_TITLE_RE.search(f"{title}\n{body[:ACCOUNTING_HEADING_CHARS]}"):
+        return True
+    return codes >= ACCOUNTING_MIN_CODES and codes * 1000.0 / len(body) >= ACCOUNTING_MIN_CODES_PER_1000_CHARS
+
+
 def classify_legal_structure(
     title: str,
     text: str,
@@ -145,14 +171,9 @@ def classify_legal_structure(
         ))
         section_count=max(section_count, guidance_inline_count)
 
-    # 1043 tipi BDDK Tekdüzen Hesap Planı: hukuki MADDE değil, hesap kodu + başlık
-    # hiyerarşisi kullanır. Başlık PDF çıkarımında kaybolabildiği için yalnızca
-    # başlığa güvenmiyoruz; tekrarlayan hesap-kodu satırlarını da güçlü sinyal
-    # olarak kullanıyoruz. Böylece mevcut "BDDK Belge" başlığı olan 1043 de yakalanır.
-    accounting_phrase=bool(re.search(
-        r"(?i)tek\s*d[üu]zen\s+hesap\s+plan[ıi]",
-        title_norm + "\n" + norm.lower(),
-    ))
+    # Hesap planları hukuki MADDE değil, hesap kodu + başlık hiyerarşisi kullanır. Tespit
+    # başlığa, belge türüne veya "Tekdüzen Hesap Planı" ifadesine değil (atıf yapan kanunlarda
+    # da geçer) kod satırlarının sayı ve yoğunluğuna dayanır (is_accounting_plan_text).
     account_code_count=len(re.findall(
         r"(?m)^\s*(\d{3,6})\s{1,}([A-ZÇĞİÖŞÜa-zçğıöşü0-9][^\n]{2,160})$",
         norm,
@@ -162,21 +183,7 @@ def classify_legal_structure(
         norm,
     ))
     account_code_count=max(account_code_count, inline_account_count)
-    # Hesap planlarında 010, 011, 012 gibi kök hesaplar tipiktir; tek bir
-    # tesadüfi sayı satırının belgeyi yanlış sınıflandırmasını engelle.
-    root_account_count=len(set(re.findall(
-        r"(?m)^\s*(\d{3})\d{0,3}\s{1,}[A-ZÇĞİÖŞÜa-zçğıöşü0-9]",
-        norm,
-    )))
-    inline_root_account_count=len(set(re.findall(
-        r"(?<!\d)(\d{3})\d{0,3}(?=\s+[A-ZÇĞİÖŞÜa-zçğıöşü0-9])",
-        norm,
-    )))
-    root_account_count=max(root_account_count, inline_root_account_count)
-    accounting_plan_context=bool(
-        accounting_phrase
-        or (doc_norm == "bddk belge" and account_code_count >= 5)
-    )
+    accounting_plan_context=is_accounting_plan_text(norm, str(title or ""))
     if accounting_plan_context and account_code_count < 2:
         account_code_count=len(re.findall(
             r"(?i)(?<!\d)\d{3,6}\s+(?=[A-ZÇĞİÖŞÜa-zçğıöşü])",
@@ -730,6 +737,11 @@ def prefer_official_matches(
         return validity_tier(meta), -prior, float(item.get("distance") or 999.0)
 
     return sorted(results, key=_key)[:limit]
+INLINE_ARTICLE_HEADER_RE=re.compile(
+    r"(?<=[.;:])[ \t]+(?=(?:(?:GEÇİCİ|EK)[ \t]+)?MADDE[ \t]+\d+[A-Za-z]?[ \t]*[–—-])"
+)
+
+
 def split_legal_chunks(
     text: str,
     max_chars: int=1800,
@@ -746,38 +758,22 @@ def split_legal_chunks(
     clean=repair_extracted_spacing(clean)
     if not clean:
         return []
+    # PDF çıkarımı madde başlıklarını önceki cümleye yapıştırabiliyor ("… getirmek zorundadırlar.
+    # GEÇİCİ MADDE 4 –Bu Kanunun …"); o zaman iki madde tek parça olur ve atıf yanlış maddeyi
+    # gösterir. Başlık, cümle sonundan sonra gelen BÜYÜK harfli "MADDE <no> –" kalıbıdır; metin
+    # içi atıflar ("24 üncü maddenin") küçük harfli olduğundan bölünmez.
+    clean=INLINE_ARTICLE_HEADER_RE.sub("\n", clean)
 
     # Yapı tipi metnin kendisinden güvenli biçimde çıkarılır; mevcut çağrı
     # imzası korunur, dışarıdaki hiçbir kodun title/document_type göndermesi gerekmez.
-    lower_clean=clean.lower()
     has_article=bool(re.search(r"(?i)(?:^|\n)\s*(?:(?:GEÇİCİ|EK)\s+)?MADDE\s*[-:]?\s*\d+[A-Za-z]?\b", clean))
     guidance_mode=(
         not has_article
         and bool(re.search(r"(?i)(İYİ\s+UYGULAMA\s+REHBERİ|\bREHBER\b|\bKILAVUZ\b|\bBİRİNCİ\s+KISIM\b)", clean))
     )
-    accounting_phrase=bool(re.search(
-        r"(?i)tek\s*d[üu]zen\s+hesap\s+plan[ıi]",
-        (str(title or "") + "\n" + lower_clean),
-    ))
-    account_code_signal=len(re.findall(
-        r"(?m)^\s*\d{3,6}\s{1,}[A-ZÇĞİÖŞÜa-zçğıöşü0-9][^\n]{2,120}$",
-        clean,
-    ))
-    account_code_signal=max(account_code_signal, len(re.findall(
-        r"(?<!\d)\d{3,6}(?=\s+[A-ZÇĞİÖŞÜa-zçğıöşü0-9])", clean)
-    ))
-    root_account_signal=len(set(re.findall(
-        r"(?m)^\s*(\d{3})\d{0,3}\s{1,}[A-ZÇĞİÖŞÜa-zçğıöşü0-9]",
-        clean,
-    )))
-    root_account_signal=max(root_account_signal, len(set(re.findall(
-        r"(?<!\d)(\d{3})\d{0,3}(?=\s+[A-ZÇĞİÖŞÜa-zçğıöşü0-9])", clean)
-    )))
-    accounting_mode=bool(
-        accounting_phrase
-        or (str(document_type or "").strip().lower() == "bddk belge" and account_code_signal >= 5)
-        or account_code_signal >= 5
-    )
+    # Birkaç "NNNNN sayılı" / "Karar Sayısı: NNNNN" sayısı belgeyi hesap planı yapmaz (önceden
+    # kurul kararlarının gövdesi "hesap kodu" parçası olup sınıflama rolüne düşüyordu).
+    accounting_mode=is_accounting_plan_text(clean, str(title or ""))
 
     # PDF extraction satır sonlarını kaybettiyse rehber hükümlerini ayır.
     if guidance_mode:
