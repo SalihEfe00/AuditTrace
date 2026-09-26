@@ -179,6 +179,13 @@ class TestPersistentLexicalIndexOnChroma(unittest.TestCase):
             rag.collection.add(ids=["c"], documents=["aidat iadesi"], metadatas=[meta], embeddings=[[0.5, 0.5]])
             refreshed = again._lexical_index()
             self.assertEqual([i for i, _ in refreshed.search(query_terms("iade"), 5)], ["c"])
+
+            # Yalnızca meta veri güncellemesi (parça sayısı aynı) de indeksi yeniler.
+            before = again._collection_signature()
+            rag.collection.update(ids=["c"], metadatas=[{**meta, "structure_type": "accounting_plan"}])
+            self.assertNotEqual(again._collection_signature(), before)
+            role = again._lexical_index().search(query_terms("iade"), 5, admit=lambda m: m["normative_role"] != "classification")
+            self.assertEqual(role, [])
             for index in (first, refreshed):
                 index.close()
             again._lexical_index().close()

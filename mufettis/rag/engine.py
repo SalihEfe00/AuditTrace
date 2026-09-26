@@ -5,6 +5,7 @@ import hashlib
 import os
 import re
 import shutil
+import sqlite3
 import uuid
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -478,15 +479,21 @@ class LocalRAG:
                     pass  # başka bir süreç hâlâ kullanıyor; sonraki kurulumda silinir
 
     def _collection_signature(self) -> str:
-        """Koleksiyondaki her yazma (ekleme, silme, meta veri güncellemesi) Chroma'nın SQLite
-        dosyalarını değiştirir; okumalar değiştirmez. İmza bu dosyaların boyut ve zamanından ve
-        parça sayısından oluşur."""
+        """Chroma her yazmayı (ekleme, silme, meta veri güncellemesi) artan bir sıra numarasıyla
+        kuyruğa yazar; okumalar numarayı değiştirmez. İmza bu numara ve parça sayısıdır. (Dosya
+        zamanı kullanılamaz: Chroma veritabanını her açışta dosyaya yazar.)"""
         parts=[LEXICAL_INDEX_VERSION, str(CHUNK_SCHEMA_VERSION), str(self.collection.count())]
-        for name in ("chroma.sqlite3", "chroma.sqlite3-wal"):
-            path=Path(self.db_path)/name
-            if path.exists():
-                st=path.stat()
-                parts.append(f"{name}:{st.st_size}:{st.st_mtime_ns}")
+        sqlite_path=Path(self.db_path)/"chroma.sqlite3"
+        if sqlite_path.exists():
+            conn=sqlite3.connect(f"{sqlite_path.as_uri()}?mode=ro", uri=True)
+            try:
+                seq=conn.execute(
+                    "SELECT MAX(s) FROM (SELECT MAX(seq_id) AS s FROM embeddings_queue "
+                    "UNION ALL SELECT MAX(seq_id) FROM max_seq_id)"
+                ).fetchone()[0]
+            finally:
+                conn.close()
+            parts.append(f"seq:{seq}")
         return "|".join(parts)
 
     def _lexical_index(self) -> Union[LexicalIndex, DiskLexicalIndex]:
