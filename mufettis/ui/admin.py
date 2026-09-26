@@ -357,7 +357,7 @@ def render_mevzuat_admin(
             temp = DATA_DIR / f"upload_{uuid.uuid4().hex}_{Path(local_file.name).name}"
             temp.write_bytes(local_file.getvalue())
             try:
-                meta = ingest_local_regulation_file(temp, rag, force=force_ingest)
+                meta = ingest_local_regulation_file(temp, rag, force=force_ingest, original_name=local_file.name)
                 st.success(f"İndeksleme tamamlandı: {meta.get('title')} / {meta.get('chunk_count', meta.get('count', 0))} chunk")
                 pdf_diag = meta.get("pdf_diagnostic")
                 if pdf_diag:

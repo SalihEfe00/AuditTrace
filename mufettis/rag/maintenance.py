@@ -1057,8 +1057,17 @@ def versioned_ingest_text(
         "diff": diff_info,
         "healed": was_healed,
     }
-def ingest_local_regulation_file(path: Path, rag: LocalRAG, index: Optional[IngestIndex] = None, force: bool = False) -> Dict[str, Any]:
+def ingest_local_regulation_file(
+    path: Path,
+    rag: LocalRAG,
+    index: Optional[IngestIndex] = None,
+    force: bool = False,
+    original_name: Optional[str] = None,
+) -> Dict[str, Any]:
+    """original_name: kullanıcının yüklediği dosyanın adı. Dosya geçici bir ada yazılıp buradan
+    içe aktarılıyorsa başlık bu addan türetilir; geçici yol kayda yazılmaz (silinir)."""
     index = index or IngestIndex()
+    title = Path(original_name).stem if original_name else path.stem
     data = path.read_bytes()
     file_hash = sha256_bytes(data)
     text = ""
@@ -1085,16 +1094,17 @@ def ingest_local_regulation_file(path: Path, rag: LocalRAG, index: Optional[Inge
         text = data.decode("utf-8-sig", errors="replace").strip()
     if not text.strip():
         raise ValueError("Belgeden metin çıkarılamadı")
-    meta = extract_legal_metadata(path.stem, text, enrich_source_meta({
+    meta = extract_legal_metadata(title, text, enrich_source_meta({
         "file_hash": file_hash,
-        "title": path.stem,
+        "title": title,
         "url": "",
         "source": "Yerel mevzuat paketi",
         "timestamp": now_iso(),
         "page_count": pages,
         "ocr_used": ocr_used,
         "ingest_origin": "local_file",
-        "local_path": str(path),
+        "file_name": Path(original_name).name if original_name else path.name,
+        "local_path": "" if original_name else str(path),
     }, "local_file"))
     pdf_diagnostic = dict(scraper._last_pdf_diagnostic) if path.suffix.lower() == ".pdf" else {}
     result = versioned_ingest_text(

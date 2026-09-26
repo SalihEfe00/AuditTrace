@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import re
 import shutil
 import sys
 from collections import Counter
@@ -46,13 +47,27 @@ def _cache_text(file_hash: str) -> str:
 
 
 def _canonical_part(meta: Dict[str, Any]) -> Dict[str, str]:
-    return {k: str(meta.get(k, "")) for k in (*CANONICAL_FIELDS, "verified_against")}
+    return {k: str(meta.get(k, "")) for k in (*CANONICAL_FIELDS, "verified_against", "title", "title_normalized")}
+
+
+# Eski yönetim ekranı yüklenen dosyayı "upload_<uuid>_<ad>" geçici adıyla içe aktarıyordu ve başlık
+# bu addan türüyordu. Rastgele önek başlık tabanlı Work kimliğine de giriyordu.
+LEGACY_UPLOAD_PREFIX = re.compile(r"^upload_[0-9a-f]{32}_")
+
+
+def clean_legacy_title(rec: Dict[str, Any]) -> Dict[str, Any]:
+    title = str(rec.get("title") or "")
+    if not LEGACY_UPLOAD_PREFIX.match(title):
+        return rec
+    clean = LEGACY_UPLOAD_PREFIX.sub("", title)
+    return {**rec, "title": clean, "title_normalized": re.sub(r"\s+", " ", clean).strip().lower()}
 
 
 def plan_index(items: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
     """Saf karar: her index kaydının kanonik alanlarla güncellenmiş hali."""
     fresh: Dict[str, Dict[str, Any]] = {}
     for h, rec in items.items():
+        rec = clean_legacy_title(rec)
         text = _cache_text(h)
         fresh[h] = with_canonical(rec, text) if text.strip() else with_canonical(rec)
     # Özdeş içerik doğrulaması tüm corpus üzerinde yapılır.
