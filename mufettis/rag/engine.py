@@ -291,49 +291,49 @@ class LocalRAG:
 
     def _exact_law_candidates(self, law_number: str) -> List[Dict[str, Any]]:
         """Chroma metadata + document taramasıyla exact-law adaylarını deterministik bul."""
-        try:
-            got=self.collection.get(
-                where={"chunk_schema_version":CHUNK_SCHEMA_VERSION},
-                include=["documents","metadatas"],
-            )
-        except Exception as exc:
-            raise RuntimeError(f"Exact-law belge taraması başarısız: {exc}") from exc
-
-        docs=got.get("documents",[]) or []
-        metas=got.get("metadatas",[]) or []
-
         pattern=re.compile(
             rf"(?<!\d){re.escape(str(law_number))}\s*sayılı\s*Kanun\b",
             re.I,
         )
         exact=[]
-        for doc,meta in zip(docs,metas):
-            meta=meta or {}
-            if str(meta.get("chunk_schema_version",""))!=str(CHUNK_SCHEMA_VERSION):
-                continue
-            if not _chunk_is_retrievable(meta, doc):
-                continue
-            if str(meta.get("status","")).lower() in NOT_IN_FORCE_STATUSES:
-                continue
-
-            law=str(meta.get("law_number","") or "")
-            key=str(meta.get("document_key","") or "")
-            title=str(meta.get("title","") or "")
-            doc_text=str(doc or "")
-
-            matched=(
-                law==str(law_number)
-                or key==str(law_number)
-                or bool(pattern.search(title))
-                or bool(pattern.search(doc_text[:6000]))
-            )
-            if matched:
-                exact.append({
-                    "document":clean_evidence_text(doc_text,12000),
-                    "metadata":meta,
-                    "distance":1.0,
-                })
+        try:
+            # Sayfalı: tepe bellek koleksiyon boyutuyla değil sayfa boyutuyla sınırlı kalır.
+            for doc,meta in self._iter_current_chunks():
+                self._collect_exact_law(doc,meta,law_number,pattern,exact)
+        except Exception as exc:
+            raise RuntimeError(f"Exact-law belge taraması başarısız: {exc}") from exc
         return exact
+
+    def _iter_current_chunks(self):
+        for _ids,docs,metas in iter_pages(self.collection, where={"chunk_schema_version":CHUNK_SCHEMA_VERSION}):
+            yield from zip(docs,metas)
+
+    @staticmethod
+    def _collect_exact_law(doc, meta, law_number, pattern, exact) -> None:
+        if str(meta.get("chunk_schema_version",""))!=str(CHUNK_SCHEMA_VERSION):
+            return
+        if not _chunk_is_retrievable(meta, doc):
+            return
+        if str(meta.get("status","")).lower() in NOT_IN_FORCE_STATUSES:
+            return
+
+        law=str(meta.get("law_number","") or "")
+        key=str(meta.get("document_key","") or "")
+        title=str(meta.get("title","") or "")
+        doc_text=str(doc or "")
+
+        matched=(
+            law==str(law_number)
+            or key==str(law_number)
+            or bool(pattern.search(title))
+            or bool(pattern.search(doc_text[:6000]))
+        )
+        if matched:
+            exact.append({
+                "document":clean_evidence_text(doc_text,12000),
+                "metadata":meta,
+                "distance":1.0,
+            })
 
 
     # AnalysisEngine.retrieve_evidence bu yeteneği kontrol ederek uygunluk politikası gönderir.

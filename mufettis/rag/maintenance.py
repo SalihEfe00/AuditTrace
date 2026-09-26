@@ -43,6 +43,7 @@ from mufettis.legal.parser import (
 from mufettis.harvesting.resmi_gazete import ResmiGazeteScraper, enrich_source_meta
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.engine import LocalRAG
+from mufettis.rag.paging import iter_pages
 
 def save_source_cache(file_hash: str, text: str) -> Path:
     """Belge hash'i için güncel extraction metnini cache'e yazar.
@@ -374,21 +375,20 @@ def _sha256_text(value: str, compact: bool = False) -> str:
 def _diagnostic_cache_excerpt(text: str, account_ref: str = "", max_chars: int = 1800) -> str:
     """Cache'in yalnızca hedef hesap çevresini göster; cache'i değiştirmez."""
     return _diagnostic_focus_text(text, account_ref, max_chars=max_chars)
+def _iter_current_chunks(rag: LocalRAG):
+    """Güncel şemadaki (id, metin, metadata) üçlüleri, sayfa sayfa."""
+    for ids, docs, metas in iter_pages(rag.collection, where={"chunk_schema_version": CHUNK_SCHEMA_VERSION}):
+        yield from zip(ids, docs, metas)
+
+
 def _collect_exact_document_account_matches(
     rag: LocalRAG,
     document_ref: str,
     account_ref: str = "",
 ) -> List[Dict[str, Any]]:
     """Belge+hesap için güncel Chroma kayıtlarını provenance amacıyla toplar."""
-    got = rag.collection.get(
-        where={"chunk_schema_version": CHUNK_SCHEMA_VERSION},
-        include=["documents", "metadatas"],
-    )
-    ids = got.get("ids", []) or []
-    docs = got.get("documents", []) or []
-    metas = got.get("metadatas", []) or []
     rows: List[Dict[str, Any]] = []
-    for rid, doc, meta in zip(ids, docs, metas):
+    for rid, doc, meta in _iter_current_chunks(rag):
         meta = dict(meta or {})
         text = str(doc or "")
         if not _chunk_is_retrievable(meta, text):
@@ -519,27 +519,18 @@ def run_rag_diagnostic(
     if acct_ref and not re.fullmatch(r"\d{3,6}", acct_ref):
         return {"ok": False, "error": "Hesap kodu 3-6 haneli rakam olmalı."}
 
+    matches: List[Tuple[str, Dict[str, Any], str]] = []
     try:
-        got = rag.collection.get(
-            where={"chunk_schema_version": CHUNK_SCHEMA_VERSION},
-            include=["documents", "metadatas"],
-        )
+        for rid, doc, meta in _iter_current_chunks(rag):
+            if not _chunk_is_retrievable(meta, doc):
+                continue
+            if not _chunk_matches_document_ref(meta, doc, doc_ref):
+                continue
+            if acct_ref and not _chunk_matches_account_ref(meta, doc, acct_ref):
+                continue
+            matches.append((str(rid), dict(meta), str(doc or "")))
     except Exception as exc:
         return {"ok": False, "error": f"Chroma okunamadı: {type(exc).__name__}: {exc}"}
-
-    docs = got.get("documents", []) or []
-    metas = got.get("metadatas", []) or []
-    matches: List[Tuple[str, Dict[str, Any], str]] = []
-    ids = got.get("ids", []) or []
-    for rid, doc, meta in zip(ids, docs, metas):
-        meta = meta or {}
-        if not _chunk_is_retrievable(meta, doc):
-            continue
-        if not _chunk_matches_document_ref(meta, doc, doc_ref):
-            continue
-        if acct_ref and not _chunk_matches_account_ref(meta, doc, acct_ref):
-            continue
-        matches.append((str(rid), dict(meta), str(doc or "")))
 
     if not matches:
         return {
@@ -1234,10 +1225,11 @@ def build_rag_inventory(rag: Optional[LocalRAG]) -> Dict[str, Any]:
         }
 
     try:
-        result = rag.collection.get(
-            where={"chunk_schema_version": CHUNK_SCHEMA_VERSION},
-            include=["metadatas"],
-        )
+        # Sayfalı okuma: ilk sayfa burada okunur (erişim hatası envanter hatası olarak döner),
+        # kalanlar döngüde; bellekte bir sayfadan fazla metadata tutulmaz.
+        pages = iter_pages(rag.collection, where={"chunk_schema_version": CHUNK_SCHEMA_VERSION},
+                           include=("metadatas",))
+        first_page = next(pages, None)
     except Exception as exc:
         return {
             "available": False,
@@ -1248,7 +1240,13 @@ def build_rag_inventory(rag: Optional[LocalRAG]) -> Dict[str, Any]:
             "sources": [],
         }
 
-    metadatas = result.get("metadatas", []) or []
+    def _all_metadatas():
+        if first_page is not None:
+            yield from first_page[2]
+            for _ids, _docs, metas in pages:
+                yield from metas
+
+    total_chunks = 0
     docs: Dict[str, Dict[str, Any]] = {}
     # Eski Chroma kayıtlarında yeni evidence alanları bulunmayabilir.
     # Ingest index yalnızca tamamlayıcı okuma kaynağıdır.
@@ -1262,7 +1260,8 @@ def build_rag_inventory(rag: Optional[LocalRAG]) -> Dict[str, Any]:
     # Her belge için bir kez hesaplanır ve sonraki chunk'larda yeniden kullanılır.
     evidence_cache: Dict[str, Dict[str, Any]] = {}
 
-    for meta in metadatas:
+    for meta in _all_metadatas():
+        total_chunks += 1
         m = dict(meta or {})
         file_hash = str(m.get("file_hash", "") or "")
         document_key = str(m.get("document_key", "") or "")
@@ -1346,7 +1345,7 @@ def build_rag_inventory(rag: Optional[LocalRAG]) -> Dict[str, Any]:
         "available": True,
         "error": "",
         "chunk_schema_version": CHUNK_SCHEMA_VERSION,
-        "total_chunks": len(metadatas),
+        "total_chunks": total_chunks,
         "total_documents": len(documents),
         "active_documents": sum(
             1 for d in documents if str(d.get("status", "")).lower() == "active"

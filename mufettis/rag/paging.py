@@ -26,11 +26,13 @@ def iter_pages(
     offset = 0
     while True:
         got = collection.get(where=where, include=list(include), limit=page_size, offset=offset)
-        ids = list(got.get("ids") or [])
-        if not ids:
+        # Satır sayısı dönen listelerin herhangi birinden alınır (kimlik listesi eksik olsa da).
+        size = max((len(got.get(key) or []) for key in ("ids", "documents", "metadatas")), default=0)
+        if not size:
             return
-        docs = list(got.get("documents") or [None] * len(ids))
-        metas = [m or {} for m in (got.get("metadatas") or [None] * len(ids))]
+        ids = list(got.get("ids") or [None] * size)
+        docs = list(got.get("documents") or [None] * size)
+        metas = [m or {} for m in (got.get("metadatas") or [None] * size)]
         yield ids, docs, metas
         if len(ids) < page_size:
             return

@@ -37,5 +37,65 @@ class TestIterPages(unittest.TestCase):
         self.assertEqual(list(iter_pages(_Collection(0))), [])
 
 
+class _StrictCollection:
+    """Sayfasız (limit'siz) okumayı reddeden koleksiyon: tüm-koleksiyon taramalarının sayfalı
+    kaldığını doğrular."""
+
+    def __init__(self, rows):
+        self.rows = rows
+        self.calls = 0
+
+    def get(self, where=None, include=None, limit=None, offset=0, ids=None):
+        if limit is None:
+            raise AssertionError("sayfasız koleksiyon okuması")
+        self.calls += 1
+        page = self.rows[offset:offset + limit]
+        return {"ids": [r[0] for r in page], "documents": [r[1] for r in page], "metadatas": [dict(r[2]) for r in page]}
+
+
+def _rows(n):
+    from mufettis.config import CHUNK_SCHEMA_VERSION
+
+    rows = []
+    for i in range(n):
+        meta = {"chunk_schema_version": CHUNK_SCHEMA_VERSION, "document_indexable": True, "status": "active",
+                "file_hash": f"h{i // 10}", "title": f"Belge {i // 10}", "source_id": "bddk", "source": "BDDK"}
+        if i == n - 1:
+            meta.update(law_number="5411", source_document_id="999", account_code="100")
+        rows.append((f"c{i}", f"parça metni {i}", meta))
+    return rows
+
+
+class TestFullScansArePaged(unittest.TestCase):
+    N = 2 * 1000 + 5  # READ_PAGE_SIZE'dan büyük: son sayfadaki kayıt da bulunmalı
+
+    def _rag(self):
+        from types import SimpleNamespace
+
+        return SimpleNamespace(collection=_StrictCollection(_rows(self.N)))
+
+    def test_exact_law_candidates(self):
+        from mufettis.rag.engine import LocalRAG
+
+        rag = LocalRAG.__new__(LocalRAG)
+        rag.collection = _StrictCollection(_rows(self.N))
+        found = rag._exact_law_candidates("5411")
+        self.assertEqual([r["metadata"]["law_number"] for r in found], ["5411"])
+        self.assertEqual(rag.collection.calls, 3)
+
+    def test_inventory_counts_every_chunk(self):
+        from mufettis.rag import maintenance
+
+        inventory = maintenance.build_rag_inventory(self._rag())
+        self.assertEqual(inventory["total_chunks"], self.N)
+        self.assertEqual(len(inventory["documents"]), (self.N + 9) // 10)
+
+    def test_document_account_matches(self):
+        from mufettis.rag import maintenance
+
+        rows = maintenance._collect_exact_document_account_matches(self._rag(), "999", "100")
+        self.assertEqual([r["id"] for r in rows], [f"c{self.N - 1}"])
+
+
 if __name__ == "__main__":
     unittest.main()
