@@ -182,12 +182,7 @@ def refresh_metadata(rag, index) -> Dict[str, Any]:
             continue
         if "law_number" in updates and str(record.get("document_key") or "") in ("", str(record.get("law_number") or "")):
             updates["document_key"] = fresh.get("document_key")
-        got = rag.collection.get(where={"file_hash": file_hash}, include=["metadatas"])
-        if got.get("ids"):
-            rag.collection.update(
-                ids=list(got["ids"]),
-                metadatas=[{**(m or {}), **{k: str(v or "") for k, v in updates.items()}} for m in got["metadatas"]],
-            )
+        rag.update_hash_metadata(file_hash, {k: str(v or "") for k, v in updates.items()})
         index.upsert(file_hash, {**record, **updates})
         changed.append({"title": str(record.get("title", ""))[:40], **{k: [record.get(k), v] for k, v in updates.items()}})
     return {"changed": len(changed), "details": changed}

@@ -275,6 +275,10 @@ def classify_legal_structure(
 # kaldırılmıştır") ve BDDK site menüsü ("Mülga Düzenlemeler") belgenin kendisinin
 # kaldırıldığını göstermez; önceden bunlar yürürlükteki kanunları aramadan dışlıyordu.
 STATUS_HEADER_CHARS = 600
+LAW_REFERENCE_HEADER_CHARS = 1500
+# Kaynak sistemin verdiği durumlar metinden yeniden hesaplanarak ezilmez (yeniden parçalama
+# önceden "superseded" belgeleri tekrar "active" yapıyordu).
+PRESERVED_STATUSES = {"superseded", "quarantined"}
 # Madde notları hep iki noktalıdır ("(Mülga: …)"); başlıktaki "(Mülga)" gerçek durum bilgisidir.
 _STATUS_NOISE = re.compile(r"mülga\s+düzenlemeler|\(\s*mülga\s*:[^)]*\)|mülga\s*:", re.I)
 
@@ -303,16 +307,23 @@ def extract_legal_metadata(
 
     # Belgenin kendi beyanı ("Kanun Numarası : 6361") metindeki atıflardan ("765 sayılı
     # Kanun") önce gelir; aksi halde kanun, atıf yaptığı ilk kanunun numarasını alırdı.
+    # E8: "N sayılı Kanun" atfı yalnızca kanunun kendi başlık bölgesinde kimlik sayılır;
+    # BDDK yönetmelikleri gövdede "5411 sayılı Bankacılık Kanunu"na atıf yapar ve önceden
+    # kanun 5411 gibi görünüp aynı anahtarla birbirinin "sürümü" sayılıyordu.
     law_number=extract_first(
         combined,
         [
             r"\bKanun\s+Numarası\s*[:№.-]?\s*(\d{2,8})\b",
             r"\bKanun\s+No(?:'su|su|)\s*[:№.-]?\s*(\d{2,8})\b",
-            r"\b(\d{2,8})\s+sayılı\s+Kanun\b",
         ],
     ) or extract_first(
         str(title),
         [r"\b(\d{2,8})\s+sayılı\s+Kanun\b"],
+    ) or (
+        extract_first(
+            f"{title}\n{head[:LAW_REFERENCE_HEADER_CHARS]}",
+            [r"\b(\d{2,8})\s+sayılı\s+Kanun\b"],
+        ) if doc_type == "Kanun" else ""
     ) or ""
 
     number=extract_first(
@@ -347,14 +358,18 @@ def extract_legal_metadata(
         ],
     ) or ""
 
-    status=detect_document_status(title, head)
+    base_status=str(base_meta.get("status","") or "").strip().lower()
+    status=base_status if base_status in PRESERVED_STATUSES else detect_document_status(title, head)
 
     normalized_title=re.sub(r"\s+"," ",str(title)).strip().lower()
-    document_key=str(law_number or number or normalized_title)
     source_document_id=extract_first(
         str(base_meta.get("url", "")),
         [r"/(\d+)(?:/)?(?:\?.*)?$"],
     ) or ""
+    # Sürüm eşleştirme anahtarı: kaynağın kalıcı belge kimliği (BDDK DokumanGetir/<id>),
+    # sonra kanun numarası, sonra başlık. "Sayı: 6827" (Resmî Gazete sayısı) gibi numaralar
+    # farklı belgelerde ortak olduğundan anahtar olarak kullanılmaz.
+    document_key=str(source_document_id or law_number or normalized_title)
     structure=classify_legal_structure(title,head,doc_type)
 
     return {

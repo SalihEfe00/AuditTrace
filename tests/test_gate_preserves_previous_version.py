@@ -154,6 +154,48 @@ class TestRescanScoringRules(_Base):
         self.assertTrue(any(i.startswith("RESCAN_CHROMA_REPLACEMENT") for i in issues), issues)
 
 
+class TestRescanLayoutTolerance(_Base):
+    """E8: tek bir sayfa-numaralı kısa parça (0.85) yüzlerce temiz parçayı reddettiriyordu."""
+
+    def _rescan_scores(self, scores: List[float], extra_doc: str = ""):
+        from repair import ingestion_gate
+
+        docs = [f"PARCA-{i} " + GOOD_TEXT for i in range(len(scores))] + ([extra_doc] if extra_doc else [])
+        by_doc = {d: s for d, s in zip(docs, scores)}
+        real = ingestion_gate._pdf_generic_quality_metrics
+
+        def fake_metrics(text):
+            q = dict(real(text))
+            if text in by_doc:
+                q["score"] = by_doc[text]
+            return q
+
+        self.collection.records.clear()
+        self.collection.upsert(ids=[f"d{i}" for i in range(len(docs))], documents=docs,
+                               metadatas=[{"file_hash": HASH}] * len(docs), embeddings=[[0.0, 0.0, 1.0]] * len(docs))
+        with patch.object(ingestion_gate, "_pdf_generic_quality_metrics", fake_metrics):
+            return self.gate.rescan_committed_chunks(self.rag, HASH)
+
+    def test_single_borderline_chunk_passes(self):
+        passed, issues, summary = self._rescan_scores([0.95] * 20 + [0.85])
+        self.assertTrue(passed, issues)
+        self.assertEqual(summary["low_score_chunks"], 1)
+
+    def test_many_borderline_chunks_fail(self):
+        passed, issues, _ = self._rescan_scores([0.95] * 20 + [0.85] * 3)
+        self.assertFalse(passed)
+        self.assertTrue(any(i.startswith("RESCAN_CHROMA_LOW_SCORE_CHUNKS_3_OF_23") for i in issues), issues)
+
+    def test_chunk_below_hard_floor_fails(self):
+        passed, _, _ = self._rescan_scores([0.95] * 20 + [0.5])
+        self.assertFalse(passed)
+
+    def test_control_characters_fail_regardless_of_score(self):
+        passed, issues, _ = self._rescan_scores([0.95] * 5, extra_doc="MADDE 1 \x00\x01 bozuk")
+        self.assertFalse(passed)
+        self.assertTrue(any(i.startswith("RESCAN_CHROMA_CONTROL_CHARS") for i in issues), issues)
+
+
 class TestBulkImporterQuarantineAccounting(unittest.TestCase):
     def test_quarantined_file_is_counted_and_index_record_not_overwritten(self):
         from mufettis.common.utils import sha256_bytes

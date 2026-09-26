@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from mufettis.audit.service import append_audit
 from mufettis.common.utils import now_iso, safe_json
-from mufettis.config import CHUNK_SCHEMA_VERSION
+from mufettis.config import CHROMA_UPSERT_BATCH_SIZE, CHUNK_SCHEMA_VERSION
 from mufettis.extraction.pdf import _is_true_glued_token, _pdf_generic_quality_metrics
 from mufettis.extraction.text_repair import (
     _repair_glued_turkish_words,
@@ -39,6 +39,12 @@ DEFAULT_QUALITY_THRESHOLD = 0.88
 
 # Yeniden taramada en düşük kalite puanı hesabına katılan en kısa parça uzunluğu.
 RESCAN_MIN_SCORED_CHARS = 120
+# Düzen puanı (satır parçalanması vb.) sezgiseldir: sayfa numarası içeren kısa bir parça
+# ("…bono / 52 / Ek") eşiğin hemen altına düşebilir. Belge başına bu kadar sınırda parçaya izin
+# verilir (en az 1, en fazla parçaların %2'si); hiçbir parça sert alt sınırın altına inemez.
+# Gerçek bozulma sinyallerinde (yapışık kelime, mojibake, geçersiz karakter) tolerans yoktur.
+RESCAN_LOW_SCORE_MAX_RATIO = 0.02
+RESCAN_HARD_FLOOR = 0.60
 
 
 class AutoHealingIngestionGate:
@@ -259,6 +265,7 @@ class AutoHealingIngestionGate:
             glued_total = 0
             mojibake_total = 0
             replacement_total = 0
+            control_total = 0
             scores = []
             short_scores = []
             issues = []
@@ -270,6 +277,8 @@ class AutoHealingIngestionGate:
                 replacement_total += int(q.get("replacement_char_count", 0) or 0)
                 # U+FFFE/U+FFFF: geçersiz Unicode; bozuk font eşlemesinde harf yerine çıkar ("ed\uFFFElen" = "edilen").
                 replacement_total += doc_text.count("\uFFFE") + doc_text.count("\uFFFF")
+                # NUL ve di\u011Fer kontrol karakterleri (\n, \t, \r hari\u00E7) metinde bozulmad\u0131r.
+                control_total += int(q.get("control_char_count", 0) or 0)
                 if doc_text.strip():
                     score = float(q.get("score", 0.0) or 0.0)
                     # Kısa atıf kırıntılarında ("(4), (5),") satır kırılma oranı doğal olarak yüksektir;
@@ -292,16 +301,24 @@ class AutoHealingIngestionGate:
                 issues.append(f"RESCAN_CHROMA_GLUED_TOKENS_{glued_total}")
             if mojibake_total > 0:
                 issues.append(f"RESCAN_CHROMA_MOJIBAKE_{mojibake_total}")
+            if control_total > 0:
+                issues.append(f"RESCAN_CHROMA_CONTROL_CHARS_{control_total}")
             if replacement_total > 0:
                 issues.append(f"RESCAN_CHROMA_REPLACEMENT_{replacement_total}")
-            if min_score < self.quality_threshold:
+            low_count = sum(1 for s in scores if s < self.quality_threshold)
+            allowed_low = max(1, int(len(scores) * RESCAN_LOW_SCORE_MAX_RATIO))
+            score_ok = min_score >= RESCAN_HARD_FLOOR and low_count <= allowed_low
+            if not score_ok:
                 issues.append(f"RESCAN_CHROMA_MIN_SCORE_{min_score:.4f}")
+                if low_count > allowed_low:
+                    issues.append(f"RESCAN_CHROMA_LOW_SCORE_CHUNKS_{low_count}_OF_{len(scores)}")
 
             rescan_passed = (
                 glued_total == 0
                 and mojibake_total == 0
                 and replacement_total == 0
-                and min_score >= self.quality_threshold
+                and control_total == 0
+                and score_ok
             )
 
             summary = {
@@ -311,6 +328,7 @@ class AutoHealingIngestionGate:
                 "replacement_total": replacement_total,
                 "min_score": min_score,
                 "avg_score": round(avg_score, 4),
+                "low_score_chunks": low_count,
             }
 
             return rescan_passed, issues, summary
@@ -346,13 +364,17 @@ class AutoHealingIngestionGate:
         previous_chunks = (previous_state or {}).get("chunks") or {}
         if previous_chunks.get("ids"):
             try:
-                rag.collection.upsert(
-                    ids=list(previous_chunks["ids"]),
-                    embeddings=list(previous_chunks["embeddings"]),
-                    documents=list(previous_chunks["documents"]),
-                    metadatas=list(previous_chunks["metadatas"]),
-                )
-                restored_chunks = len(previous_chunks["ids"])
+                # Parti parti: Chroma tek çağrıda ~5461 kaydı aşan upsert'i reddeder.
+                total = len(previous_chunks["ids"])
+                for start in range(0, total, CHROMA_UPSERT_BATCH_SIZE):
+                    end = start + CHROMA_UPSERT_BATCH_SIZE
+                    rag.collection.upsert(
+                        ids=list(previous_chunks["ids"][start:end]),
+                        embeddings=list(previous_chunks["embeddings"][start:end]),
+                        documents=list(previous_chunks["documents"][start:end]),
+                        metadatas=list(previous_chunks["metadatas"][start:end]),
+                    )
+                restored_chunks = total
             except Exception as exc:
                 logger.error("Quarantine: previous chunks could not be restored for %s: %s", file_hash, exc)
 

@@ -250,7 +250,10 @@ class LocalRAG:
             for k, v in updates.items():
                 m[k] = str(v) if v is not None else ""
             new_metas.append(m)
-        self.collection.update(ids=ids, metadatas=new_metas)
+        # Chroma tek çağrıda en fazla ~5461 kayıt kabul eder; hesap planları (1043, 1334) daha büyük.
+        for start in range(0, len(ids), CHROMA_UPSERT_BATCH_SIZE):
+            end = start + CHROMA_UPSERT_BATCH_SIZE
+            self.collection.update(ids=ids[start:end], metadatas=new_metas[start:end])
         return len(ids)
 
     def mark_hash_superseded(self, old_hash: str, new_hash: str, effective_to: Optional[str] = None) -> int:

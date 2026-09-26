@@ -825,10 +825,6 @@ def _extract_pdf_with_pdfplumber_pages(pdf_bytes: bytes) -> List[str]:
         return []
 
 
-def _extract_pdf_with_pdfplumber(pdf_bytes: bytes) -> str:
-    return _join_pdf_pages(_extract_pdf_with_pdfplumber_pages(pdf_bytes))
-
-
 def _join_pdf_pages(page_texts: List[str]) -> str:
     return "\n\n".join(page for page in page_texts if str(page).strip()).strip()
 
@@ -851,12 +847,17 @@ def _pdf_encoding_anomaly_metrics(value: str) -> Dict[str, int]:
     )
     mojibake_sequence_count = sum(text.count(seq) for seq in mojibake_sequences)
 
+    # E8: PDFium, ToUnicode eşlemesi olmayan glifleri (ör. bazı fontlarda "i" ve tire)
+    # U+FFFE olarak döndürür; U+FFFF ve NUL da metinde geçerli karakter değildir.
+    invalid_unicode_count = text.count("￾") + text.count("￿") + text.count("\x00")
+
     # Tek başına nadir Latin-1 karakterleri otomatik hata sayma; böylece
     # normal Türkçe Unicode karakterleri ve belgeye özgü semboller false-positive olmaz.
     return {
         "replacement_char_count": replacement_char_count,
         "mojibake_sequence_count": mojibake_sequence_count,
-        "encoding_anomaly_count": replacement_char_count + mojibake_sequence_count,
+        "invalid_unicode_count": invalid_unicode_count,
+        "encoding_anomaly_count": replacement_char_count + mojibake_sequence_count + invalid_unicode_count,
     }
 
 
@@ -1021,6 +1022,9 @@ def _pdf_page_quality(value: str) -> Dict[str, Any]:
     # tutulur. Nihai skor en zayıf sinyalin altında kalmaz; generic metrikler
     # yalnızca aşırı bozuk genel metni de yakalayacak şekilde koruyucu alt sınırdır.
     score = min(score, float(generic.get("score", score)))
+    if encoding["invalid_unicode_count"]:
+        # Tek bir kayıp harf bile kelimeyi bozar ("Tar￾h￾"); sayfa yedek motorla denenmeli.
+        score = min(score, 0.87)
     status = "HIGH_CONFIDENCE" if score >= 0.88 else "RETRY" if score >= 0.45 else "OCR"
     return {
         "status": status,
@@ -1034,6 +1038,7 @@ def _pdf_page_quality(value: str) -> Dict[str, Any]:
         "encoding_anomalies": encoding_anomalies,
         "replacement_char_count": encoding["replacement_char_count"],
         "mojibake_sequence_count": encoding["mojibake_sequence_count"],
+        "invalid_unicode_count": encoding["invalid_unicode_count"],
         "turkish_chars": turkish_chars,
         "structural_signals": structural_signals,
         "table_signals": table_signals,
@@ -1207,6 +1212,7 @@ def _select_pdf_engine_b3(
 
     evaluated.sort(key=lambda item: (item["decision_score"], item["engine"] == "pypdfium2"), reverse=True)
     selected = evaluated[0]
+    selected_pages, page_substitutions = _substitute_invalid_unicode_pages(selected, evaluated[1:])
     selected_score = float(selected["decision_score"])
     selected_status = selected["status"]
     ocr_required = bool(selected_status == "OCR" or selected_score < 0.45)
@@ -1238,9 +1244,43 @@ def _select_pdf_engine_b3(
             }
             for item in evaluated
         ],
-        "selected_pages": selected["pages"],
+        "selected_pages": selected_pages,
+        "page_substitutions": page_substitutions,
         "reason": reason,
     }
+
+
+def _substitute_invalid_unicode_pages(
+    selected: Dict[str, Any],
+    others: List[Dict[str, Any]],
+) -> Tuple[List[str], List[Dict[str, Any]]]:
+    """E8: Seçilen adayın geçersiz Unicode içeren sayfalarını, aynı sayfanın temiz olduğu
+    en iyi diğer adayla değiştirir. Belge düzeyindeki seçim (boşluk/yapı kalitesi) korunur;
+    yalnızca harf kaybı olan sayfalar değişir. Sayfa sayısı uyuşmayan adaylar kullanılmaz."""
+    pages = list(selected["pages"])
+    substitutions: List[Dict[str, Any]] = []
+    page_results = selected["quality"].get("pages", [])
+    for index, result in enumerate(page_results):
+        if not result.get("invalid_unicode_count"):
+            continue
+        best = None
+        for other in others:
+            other_pages = other["quality"].get("pages", [])
+            if len(other["pages"]) != len(pages) or index >= len(other_pages):
+                continue
+            candidate = other_pages[index]
+            if candidate.get("invalid_unicode_count") or candidate.get("status") == "OCR":
+                continue
+            if best is None or float(candidate.get("score", 0.0)) > float(best[1].get("score", 0.0)):
+                best = (other, candidate)
+        if best is not None:
+            pages[index] = best[0]["pages"][index]
+            substitutions.append({
+                "page": index + 1,
+                "engine": best[0]["engine"],
+                "invalid_unicode_count": int(result.get("invalid_unicode_count", 0)),
+            })
+    return pages, substitutions
 
 
 def _pdf_quality_gate(page_texts: List[str]) -> Dict[str, Any]:

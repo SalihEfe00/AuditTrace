@@ -107,6 +107,20 @@ def star_imports(path: Path) -> List[str]:
     ]
 
 
+def duplicate_top_level_definitions(path: Path) -> List[str]:
+    """Modül düzeyinde aynı adla iki kez tanımlanan fonksiyon/sınıflar: ikincisi ilkini sessizce
+    gölgeler (E8: pdf.py'de iki farklı _extract_pdf_with_pdfplumber vardı)."""
+    tree = ast.parse(path.read_text(encoding="utf-8"), str(path))
+    seen: dict = {}
+    out = []
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            if node.name in seen:
+                out.append(f"{node.name} (L{seen[node.name]}, L{node.lineno})")
+            seen.setdefault(node.name, node.lineno)
+    return out
+
+
 class TestStaticNames(unittest.TestCase):
     def test_no_undefined_names_in_project(self):
         problems = {}
@@ -119,6 +133,10 @@ class TestStaticNames(unittest.TestCase):
     def test_no_star_imports(self):
         problems = {str(p.relative_to(ROOT)): star_imports(p) for p in _project_files() if star_imports(p)}
         self.assertEqual(problems, {}, "`import *` yerine açık import kullanın")
+
+    def test_no_shadowed_top_level_definitions(self):
+        problems = {str(p.relative_to(ROOT)): d for p in _project_files() if (d := duplicate_top_level_definitions(p))}
+        self.assertEqual(problems, {}, "Aynı adla ikinci tanım ilkini gölgeliyor")
 
     def test_detector_finds_a_missing_import(self):
         """Denetleyicinin kendisi: import edilmemiş isim yakalanmalı, yerel/builtin isimler yakalanmamalı."""
