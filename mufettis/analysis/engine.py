@@ -38,6 +38,7 @@ from mufettis.analysis.turkish_text import (
 )
 from mufettis.common.utils import canonical_source_id
 from mufettis.config import MAX_RAG_RESULTS
+from mufettis.corpus import EligibilityPolicy, canonical_view
 from mufettis.extraction.text_repair import clean_evidence_text, normalize_legal_whitespace
 
 # Bir kanıtın bir iddiayla ilişkilendirilmesi için gereken en az farklı içerik terimi
@@ -56,7 +57,7 @@ MAX_RELEVANT_DISTANCE = 1.2
 STRONG_LEXICAL_STEMS = 4
 STRONG_LEXICAL_DISTINCTIVE = 2
 
-# Yapı dışlaması varken RAG'dan istenen sonuç çarpanı (bkz. retrieve_evidence).
+# Uygunluk politikası varken RAG'dan istenen sonuç çarpanı (bkz. retrieve_evidence).
 EXCLUSION_OVERFETCH = 4
 
 # Kanıt metnini alaka için cümle/satır birimlerine böler (çıkarım kaynaklı yapışık
@@ -164,23 +165,23 @@ class AnalysisEngine:
         - Kaynak kapsamı (source_scope) dışındaki kaynaklardan gelen parçalar alınmaz;
           source_id taşımayan parçalar kapsam bilinmediği için elenmez.
         - filters["law_number"] verildiyse o kanuna ait parçalar sıralamada öne alınır.
-        - Tekilleştirme belge kimliği + parça konumu + metin özeti ile yapılır; metadata
-          eksik olsa bile farklı parçalar birleşmez.
+        - Uygunluk politikası (filters: exclude_roles, exclude_publisher_kinds) kanonik corpus
+          modeline göre uygulanır: kural koymayan parçalar veya ikincil yayıncı kopyaları elenir.
+        - Tekilleştirme sürüm kimliği (expression) + parça konumu + metin özeti ile yapılır: aynı
+          sürümün farklı format/kaynaktaki kopyaları tek kanıt sayılır, farklı parçalar birleşmez.
         """
         scope = {canonical_source_id(s) for s in (retrieval_plan.source_scope or [])}
         law_filter = str((retrieval_plan.filters or {}).get("law_number", "") or "").strip()
-        excluded_structures = {
-            str(s) for s in ((retrieval_plan.filters or {}).get("exclude_structure_types") or [])
-        }
+        policy = EligibilityPolicy.from_filters(retrieval_plan.filters)
         limit = retrieval_plan.max_evidence_items
-        # Dışlanan yapılar sonuçların çoğunu tutabildiğinden (hesap planları) fazladan istenir.
-        fetch_k = min(MAX_RAG_RESULTS, limit * EXCLUSION_OVERFETCH) if excluded_structures else limit
+        # Elenen parçalar sonuçların çoğunu tutabildiğinden (hesap planları) fazladan istenir.
+        fetch_k = min(MAX_RAG_RESULTS, limit * EXCLUSION_OVERFETCH) if policy else limit
         collected: List[Tuple[int, int, Evidence]] = []
         seen_keys = set()
         query_kwargs: Dict[str, Any] = {}
         # Yetenek açıkça bildirilmeli (LocalRAG); test sahteleri her argümanı kabul ediyor görünebilir.
-        if excluded_structures and getattr(rag_client, "supports_structure_exclusion", False) is True:
-            query_kwargs["exclude_structure_types"] = sorted(excluded_structures)
+        if policy and getattr(rag_client, "supports_eligibility_policy", False) is True:
+            query_kwargs["eligibility"] = policy
 
         for query_str in retrieval_plan.queries:
             if len(collected) >= limit:
@@ -199,11 +200,11 @@ class AnalysisEngine:
                 source_id = str(meta.get("source_id", "") or "").strip()
                 if scope and source_id and canonical_source_id(source_id) not in scope:
                     continue
-                if excluded_structures and str(meta.get("structure_type", "")) in excluded_structures:
+                if policy and not policy.admits(meta):
                     continue
                 text = str(r.get("document", "") or "")
                 key = (
-                    meta.get("file_hash") or meta.get("document_key") or meta.get("title") or "",
+                    canonical_view(meta).expression_id,
                     meta.get("chunk_no", ""),
                     meta.get("article_no", ""),
                     meta.get("paragraph_no", ""),

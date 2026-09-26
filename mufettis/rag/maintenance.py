@@ -686,13 +686,25 @@ def run_rag_diagnostic(
         ],
     }
 def find_previous_version(index: IngestIndex, meta: Dict[str, Any], exclude_hash: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    """Aynı kaynaktaki aynı Work'ün en son sürümü.
+
+    İki kayıt da kanonik work_id taşıyorsa onlar karşılaştırılır; aksi halde (kanonik alanları
+    henüz backfill edilmemiş eski kayıt) eski document_key anahtarı kullanılır. Farklı
+    kaynaklardaki kopyalar birbirinin sürümü değildir; onlar expression düzeyinde tekilleşir.
+    """
     source_id = meta.get("source_id", "")
     document_key = meta.get("document_key", meta.get("title_normalized", ""))
+    work_id = str(meta.get("work_id") or "")
     candidates = []
     for h, item in index.data.get("indexed_items", {}).items():
         if exclude_hash and h == exclude_hash:
             continue
         if source_id and item.get("source_id") and item.get("source_id") != source_id:
+            continue
+        old_work = str(item.get("work_id") or "")
+        if work_id and old_work:
+            if old_work == work_id:
+                candidates.append((int(item.get("version_number", 1) or 1), item.get("timestamp", ""), item))
             continue
         old_key = item.get("document_key", item.get("title_normalized", ""))
         if old_key and old_key == document_key:

@@ -28,6 +28,7 @@ from mufettis.analysis.risk_engine import (
 )
 from mufettis.audit.service import append_audit, apply_reviews, load_reviews, save_review
 from mufettis.common.utils import check_disk_health
+from mufettis.corpus import canonical_view
 from mufettis.config import (
     APP_VERSION,
     BASE_DIR,
@@ -516,11 +517,14 @@ def run_streamlit() -> None:
                             f"uzaklık {r.get('distance')} | "
                             f"yeniden sıralama {r.get('_rerank_score', '')}"
                         )
+                        canonical = canonical_view(m)
                         st.caption(
                             f"Durum: {repair_mojibake(m.get('status',''))} | "
                             f"Yürürlük: {repair_mojibake(m.get('effective_date',''))} | "
-                            f"Kaynak: {repair_mojibake(m.get('source',''))} | "
-                            f"Otorite: {m.get('authority_rank','')} | "
+                            f"Kaynak: {repair_mojibake(m.get('source',''))} "
+                            f"({canonical.publisher_kind}, doğrulama: {canonical.verification}) | "
+                            f"Tür: {canonical.instrument_type} / rol: {canonical.normative_role} | "
+                            f"Kimlik: {canonical.work_id} | "
                             f"Chunk: {m.get('chunk_type','')} #{m.get('chunk_no','')}"
                         )
                         display_text = clean_evidence_text(r["document"], max_chars=1800)

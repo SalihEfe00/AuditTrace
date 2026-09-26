@@ -25,7 +25,9 @@ from mufettis.config import (
     INGEST_INDEX_FILE,
     SOURCE_CACHE_DIR,
 )
-from mufettis.common.utils import mask_sensitive, now_iso, safe_json
+from mufettis.common.utils import mask_sensitive, now_iso, safe_json, source_profile
+from mufettis.corpus import with_canonical
+from mufettis.corpus.identity import content_fingerprint
 from mufettis.extraction.text_repair import repair_extracted_spacing
 from mufettis.legal.parser import clean_evidence_text
 from mufettis.rag.engine import LocalRAG
@@ -448,6 +450,13 @@ def upsert_candidate_chroma(
     cand_meta = getattr(candidate, "metadata", {}) or {}
     title = str(cand_meta.get("title", "") or "")
     doc_type = str(cand_meta.get("document_type", "") or "")
+    source_id = str(cand_meta.get("source_id") or doc_id)
+    # Eski güven alanları uydurma varsayılanla ("secondary"/40) doldurulmaz: kaynak kaydından
+    # gelir. Retrieval güveni zaten kanonik modelden (yayıncı niteliği + doğrulama) okunur.
+    profile = source_profile(source_id)
+    fingerprint = str(cand_meta.get("content_fingerprint") or "") or content_fingerprint(
+        getattr(candidate, "normalized_text", "") or getattr(candidate, "raw_text", "")
+    )
 
     docs: List[str] = []
     metadatas: List[Dict[str, str]] = []
@@ -462,10 +471,11 @@ def upsert_candidate_chroma(
             "file_hash": sha256,
             "document_id": doc_id,
             "source_document_id": src_doc_id,
-            "source_id": cand_meta.get("source_id") or doc_id,
-            "source": cand_meta.get("source") or doc_id.replace("_", "."),
-            "source_type": str(cand_meta.get("source_type") or "secondary"),
-            "authority_rank": str(cand_meta.get("authority_rank") or "40"),
+            "source_id": source_id,
+            "source": cand_meta.get("source") or profile.get("name") or doc_id.replace("_", "."),
+            "source_type": str(cand_meta.get("source_type") or profile.get("source_type") or ""),
+            "authority_rank": str(cand_meta.get("authority_rank") or profile.get("authority_rank") or 0),
+            "content_fingerprint": fingerprint,
             "status": "active",
             "article_prefix": ch.get("article_prefix") or "",
             "article_no": ch.get("article_no") or "",
@@ -482,6 +492,8 @@ def upsert_candidate_chroma(
             "document_indexable": "True",
             "evidence_indexable": "True",
         }
+        # ingest_text ile aynı kanonik alanlar (kimlik, kaynak, normatif rol).
+        record_meta = with_canonical(record_meta)
         docs.append(chunk_text)
         metadatas.append({
             k: str(v) if v is not None else ""

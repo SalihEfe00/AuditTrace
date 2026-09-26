@@ -7,7 +7,7 @@ import shutil
 import uuid
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -32,6 +32,7 @@ from mufettis.config import (
     MAX_RAG_RESULTS,
 )
 from mufettis.common.utils import canonical_source_id, now_iso, safe_json, mask_sensitive
+from mufettis.corpus import NOT_IN_FORCE_STATUSES, EligibilityPolicy, refresh_canonical, with_canonical
 from mufettis.extraction.text_repair import normalize_extracted_text, repair_extracted_spacing
 from mufettis.legal.parser import (
     _chunk_is_retrievable,
@@ -173,6 +174,15 @@ class LocalRAG:
         else:
             effective_structure_type = str(meta.get("structure_type", "document") or "document")
 
+        # Tüm parça yazımları buradan geçer: kanonik alanlar (kimlik, kaynak, normatif rol) her
+        # parçada bulunur. Rol parçaların gerçek yapısından türediği için yapı tipi önce belirlenir.
+        # İçerik özeti çağıranın (extract_legal_metadata) ham metinden hesapladığıdır; index kaydı
+        # ile parçalar aynı expression kimliğini taşısın diye burada yalnızca eksikse hesaplanır.
+        meta = with_canonical(
+            {**meta, "structure_type": effective_structure_type},
+            None if str(meta.get("content_fingerprint") or "").strip() else text,
+        )
+
         for ch in chunks:
             chunk_text = repair_extracted_spacing(
                 ch["text"], meta.get("title", ""), meta.get("document_type", "")
@@ -235,7 +245,9 @@ class LocalRAG:
                     metadatas=metadatas[start + up_start:start + up_end],
                 )
 
-        return {"status": "ingested", "count": total, "chunks": chunks}
+        return {"status": "ingested", "count": total, "chunks": chunks, "canonical": {
+            k: meta[k] for k in ("work_id", "expression_id", "normative_role", "verification")
+        }}
 
     def update_hash_metadata(self, file_hash: str, updates: Dict[str, Any]) -> int:
         """Bir belgenin tüm chunk metadata kayıtlarını günceller."""
@@ -249,6 +261,8 @@ class LocalRAG:
             m = dict(meta or {})
             for k, v in updates.items():
                 m[k] = str(v) if v is not None else ""
+            # Kimlik girdisi değiştiyse (ör. law_number düzeltmesi) kanonik alanlar bayat kalmasın.
+            m = {k: str(v) for k, v in refresh_canonical(m, updates.keys()).items()}
             new_metas.append(m)
         # Chroma tek çağrıda en fazla ~5461 kayıt kabul eder; hesap planları (1043, 1334) daha büyük.
         for start in range(0, len(ids), CHROMA_UPSERT_BATCH_SIZE):
@@ -287,9 +301,7 @@ class LocalRAG:
                 continue
             if not _chunk_is_retrievable(meta, doc):
                 continue
-            if str(meta.get("status","")).lower() in {
-                "superseded","mülga","mulga","repealed","repealed_or_changed"
-            }:
+            if str(meta.get("status","")).lower() in NOT_IN_FORCE_STATUSES:
                 continue
 
             law=str(meta.get("law_number","") or "")
@@ -312,8 +324,8 @@ class LocalRAG:
         return exact
 
 
-    # AnalysisEngine.retrieve_evidence bu yeteneği kontrol ederek exclude_structure_types gönderir.
-    supports_structure_exclusion = True
+    # AnalysisEngine.retrieve_evidence bu yeteneği kontrol ederek uygunluk politikası gönderir.
+    supports_eligibility_policy = True
 
     def _identity_matches(self, document_ref: Optional[str], account_ref: Optional[str]) -> List[Dict[str, Any]]:
         """Belge kimliği (source_document_id) / hesap kodu (account_code) meta veride birebir eşleşen,
@@ -337,13 +349,22 @@ class LocalRAG:
         self,
         query: str,
         k: int=5,
-        exclude_structure_types: Optional[Sequence[str]] = None,
+        eligibility: Optional[EligibilityPolicy] = None,
     ) -> List[Dict[str,Any]]:
-        """exclude_structure_types: serbest (anlamsal) aramada bu yapılar Chroma sorgusunda
-        dışlanır. Sonradan elemek yetmez: hesap planları (~17 bin parça) bir şikâyet cümlesinin
+        """eligibility: kanıt uygunluk politikası (normatif rol / yayıncı niteliği). Alaka
+        sıralamasından önce uygulanır. Serbest aramada Chroma sorgusuna ön filtre olarak da
+        eklenir; sonradan elemek yetmez: hesap planları (~17 bin parça) bir şikâyet cümlesinin
         ilk 100 anlamsal sonucunun tamamını doldurabiliyor."""
         if not query.strip():
             return []
+        if eligibility:
+            return [
+                r for r in self._query(query, k, eligibility)
+                if eligibility.admits(r.get("metadata") or {})
+            ]
+        return self._query(query, k, None)
+
+    def _query(self, query: str, k: int, eligibility: Optional[EligibilityPolicy]) -> List[Dict[str,Any]]:
 
         embedding=self.embed([query])[0]
         explicit_law=extract_legal_identifier(query)
@@ -405,11 +426,9 @@ class LocalRAG:
 
         # Serbest sorgular semantic retrieval kullanır.
         semantic_where: Dict[str, Any] = {"chunk_schema_version":CHUNK_SCHEMA_VERSION}
-        if exclude_structure_types:
-            semantic_where = {"$and":[
-                semantic_where,
-                {"structure_type":{"$nin":[str(s) for s in exclude_structure_types]}},
-            ]}
+        policy_clauses = eligibility.chroma_clauses() if eligibility else []
+        if policy_clauses:
+            semantic_where = {"$and":[semantic_where, *policy_clauses]}
         result=self.collection.query(
             query_embeddings=[embedding],
             n_results=min(max(k*20,50),MAX_RAG_RESULTS),

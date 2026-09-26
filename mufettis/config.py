@@ -66,6 +66,8 @@ SOURCE_DEFINITIONS = {
         "base_url": "https://www.bddk.gov.tr",
         "seed_urls": ["https://www.bddk.gov.tr/Mevzuat"],
         "source_type": "official",
+        "publisher_kind": "issuing_authority",
+        "issuer": "BDDK",
         "authority_rank": 100,
         "preferred": True,
         "notes": "BDDK resmi mevzuat sayfaları; mümkün olduğunda dinamik DOM/Playwright ile taranır.",
@@ -76,6 +78,7 @@ SOURCE_DEFINITIONS = {
         "base_url": "https://www.mevzuat.org",
         "seed_urls": ["https://www.mevzuat.org/"],
         "source_type": "secondary",
+        "publisher_kind": "secondary",
         "authority_rank": 40,
         "preferred": False,
         "notes": "Yardımcı/ikincil kaynak; resmi hukuki dayanak olarak tek başına kullanılmaz.",
@@ -85,11 +88,17 @@ SOURCE_DEFINITIONS = {
         "base_url": "https://resmigazete.gov.tr",
         "seed_urls": ["https://resmigazete.gov.tr/"],
         "source_type": "official",
+        "publisher_kind": "primary_official",
         "authority_rank": 100,
         "preferred": True,
         "notes": "Birincil resmi yayın kaynağı; günlük fihrist değişiklikleri için kullanılır.",
         "keywords": ["bankacılık", "banka", "kredi", "mevduat", "finans", "tebliğ", "yönetmelik", "kurul", "sermaye", "likidite"],
     },
+}
+# Yayıncı değil içe aktarma kanalı olan kaynak kimlikleri. Bu kanallardan gelen belgelerin
+# yayıncısı bilinmez; güven belgenin kendisinden ve doğrulamadan gelir (bkz. mufettis.corpus).
+INGESTION_CHANNELS = {
+    "local_file": {"name": "Yerel dosya", "publisher_kind": "user_supplied"},
 }
 SOURCE_ALIASES = {"bdkk_official": "bddk_official"}
 SOURCE_HOST_ALIASES = {
@@ -160,6 +169,7 @@ __all__ = [
     "BROWSER_MAX_PAGES",
     "CHUNK_SCHEMA_VERSION",
     "SOURCE_DEFINITIONS",
+    "INGESTION_CHANNELS",
     "SOURCE_ALIASES",
     "SOURCE_HOST_ALIASES",
 ]

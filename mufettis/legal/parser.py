@@ -16,6 +16,13 @@ from mufettis.config import (
     SOURCE_DEFINITIONS,
 )
 from mufettis.common.utils import canonical_source_id, normalize_title, source_profile
+from mufettis.corpus import (
+    NOT_IN_FORCE_STATUSES,
+    authority_prior,
+    canonical_view,
+    validity_tier,
+    with_canonical,
+)
 from mufettis.extraction.text_repair import (
     clean_evidence_text,
     extract_legal_identifier,
@@ -372,7 +379,7 @@ def extract_legal_metadata(
     document_key=str(source_document_id or law_number or normalized_title)
     structure=classify_legal_structure(title,head,doc_type)
 
-    return {
+    legal_meta = {
         **base_meta,
         "document_type":doc_type,
         "document_number":number,
@@ -387,6 +394,9 @@ def extract_legal_metadata(
         "version_number":int(base_meta.get("version_number",1) or 1),
         **structure,
     }
+    # Kanonik kimlik/kaynak/normatif alanlar (mufettis.corpus). İçerik özeti her zaman bu
+    # metinden yeniden hesaplanır; kayıttaki eski özet başka bir metne ait olabilir.
+    return with_canonical(legal_meta, text)
 def extract_query_document_reference(query: str) -> Optional[str]:
     """Sorgunun başındaki BDDK belge kimliğini ayırır. Kanun numarasıysa belge kimliği sayılmaz."""
     q = str(query or "").strip()
@@ -490,7 +500,15 @@ def _legal_rerank(
     limit: int = 5,
     resolved_refs: Optional[Tuple[Optional[str], Optional[str]]] = None,
 ) -> List[Dict[str, Any]]:
-    """Semantic + lexical + resmi kaynak + açık mevzuat kimliği yeniden sıralaması.
+    """Hukuk odaklı yeniden sıralama. Dört eksen birbirine karıştırılmaz:
+
+    1. Alaka (_relevance_score): anlamsal benzerlik + sözcüksel örtüşme + sorgudaki açık
+       kimliklerin (kanun no, belge kimliği, hesap kodu) belgeyle eşleşmesi.
+    2. Otorite önceliği (_authority_prior): normatif hiyerarşi ve kopya doğrulamasından gelen,
+       üst sınırı küçük (corpus.AUTHORITY_PRIOR_MAX) bir ek; yalnızca başa baş adayları ayırır.
+       Kaynağın resmî olup olmaması alaka puanına ayrıca eklenmez.
+    3. Geçerlilik (_validity_tier): puana eklenmez; yürürlükteki belgeler ayrı katman olarak önce gelir.
+    4. Kimlik: aynı sürümün (expression) farklı kopyalarındaki aynı parça bir kez seçilir.
 
     resolved_refs: (belge kimliği, hesap kodu) LocalRAG.query'nin koleksiyona bakarak çözdüğü
     değerler. Verilmezse sorgudan yeniden çıkarılır; ancak o zaman "934 bilgi sistemleri"
@@ -525,8 +543,7 @@ def _legal_rerank(
             doc[:6000],
         ])
 
-        status = str(meta.get("status", "")).lower()
-        source_type = str(meta.get("source_type", ""))
+        canonical = canonical_view(meta)
         distance = float(item.get("distance") or 999.0)
 
         semantic_score = 1.0 / (1.0 + max(0.0, distance))
@@ -536,22 +553,12 @@ def _legal_rerank(
             1.0,
             0.75 * title_overlap + 0.25 * doc_overlap,
         )
-        authority_score = min(
-            1.0,
-            float(meta.get("authority_rank", 0) or 0) / 100.0,
-        )
+        prior = authority_prior(canonical.normative_rank, canonical.verification, canonical.publisher_kind)
+        tier = validity_tier(meta)
 
-        official_bonus = 0.12 if source_type == "official" else 0.0
         title_bonus = 0.12 if title_overlap >= 0.34 else 0.0
+        # Sorgu yayıncının adını anıyorsa ("BDDK ...") bu bir alaka sinyalidir, güven değil.
         source_bonus = 0.05 if _lexical_overlap(terms, source) > 0 else 0.0
-        stale_penalty = (
-            0.35
-            if status in {
-                "superseded", "mülga", "mulga",
-                "repealed", "repealed_or_changed",
-            }
-            else 0.0
-        )
 
         exact_identifier = False
         if legal_id:
@@ -586,11 +593,9 @@ def _legal_rerank(
         account_bonus = 2.00 if exact_account_match else 0.0
         account_miss_penalty = 1.35 if account_ref and not exact_account_match else 0.0
 
-        score = (
+        relevance = (
             0.40 * semantic_score
             + 0.22 * lexical_score
-            + 0.10 * authority_score
-            + official_bonus
             + title_bonus
             + source_bonus
             + exact_bonus
@@ -599,22 +604,24 @@ def _legal_rerank(
             - exact_miss_penalty
             - document_miss_penalty
             - account_miss_penalty
-            - stale_penalty
         )
 
         enriched = dict(item)
         enriched["document"] = doc
-        enriched["_rerank_score"] = round(score, 6)
+        enriched["_rerank_score"] = round(relevance + prior, 6)
+        enriched["_relevance_score"] = round(relevance, 6)
         enriched["_semantic_score"] = round(semantic_score, 6)
         enriched["_lexical_score"] = round(lexical_score, 6)
-        enriched["_authority_score"] = round(authority_score, 6)
+        enriched["_authority_prior"] = round(prior, 6)
+        enriched["_validity_tier"] = tier
+        enriched["_expression_id"] = canonical.expression_id
         enriched["_exact_legal_id"] = legal_id or ""
         enriched["_exact_identifier_match"] = exact_identifier
         enriched["_exact_document_match"] = exact_document_match
         enriched["_exact_account_match"] = exact_account_match
         scored.append(enriched)
 
-    scored.sort(key=lambda x: x["_rerank_score"], reverse=True)
+    scored.sort(key=lambda x: (x["_validity_tier"], -x["_rerank_score"]))
 
     # Açık numaralı sorguda eşleşen belgeler, eşleşmeyenleri kesin olarak geçer.
     if legal_id:
@@ -628,9 +635,9 @@ def _legal_rerank(
     seen = set()
     for item in scored:
         meta = item.get("metadata", {}) or {}
+        # Aynı expression'ın kopyaları (aynı metin, farklı format/kaynak) aynı parçaları üretir.
         key = (
-            str(meta.get("source_id", "")),
-            str(meta.get("file_hash") or meta.get("document_key") or meta.get("title") or ""),
+            item["_expression_id"],
             str(meta.get("chunk_no", "")),
             str(meta.get("article_no", "")),
             str(meta.get("paragraph_no", "")),
@@ -684,7 +691,7 @@ def _chunk_is_retrievable(meta: Dict[str, Any], document: Any = "") -> bool:
     if str(meta.get("chunk_schema_version", "")) != str(CHUNK_SCHEMA_VERSION):
         return False
     status = str(meta.get("status", "")).strip().lower()
-    if status in {"superseded", "mülga", "mulga", "repealed", "repealed_or_changed"}:
+    if status in NOT_IN_FORCE_STATUSES:
         return False
 
     if _metadata_bool(meta.get("document_indexable"), False):
@@ -704,23 +711,25 @@ def prefer_official_matches(
     query: str = "",
     resolved_refs: Optional[Tuple[Optional[str], Optional[str]]] = None,
 ) -> List[Dict[str, Any]]:
-    """Sorgu verilmişse hukuk odaklı reranking, yoksa eski resmi-kaynak sıralaması."""
+    """Sorgu verilmişse hukuk odaklı reranking (_legal_rerank).
+
+    Sorgu yoksa alaka sinyali yalnızca vektör uzaklığıdır: geçerlilik katmanı, ardından
+    otorite önceliği ve uzaklık. (Önceden resmî olmayan her kopya 50 puan cezayla sona
+    atılıyordu; kopyanın güveni artık corpus doğrulama ekseninden gelir.)
+    """
     if not results:
         return []
 
     if query.strip():
         return _legal_rerank(results, query=query, limit=limit, resolved_refs=resolved_refs)
 
-    ranked = []
-    for item in results:
+    def _key(item: Dict[str, Any]) -> Tuple[int, float, float]:
         meta = item.get("metadata", {}) or {}
-        authority = int(meta.get("authority_rank", 0) or 0)
-        source_type = str(meta.get("source_type", ""))
-        penalty = 0 if source_type == "official" else 50
-        distance = float(item.get("distance") or 999.0)
-        ranked.append((authority - penalty, -distance, item))
-    ranked.sort(key=lambda x: (x[0], x[1]), reverse=True)
-    return [x[2] for x in ranked[:limit]]
+        canonical = canonical_view(meta)
+        prior = authority_prior(canonical.normative_rank, canonical.verification, canonical.publisher_kind)
+        return validity_tier(meta), -prior, float(item.get("distance") or 999.0)
+
+    return sorted(results, key=_key)[:limit]
 def split_legal_chunks(
     text: str,
     max_chars: int=1800,

@@ -39,7 +39,9 @@ class TestRetrievalPlanner:
 
         assert isinstance(retrieval_plan, RetrievalPlan)
         assert len(retrieval_plan.queries) >= 1
-        assert "bddk_official" in retrieval_plan.source_scope
+        # Uygunluk kaynak kimliği listesiyle değil, kanonik yayıncı niteliğiyle belirlenir.
+        assert retrieval_plan.source_scope == []
+        assert retrieval_plan.filters["exclude_publisher_kinds"] == ["secondary"]
         assert retrieval_plan.max_evidence_items >= 3
         assert "source" in retrieval_plan.citation_requirements
         assert_valid_retrieval_plan(retrieval_plan)

@@ -18,17 +18,18 @@ from mufettis.analysis.models import (
     RetrievalPlan,
 )
 from mufettis.analysis.validator import assert_valid_retrieval_plan
+from mufettis.corpus import NormativeRole, PublisherKind
 
-# Kural koymayan belge yapıları: yalnızca uyum (iç yazışma) analizinde kanıt olabilir.
-NON_RULE_STRUCTURE_TYPES = ("accounting_plan",)
+# Kural koymayan parçalar (hesap planı satırları, kod listeleri): yalnızca uyum (iç yazışma)
+# analizinde kanıt olabilir. Rol, kanonik corpus modelinden gelir (mufettis.corpus).
+NON_RULE_ROLES = (NormativeRole.CLASSIFICATION,)
+# İkincil yayıncıların kopyaları tek başına hukuki dayanak sayılmaz. Kaynak kimliği listesi
+# yerine yayıncı niteliğine bakılır: yeni bir kaynak eklendiğinde planlayıcı değişmez.
+EXCLUDED_PUBLISHER_KINDS = (PublisherKind.SECONDARY,)
 
 
 class RetrievalPlannerService:
     """Creates actionable, prioritized RetrievalPlans from an AnalysisPlan."""
-
-    # Resmî kaynaklar + kullanıcının yerel olarak yüklediği mevzuat. İkincil kaynaklar
-    # (ör. mevzuat_org) tek başına hukuki dayanak sayılmadığı için kapsam dışıdır.
-    DEFAULT_SOURCES = ["bddk_official", "resmi_gazete", "local_file"]
 
     def plan_retrieval(
         self,
@@ -61,21 +62,23 @@ class RetrievalPlannerService:
                 queries.append(analysis_plan.objective)
 
         # Filters
-        filters = {}
+        filters = {"exclude_publisher_kinds": list(EXCLUDED_PUBLISHER_KINDS)}
         if len(scope.explicit_laws) == 1:
             filters["law_number"] = str(scope.explicit_laws[0])
         if analysis_plan.analysis_type != AnalysisType.COMPLIANCE.value:
             # Hesap planı satırları yükümlülük değil muhasebe kaydı tanımıdır; şikâyete dayanak
             # olamaz. Ayrıca ~17 bin parçayla havuzu doldurup asıl kanunları dışarıda bırakıyordu
             # ("zararımın karşılanması" ~ "beklenen zarar karşılığı" gibi yanlış eşleşmeler).
-            filters["exclude_structure_types"] = list(NON_RULE_STRUCTURE_TYPES)
+            filters["exclude_roles"] = list(NON_RULE_ROLES)
 
         max_items = max(3, min(20, scope.top_k_per_query * len(queries[:4])))
 
         retrieval_plan = RetrievalPlan(
             queries=queries,
             filters=filters,
-            source_scope=self.DEFAULT_SOURCES,
+            # Kaynak kapsamı yalnızca kullanıcı açıkça daralttığında doldurulur; varsayılan
+            # uygunluk kanonik modele göre filters üzerinden belirlenir.
+            source_scope=[],
             evidence_requirements=analysis_plan.required_evidence or ["statutory_rule"],
             max_evidence_items=max_items,
             citation_requirements=[

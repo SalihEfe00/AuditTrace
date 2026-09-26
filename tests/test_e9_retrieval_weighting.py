@@ -34,7 +34,8 @@ def _matches(meta: Dict[str, Any], where: Dict[str, Any]) -> bool:
     for key, cond in where.items():
         value = meta.get(key)
         if isinstance(cond, dict) and "$nin" in cond:
-            if value is None or value in cond["$nin"]:
+            # Gerçek Chroma (1.5) gibi: alanı olmayan kayıt `$nin` koşulunu geçer.
+            if value is not None and value in cond["$nin"]:
                 return False
         elif value != cond:
             return False
@@ -151,14 +152,14 @@ class TestNonRuleStructuresExcluded(unittest.TestCase):
                      "Kredi kartım için yıllık aidat ücreti tahsil edildi."):
             ap, rp = self._plan(text)
             self.assertNotEqual(ap.analysis_type, AnalysisType.COMPLIANCE.value)
-            self.assertEqual(rp.filters.get("exclude_structure_types"), ["accounting_plan"])
+            self.assertEqual(rp.filters.get("exclude_roles"), ["classification"])
 
     def test_internal_correspondence_keeps_accounting_plan(self):
         ap, rp = self._plan("Sayı: 2026/1\nKonu: Hesap Kaydı\nTeftiş Kurulu Başkanlığına\n"
                             "Şube tarafından kredi işlemlerinin yanlış hesaba kaydedildiği tespit edilmiştir.\n"
                             "Bilgilerinize arz ederim.")
         self.assertEqual(ap.analysis_type, AnalysisType.COMPLIANCE.value)
-        self.assertNotIn("exclude_structure_types", rp.filters)
+        self.assertNotIn("exclude_roles", rp.filters)
 
     def test_generic_plan_uses_document_sentences_and_readable_keywords(self):
         _, rp = self._plan("Kredi kartım için yıllık aidat ücreti tahsil edildi.")
@@ -166,6 +167,8 @@ class TestNonRuleStructuresExcluded(unittest.TestCase):
         self.assertFalse(any("_" in q for q in rp.queries))
 
     def test_retrieve_evidence_filters_and_passes_exclusion_only_to_capable_client(self):
+        from mufettis.corpus import EligibilityPolicy
+
         _, rp = self._plan("Kredi kartım için yıllık aidat ücreti tahsil edildi.")
         results = [
             {"document": "39090 Kredi Kartı Ödemelerinden hesabı", "metadata": {"structure_type": "accounting_plan", "file_hash": "a"}},
@@ -174,10 +177,10 @@ class TestNonRuleStructuresExcluded(unittest.TestCase):
         seen_kwargs = []
 
         class Capable:
-            supports_structure_exclusion = True
+            supports_eligibility_policy = True
 
-            def query(self, q, k=5, exclude_structure_types=None):
-                seen_kwargs.append(exclude_structure_types)
+            def query(self, q, k=5, eligibility=None):
+                seen_kwargs.append(eligibility)
                 return results
 
         class Legacy:
@@ -187,7 +190,8 @@ class TestNonRuleStructuresExcluded(unittest.TestCase):
         for client in (Capable(), Legacy()):
             pool = AnalysisEngine().retrieve_evidence(rp, client)
             self.assertEqual({e.metadata.get("structure_type") for e in pool}, {"article"})
-        self.assertTrue(seen_kwargs and all(k == ["accounting_plan"] for k in seen_kwargs))
+        self.assertTrue(seen_kwargs and all(isinstance(k, EligibilityPolicy) and k.exclude_roles == {"classification"}
+                                            for k in seen_kwargs))
 
 
 class TestStrongLexicalOverridesDistance(unittest.TestCase):

@@ -152,7 +152,8 @@ class TestRAGReranking(unittest.TestCase):
         )
         self.assertIn("_rerank_score", ranked[0])
         self.assertIn("_lexical_score", ranked[0])
-        self.assertIn("_authority_score", ranked[0])
+        self.assertIn("_authority_prior", ranked[0])
+        self.assertIn("_relevance_score", ranked[0])
 class TestV1312ChunkIntegrity(unittest.TestCase):
     def test_article_header_attaches_to_first_paragraph(self):
         sample = "MADDE 9 - Denetim\n(1) Birinci fıkra."
@@ -187,7 +188,7 @@ class TestV1312ChunkIntegrity(unittest.TestCase):
         )
 class TestV1313RAGIsolation(unittest.TestCase):
     def test_query_source_has_current_schema_filter(self):
-        source = inspect.getsource(LocalRAG.query)
+        source = inspect.getsource(LocalRAG._query)
         self.assertIn("chunk_schema_version", source)
         self.assertIn("CHUNK_SCHEMA_VERSION", source)
         self.assertIn('where={"chunk_schema_version":CHUNK_SCHEMA_VERSION}', source)
