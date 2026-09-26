@@ -321,29 +321,75 @@ def extract_declared_subject(text: str) -> str:
     return f"Genelge {re.sub(r'\s+', '', circular.group(1))}: {subject}" if circular else subject
 
 
-def extract_declared_title(text: str) -> str:
-    """Belgenin kendi beyan ettiği ad; bulunamazsa "". Yalnızca kanun numarası beyanına bitişik,
-    tamamı büyük harfli satır bloğu kabul edilir. Blok yalnızca genel sözcüklerden oluşuyorsa
-    ("HAKKINDA KANUN": adın ilk satırı sayfa başlığına karışmış) ad eksiktir ve kullanılmaz."""
-    head = str(text or "")[:LAW_REFERENCE_HEADER_CHARS]
-    match = _LAW_NUMBER_DECLARATION_RE.search(head)
-    if not match:
-        return ""
-    lines = head[:match.start()].splitlines()
-    while lines and not lines[-1].strip():
-        lines.pop()
+_TITLE_LOWERCASE_CONNECTORS = frozenset({"ve", "ile", "veya"})
+# Resmî Gazete biçimi: yayımlayan kurum ayrılma hâlinde ve iki noktayla ayrı satırdadır
+# ("Bankacılık Düzenleme ve Denetleme Kurumundan:"); hemen altındaki büyük harfli blok düzenlemenin
+# adıdır. Kararların adı genel olduğundan ("... KURULU KARARI") karar sayısı ada eklenir.
+_ISSUER_LINE_RE = re.compile(r"(?m)^[ \t]*\S[^\n]{2,150}?[dt][ae]n[ \t]*:[ \t]*$")
+_DECISION_NUMBER_RE = re.compile(r"Karar\s+Sayısı\s*:\s*(\d{1,8})")
+
+
+# Adın altındaki ilk bölüm başlığı ("BİRİNCİ KISIM", "BİRİNC İ BÖLÜM", "MADDE 1") ada dahil değildir.
+_DIVISION_HEADING_RE = re.compile(r"(?:\b(?:KISIM|BÖLÜM)\s*$)|^(?:(?:GEÇİCİ|EK)\s+)?MADDE\b")
+
+
+def _is_title_line(line: str) -> bool:
+    words = re.findall(r"[^\W\d_]+", line)
+    return bool(words) and not _PRINT_HEADER_RE.match(line) and not _DIVISION_HEADING_RE.search(line) and all(
+        not any(ch.islower() for ch in w) or w in _TITLE_LOWERCASE_CONNECTORS for w in words)
+
+
+def _title_block(lines: List[str]) -> str:
     block: List[str] = []
-    while lines and len(block) < DECLARED_TITLE_MAX_LINES:
-        line = re.sub(r"\s+", " ", lines.pop()).strip()
-        letters = [ch for ch in line if ch.isalpha()]
-        if not line or _PRINT_HEADER_RE.match(line) or not letters or any(ch.islower() for ch in letters):
+    for raw in lines:
+        line = re.sub(r"\s+", " ", raw).strip()
+        if not line and not block:
+            continue
+        if not line or not _is_title_line(line) or len(block) >= DECLARED_TITLE_MAX_LINES:
             break
-        block.insert(0, line)
+        block.append(line)
     title = " ".join(block)
     words = re.findall(r"[A-ZÇĞİÖŞÜÂÎÛ]+", title)
     if not title or len(title) > DECLARED_TITLE_MAX_CHARS or not set(words) - _GENERIC_TITLE_WORDS:
         return ""
     return title
+
+
+def extract_declared_title(text: str) -> str:
+    """Belgenin kendi beyan ettiği ad; bulunamazsa "". İki yayım biçimi tanınır:
+
+    - Kanun: "Kanun Numarası" beyanının hemen üstündeki büyük harfli blok.
+    - Resmî Gazete: yayımlayan kurum satırının ("...Kurumundan:") hemen altındaki büyük harfli blok.
+
+    Blok yalnızca genel sözcüklerden oluşuyorsa ("HAKKINDA KANUN": adın ilk satırı sayfa başlığına
+    karışmış) ad eksiktir ve kullanılmaz."""
+    head = str(text or "")[:LAW_REFERENCE_HEADER_CHARS]
+    law = _LAW_NUMBER_DECLARATION_RE.search(head)
+    if law:
+        return _law_title(head[:law.start()])
+    issuer = _ISSUER_LINE_RE.search(head)
+    if not issuer:
+        return ""
+    title = _title_block(head[issuer.end():].splitlines())
+    decision = _DECISION_NUMBER_RE.search(head[issuer.end():])
+    if title and title.endswith("KARARI") and decision:
+        return f"{title} {decision.group(1)}"
+    return title
+
+
+def _law_title(before: str) -> str:
+    lines = before.splitlines()
+    while lines and not lines[-1].strip():
+        lines.pop()
+    block: List[str] = []
+    while lines and len(block) < DECLARED_TITLE_MAX_LINES:
+        line = re.sub(r"\s+", " ", lines.pop()).strip()
+        if not line or not _is_title_line(line):
+            break
+        block.insert(0, line)
+    return _title_block(block)
+
+
 # Kaynak sistemin verdiği durumlar metinden yeniden hesaplanarak ezilmez (yeniden parçalama
 # önceden "superseded" belgeleri tekrar "active" yapıyordu).
 PRESERVED_STATUSES = {"superseded", "quarantined"}

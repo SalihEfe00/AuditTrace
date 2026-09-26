@@ -401,6 +401,19 @@ class TestDeclaredTitle(unittest.TestCase):
         self.assertEqual(extract_declared_title("Bu metin 5411 sayılı Kanuna atıf yapar.\nMADDE 1 –"), "")
         self.assertEqual(extract_declared_title("Karışık Harfli Başlık\nKanun Numarası : 99004\n"), "")
 
+    def test_official_gazette_issuer_line_format(self):
+        from mufettis.legal.parser import extract_declared_title
+
+        guide = ("31 Mart 2016 Örnek Kurulu Sayı: 1\nİYİ UYGULAMA REHBERİ\nÖrnek Düzenleme Kurumundan:\n"
+                 "ÖRNEK RİSKLERİN ve KAYNAKLARIN\nYÖNETİMİNE İLİŞKİN REHBER\nBİRİNCİ KISIM\nAmaç ve Kapsam\n")
+        self.assertEqual(extract_declared_title(guide),
+                         "ÖRNEK RİSKLERİN ve KAYNAKLARIN YÖNETİMİNE İLİŞKİN REHBER")
+        # Karar adı geneldir; karar sayısı adın parçası olur.
+        decision = ("Örnek Düzenleme Kurumundan:\n\nÖRNEK DÜZENLEME KURULU KARARI\n\n"
+                    "Karar Sayısı: 99005 Karar Tarihi: 01.01.2026\nKurulun toplantısında ...")
+        self.assertEqual(extract_declared_title(decision), "ÖRNEK DÜZENLEME KURULU KARARI 99005")
+        self.assertEqual(extract_declared_title("Örnek Kurumundan:\nKüçük harfli gövde metni.\n"), "")
+
     def test_correspondence_subject_and_circular_number(self):
         from mufettis.analysis.engine import evidence_display_title
         from mufettis.legal.parser import extract_declared_subject
