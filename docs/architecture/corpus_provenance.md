@@ -119,6 +119,11 @@ idempotenttir: değişiklik yoksa hiçbir şey yazmaz.
 - Aynı kanunun iki yayıncıdaki kopyaları metin olarak birebir aynı değilse ayrı expression sayılır
   (ör. biri konsolide metin, biri değişiklik öncesi). Doğru birleştirme için pipeline'ın sürüm
   işareti vermesi gerekir.
-- Saf vektör araması, bazı sorgularda ilgili maddeyi aday havuzuna getiremiyor (ör. kart aidatı →
-  5464 Md.24/25). Bu bir otorite değil alaka sorunudur ve hibrit (sözcüksel + vektör) aday
-  üretimiyle ele alınacaktır.
+- Saf vektör araması bazı sorgularda ilgili maddeyi aday havuzuna getiremiyordu (ör. kart aidatı →
+  5464 Md.24/25). Bu bir otorite değil alaka sorunuydu. Serbest aramada artık BM25 adayları da
+  eklenir (`mufettis/rag/lexical.py`). Bu adayların uzaklıkları kayıtlı embedding'lerden hesaplanır
+  ve aynı alaka sıralamasından geçer; uygunluk politikası sıralamadan önce uygulanır.
+- İddia ile terim paylaşmayan doğru hüküm (ör. "aidat ücreti" ↔ "sözleşmede yer almayan … masraf")
+  sözcüksel eşleştiricide bulunamaz. İsteğe bağlı yerel dil modeli doğrulayıcısı
+  (`mufettis/analysis/claim_verifier.py`) yalnızca getirilen adaylar arasından seçim yapar ve
+  alıntısı birebir doğrulanır. Gerçek bir yerel modelle değerlendirmesi henüz yapılmadı.
