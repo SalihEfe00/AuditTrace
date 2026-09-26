@@ -16,6 +16,9 @@ from typing import Dict, List, Tuple
 
 Snapshot = Dict[str, Tuple[int, int]]
 
+# Testlerin ihtiyaç duymadığı büyük yedek klasörleri kopyalanmaz (data/ köküne göre).
+EXCLUDED_TOP_LEVEL_DIRS = frozenset({"backups", "audit_logs_backup"})
+
 
 def snapshot(root: Path) -> Snapshot:
     """Dosya yolu (root'a göre) -> (boyut, mtime_ns). Dizin yoksa boş sözlük."""
@@ -45,14 +48,20 @@ def diff(before: Snapshot, after: Snapshot) -> List[str]:
 def create_isolated_data_copy(source_data_dir: Path, prefix: str = "mufettis_test_data_") -> Tuple[Path, Path]:
     """source_data_dir'i geçici bir köke kopyalar; (geçici_kök, veri_dizini) döndürür.
 
-    Kaynak yoksa boş bir veri dizini oluşturulur. Temizlik çağırana aittir
-    (`shutil.rmtree(geçici_kök)`).
+    Kaynak yoksa boş bir veri dizini oluşturulur. EXCLUDED_TOP_LEVEL_DIRS
+    kopyalanmaz. Temizlik çağırana aittir (`shutil.rmtree(geçici_kök)`).
     """
     temp_root = Path(tempfile.mkdtemp(prefix=prefix))
     data_dir = temp_root / "data"
     source = Path(source_data_dir)
+
+    def _ignore(directory: str, names: List[str]) -> List[str]:
+        if Path(directory) == source:
+            return [n for n in names if n in EXCLUDED_TOP_LEVEL_DIRS]
+        return []
+
     if source.is_dir():
-        shutil.copytree(source, data_dir)
+        shutil.copytree(source, data_dir, ignore=_ignore)
     else:
         data_dir.mkdir(parents=True)
     return temp_root, data_dir

@@ -2,8 +2,6 @@
 """
 End-to-End Vertical Slice & Semantic Gold Set Tests (FAZ 19.9 Stage 3).
 """
-import hashlib
-from pathlib import Path
 import pytest
 
 from mufettis.analysis.classifier import DocumentClassifierService
@@ -21,7 +19,7 @@ from mufettis.analysis.models import (
 )
 from mufettis.analysis.planner import AnalysisPlannerService
 from mufettis.analysis.retrieval_planner import RetrievalPlannerService
-from mufettis.config import DATA_DIR
+from tests.data_integrity import data_integrity_problems
 
 
 class TestAnalysisE2E:
@@ -138,13 +136,6 @@ class TestAnalysisE2E:
             assert cr.doc_type_actual != ""
 
     def test_d_production_filesystem_isolation_guarantee(self):
-        idx_bytes = (DATA_DIR / "ingest_index.json").read_bytes()
-        idx_hash = hashlib.sha256(idx_bytes).hexdigest()
-        assert idx_hash == "2ef19a8d5a1d9ac89bb9f1eef1d70bb034e78434f343f8b129396aa92729322e"
+        # Production verisinin değişmediği conftest tarafından oturum düzeyinde doğrulanır.
+        assert data_integrity_problems() == []
 
-        audit_bytes = (DATA_DIR / "audit/repair_audit.jsonl").read_bytes()
-        audit_hash = hashlib.sha256(audit_bytes).hexdigest()
-        assert audit_hash == "0065bd13c2fbe356fc0b7f7279b7f1051c3c3d1d981d6f0ebcca589b42354443"
-
-        sc_count = len(list((DATA_DIR / "source_cache").glob("*.txt")))
-        assert sc_count == 100

@@ -43,6 +43,27 @@ class TestIsolationHelpers(unittest.TestCase):
         finally:
             shutil.rmtree(src_root, ignore_errors=True)
 
+    def test_backup_dirs_are_not_copied(self):
+        import shutil
+        import tempfile
+
+        src_root = Path(tempfile.mkdtemp(prefix="iso_src_"))
+        try:
+            for name in ("backups", "audit_logs_backup", "audit_logs"):
+                (src_root / name).mkdir()
+                (src_root / name / "x.jsonl").write_text("{}", encoding="utf-8")
+            (src_root / "audit_logs" / "backups").mkdir()  # yalnızca kök düzeyi hariç tutulur
+            temp_root, data_dir = create_isolated_data_copy(src_root)
+            try:
+                self.assertFalse((data_dir / "backups").exists())
+                self.assertFalse((data_dir / "audit_logs_backup").exists())
+                self.assertTrue((data_dir / "audit_logs" / "x.jsonl").exists())
+                self.assertTrue((data_dir / "audit_logs" / "backups").is_dir())
+            finally:
+                shutil.rmtree(temp_root, ignore_errors=True)
+        finally:
+            shutil.rmtree(src_root, ignore_errors=True)
+
     def test_missing_source_creates_empty_data_dir(self):
         import shutil
 

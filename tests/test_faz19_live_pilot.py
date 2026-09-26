@@ -21,11 +21,11 @@ from unittest.mock import MagicMock, patch
 import requests
 from bs4 import BeautifulSoup
 
-from mufettis.config import DATA_DIR, BASE_DIR
+from tests.data_integrity import data_integrity_problems
 from mufettis.common.utils import sha256_bytes, now_iso
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.maintenance import versioned_ingest_text
-from repair.audit import RepairAuditLogger, verify_audit_integrity
+from repair.audit import RepairAuditLogger
 from repair.models import AuditEventType
 from repair.quarantine import (
     save_quarantine_payload,
@@ -363,33 +363,8 @@ class TestFaz19LivePilot(unittest.TestCase):
         self.assertIn("quality_metrics", telemetry)
 
     def test_step_h_production_zero_mutation_guarantee(self):
-        """Step H: Confirm production database and audit trail were completely untouched."""
-        import sqlite3
-
-        # Chroma count = 21773
-        conn = sqlite3.connect("file:data/mevzuat_db/chroma.sqlite3?mode=ro", uri=True)
-        cur = conn.cursor()
-        emb_count = cur.execute("SELECT count(*) FROM embeddings").fetchone()[0]
-        prag = cur.execute("PRAGMA integrity_check").fetchone()[0]
-        conn.close()
-        self.assertEqual(emb_count, 21773)
-        self.assertEqual(prag, "ok")
-
-        # IngestIndex count = 95, SHA matches baseline
-        idx_bytes = (DATA_DIR / "ingest_index.json").read_bytes()
-        idx_hash = hashlib.sha256(idx_bytes).hexdigest()
-        self.assertEqual(idx_hash, "2ef19a8d5a1d9ac89bb9f1eef1d70bb034e78434f343f8b129396aa92729322e")
-
-        # SourceCache count = 100
-        sc_count = len(list((DATA_DIR / "source_cache").glob("*.txt")))
-        self.assertEqual(sc_count, 100)
-
-        # Audit count = 392, SHA matches baseline, hash-chain valid
-        audit_bytes = (DATA_DIR / "audit/repair_audit.jsonl").read_bytes()
-        audit_hash = hashlib.sha256(audit_bytes).hexdigest()
-        self.assertEqual(audit_hash, "0065bd13c2fbe356fc0b7f7279b7f1051c3c3d1d981d6f0ebcca589b42354443")
-        chain_valid, _ = verify_audit_integrity((DATA_DIR / "audit/repair_audit.jsonl"))
-        self.assertTrue(chain_valid)
+        """Step H: Test veri dizini izole ve sağlam; production conftest ile korunur."""
+        self.assertEqual(data_integrity_problems(), [])
 
 
 if __name__ == "__main__":

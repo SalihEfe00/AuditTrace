@@ -21,7 +21,6 @@ Verifies:
 """
 from __future__ import annotations
 
-import hashlib
 import json
 import shutil
 import tempfile
@@ -29,7 +28,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from mufettis.config import DATA_DIR, BASE_DIR
+from tests.data_integrity import data_integrity_problems
 from mufettis.common.utils import sha256_bytes, now_iso
 from mufettis.rag.index import IngestIndex
 from repair.audit import RepairAuditLogger, verify_audit_integrity
@@ -388,38 +387,8 @@ class TestQuarantineAdminUI(unittest.TestCase):
             self.fail(f"render_mevzuat_admin raised unexpected exception: {exc}")
 
     def test_15_production_filesystem_untouched(self):
-        """Strict verification that production assets were NOT modified during tests."""
-        import sqlite3
-
-        # 1. Chroma count
-        conn = sqlite3.connect("file:data/mevzuat_db/chroma.sqlite3?mode=ro", uri=True)
-        cur = conn.cursor()
-        emb_count = cur.execute("SELECT count(*) FROM embeddings").fetchone()[0]
-        prag = cur.execute("PRAGMA integrity_check").fetchone()[0]
-        conn.close()
-        self.assertEqual(emb_count, 21773)
-        self.assertEqual(prag, "ok")
-
-        # 2. IngestIndex count & hash
-        idx_bytes = (DATA_DIR / "ingest_index.json").read_bytes()
-        idx_hash = hashlib.sha256(idx_bytes).hexdigest()
-        self.assertEqual(idx_hash, "2ef19a8d5a1d9ac89bb9f1eef1d70bb034e78434f343f8b129396aa92729322e")
-        idx_data = json.loads(idx_bytes)
-        self.assertEqual(len(idx_data.get("indexed_items", {})), 95)
-
-        # 3. SourceCache count
-        sc_count = len(list((DATA_DIR / "source_cache").glob("*.txt")))
-        self.assertEqual(sc_count, 100)
-
-        # 4. Audit Log lines & hash-chain
-        audit_bytes = (DATA_DIR / "audit/repair_audit.jsonl").read_bytes()
-        audit_hash = hashlib.sha256(audit_bytes).hexdigest()
-        self.assertEqual(audit_hash, "0065bd13c2fbe356fc0b7f7279b7f1051c3c3d1d981d6f0ebcca589b42354443")
-        audit_lines = len([l for l in audit_bytes.splitlines() if l.strip()])
-        self.assertEqual(audit_lines, 392)
-
-        chain_valid, chain_errs = verify_audit_integrity((DATA_DIR / "audit/repair_audit.jsonl"))
-        self.assertTrue(chain_valid)
+        """Test veri dizini izole ve yapısal olarak sağlam; production conftest ile korunur."""
+        self.assertEqual(data_integrity_problems(), [])
 
 
 if __name__ == "__main__":
