@@ -424,21 +424,30 @@ def clean_evidence_text(value: Any, max_chars: int = 1800) -> str:
     s = re.sub(r"\n[ \t]+\n", "\n\n", s)
     s = re.sub(r"\n{3,}", "\n\n", s)
     return s.strip()[:max_chars]
+_LEGAL_IDENTIFIER_PATTERNS = (
+    # "5411 sayılı Bankacılık Kanunu", "193 sayılı Gelir Vergisi Kanununun": kanun adı araya
+    # girebilir; "sayılı" açıkça yazıldığında 3 haneli kanunlar (193, 213, 488) da kabul edilir.
+    re.compile(r"(?<!\d)(\d{3,6})\s*sayılı(?:\s+[^\s\d]+){0,8}?\s+kanun\w*", re.I),
+    re.compile(r"\b(\d{4,6})\s*(?:kanun|kanunu|kanunun)\b", re.I),
+    re.compile(r"\b(?:kanun|kanunu)\s*(?:no|numarası)?\s*[:\-]?\s*(\d{4,6})\b", re.I),
+)
+
+
 def extract_legal_identifier(query: str) -> Optional[str]:
     """5549, 5411 gibi açık kanun numarasını sorgudan çıkar."""
     q = str(query or "")
-    patterns = [
-        # "5411 sayılı Bankacılık Kanunu", "193 sayılı Gelir Vergisi Kanununun": kanun adı araya
-        # girebilir; "sayılı" açıkça yazıldığında 3 haneli kanunlar (193, 213, 488) da kabul edilir.
-        r"(?<!\d)(\d{3,6})\s*sayılı(?:\s+[^\s\d]+){0,8}?\s+kanun\w*",
-        r"\b(\d{4,6})\s*(?:kanun|kanunu|kanunun)\b",
-        r"\b(?:kanun|kanunu)\s*(?:no|numarası)?\s*[:\-]?\s*(\d{4,6})\b",
-    ]
-    for pattern in patterns:
-        m = re.search(pattern, q, flags=re.I)
+    for pattern in _LEGAL_IDENTIFIER_PATTERNS:
+        m = pattern.search(q)
         if m:
             return m.group(1)
     return None
+
+
+def extract_legal_identifiers(text: str) -> List[str]:
+    """Metnin atıf yaptığı tüm kanun numaraları; metindeki sırayla ve tekil."""
+    t = str(text or "")
+    found = sorted((m.start(), m.group(1)) for pattern in _LEGAL_IDENTIFIER_PATTERNS for m in pattern.finditer(t))
+    return list(dict.fromkeys(number for _, number in found))
 
 
 __all__ = [
@@ -449,4 +458,5 @@ __all__ = [
     "normalize_legal_whitespace",
     "clean_evidence_text",
     "extract_legal_identifier",
+    "extract_legal_identifiers",
 ]

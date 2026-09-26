@@ -22,6 +22,10 @@ from mufettis.analysis.models import (
     RetrievalScope,
 )
 from mufettis.analysis.validator import assert_valid_analysis_plan
+from mufettis.extraction.text_repair import extract_legal_identifiers
+
+# Belgenin atıf yaptığı kanunlardan en fazla bu kadarı hedeflenir.
+MAX_EXPLICIT_LAWS = 5
 
 
 class AnalysisPlannerService:
@@ -70,6 +74,13 @@ class AnalysisPlannerService:
                 break
         return queries
 
+    @staticmethod
+    def _cited_laws(doc: DocumentUnderstanding) -> List[str]:
+        """Belgenin kendi metninde atıf yaptığı kanunlar. Belge türüne göre varsayılan kanun
+        (ör. her iç yazışma için 5411) atanmaz: tek kanunlu plan retrieval'da o kanunu öne alır ve
+        belgede geçmeyen bir kanuna yönlendirirdi."""
+        return extract_legal_identifiers(doc.normalized_text or doc.text)[:MAX_EXPLICIT_LAWS]
+
     def _plan_complaint(
         self,
         doc: DocumentUnderstanding,
@@ -107,7 +118,7 @@ class AnalysisPlannerService:
 
         retrieval_scope = RetrievalScope(
             target_domains=scope,
-            explicit_laws=["5411", "6502", "5464"],
+            explicit_laws=self._cited_laws(doc),
             keywords=list(set(keywords)),
             generated_queries=self._document_queries(doc) + queries,
             top_k_per_query=3,
@@ -159,7 +170,7 @@ class AnalysisPlannerService:
 
         retrieval_scope = RetrievalScope(
             target_domains=scope,
-            explicit_laws=["5411"],
+            explicit_laws=self._cited_laws(doc),
             keywords=keywords,
             generated_queries=self._document_queries(doc) + queries,
             top_k_per_query=3,
@@ -201,14 +212,14 @@ class AnalysisPlannerService:
         scope = ["genel_bankacilik_mevzuati"]
         # Konu kimlikleri ("ücret_ve_komisyon") sorgu metnine girer; okunur hale getirilir.
         keywords = [s.replace("_", " ") for s in doc.subjects] or ["bankacılık", "mevzuat", "denetim"]
-        # Belgenin kendi cümleleri önce gelir. Önceden yalnızca "5411 sayılı …" sorgusu vardı;
-        # bu sorgu RAG'da açık kanun yoluna düştüğü için kart veya KVKK konulu bir metin bile
-        # yalnızca Bankacılık Kanunu maddeleriyle eşleştiriliyordu.
-        queries = self._document_queries(doc) + ["5411 sayılı Bankacılık Kanunu temel yükümlülükler ve denetim"]
+        # Belgenin kendi cümleleri sorgudur. Önceden sabit bir "5411 sayılı …" sorgusu ekleniyordu;
+        # açık kanun yoluna düştüğü için kart veya KVKK konulu bir metin bile Bankacılık Kanunu
+        # maddeleriyle eşleştiriliyordu.
+        queries = self._document_queries(doc) or ["bankacılık mevzuatı genel yükümlülükler"]
 
         retrieval_scope = RetrievalScope(
             target_domains=scope,
-            explicit_laws=["5411"],
+            explicit_laws=self._cited_laws(doc),
             keywords=keywords,
             generated_queries=queries,
             top_k_per_query=2,
