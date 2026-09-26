@@ -144,6 +144,10 @@ class LocalRAG:
                     self.collection.delete(ids=ids)
             except Exception as exc:
                 raise RuntimeError(f"Chroma eski kayıt silinemedi: {exc}") from exc
+        # SQLite deposu: silinen parçaların vektörleri dosyada çöp kalır; yeterince birikince geri kazanılır.
+        compact = getattr(self.collection, "compact_if_needed", None)
+        if callable(compact):
+            compact()
 
     def ingest_text(self, text: str, meta: Dict[str, Any], force: bool = False) -> Dict[str, Any]:
         """Belgeyi batch embedding + batch Chroma upsert ile indeksler."""

@@ -186,6 +186,107 @@ class TestStoreDurability(unittest.TestCase):
         self.assertEqual(got["ids"], [["b"]])
         self.assertLess(got["distances"][0][0], 1e-3)
 
+    def _filled(self, n=300):
+        vecs = _vectors(n, seed=4)
+        store = SqliteVectorCollection(self.tmp)
+        for start in range(0, n, 50):
+            store.upsert(ids=[f"c{i}" for i in range(start, start + 50)], embeddings=vecs[start:start + 50].tolist(),
+                         documents=[f"metin {i}" for i in range(start, start + 50)],
+                         metadatas=[_meta(i) for i in range(start, start + 50)])
+        store.delete(where={"file_hash": "h2"})
+        store.update(ids=[f"c{i}" for i in range(0, 60, 3)], embeddings=_vectors(20, seed=8).tolist())
+        return store
+
+    def _snapshot(self, store):
+        got = store.get(include=["documents", "metadatas", "embeddings"])
+        queries = _vectors(6, seed=12).tolist()
+        return got, [store.query(query_embeddings=queries, n_results=15, where=w) for w in WHERES[:6]]
+
+    def test_compaction_keeps_every_result_and_reclaims_space(self):
+        store = self._filled()
+        garbage = store.garbage_rows()
+        self.assertGreater(garbage, 0)
+        before_get, before_q = self._snapshot(store)
+        other = SqliteVectorCollection(self.tmp)
+        other.query(query_embeddings=_vectors(1).tolist(), n_results=3, where={"n": 1})  # önbellek dolu
+
+        self.assertEqual(store.compact()["removed"], garbage)
+        self.assertEqual(store.garbage_rows(), 0)
+        after_get, after_q = self._snapshot(other)  # başka nesne: önbellek yazma sayacıyla geçersizleşir
+        self.assertEqual(after_get["ids"], before_get["ids"])
+        self.assertEqual(after_get["metadatas"], before_get["metadatas"])
+        np.testing.assert_array_equal(after_get["embeddings"], before_get["embeddings"])
+        for a, b in zip(before_q, after_q):
+            self.assertEqual(a["ids"], b["ids"])
+            self.assertEqual(a["distances"], b["distances"])
+
+        # Sonraki yazmalar yeni kümeye eklenir; ikinci sıkıştırma ilk kümeyi siler.
+        other.upsert(ids=["yeni"], embeddings=_vectors(1, seed=30).tolist(), metadatas=[{"file_hash": "h9"}])
+        self.assertEqual(store.query(query_embeddings=_vectors(1, seed=30).tolist(), n_results=1)["ids"], [["yeni"]])
+        other.delete(ids=["c1"])
+        self.assertEqual(store.compact()["fileset"], 2)
+        self.assertEqual(sorted(p.name for p in self.tmp.glob("vec_*.bin")),
+                         sorted(f"vec_{k}.{n}.bin" for k in ("i8", "f16", "aux") for n in (1, 2)))
+        self.assertEqual(store.compact()["removed"], 0)
+
+    def test_compaction_triggers_only_past_threshold(self):
+        from unittest.mock import patch
+
+        from mufettis.rag import store as store_module
+
+        store = self._filled()
+        with patch.object(store_module, "COMPACT_MIN_GARBAGE", 10 ** 6):
+            self.assertIsNone(store.compact_if_needed())
+        with patch.object(store_module, "COMPACT_MIN_GARBAGE", 1):
+            self.assertIsNone(store.compact_if_needed())  # oran eşiğinin (%30) altında
+            with patch.object(store_module, "COMPACT_GARBAGE_RATIO", 0.1):
+                self.assertIsNotNone(store.compact_if_needed())
+        self.assertEqual(store.garbage_rows(), 0)
+
+    def test_query_retries_when_compacted_mid_search(self):
+        store = self._filled()
+        expected = store.query(query_embeddings=_vectors(2, seed=5).tolist(), n_results=10)
+        other = SqliteVectorCollection(self.tmp)
+        original = store._nearest
+        calls = []
+
+        def nearest_then_compact(*args):
+            result = original(*args)
+            if not calls:
+                calls.append(1)
+                other.compact()  # arama ile sonuç okuma arasında satır numaraları değişir
+            return result
+
+        store._nearest = nearest_then_compact
+        got = store.query(query_embeddings=_vectors(2, seed=5).tolist(), n_results=10)
+        self.assertEqual(got["ids"], expected["ids"])
+
+    def test_concurrent_writers_never_share_vector_rows(self):
+        import threading
+
+        vecs = _vectors(400, seed=6)
+        SqliteVectorCollection(self.tmp).upsert(ids=["ilk"], embeddings=vecs[:1].tolist())
+        errors = []
+
+        def writer(offset):
+            store = SqliteVectorCollection(self.tmp)  # ayrı nesne: ayrı süreç gibi (ortak iş parçacığı kilidi yok)
+            try:
+                for start in range(offset, 400, 40):
+                    store.upsert(ids=[f"c{i}" for i in range(start, start + 20)], embeddings=vecs[start:start + 20].tolist())
+            except Exception as exc:  # pragma: no cover
+                errors.append(exc)
+
+        threads = [threading.Thread(target=writer, args=(o,)) for o in (0, 20)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        self.assertEqual(errors, [])
+        got = SqliteVectorCollection(self.tmp).get(ids=[f"c{i}" for i in range(400)], include=["embeddings"])
+        self.assertEqual(len(got["ids"]), 400)
+        order = [int(i[1:]) for i in got["ids"]]
+        np.testing.assert_allclose(got["embeddings"], vecs[order], atol=1e-3)
+
     def test_rejects_unsupported(self):
         store = SqliteVectorCollection(self.tmp)
         with self.assertRaises(ValueError):
