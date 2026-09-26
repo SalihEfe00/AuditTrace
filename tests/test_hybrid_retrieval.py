@@ -87,9 +87,19 @@ class TestLexicalIndex(unittest.TestCase):
     def test_admit_is_applied_before_truncation(self):
         idx = LexicalIndex(["x1", "x2", "ok", "o1", "o2", "o3"],
                            ["aidat aidat aidat", "aidat aidat", "aidat", "faiz", "masraf", "komisyon"],
-                           [{"role": "no"}, {"role": "no"}, {"role": "yes"}, {}, {}, {}])
-        hits = idx.search(query_terms("aidat"), 1, admit=lambda m: m["role"] == "yes")
+                           [{"structure_type": "accounting_plan"}] * 2 + [{}] * 4)
+        hits = idx.search(query_terms("aidat"), 1, admit=lambda m: m["normative_role"] != "classification")
         self.assertEqual([i for i, _ in hits], ["ok"])
+
+    def test_index_keeps_only_canonical_fields_and_builds_from_pages(self):
+        meta = {"structure_type": "accounting_plan", "title": "Hesap Planı", "long_field": "x" * 500}
+        idx = LexicalIndex.from_pages([(["a"], ["aidat"], [meta]), (["b"], ["aidat faiz"], [{}])])
+        self.assertEqual(idx.ids, ["a", "b"])
+        self.assertNotIn("long_field", idx.metadatas[0])
+        self.assertEqual(idx.metadatas[0]["normative_role"], "classification")
+        # Kanonik görünüm küçük kayıttan aynı sonucu verir.
+        from mufettis.corpus import canonical_view
+        self.assertEqual(canonical_view(idx.metadatas[0]), canonical_view(meta))
 
 
 class TestHybridQuery(unittest.TestCase):

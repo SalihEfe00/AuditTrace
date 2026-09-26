@@ -25,6 +25,7 @@ from typing import Any, Callable, Dict, FrozenSet, Iterable, Optional
 from mufettis.analysis.turkish_text import PRIVATIVE_SUFFIX_RE, MIN_PREFIX_MATCH, STEM_LENGTH, STOP_WORDS, is_weak_term, stem, tokenize
 from mufettis.common.utils import now_iso
 from mufettis.config import CHUNK_SCHEMA_VERSION, DATA_DIR
+from mufettis.rag.paging import iter_pages
 
 logger = logging.getLogger(__name__)
 
@@ -81,14 +82,14 @@ def build_term_stats(rag, index) -> Dict[str, Any]:
 
     items = index.data.get("indexed_items", {})
     active = {h for h, r in items.items() if str((r or {}).get("status", "")) not in INACTIVE_STATUSES}
-    got = rag.collection.get(where={"chunk_schema_version": CHUNK_SCHEMA_VERSION}, include=["documents", "metadatas"])
     per_doc: Dict[str, set] = {}
-    for doc, meta in zip(got.get("documents") or [], got.get("metadatas") or []):
-        meta = meta or {}
-        file_hash = str(meta.get("file_hash", ""))
-        if file_hash not in active or not _chunk_is_retrievable(meta, doc):
-            continue
-        per_doc.setdefault(file_hash, set()).update(document_keys(doc or ""))
+    # Sayfalı okuma: tüm koleksiyon tek seferde belleğe alınmaz (düşük RAM'li laptoplar).
+    for _ids, docs, metas in iter_pages(rag.collection, where={"chunk_schema_version": CHUNK_SCHEMA_VERSION}):
+        for doc, meta in zip(docs, metas):
+            file_hash = str(meta.get("file_hash", ""))
+            if file_hash not in active or not _chunk_is_retrievable(meta, doc):
+                continue
+            per_doc.setdefault(file_hash, set()).update(document_keys(doc or ""))
     doc_df: Dict[str, int] = {}
     for keys in per_doc.values():
         for key in keys:

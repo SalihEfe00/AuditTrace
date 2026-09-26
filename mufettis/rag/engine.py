@@ -52,6 +52,7 @@ from mufettis.legal.parser import (
 )
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.lexical import LexicalIndex, query_terms
+from mufettis.rag.paging import iter_pages
 
 # Serbest aramada vektör adaylarına eklenen sözcüksel (BM25) aday sayısı: max(alt sınır, k * çarpan).
 LEXICAL_CANDIDATES_MIN = 10
@@ -412,22 +413,20 @@ class LocalRAG:
             fast=self._identity_matches(document_ref, account_ref)
             if len(fast) >= limit:
                 return prefer_official_matches(fast, limit=limit, query=query, resolved_refs=(document_ref, account_ref))
+            out=[]
             try:
-                current=self.collection.get(where={"chunk_schema_version":CHUNK_SCHEMA_VERSION}, include=["documents","metadatas"])
+                # Sayfalı tarama: yalnızca eşleşen parçalar bellekte tutulur.
+                for _ids,docs,metas in iter_pages(self.collection, where={"chunk_schema_version":CHUNK_SCHEMA_VERSION}):
+                    for doc,meta in zip(docs,metas):
+                        if not _chunk_is_retrievable(meta, doc):
+                            continue
+                        if document_ref and not _chunk_matches_document_ref(meta, doc, document_ref):
+                            continue
+                        if account_ref and not _chunk_matches_account_ref(meta, doc, account_ref):
+                            continue
+                        out.append({"document":clean_evidence_text(doc,12000),"metadata":meta,"distance":None})
             except Exception as exc:
                 raise RuntimeError(f"Güncel RAG kayıtları okunamadı: {exc}") from exc
-            docs=current.get("documents",[]) or []
-            metas=current.get("metadatas",[]) or []
-            out=[]
-            for doc,meta in zip(docs,metas):
-                meta=meta or {}
-                if not _chunk_is_retrievable(meta, doc):
-                    continue
-                if document_ref and not _chunk_matches_document_ref(meta, doc, document_ref):
-                    continue
-                if account_ref and not _chunk_matches_account_ref(meta, doc, account_ref):
-                    continue
-                out.append({"document":clean_evidence_text(doc,12000),"metadata":meta,"distance":None})
             if out:
                 return prefer_official_matches(out, limit=limit, query=query, resolved_refs=(document_ref, account_ref))
             return []
@@ -465,8 +464,7 @@ class LocalRAG:
         cached=getattr(self, "_lexical_cache", None)
         if cached is not None and cached[0]==signature:
             return cached[1]
-        got=self.collection.get(where={"chunk_schema_version":CHUNK_SCHEMA_VERSION}, include=["documents","metadatas"])
-        index=LexicalIndex(got.get("ids") or [], got.get("documents") or [], got.get("metadatas") or [])
+        index=LexicalIndex.from_pages(iter_pages(self.collection, where={"chunk_schema_version":CHUNK_SCHEMA_VERSION}))
         self._lexical_cache=(signature, index)
         return index
 

@@ -13,6 +13,7 @@ yoksunluk ekli kelimeler kökten ayrıdır, 4 harfli kökler önek eşleşir).
 from __future__ import annotations
 
 import math
+import sys
 from collections import Counter, defaultdict
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -40,6 +41,18 @@ def _document_terms(text: str) -> List[str]:
     return out
 
 
+def eligibility_view(meta: Dict[str, Any]) -> Dict[str, Any]:
+    """Uygunluk kararı için yeterli küçük meta veri: güncel şemadaki kanonik alanlar. Kayıt eski
+    şemadaysa alanlar bir kez türetilir (canonical_view ile aynı sonuç)."""
+    from mufettis.corpus import CANONICAL_SCHEMA, canonical_view
+    from mufettis.corpus.model import CANONICAL_FIELDS
+
+    view = canonical_view(meta)
+    out = {field: getattr(view, field) for field in CANONICAL_FIELDS}
+    out["canonical_schema"] = CANONICAL_SCHEMA
+    return {k: sys.intern(v) if isinstance(v, str) else v for k, v in out.items()}
+
+
 def query_terms(text: str) -> List[str]:
     """Sorgu anahtarları. Belge tarafıyla aynı kural: 4 harfli kökün çekimleri ("kartım") hem kendi
     anahtarıyla hem kök önekiyle ("kart*") eşleşir; böylece "kartları" geçen hüküm de bulunur."""
@@ -61,15 +74,32 @@ def query_terms(text: str) -> List[str]:
 
 
 class LexicalIndex:
-    """Parça kimliği -> terim frekansları üzerine kurulan bellek içi BM25 indeksi."""
+    """Parça kimliği -> terim frekansları üzerine kurulan bellek içi BM25 indeksi.
 
-    def __init__(self, ids: Sequence[str], documents: Sequence[str], metadatas: Optional[Sequence[Dict[str, Any]]] = None):
-        self.ids: List[str] = list(ids)
-        # Uygunluk ön kararı için; kesin karar çağıranda taze meta veriyle verilir.
-        self.metadatas: List[Dict[str, Any]] = list(metadatas) if metadatas is not None else [{} for _ in self.ids]
+    Parça başına tam meta veri tutulmaz: uygunluk ön kararı yalnızca kanonik alanlara bakar
+    (`eligibility_view`). Aynı belgenin parçaları aynı değerleri paylaşır (sys.intern)."""
+
+    def __init__(self, ids: Sequence[str] = (), documents: Sequence[str] = (), metadatas: Optional[Sequence[Dict[str, Any]]] = None):
+        self.ids: List[str] = []
+        self.metadatas: List[Dict[str, Any]] = []
         self.lengths: List[int] = []
         self.postings: Dict[str, List[Tuple[int, int]]] = defaultdict(list)
-        for pos, text in enumerate(documents):
+        self.add(ids, documents, metadatas)
+
+    @classmethod
+    def from_pages(cls, pages: Iterable[Tuple[Sequence[str], Sequence[str], Sequence[Dict[str, Any]]]]) -> "LexicalIndex":
+        """Sayfa sayfa kurulum: koleksiyonun tamamı hiçbir anda bellekte olmaz."""
+        index = cls()
+        for ids, documents, metadatas in pages:
+            index.add(ids, documents, metadatas)
+        return index
+
+    def add(self, ids: Sequence[str], documents: Sequence[str], metadatas: Optional[Sequence[Dict[str, Any]]] = None) -> None:
+        metadatas = list(metadatas) if metadatas is not None else [{} for _ in ids]
+        for cid, text, meta in zip(ids, documents, metadatas):
+            pos = len(self.ids)
+            self.ids.append(cid)
+            self.metadatas.append(eligibility_view(meta or {}))
             terms = _document_terms(text or "")
             self.lengths.append(len(terms))
             for term, tf in Counter(terms).items():
@@ -110,4 +140,4 @@ class LexicalIndex:
         return out
 
 
-__all__ = ["LexicalIndex", "query_terms"]
+__all__ = ["LexicalIndex", "eligibility_view", "query_terms"]

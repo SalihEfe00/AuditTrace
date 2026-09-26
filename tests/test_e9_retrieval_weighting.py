@@ -47,9 +47,10 @@ class FakeCollection:
         self.rows = rows
         self.get_calls: List[Dict[str, Any]] = []
 
-    def get(self, where=None, include=None, ids=None):
+    def get(self, where=None, include=None, ids=None, limit=None, offset=0):
         self.get_calls.append(where or {})
         hit = [r for r in self.rows if _matches(r["metadata"], where or {})]
+        hit = hit[offset:offset + limit] if limit is not None else hit
         return {"ids": [r["id"] for r in hit], "documents": [r["document"] for r in hit],
                 "metadatas": [r["metadata"] for r in hit]}
 
