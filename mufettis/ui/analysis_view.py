@@ -22,6 +22,9 @@ Zero direct mutation to Chroma or production databases.
 from __future__ import annotations
 
 import html
+import hashlib
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 try:
@@ -43,6 +46,7 @@ from mufettis.analysis.models import (
     Evidence,
     Finding,
 )
+from mufettis.extraction.files import extract_file_text
 
 
 # ── Sample Templates for Instant Inspection ───────────────────────────────────
@@ -76,6 +80,38 @@ CITATION_SCOPE_NOTE = (
     "noktalama farkları gözetilmeden) geçtiğini gösterir. Hükmün somut olaya uygulanabilirliği "
     "denetçi değerlendirmesine bağlıdır."
 )
+
+
+UPLOAD_TYPES = ["pdf", "docx", "txt"]
+MIN_DOCUMENT_CHARS = 15
+
+
+@dataclass
+class UploadedDocument:
+    text: str
+    title: str
+    info: str
+
+
+def load_uploaded_document(name: str, data: bytes) -> UploadedDocument:
+    """Yüklenen belgeden analiz metni ve başlık. PDF'ler mevzuat içe aktarmayla aynı çıkarma
+    hattından (kalite kapısı, yedek motorlar, OCR) geçer. Metin çıkmazsa ValueError."""
+    extracted = extract_file_text(name, data)
+    text = extracted.text.strip()
+    if len(text) < MIN_DOCUMENT_CHARS:
+        raise ValueError(
+            "Belgeden okunabilir metin çıkarılamadı. Taranmış bir PDF ise OCR kurulumu gerekir; "
+            "metni kopyalayıp aşağıdaki alana yapıştırabilirsiniz."
+        )
+    parts = [f"{len(text):,} karakter".replace(",", ".")]
+    if extracted.pages:
+        parts.append(f"{extracted.pages} sayfa")
+    if extracted.ocr_used:
+        parts.append("OCR kullanıldı")
+    engine = extracted.diagnostic.get("selected_engine")
+    if engine:
+        parts.append(f"motor: {engine}")
+    return UploadedDocument(text=text, title=Path(name).stem, info=", ".join(parts))
 
 
 def citation_badge(citation: Citation) -> str:
@@ -179,6 +215,32 @@ def render_analysis_page(
 
     # ── Input Area ────────────────────────────────────────────────────────────
     st.markdown("### 1. Belge Girişi")
+    # Yükleyici metin alanından önce: metin alanının anahtarına yalnızca widget oluşmadan yazılabilir.
+    uploaded = st.file_uploader(
+        "Belge yükle (PDF, DOCX, TXT) — veya metni aşağıya yapıştırın",
+        type=UPLOAD_TYPES,
+        key="analysis_ui_upload",
+    )
+    data = uploaded.getvalue() if uploaded is not None else None
+    if isinstance(data, (bytes, bytearray)):
+        upload_id = hashlib.sha256(data).hexdigest()
+        # Aynı dosya her yeniden çizimde tekrar çıkarılmaz; kullanıcının metinde yaptığı düzeltme korunur.
+        if st.session_state.get("analysis_ui_upload_id") != upload_id:
+            st.session_state["analysis_ui_upload_id"] = upload_id
+            try:
+                loaded = load_uploaded_document(uploaded.name, data)
+            except Exception as exc:
+                st.error(f"Belge okunamadı: {exc}")
+            else:
+                st.session_state["analysis_ui_text"] = loaded.text
+                if not st.session_state.get("analysis_ui_title", "").strip():
+                    st.session_state["analysis_ui_title"] = loaded.title
+                st.session_state["analysis_ui_upload_info"] = f"{uploaded.name}: {loaded.info}"
+                st.session_state["analysis_exec_result"] = None
+        info = st.session_state.get("analysis_ui_upload_info")
+        if info:
+            st.caption(f"📄 Yüklenen belge — {info}. Metni analizden önce aşağıda düzeltebilirsiniz.")
+
     in_col1, in_col2 = st.columns(2)
     doc_title = in_col1.text_input(
         "Belge Başlığı (Opsiyonel)",
@@ -240,7 +302,7 @@ def render_analysis_page(
     # ── Display Analysis Results ──────────────────────────────────────────────
     exec_result: Optional[AnalysisExecutionResult] = st.session_state.get("analysis_exec_result")
     if not exec_result or not exec_result.result:
-        st.info("Analiz başlatmak için yukarıdaki alana bir metin girip 'ANALİZİ BAŞLAT' butonuna basınız.")
+        st.info("Analiz başlatmak için bir belge yükleyin veya metni yapıştırıp 'ANALİZİ BAŞLAT' butonuna basınız.")
         return
 
     result: AnalysisResult = exec_result.result
@@ -503,4 +565,4 @@ def render_analysis_page(
             st.success(f"İnceleme kaydedildi: {new_status} (Zaman: {updated_result.reviewed_at})")
 
 
-__all__ = ["render_analysis_page", "render_evidence_text_html", "citation_badge"]
+__all__ = ["render_analysis_page", "render_evidence_text_html", "citation_badge", "load_uploaded_document"]

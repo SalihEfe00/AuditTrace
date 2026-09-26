@@ -299,3 +299,13 @@ class TestFactStatingPredicates(unittest.TestCase):
         for sentence in ("Zararımın karşılanmasını talep ediyorum.", "Bilgilerinize arz ederim.",
                          "Ne yapacağımı bilmiyorum.", "İade istiyorum."):
             self.assertFalse(states_a_fact(sentence), sentence)
+
+
+class TestClaimSentenceBoundaries(unittest.TestCase):
+    def test_salutation_line_is_not_glued_to_the_first_claim(self):
+        doc = DocumentUnderstandingService().analyze(
+            "Sayın Yetkili,\nBankanız kredi kartım için bana önceden bildirmeden yıllık aidat ücreti tahsil etmiştir.\n"
+            "Kesilen tutarın iadesini talep ediyorum."
+        )
+        self.assertTrue(doc.claims)
+        self.assertTrue(all("Sayın Yetkili" not in c.statement for c in doc.claims))

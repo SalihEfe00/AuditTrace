@@ -20,15 +20,6 @@ try:
 except Exception:
     PdfReader = None
 
-try:
-    from bs4 import BeautifulSoup
-except Exception:
-    BeautifulSoup = None
-
-try:
-    from docx import Document
-except Exception:
-    Document = None
 
 from mufettis.audit.service import append_audit
 from mufettis.common.utils import canonical_source_id, now_iso, sha256_bytes, source_profile
@@ -39,6 +30,7 @@ from mufettis.extraction.pdf import (
     _pdf_text_quality,
     _reconstruct_pdf_spatial_text,
 )
+from mufettis.extraction.files import extract_file_text
 from mufettis.extraction.text_repair import normalize_extracted_text, repair_extracted_spacing
 from mufettis.legal.parser import (
     _chunk_is_retrievable,
@@ -1070,28 +1062,8 @@ def ingest_local_regulation_file(
     title = Path(original_name).stem if original_name else path.stem
     data = path.read_bytes()
     file_hash = sha256_bytes(data)
-    text = ""
-    pages = 0
-    ocr_used = False
-    if path.suffix.lower() == ".pdf":
-        scraper = ResmiGazeteScraper(index=index, local_only=True)
-        text, pages, ocr_used = scraper._extract_pdf_text(data)
-    elif path.suffix.lower() == ".docx":
-        if Document is None:
-            raise RuntimeError("DOCX desteği için python-docx kurulu değil")
-        doc = Document(io.BytesIO(data))
-        parts = [p.text for p in doc.paragraphs if p.text.strip()]
-        for table in doc.tables:
-            for row in table.rows:
-                parts.append(" | ".join(c.text.strip() for c in row.cells))
-        text = "\n".join(parts).strip()
-    elif path.suffix.lower() in {".html", ".htm"}:
-        soup = BeautifulSoup(data.decode("utf-8", errors="replace"), "html.parser")
-        for el in soup(["script", "style", "header", "footer", "nav"]):
-            el.extract()
-        text = re.sub(r"\n\s*\n", "\n", soup.get_text(separator="\n")).strip()
-    else:
-        text = data.decode("utf-8-sig", errors="replace").strip()
+    extracted = extract_file_text(path.name, data, index=index)
+    text, pages, ocr_used = extracted.text, extracted.pages, extracted.ocr_used
     if not text.strip():
         raise ValueError("Belgeden metin çıkarılamadı")
     meta = extract_legal_metadata(title, text, enrich_source_meta({
@@ -1106,7 +1078,7 @@ def ingest_local_regulation_file(
         "file_name": Path(original_name).name if original_name else path.name,
         "local_path": "" if original_name else str(path),
     }, "local_file"))
-    pdf_diagnostic = dict(scraper._last_pdf_diagnostic) if path.suffix.lower() == ".pdf" else {}
+    pdf_diagnostic = extracted.diagnostic
     result = versioned_ingest_text(
         rag,
         index,

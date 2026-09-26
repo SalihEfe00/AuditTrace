@@ -262,7 +262,9 @@ class DocumentUnderstandingService:
         entities: List[DocumentEntity],
     ) -> List[DocumentClaim]:
         claims: List[DocumentClaim] = []
-        sentences = re.split(r"(?<=[.!?])\s+", text)
+        # Satır sonu da cümle sınırıdır: yüklenen dilekçelerde hitap ("Sayın Yetkili,") ve başlık
+        # satırları noktasızdır; aksi halde ilk iddiaya yapışıp eşleşmeyi bozuyorlardı.
+        sentences = re.split(r"(?<=[.!?])\s+|\n+", text)
         claim_idx = 1
         seen_statements = set()
 
