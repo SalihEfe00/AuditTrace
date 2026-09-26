@@ -46,6 +46,7 @@ from mufettis.analysis.models import (
     Evidence,
     Finding,
 )
+from mufettis.exports.analysis_report import create_analysis_docx
 from mufettis.extraction.files import extract_file_text
 
 
@@ -573,6 +574,21 @@ def render_analysis_page(
             st.error(f"İnceleme oturuma uygulandı ancak denetim kaydına yazılamadı: {exc}")
         else:
             st.success(f"İnceleme kaydedildi: {new_status} (Zaman: {updated_result.reviewed_at})")
+
+    # ── Section 7: Export ─────────────────────────────────────────────────────
+    report_result = exec_result.result
+    try:
+        report_bytes = create_analysis_docx(report_result)
+    except Exception as exc:
+        st.error(f"DOCX çalışma kağıdı oluşturulamadı: {exc}")
+    else:
+        st.download_button(
+            "📄 Çalışma kağıdını indir (DOCX)",
+            data=report_bytes,
+            file_name=f"mufettis_analiz_{report_result.analysis_id[:8]}.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            key=f"analysis_docx_{report_result.analysis_id}",
+        )
 
 
 __all__ = ["render_analysis_page", "render_evidence_text_html", "citation_badge", "load_uploaded_document"]
