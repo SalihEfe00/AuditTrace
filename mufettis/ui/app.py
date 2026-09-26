@@ -19,24 +19,54 @@ except Exception:
 
 import re
 
-from mufettis.config import *
-from mufettis.common.utils import *
-from mufettis.audit.service import *
-from mufettis.extraction.text_repair import *
-from mufettis.extraction.pdf import *
-from mufettis.legal.parser import *
-from mufettis.harvesting.web_harvester import *
-from mufettis.harvesting.resmi_gazete import *
-from mufettis.rag.index import *
-from mufettis.rag.engine import *
-from mufettis.rag.maintenance import *
-from mufettis.analysis.risk_engine import *
-from mufettis.importers.bulk_importer import *
-from mufettis.importers.bootstrapper import *
-from mufettis.scheduler.scheduler import *
-from mufettis.llm.client import *
-from mufettis.exports.report_generator import *
-from mufettis.ui.admin import *
+from mufettis.analysis.risk_engine import (
+    attach_regulation_matches,
+    data_quality_report,
+    findings_to_dataframe,
+    normalize_amount_columns,
+    run_analysis,
+)
+from mufettis.audit.service import append_audit, apply_reviews, load_reviews, save_review
+from mufettis.common.utils import check_disk_health
+from mufettis.config import (
+    APP_VERSION,
+    BASE_DIR,
+    BULK_ERROR_FILE,
+    BULK_STATE_FILE,
+    CHUNK_SCHEMA_VERSION,
+    DB_PATH,
+    DEFAULT_LLM,
+    EMBEDDING_MODEL,
+    EXPORT_DIR,
+    INGEST_INDEX_FILE,
+    MAX_UPLOAD_MB,
+    REVIEW_FILE,
+    SOURCE_CACHE_DIR,
+    SOURCE_REGISTRY_FILE,
+)
+from mufettis.exports.report_generator import _save_export, create_docx_report, create_xlsx_bytes
+from mufettis.extraction.text_repair import (
+    clean_evidence_text,
+    extract_legal_identifier,
+    repair_account_code_spacing,
+    repair_extracted_spacing,
+    repair_mojibake,
+)
+from mufettis.llm.client import (
+    build_ai_report_prompt,
+    ollama_generate,
+    ollama_health,
+    prepare_report_findings,
+    report_mevzuat_preflight,
+)
+from mufettis.rag.engine import LocalRAG, SentenceTransformer, chromadb
+from mufettis.rag.maintenance import (
+    _diagnostic_focus_text,
+    run_rag_diagnostic,
+    run_rag_provenance_compare,
+)
+from mufettis.scheduler.scheduler import BackgroundUpdateScheduler
+from mufettis.ui.admin import render_mevzuat_admin
 from mufettis.ui.analysis_view import render_analysis_page
 def run_self_tests(*args, **kwargs):
     from mufettis.tests.runner import run_self_tests as _fn
@@ -672,4 +702,8 @@ def run_streamlit() -> None:
             st.json(ollama_health())
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "run_self_tests",
+    "render_self_test_result",
+    "run_streamlit",
+]

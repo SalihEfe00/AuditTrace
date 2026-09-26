@@ -20,16 +20,19 @@ try:
 except Exception:
     Document = None
 
-from mufettis.config import *
-from mufettis.common.utils import *
-from mufettis.audit.service import *
-from mufettis.extraction.text_repair import *
-from mufettis.extraction.pdf import *
-from mufettis.legal.parser import *
+from mufettis.audit.service import append_audit
+from mufettis.common.utils import atomic_write_json, load_json, now_iso, safe_json, sha256_bytes
+from mufettis.config import (
+    BULK_ERROR_FILE,
+    BULK_MAX_FILE_MB,
+    BULK_STATE_FILE,
+    BULK_SUPPORTED_EXTENSIONS,
+)
+from mufettis.legal.parser import extract_legal_metadata, find_previous_same_title
+from mufettis.rag.maintenance import versioned_ingest_text
 from mufettis.harvesting.resmi_gazete import ResmiGazeteScraper, enrich_source_meta
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.engine import LocalRAG
-from mufettis.rag.maintenance import *
 
 class BulkRegulationImporter:
     """
@@ -281,4 +284,7 @@ def scan_regulation_folder(folder: Path, max_file_mb: int = BULK_MAX_FILE_MB) ->
     return importer.summarize(files)
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "BulkRegulationImporter",
+    "scan_regulation_folder",
+]

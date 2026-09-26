@@ -378,4 +378,6 @@ class LocalRAG:
             return 0
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "LocalRAG",
+]

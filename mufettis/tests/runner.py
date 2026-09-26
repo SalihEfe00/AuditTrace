@@ -256,4 +256,9 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     return 0 if result.wasSuccessful() else 1
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "build_self_test_suite",
+    "SELF_TEST_TIMEOUT_SEC",
+    "IsolatedSelfTestResult",
+    "run_self_tests",
+]

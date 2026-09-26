@@ -7,8 +7,6 @@ from typing import Any, Dict
 
 import pandas as pd
 
-from mufettis.config import *
-from mufettis.common.utils import *
 from mufettis.rag.engine import LocalRAG
 from mufettis.ui.app import _get_rag, render_self_test_result
 from mufettis.ui.admin import render_mevzuat_admin

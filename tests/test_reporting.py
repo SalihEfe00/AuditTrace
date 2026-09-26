@@ -39,25 +39,8 @@ try:
 except Exception:
     pdfplumber = None
 
-from mufettis.config import *
-from mufettis.common.utils import *
-from mufettis.audit.service import *
-from mufettis.extraction.text_repair import *
-from mufettis.extraction.pdf import *
-from mufettis.legal.parser import *
-from mufettis.harvesting.web_harvester import *
-from mufettis.harvesting.resmi_gazete import *
-from mufettis.rag.index import *
-from mufettis.rag.engine import *
-from mufettis.rag.maintenance import *
-from mufettis.analysis.risk_engine import *
-from mufettis.importers.bulk_importer import *
-from mufettis.importers.bootstrapper import *
-from mufettis.scheduler.scheduler import *
-from mufettis.llm.client import *
-from mufettis.exports.report_generator import *
-from mufettis.ui.admin import *
-from mufettis.ui.app import *
+from mufettis.exports.report_generator import create_docx_report
+from mufettis.llm.client import prepare_report_findings, report_mevzuat_preflight
 from mufettis.tests.patching import module_overrides
 
 class TestV1318ReportAndAdmin(unittest.TestCase):

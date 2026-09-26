@@ -39,25 +39,35 @@ try:
 except Exception:
     pdfplumber = None
 
-from mufettis.config import *
-from mufettis.common.utils import *
-from mufettis.audit.service import *
-from mufettis.extraction.text_repair import *
-from mufettis.extraction.pdf import *
-from mufettis.legal.parser import *
-from mufettis.harvesting.web_harvester import *
-from mufettis.harvesting.resmi_gazete import *
-from mufettis.rag.index import *
-from mufettis.rag.engine import *
-from mufettis.rag.maintenance import *
-from mufettis.analysis.risk_engine import *
-from mufettis.importers.bulk_importer import *
-from mufettis.importers.bootstrapper import *
-from mufettis.scheduler.scheduler import *
-from mufettis.llm.client import *
-from mufettis.exports.report_generator import *
-from mufettis.ui.admin import *
-from mufettis.ui.app import *
+import inspect
+from mufettis.analysis.risk_engine import (
+    findings_to_dataframe,
+    looks_like_date_column,
+    parse_turkish_number,
+    run_analysis,
+    validate_run_analysis_source,
+)
+from mufettis.common.utils import atomic_write_json, load_json
+from mufettis.config import DATA_DIR
+from mufettis.exports.report_generator import create_docx_report, create_xlsx_bytes
+from mufettis.extraction.text_repair import (
+    clean_evidence_text,
+    extract_legal_identifier,
+    normalize_extracted_text,
+    repair_mojibake,
+)
+from mufettis.importers.bulk_importer import BulkRegulationImporter
+from mufettis.legal.parser import (
+    _legal_rerank,
+    extract_legal_metadata,
+    legal_diff,
+    prefer_official_matches,
+    split_legal_chunks,
+)
+from mufettis.llm.client import build_ai_report_prompt
+from mufettis.rag.engine import LocalRAG
+from mufettis.rag.index import IngestIndex
+from mufettis.scheduler.scheduler import BackgroundUpdateScheduler
 
 class TestMufettisAI(unittest.TestCase):
     def test_run_analysis_source(self):

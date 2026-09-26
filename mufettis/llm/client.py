@@ -205,4 +205,11 @@ def report_mevzuat_preflight(
     }
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "OLLAMA_SYSTEM_PROMPT",
+    "ollama_health",
+    "ollama_generate",
+    "build_ai_report_prompt",
+    "prepare_report_findings",
+    "report_mevzuat_preflight",
+]

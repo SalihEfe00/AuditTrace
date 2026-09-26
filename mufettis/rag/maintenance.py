@@ -30,12 +30,24 @@ try:
 except Exception:
     Document = None
 
-from mufettis.config import *
-from mufettis.common.utils import *
-from mufettis.audit.service import *
-from mufettis.extraction.text_repair import *
-from mufettis.extraction.pdf import *
-from mufettis.legal.parser import *
+from mufettis.audit.service import append_audit
+from mufettis.common.utils import canonical_source_id, now_iso, sha256_bytes, source_profile
+from mufettis.config import CHROMA_COLLECTION, CHUNK_SCHEMA_VERSION, SOURCE_CACHE_DIR
+from mufettis.extraction.pdf import (
+    _extract_pdf_with_pdfplumber,
+    _pdf_generic_quality_metrics,
+    _pdf_text_quality,
+    _reconstruct_pdf_spatial_text,
+)
+from mufettis.extraction.text_repair import normalize_extracted_text, repair_extracted_spacing
+from mufettis.legal.parser import (
+    _chunk_is_retrievable,
+    _chunk_matches_account_ref,
+    _chunk_matches_document_ref,
+    classify_legal_structure,
+    extract_legal_metadata,
+    legal_diff,
+)
 from mufettis.harvesting.resmi_gazete import ResmiGazeteScraper, enrich_source_meta
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.engine import LocalRAG
@@ -1346,4 +1358,20 @@ def build_rag_inventory(rag: Optional[LocalRAG]) -> Dict[str, Any]:
     }
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "save_source_cache",
+    "load_source_cache",
+    "scan_production_rag_quality",
+    "repair_production_document_from_pdf",
+    "run_rag_provenance_compare",
+    "run_rag_diagnostic",
+    "find_previous_version",
+    "reset_chroma_collection",
+    "rebuild_rag_from_source_cache",
+    "rechunk_cached_document",
+    "reindex_cached_documents",
+    "versioned_ingest_text",
+    "ingest_local_regulation_file",
+    "resolve_inventory_evidence_meta",
+    "build_rag_inventory",
+]

@@ -8,8 +8,22 @@ import time
 from typing import Any, Dict, List, Optional
 from zoneinfo import ZoneInfo
 
-from mufettis.config import *
-from mufettis.common.utils import *
+from mufettis.common.utils import (
+    atomic_write_json,
+    canonical_source_id,
+    check_disk_health,
+    now_iso,
+    safe_json,
+)
+from mufettis.config import (
+    SCHEDULER_HOUR,
+    SCHEDULER_LOG_FILE,
+    SCHEDULER_MINUTE,
+    SCHEDULER_STATE_FILE,
+    SCHEDULER_TIMEZONE,
+    WEB_SOURCE_MAX_DEPTH,
+    WEB_SOURCE_MAX_PAGES,
+)
 from mufettis.audit.service import append_audit
 from mufettis.harvesting.resmi_gazete import (
     sync_resmi_gazete_for_date,
@@ -114,4 +128,7 @@ def run_automatic_update(sources: Optional[List[str]] = None, use_browser_for_bd
     return result
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "BackgroundUpdateScheduler",
+    "run_automatic_update",
+]

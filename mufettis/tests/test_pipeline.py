@@ -37,25 +37,66 @@ try:
 except Exception:
     pdfplumber = None
 
-from mufettis.config import *
-from mufettis.common.utils import *
-from mufettis.audit.service import *
-from mufettis.extraction.text_repair import *
-from mufettis.extraction.pdf import *
-from mufettis.legal.parser import *
-from mufettis.harvesting.web_harvester import *
-from mufettis.harvesting.resmi_gazete import *
-from mufettis.rag.index import *
-from mufettis.rag.engine import *
-from mufettis.rag.maintenance import *
-from mufettis.analysis.risk_engine import *
-from mufettis.importers.bulk_importer import *
-from mufettis.importers.bootstrapper import *
-from mufettis.scheduler.scheduler import *
-from mufettis.llm.client import *
-from mufettis.exports.report_generator import *
-from mufettis.ui.admin import *
-from mufettis.ui.app import *
+import os
+import zipfile
+from mufettis.analysis.risk_engine import (
+    findings_to_dataframe,
+    looks_like_date_column,
+    parse_turkish_number,
+    run_analysis,
+    validate_run_analysis_source,
+)
+from mufettis.common.utils import (
+    atomic_write_json,
+    canonical_source_id,
+    load_json,
+    now_iso,
+    save_web_cache_meta,
+    sha256_bytes,
+    source_is_allowed,
+    source_profile,
+    web_cache_key,
+)
+from mufettis.config import BASE_DIR, BOOTSTRAP_STATE_FILE, DATA_DIR, SOURCE_DEFINITIONS
+from mufettis.exports.report_generator import create_docx_report, create_xlsx_bytes
+from mufettis.extraction.pdf import (
+    _extract_pdfium_spatial_pages,
+    _join_pdf_pages,
+    _pdf_text_quality,
+)
+from mufettis.extraction.text_repair import (
+    clean_evidence_text,
+    extract_legal_identifier,
+    normalize_extracted_text,
+    repair_extracted_spacing,
+    repair_mojibake,
+)
+from mufettis.harvesting.resmi_gazete import ResmiGazeteScraper
+from mufettis.harvesting.web_harvester import WebSourceHarvester
+from mufettis.importers.bootstrapper import RegulationBootstrapper, should_offer_bootstrap
+from mufettis.importers.bulk_importer import BulkRegulationImporter
+from mufettis.legal.parser import (
+    _legal_rerank,
+    classify_legal_structure,
+    extract_legal_metadata,
+    legal_diff,
+    prefer_official_matches,
+    split_legal_chunks,
+)
+from mufettis.llm.client import (
+    build_ai_report_prompt,
+    prepare_report_findings,
+    report_mevzuat_preflight,
+)
+from mufettis.rag.engine import LocalRAG
+from mufettis.rag.index import IngestIndex
+from mufettis.rag.maintenance import (
+    _sha256_text,
+    load_source_cache,
+    resolve_inventory_evidence_meta,
+    save_source_cache,
+)
+from mufettis.scheduler.scheduler import BackgroundUpdateScheduler
 from mufettis.tests.patching import module_overrides
 
 class TestMufettisAI(unittest.TestCase):
@@ -1238,4 +1279,24 @@ class TestV1380FinalE2ERegression(unittest.TestCase):
         ))
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "TestMufettisAI",
+    "TestVersioningAndScheduler",
+    "TestBootstrapSafety",
+    "TestSourceHierarchy",
+    "TestV1307Quality",
+    "TestV1308Quality",
+    "TestV1309Quality",
+    "TestV1310Phase1",
+    "TestV1311Hierarchy",
+    "TestV1314SourceParsing",
+    "TestV1315Hardening",
+    "TestV1317Hardening",
+    "TestV1318ReportAndAdmin",
+    "TestV1319Performance",
+    "TestV1320PerformancePipeline",
+    "TestV1331NonArticleEvidence",
+    "TestV1333StructureDiscovery",
+    "TestV1336ExtractionAndStructure",
+    "TestV1380FinalE2ERegression",
+]

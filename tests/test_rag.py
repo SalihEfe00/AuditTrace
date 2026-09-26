@@ -39,25 +39,47 @@ try:
 except Exception:
     pdfplumber = None
 
-from mufettis.config import *
-from mufettis.common.utils import *
-from mufettis.audit.service import *
-from mufettis.extraction.text_repair import *
-from mufettis.extraction.pdf import *
-from mufettis.legal.parser import *
-from mufettis.harvesting.web_harvester import *
-from mufettis.harvesting.resmi_gazete import *
-from mufettis.rag.index import *
-from mufettis.rag.engine import *
-from mufettis.rag.maintenance import *
-from mufettis.analysis.risk_engine import *
-from mufettis.importers.bulk_importer import *
-from mufettis.importers.bootstrapper import *
-from mufettis.scheduler.scheduler import *
-from mufettis.llm.client import *
-from mufettis.exports.report_generator import *
-from mufettis.ui.admin import *
-from mufettis.ui.app import *
+import inspect
+from mufettis.common.utils import save_web_cache_meta, sha256_bytes, web_cache_key
+from mufettis.config import BASE_DIR, CHUNK_SCHEMA_VERSION, SOURCE_DEFINITIONS
+from mufettis.extraction.pdf import _extract_pdfium_spatial_pages, _join_pdf_pages, pdfium
+from mufettis.extraction.text_repair import (
+    normalize_extracted_text,
+    repair_account_code_spacing,
+    repair_extracted_spacing,
+)
+from mufettis.harvesting.web_harvester import WebSourceHarvester
+from mufettis.legal.parser import (
+    _chunk_is_retrievable,
+    _chunk_matches_account_ref,
+    _chunk_matches_document_ref,
+    _legal_rerank,
+    _metadata_bool,
+    _resolve_query_document_reference_from_collection,
+    classify_legal_structure,
+    extract_legal_metadata,
+    extract_query_account_code,
+    extract_query_document_reference,
+    prefer_official_matches,
+    split_legal_chunks,
+)
+from mufettis.rag.engine import LocalRAG
+from mufettis.rag.index import IngestIndex
+from mufettis.rag.maintenance import (
+    _diagnostic_cache_excerpt,
+    _diagnostic_focus_text,
+    _diagnostic_quality,
+    _sha256_text,
+    build_rag_inventory,
+    load_source_cache,
+    rechunk_cached_document,
+    reindex_cached_documents,
+    repair_production_document_from_pdf,
+    resolve_inventory_evidence_meta,
+    run_rag_diagnostic,
+    save_source_cache,
+    scan_production_rag_quality,
+)
 from mufettis.tests.patching import module_overrides
 
 class TestRAGReranking(unittest.TestCase):

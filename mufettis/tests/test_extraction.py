@@ -21,18 +21,38 @@ try:
 except Exception:
     pdfplumber = None
 
-from mufettis.config import *
-from mufettis.common.utils import *
-from mufettis.audit.service import *
-from mufettis.extraction.text_repair import *
-from mufettis.extraction.pdf import *
-from mufettis.legal.parser import *
-from mufettis.harvesting.web_harvester import *
-from mufettis.harvesting.resmi_gazete import *
-from mufettis.rag.index import *
-from mufettis.rag.engine import *
-from mufettis.rag.maintenance import *
-from mufettis.analysis.risk_engine import *
+import os
+from mufettis.config import BASE_DIR, PDFIUM_LOCK
+from mufettis.extraction.pdf import (
+    _build_pdf_physical_page_model,
+    _build_pdf_visual_rows,
+    _detect_pdf_table_regions,
+    _extract_pdfium_pages,
+    _extract_pdfium_spatial_pages,
+    _join_pdf_pages,
+    _order_pdf_physical_lines,
+    _order_pdf_physical_lines_a4,
+    _pdf_encoding_anomaly_metrics,
+    _pdf_generic_quality_metrics,
+    _pdf_page_quality,
+    _pdf_quality_gate,
+    _pdf_text_quality,
+    _reconstruct_pdf_line_word_boundaries,
+    _reconstruct_pdf_spatial_text,
+    _schema_aware_quality_metrics,
+    _select_pdf_engine_b3,
+)
+from mufettis.extraction.text_repair import (
+    clean_evidence_text,
+    normalize_extracted_text,
+    normalize_legal_whitespace,
+    repair_account_code_spacing,
+    repair_extracted_spacing,
+    repair_mojibake,
+)
+from mufettis.harvesting.resmi_gazete import ResmiGazeteScraper
+from mufettis.legal.parser import classify_legal_structure, split_legal_chunks
+from mufettis.rag.index import IngestIndex
 from mufettis.tests.patching import module_overrides
 
 class TestV1345PdfDependencyAndExtraction(unittest.TestCase):
@@ -924,4 +944,19 @@ class TestV1372SchemaAwareQuality(unittest.TestCase):
         self.assertGreaterEqual(q["schema_score"], 0.8)
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "TestV1345PdfDependencyAndExtraction",
+    "TestV1369LayoutAwareExtraction",
+    "TestV1366PdfReconstructionAndGenericQuality",
+    "TestV1352QualityAndMultiEngine",
+    "TestV1341TextSpacing",
+    "TestV1342TextIntegrity",
+    "TestV1349RawQualityOrdering",
+    "TestV1344PdfTextReconstruction",
+    "TestV1343TextIntegrity",
+    "TestV1362RepairRegression",
+    "TestV1373EngineSelection",
+    "TestV1374RealOcrRegression",
+    "TestV1375ExtractionNormalizationStructure",
+    "TestV1372SchemaAwareQuality",
+]

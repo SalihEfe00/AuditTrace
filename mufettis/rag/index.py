@@ -45,4 +45,6 @@ class IngestIndex:
         self.save()
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "IngestIndex",
+]

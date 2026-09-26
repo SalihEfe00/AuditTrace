@@ -432,4 +432,12 @@ def extract_legal_identifier(query: str) -> Optional[str]:
     return None
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "repair_mojibake",
+    "repair_account_code_spacing",
+    "repair_extracted_spacing",
+    "normalize_extracted_text",
+    "normalize_legal_whitespace",
+    "clean_evidence_text",
+    "extract_legal_identifier",
+]

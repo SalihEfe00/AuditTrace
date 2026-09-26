@@ -1059,4 +1059,15 @@ def legal_diff(old_text: str, new_text: str, max_lines: int = 250) -> Dict[str, 
     }
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "detect_doc_type",
+    "extract_first",
+    "classify_legal_structure",
+    "extract_legal_metadata",
+    "extract_query_document_reference",
+    "extract_query_account_code",
+    "prefer_official_matches",
+    "split_legal_chunks",
+    "find_previous_same_title",
+    "legal_diff",
+]

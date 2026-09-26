@@ -176,4 +176,24 @@ def check_disk_health(target: Path = DATA_DIR) -> Dict[str, Any]:
         return {"ok": False, "error": str(exc)}
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "canonical_source_id",
+    "now_iso",
+    "normalize_title",
+    "load_source_registry",
+    "source_profile",
+    "enrich_source_meta",
+    "source_is_allowed",
+    "web_cache_key",
+    "web_cache_meta_path",
+    "load_web_cache_meta",
+    "save_web_cache_meta",
+    "safe_json",
+    "atomic_write_json",
+    "load_json",
+    "sha256_bytes",
+    "mask_sensitive",
+    "mask_sensitive_payload",
+    "atomic_csv_write",
+    "check_disk_health",
+]

@@ -20,18 +20,46 @@ try:
 except Exception:
     SentenceTransformer = None
 
-from mufettis.config import *
-from mufettis.common.utils import *
-from mufettis.audit.service import *
-from mufettis.extraction.text_repair import *
-from mufettis.extraction.pdf import *
-from mufettis.legal.parser import *
-from mufettis.harvesting.web_harvester import *
-from mufettis.harvesting.resmi_gazete import *
-from mufettis.rag.index import *
-from mufettis.rag.engine import *
-from mufettis.rag.maintenance import *
-from mufettis.analysis.risk_engine import *
+import inspect
+from mufettis.common.utils import sha256_bytes
+from mufettis.config import BASE_DIR, CHUNK_SCHEMA_VERSION
+from mufettis.extraction.pdf import _extract_pdfium_spatial_pages, _join_pdf_pages, pdfium
+from mufettis.extraction.text_repair import (
+    normalize_extracted_text,
+    repair_account_code_spacing,
+    repair_extracted_spacing,
+)
+from mufettis.legal.parser import (
+    _chunk_is_retrievable,
+    _chunk_matches_account_ref,
+    _chunk_matches_document_ref,
+    _legal_rerank,
+    _metadata_bool,
+    _resolve_query_document_reference_from_collection,
+    classify_legal_structure,
+    extract_legal_metadata,
+    extract_query_account_code,
+    extract_query_document_reference,
+    prefer_official_matches,
+    split_legal_chunks,
+)
+from mufettis.rag.engine import LocalRAG
+from mufettis.rag.index import IngestIndex
+from mufettis.rag.maintenance import (
+    _diagnostic_cache_excerpt,
+    _diagnostic_focus_text,
+    _diagnostic_quality,
+    _sha256_text,
+    build_rag_inventory,
+    load_source_cache,
+    rechunk_cached_document,
+    reindex_cached_documents,
+    repair_production_document_from_pdf,
+    resolve_inventory_evidence_meta,
+    run_rag_diagnostic,
+    save_source_cache,
+    scan_production_rag_quality,
+)
 from mufettis.tests.patching import module_overrides
 
 class TestV1337FinalPipeline(unittest.TestCase):
@@ -870,4 +898,24 @@ class TestV1347RAGDiagnosticHelpers(unittest.TestCase):
         self.assertLess(spaced["long_glued"], glued["long_glued"])
 
 
-__all__ = [k for k in dict(globals()).keys() if not k.startswith('__')]
+__all__ = [
+    "TestV1337FinalPipeline",
+    "TestV1337IndexPipeline",
+    "TestRAGReranking",
+    "TestV1312ChunkIntegrity",
+    "TestV1313RAGIsolation",
+    "TestV1316ExactLawRecovery",
+    "TestV1324RAGInventory",
+    "TestV1326EvidenceInventoryReasonRecovery",
+    "TestV1335RetrievalBoundary",
+    "TestV1334IndexabilityBoundary",
+    "TestV1338RetrievalIntegrity",
+    "TestV1339RetrievalFallback",
+    "TestV1340DeterministicIdentityRetrieval",
+    "TestV1348Provenance",
+    "TestV1377QueryIdentityResolution",
+    "TestV1379SourceCacheRechunkReindex",
+    "TestV1381ProductionRepairScanner",
+    "TestV1376RealChromaRetrieval",
+    "TestV1347RAGDiagnosticHelpers",
+]

@@ -39,25 +39,33 @@ try:
 except Exception:
     pdfplumber = None
 
-from mufettis.config import *
-from mufettis.common.utils import *
-from mufettis.audit.service import *
-from mufettis.extraction.text_repair import *
-from mufettis.extraction.pdf import *
-from mufettis.legal.parser import *
-from mufettis.harvesting.web_harvester import *
-from mufettis.harvesting.resmi_gazete import *
-from mufettis.rag.index import *
-from mufettis.rag.engine import *
-from mufettis.rag.maintenance import *
-from mufettis.analysis.risk_engine import *
-from mufettis.importers.bulk_importer import *
-from mufettis.importers.bootstrapper import *
-from mufettis.scheduler.scheduler import *
-from mufettis.llm.client import *
-from mufettis.exports.report_generator import *
-from mufettis.ui.admin import *
-from mufettis.ui.app import *
+from mufettis.common.utils import (
+    atomic_write_json,
+    canonical_source_id,
+    load_json,
+    now_iso,
+    sha256_bytes,
+    source_is_allowed,
+    source_profile,
+)
+from mufettis.config import BASE_DIR, BOOTSTRAP_STATE_FILE
+from mufettis.extraction.pdf import (
+    _extract_pdfium_spatial_pages,
+    _join_pdf_pages,
+    _pdf_text_quality,
+)
+from mufettis.extraction.text_repair import normalize_extracted_text, repair_extracted_spacing
+from mufettis.harvesting.resmi_gazete import ResmiGazeteScraper
+from mufettis.importers.bootstrapper import RegulationBootstrapper, should_offer_bootstrap
+from mufettis.legal.parser import (
+    classify_legal_structure,
+    extract_legal_metadata,
+    split_legal_chunks,
+)
+from mufettis.rag.engine import LocalRAG
+from mufettis.rag.index import IngestIndex
+from mufettis.rag.maintenance import _sha256_text, load_source_cache, save_source_cache
+from mufettis.scheduler.scheduler import BackgroundUpdateScheduler
 from mufettis.tests.patching import module_overrides
 
 class TestVersioningAndScheduler(unittest.TestCase):
