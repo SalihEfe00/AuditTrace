@@ -244,10 +244,8 @@ def apply(rag, index, the_plan: Dict[str, Any]) -> Dict[str, Any]:
     items = index.data.get("indexed_items", {})
     chains = plan_version_chains(items, {h: str(r.get("document_key", "")) for h, r in items.items()})
     for item in chains["clear_links"]:
-        record = index.get(item["hash"]) or {}
-        record = {k: v for k, v in record.items() if k not in ("superseded_by", "valid_to")}
-        record["status"] = "active"
-        index.upsert(item["hash"], record)
+        # upsert mevcut kayıtla birleştirir: alanı kayıttan çıkarmak onu silmez, boş değer yazılır.
+        index.upsert(item["hash"], {"status": "active", "superseded_by": "", "valid_to": ""})
         rag.update_hash_metadata(item["hash"], {"status": "active", "superseded_by": "", "valid_to": ""})
     for item in chains["supersede"]:
         record = index.get(item["hash"]) or {}
