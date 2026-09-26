@@ -20,7 +20,7 @@ from mufettis.analysis.models import (
     DocumentType,
     DocumentUnderstanding,
 )
-from mufettis.analysis.turkish_text import contains_phrase, turkish_lower
+from mufettis.analysis.turkish_text import contains_phrase, content_terms, turkish_lower
 from mufettis.extraction.text_repair import (
     normalize_extracted_text,
     repair_mojibake,
@@ -31,6 +31,28 @@ from mufettis.extraction.text_repair import (
 _OBSERVATION_MARKERS = re.compile(
     r"tespit\s+edil|belirlen|aşılarak|aşıldığı|ihlal|yenilenmedi|gecikme|gecikti|bildirilmedi|kesinti",
 )
+
+
+# Olgu bildiren yüklem: Türkçede yüklem cümle sonundadır. Geçmiş zaman (-dı, -tı), öğrenilen geçmiş /
+# kesinlik (-mış, -mıştır) ve 3. kişi şimdiki zaman (-ıyor, -maktadır; olumsuzları dahil) bir olay
+# veya durum bildirir: "aktarmıştır", "sunulmamıştır", "ilgilenmedi", "yazmıyor".
+_FACT_PREDICATE_RE = re.compile(
+    r"(?:m[ıiuü]ş(?:t[ıiuü]r|lar(?:d[ıi]r)?)?|[dt][ıiuü](?:lar)?|[ıiuü]?yor(?:lar)?|m[ae]kt[ae]d[ıi]r)$"
+)
+# Birinci kişi talep/dilek yüklemleri olgu bildirmez ("talep ediyorum", "rica ederim").
+_REQUEST_PREDICATE_RE = re.compile(r"(?:[ıiuü]?yorum|[ae]rim|[ıiuü]r[ıiuü]m|m[ae]kt[ae]y[ıi]m)$")
+MIN_CLAIM_CONTENT_TERMS = 2
+
+
+def states_a_fact(sentence: str) -> bool:
+    """Cümlenin yüklemi bir olay/durum bildiriyor mu? (Marker listesinden bağımsız genel kural.)"""
+    words = re.findall(r"[0-9a-zçğıöşüâîû]+", turkish_lower(sentence))
+    if len(words) < 3:
+        return False
+    predicate = words[-1]
+    if _REQUEST_PREDICATE_RE.search(predicate):
+        return False
+    return bool(_FACT_PREDICATE_RE.search(predicate)) and len(content_terms(sentence)) >= MIN_CLAIM_CONTENT_TERMS
 
 
 class DocumentUnderstandingService:
@@ -251,7 +273,9 @@ class DocumentUnderstandingService:
             if len(sentence_clean) < 15 or len(sentence_clean) > 500:
                 continue
 
-            if marker_re.search(sentence_clean):
+            # Marker listesi bilinen kalıpları yakalar; olgu bildiren yüklem kuralı listede olmayan
+            # iddiaları ("… üçüncü kişilere aktarmıştır", "Sözleşmede böyle bir ücret yazmıyor").
+            if marker_re.search(sentence_clean) or states_a_fact(sentence_clean):
                 stmt_key = turkish_lower(sentence_clean)
                 if stmt_key not in seen_statements:
                     seen_statements.add(stmt_key)

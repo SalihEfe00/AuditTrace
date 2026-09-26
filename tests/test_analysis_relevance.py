@@ -106,7 +106,10 @@ class TestClaimEvidenceRelevance(unittest.TestCase):
             "yasal süre olan 10 iş günü aşılarak bildirildiği belirlenmiştir.\nBilgilerinize arz ederim."
         )
         doc = DocumentUnderstandingService().analyze(text)
-        self.assertEqual(doc.claims, [])
+        # Tespit cümlesi olgu bildiren yüklemiyle ("belirlenmiştir") doğrudan iddia olur; hitap ve
+        # kapanış satırları ("Bilgilerinize arz ederim.") iddia sayılmaz.
+        self.assertEqual(len(doc.claims), 1)
+        self.assertIn("aşılarak bildirildiği", doc.claims[0].statement)
         statement = DocumentUnderstandingService.observation_statement(doc)
         self.assertIn("aşılarak bildirildiği", statement)
 
@@ -274,3 +277,25 @@ class TestOfflineModelLoading(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestFactStatingPredicates(unittest.TestCase):
+    """İddia çıkarımı sabit fiil listesine bağlı değildir: olgu bildiren yüklem (geçmiş zaman,
+    -mıştır, 3. kişi şimdiki zaman ve olumsuzları) iddiadır; talep/dilek cümleleri değildir."""
+
+    def test_unlisted_fact_sentences_become_claims(self):
+        doc = DocumentUnderstandingService().analyze(
+            "Bankam kişisel verilerimi açık rızam olmadan üçüncü kişilere aktarmıştır. "
+            "Sözleşmede böyle bir ücret yazmıyor. Gereğinin yapılmasını rica ederim."
+        )
+        statements = [c.statement for c in doc.claims]
+        self.assertEqual(len(statements), 2)
+        self.assertTrue(any("aktarmıştır" in s for s in statements))
+        self.assertTrue(any("yazmıyor" in s for s in statements))
+
+    def test_requests_and_first_person_statements_are_not_claims(self):
+        from mufettis.analysis.document_understanding import states_a_fact
+
+        for sentence in ("Zararımın karşılanmasını talep ediyorum.", "Bilgilerinize arz ederim.",
+                         "Ne yapacağımı bilmiyorum.", "İade istiyorum."):
+            self.assertFalse(states_a_fact(sentence), sentence)
