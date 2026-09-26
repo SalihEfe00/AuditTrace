@@ -363,3 +363,13 @@ class TestFingerprint(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestEvidenceDisplayTitle(unittest.TestCase):
+    def test_meaningless_file_name_shows_the_declared_law(self):
+        from mufettis.analysis.engine import evidence_display_title
+
+        self.assertEqual(evidence_display_title(_law(title="55555")), "99001 sayılı Kanun")
+        self.assertEqual(evidence_display_title(_law()), "ÖRNEK KARTLAR KANUNU")
+        # Kanun numarası beyan etmeyen sayısal başlık (yayıncı kimliği) olduğu gibi kalır.
+        self.assertEqual(evidence_display_title(_regulation()), "900001")

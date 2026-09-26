@@ -38,7 +38,7 @@ from mufettis.analysis.turkish_text import (
 )
 from mufettis.common.utils import canonical_source_id
 from mufettis.config import MAX_RAG_RESULTS
-from mufettis.corpus import EligibilityPolicy, canonical_view
+from mufettis.corpus import EligibilityPolicy, InstrumentType, canonical_view
 from mufettis.extraction.text_repair import clean_evidence_text, normalize_legal_whitespace
 
 # Bir kanıtın bir iddiayla ilişkilendirilmesi için gereken en az farklı içerik terimi
@@ -67,6 +67,17 @@ _EVIDENCE_UNIT_SPLIT = re.compile(r"(?<=[.!?;:])\s+|\n+")
 
 def _evidence_units(text: str) -> List[str]:
     return [u.strip() for u in _EVIDENCE_UNIT_SPLIT.split(text or "") if u.strip()]
+
+
+def evidence_display_title(meta: Dict[str, Any]) -> str:
+    """Kanıtın atıflarda görünen adı. Yüklenen dosyanın adı tanımlayıcı değilse ("55555") ve belge
+    kendi kanun numarasını beyan ediyorsa "7440 sayılı Kanun" gösterilir; kayıt değişmez."""
+    title = str(meta.get("title") or "").strip()
+    law_number = str(meta.get("law_number") or "").strip()
+    descriptive = bool(re.search(r"[A-Za-zÇĞİÖŞÜçğıöşü]{3,}", title))
+    if not descriptive and law_number.isdigit() and canonical_view(meta).instrument_type == InstrumentType.LAW:
+        return f"{law_number} sayılı Kanun"
+    return title or str(meta.get("source") or "") or "Resmi Mevzuat Belgesi"
 
 
 class RetrievalUnavailableError(RuntimeError):
@@ -139,7 +150,7 @@ class AnalysisEngine:
 
         chunk_ref = " ".join(ref_parts) if ref_parts else f"Parça ({chunk_type})"
 
-        source_doc = meta.get("title") or meta.get("source") or "Resmi Mevzuat Belgesi"
+        source_doc = evidence_display_title(meta)
         # Kimlik bulunamazsa belge başlığından türetilir; sabit bir yedek değer farklı
         # belgeleri aynı kimlikte birleştirip belgeler arası tutarlılık kontrolünü etkisizleştirirdi.
         doc_identity = (
