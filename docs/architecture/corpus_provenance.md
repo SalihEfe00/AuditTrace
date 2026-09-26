@@ -111,6 +111,17 @@ Yeni bir kaynak eklemek için:
 Şema değişikliğinde `CANONICAL_SCHEMA` artırılır ve backfill yeniden çalıştırılır. Backfill
 idempotenttir: değişiklik yoksa hiçbir şey yazmaz.
 
+## Görünen ad
+
+Atıflarda belgenin **kendi beyan ettiği ad** kullanılır, dosya adı değil (görüntüleme alanıdır,
+kanonik türetmeye girmez):
+
+- `declared_title`: kanunlarda "Kanun Numarası" beyanının üstündeki büyük harfli ad bloğu.
+- `declared_subject`: resmî yazışmadaki "Konu:" satırı (genelgelerde numarasıyla). Yalnızca
+  başlık bir yayıncı numarasıysa kullanılır.
+
+İkisi de `extract_legal_metadata` ve backfill tarafından doldurulur.
+
 ## Bilinen sınırlar
 
 - Başlığı yalnızca bir sayı olan belgelerde (ör. yayıncı kimliğiyle kaydedilmiş belgeler) tür,
