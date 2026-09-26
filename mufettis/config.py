@@ -14,6 +14,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # MUFETTIS_DATA_DIR verilirse tüm veri yolları oraya yönlenir (ör. testlerde izole kopya).
 DATA_DIR = Path(os.environ["MUFETTIS_DATA_DIR"]).resolve() if os.environ.get("MUFETTIS_DATA_DIR") else BASE_DIR / "data"
 DB_PATH = DATA_DIR / "mevzuat_db"
+# Parça deposu: "chroma" (varsayılan) veya "sqlite" (SQLite + disk üzerinde kesin vektör taraması,
+# mufettis/rag/store.py). Geçiş, iki depo aynı sorgu kümesinde karşılaştırıldıktan sonra yapılır.
+VECTOR_STORE = os.environ.get("MUFETTIS_VECTOR_STORE", "chroma").strip().lower()
+CORPUS_STORE_PATH = DATA_DIR / "corpus_store"
 LOG_DIR = DATA_DIR / "llm_logs"
 AUDIT_LOG_DIR = DATA_DIR / "audit_logs"
 EXPORT_DIR = DATA_DIR / "exports"
@@ -122,6 +126,8 @@ __all__ = [
     "BASE_DIR",
     "DATA_DIR",
     "DB_PATH",
+    "VECTOR_STORE",
+    "CORPUS_STORE_PATH",
     "LOG_DIR",
     "AUDIT_LOG_DIR",
     "EXPORT_DIR",

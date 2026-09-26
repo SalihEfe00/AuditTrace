@@ -25,6 +25,8 @@ except Exception:
 
 from mufettis.config import (
     CHROMA_COLLECTION,
+    CORPUS_STORE_PATH,
+    VECTOR_STORE,
     CHROMA_UPSERT_BATCH_SIZE,
     CHUNK_SCHEMA_VERSION,
     DB_PATH,
@@ -63,8 +65,12 @@ LEXICAL_CANDIDATES_PER_K = 2
 
 
 class LocalRAG:
-    def __init__(self, db_path: Path = DB_PATH, model_name: str = EMBEDDING_MODEL, allow_download: bool = False):
-        if chromadb is None:
+    def __init__(self, db_path: Path = DB_PATH, model_name: str = EMBEDDING_MODEL, allow_download: bool = False,
+                 store: Optional[str] = None):
+        self.store_kind = (store or VECTOR_STORE or "chroma").lower()
+        if self.store_kind not in ("chroma", "sqlite"):
+            raise ValueError(f"Bilinmeyen parça deposu: {self.store_kind}")
+        if self.store_kind == "chroma" and chromadb is None:
             raise RuntimeError("chromadb kurulu değil. `pip install chromadb`")
         if SentenceTransformer is None:
             raise RuntimeError("sentence-transformers kurulu değil. `pip install sentence-transformers`")
@@ -73,7 +79,13 @@ class LocalRAG:
         self.model_name = model_name
         self.allow_download = allow_download
         self._model = None
-        self.client = chromadb.PersistentClient(path=str(self.db_path))
+        if self.store_kind == "sqlite":
+            from mufettis.rag.store import SqliteStoreClient
+
+            store_root = CORPUS_STORE_PATH if self.db_path == Path(DB_PATH) else self.db_path / "corpus_store"
+            self.client = SqliteStoreClient(store_root)
+        else:
+            self.client = chromadb.PersistentClient(path=str(self.db_path))
         self.collection = self.client.get_or_create_collection(name=CHROMA_COLLECTION, embedding_function=None)
 
     def _load_model(self):
@@ -482,11 +494,14 @@ class LocalRAG:
     def _collection_signature(self) -> str:
         """Chroma her yazmayı (ekleme, silme, meta veri güncellemesi) artan bir sıra numarasıyla
         kuyruğa yazar; okumalar numarayı değiştirmez. İmza bu numara ve parça sayısıdır. (Dosya
-        zamanı kullanılamaz: Chroma veritabanını her açışta dosyaya yazar.)"""
+        zamanı kullanılamaz: Chroma veritabanını her açışta dosyaya yazar.) SQLite deposunda aynı
+        rolü kalıcı yazma sayacı görür."""
         # Kanonik şema: indeks uygunluk alanlarını kurulumda saklar; türetme kuralı değişince yenilenmeli.
         parts=[LEXICAL_INDEX_VERSION, str(CHUNK_SCHEMA_VERSION), CANONICAL_SCHEMA, str(self.collection.count())]
         sqlite_path=Path(self.db_path)/"chroma.sqlite3"
-        if sqlite_path.exists():
+        if callable(getattr(self.collection, "generation", None)):
+            parts.append(f"gen:{self.collection.generation()}")
+        elif sqlite_path.exists():
             conn=sqlite3.connect(f"{sqlite_path.as_uri()}?mode=ro", uri=True)
             try:
                 seq=conn.execute(
