@@ -1,0 +1,11 @@
+# Optional features. The code degrades gracefully when these are missing
+# (guarded imports); related tests are skipped.
+
+# OCR for scanned Resmi Gazete PDFs (mufettis/harvesting/resmi_gazete.py).
+# Also requires system binaries: Tesseract (with the "tur" language pack) and Poppler.
+pdf2image>=1.17,<2
+
+# Headless-browser harvesting for BDDK pages rendered with JavaScript
+# (mufettis/harvesting/web_harvester.py). After installing run:
+#   python -m playwright install chromium
+playwright>=1.47,<2

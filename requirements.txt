@@ -1,16 +1,29 @@
-streamlit
-pandas
-numpy
-pypdfium2
-pdfplumber
-pypdf
-python-docx
-openpyxl
-requests
-truststore>=0.10  # BDDK / Resmi Gazete missing intermediate certs, see mufettis/common/http.py
-beautifulsoup4
-chromadb
-sentence-transformers
-tokenizers<=0.23.0
-pytest
-pytesseract
+# Direct dependencies. Lower bounds = versions the test suite was verified with;
+# upper bounds exclude the next major release. Exact, reproducible environment:
+# requirements-lock.txt. Optional features (OCR, browser harvesting):
+# requirements-optional.txt.
+
+streamlit>=1.64,<2
+pandas>=3.0,<4
+numpy>=2.5,<3
+openpyxl>=3.1.5,<4          # pandas Excel read/write engine
+python-docx>=1.2,<2
+
+pypdfium2>=5.13,<6
+pdfplumber>=0.11.10,<0.12
+pypdf>=6.19,<7
+pytesseract>=0.3.13,<0.4    # Python wrapper; OCR also needs the Tesseract binary
+
+requests>=2.34,<3
+urllib3>=2.8,<3             # imported directly (Retry)
+truststore>=0.10.4,<0.11    # BDDK / Resmi Gazete missing intermediate certs, see mufettis/common/http.py
+beautifulsoup4>=4.15,<5
+
+# The on-disk vector store (data/mevzuat_db) is created by this Chroma line;
+# test a newer minor on a copy of the database before upgrading.
+chromadb>=1.5.9,<1.6
+sentence-transformers>=6.1,<7
+tokenizers>=0.22.2,<=0.23.0
+pydantic>=2.13,<3
+
+pytest>=9.1,<10
