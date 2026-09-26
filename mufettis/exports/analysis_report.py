@@ -9,6 +9,7 @@ from __future__ import annotations
 import io
 from typing import Any
 
+from mufettis.analysis.cited_references import describe as describe_cited, missing_note
 from mufettis.analysis.models import AnalysisResult
 from mufettis.common.utils import mask_sensitive, now_iso
 from mufettis.config import APP_VERSION
@@ -90,7 +91,17 @@ def create_analysis_docx(result: AnalysisResult, generated_at: str = "") -> byte
         doc.add_paragraph(f"Model yorumu: {_text(finding.model_interpretation)}")
         doc.add_paragraph(f"Takip aksiyonu: {_text(finding.inspector_action)}")
 
-    doc.add_heading("2. Mevzuat dayanağı bulunamayan iddialar", level=2)
+    doc.add_heading("2. Belgenin atıf yaptığı mevzuat", level=2)
+    if result.cited_regulations:
+        for ref in result.cited_regulations:
+            doc.add_paragraph(_text(describe_cited(ref)), style="List Bullet")
+        note = missing_note(result.cited_regulations, has_findings=bool(result.findings))
+        if note:
+            doc.add_paragraph(_text(note))
+    else:
+        doc.add_paragraph("Belgede mevzuat atfı saptanmadı.")
+
+    doc.add_heading("3. Mevzuat dayanağı bulunamayan iddialar", level=2)
     if result.unsupported_claims:
         for claim in result.unsupported_claims:
             doc.add_paragraph(_text(claim.statement), style="List Bullet")
@@ -98,11 +109,11 @@ def create_analysis_docx(result: AnalysisResult, generated_at: str = "") -> byte
         doc.add_paragraph("Yok.")
 
     if result.warnings:
-        doc.add_heading("3. Uyarılar ve veri sınırlamaları", level=2)
+        doc.add_heading("4. Uyarılar ve veri sınırlamaları", level=2)
         for warning in result.warnings:
             doc.add_paragraph(_text(warning), style="List Bullet")
 
-    doc.add_heading("4. Denetçi değerlendirmesi", level=2)
+    doc.add_heading(f"{5 if result.warnings else 4}. Denetçi değerlendirmesi", level=2)
     review = doc.add_table(rows=0, cols=2)
     review.style = "Table Grid"
     for label, value in [

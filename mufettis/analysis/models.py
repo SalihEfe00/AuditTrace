@@ -187,6 +187,18 @@ class Finding(BaseModel):
     risk_level: Optional[str] = Field(default=None, description="Risk level (Yüksek, Orta, Düşük, Belirsiz)")
 
 
+class CitedRegulation(BaseModel):
+    """Belgenin kendisinin atıf yaptığı düzenleme ve yerel veritabanındaki durumu
+    (in_corpus / not_in_corpus / internal / not_checked; bkz. analysis.cited_references)."""
+    model_config = ConfigDict(extra="forbid")
+
+    label: str = Field(..., min_length=1, description="Belgedeki atıf")
+    status: str = Field(..., description="in_corpus, not_in_corpus, internal, not_checked")
+    law_number: str = Field(default="", description="Kanun numarası (varsa)")
+    article: str = Field(default="", description="Atıf yapılan madde (varsa)")
+    matched_title: str = Field(default="", description="Veritabanında eşleşen belgenin adı")
+
+
 class AnalysisResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -196,6 +208,7 @@ class AnalysisResult(BaseModel):
     retrieval_plan: RetrievalPlan = Field(..., description="Actionable retrieval plan")
     findings: List[Finding] = Field(default_factory=list, description="Validated substantive findings")
     unsupported_claims: List[DocumentClaim] = Field(default_factory=list, description="Claims without adequate regulatory evidence")
+    cited_regulations: List[CitedRegulation] = Field(default_factory=list, description="Regulations the document itself cites and whether they are in the local corpus")
     warnings: List[str] = Field(default_factory=list, description="Pipeline warnings or data limitations")
     status: str = Field(default="completed", description="Overall execution status")
     inspector_summary: str = Field(default="", description="Structured textual summary for the inspector")

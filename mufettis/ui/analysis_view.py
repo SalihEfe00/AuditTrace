@@ -37,6 +37,14 @@ from mufettis.analysis.analysis_presenter import (
     AnalysisExecutionResult,
     AnalysisPresenter,
 )
+from mufettis.analysis.cited_references import (
+    IN_CORPUS,
+    INTERNAL,
+    NOT_CHECKED,
+    NOT_IN_CORPUS,
+    describe as cited_describe,
+    missing_note as cited_missing_note,
+)
 from mufettis.analysis.models import (
     AnalysisPlan,
     AnalysisResult,
@@ -156,6 +164,21 @@ def render_review_history() -> None:
                               key="analysis_review_history_filter")
         st.dataframe(review_history_rows(history, status if isinstance(status, str) else ""),
                      use_container_width=True, hide_index=True)
+
+
+CITED_STATUS_ICONS = {IN_CORPUS: "✅", NOT_IN_CORPUS: "⚠️", INTERNAL: "🏢", NOT_CHECKED: "⚪"}
+
+
+def render_cited_regulations(result: AnalysisResult) -> None:
+    """Belgenin kendi atıf yaptığı mevzuat ve veritabanında olup olmadığı (bulgu yokluğunun nedeni)."""
+    refs = result.cited_regulations
+    if not refs:
+        return
+    st.markdown("**Belgenin atıf yaptığı mevzuat:**")
+    st.markdown("\n".join(f"- {CITED_STATUS_ICONS.get(r.status, '•')} {cited_describe(r)}" for r in refs))
+    note = cited_missing_note(refs, has_findings=bool(result.findings))
+    if note:
+        st.warning(f"📥 {note}")
 
 
 def citation_badge(citation: Citation) -> str:
@@ -491,6 +514,7 @@ def render_analysis_page(
 
     # ── Section 4: Findings ───────────────────────────────────────────────────
     st.markdown("### 5. Müfettiş Denetim Bulguları")
+    render_cited_regulations(result)
     if not result.findings:
         # Bulgu olmaması uygunluk teyidi değildir; kanıt yokluğu ile eşleşme yokluğu ayrı gösterilir.
         if result.status == "completed_insufficient_evidence":

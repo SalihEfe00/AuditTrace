@@ -22,10 +22,17 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from mufettis.analysis.classifier import DocumentClassifierService
 from mufettis.analysis.document_understanding import DocumentUnderstandingService
-from mufettis.analysis.engine import AnalysisEngine, RetrievalUnavailableError, retrieval_error_warnings
+from mufettis.analysis.cited_references import CatalogEntry, catalog_from_index, cited_references
+from mufettis.analysis.engine import (
+    AnalysisEngine,
+    RetrievalUnavailableError,
+    evidence_display_title,
+    retrieval_error_warnings,
+)
 from mufettis.analysis.models import (
     AnalysisPlan,
     AnalysisResult,
+    CitedRegulation,
     DocumentClassification,
     DocumentUnderstanding,
     Evidence,
@@ -76,6 +83,7 @@ class AnalysisPresenter:
         retrieval_planner: Optional[RetrievalPlannerService] = None,
         engine: Optional[AnalysisEngine] = None,
         audit_sink: Optional[Callable[[str, Dict[str, Any]], None]] = None,
+        catalog_fn: Optional[Callable[[], List[CatalogEntry]]] = None,
     ):
         self.doc_service = doc_service or DocumentUnderstandingService()
         self.classifier = classifier or DocumentClassifierService()
@@ -83,6 +91,9 @@ class AnalysisPresenter:
         self.retrieval_planner = retrieval_planner or RetrievalPlannerService()
         self.engine = engine or AnalysisEngine()
         self.audit_sink = audit_sink or append_audit
+        # Belgenin atıf yaptığı mevzuatın veritabanında olup olmadığını söylemek için katalog.
+        # Verilmezse gerçek veritabanıyla yapılan analizde ingest index'ten okunur.
+        self.catalog_fn = catalog_fn
 
     @staticmethod
     def _notify(progress_callback: Optional[ProgressCallback], stage_key: str) -> None:
@@ -145,6 +156,21 @@ class AnalysisPresenter:
         if corpus_weak_keys(stats) is None:
             return ["Korpusta yeterli belge yok; sabit zayıf terim listesi kullanıldı."]
         return []
+
+    def _catalog(self, rag_client: Any, sample_evidence: Optional[List[Evidence]]) -> Optional[List[CatalogEntry]]:
+        """Atıf kontrolü kataloğu. Örnek kanıtla (test/gold set) veya veritabanı olmadan yapılan
+        analizde katalog yoktur: atıflar "kontrol edilmedi" olarak gösterilir, "yok" denmez."""
+        if self.catalog_fn is not None:
+            return self.catalog_fn()
+        if sample_evidence is not None or rag_client is None:
+            return None
+        from mufettis.rag.index import IngestIndex
+
+        try:
+            return catalog_from_index(IngestIndex().data.get("indexed_items", {}), evidence_display_title)
+        except Exception as exc:
+            logger.warning("Mevzuat kataloğu okunamadı: %s", exc)
+            return None
 
     def execute_analysis(
         self,
@@ -233,6 +259,10 @@ class AnalysisPresenter:
                 retrieved_evidence=evidence_pool,
             )
             result.warnings.extend(retrieval_warnings)
+            result.cited_regulations = [
+                CitedRegulation(**vars(ref))
+                for ref in cited_references(text, self._catalog(rag_client, sample_evidence))
+            ]
             stage_durations["analysis_engine"] = round(time.perf_counter() - t0, 3)
 
             total_elapsed = round(time.perf_counter() - start_time, 3)
