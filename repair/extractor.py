@@ -518,16 +518,29 @@ def extract_candidate(
 
             normalized = normalize_extracted_text(raw_text)
             normalized = repair_extracted_spacing(normalized, title, document_type)
-            chunk_meta = {**meta_dict, "file_hash": effective_hash or actual_hash}
-            chunks = split_legal_chunks(normalized, chunk_meta)
+            # Önceden split_legal_chunks(normalized, meta_dict) ile max_chars yerine sözlük
+            # geçiriliyor ve var olmayan `chunks` alanı kullanılıyordu; iki hata da her
+            # çağrıda EXTRACTION_FAILED üretiyordu (HTML kaynaklı aday hiç çıkarılamıyordu).
+            # Parçalar PDF yolundakiyle aynı biçimde zenginleştirilir.
+            source_hash = effective_hash or actual_hash
+            legal_chunks = []
+            for chk in split_legal_chunks(normalized, title=title, document_type=document_type):
+                c = dict(chk)
+                c["chunk_schema_version"] = str(CHUNK_SCHEMA_VERSION)
+                c["source_hash"] = source_hash
+                c["source_document_id"] = src_doc_id
+                c["document_id"] = doc_id
+                c["title"] = title
+                c["status"] = "active"
+                legal_chunks.append(c)
             return ExtractionCandidate(
                 document_id=doc_id,
                 source_document_id=src_doc_id,
                 source_path="",
-                source_sha256=effective_hash or actual_hash,
+                source_sha256=source_hash,
                 page_count=int(page_count or 0),
                 raw_text=normalized,
-                chunks=chunks,
+                legal_chunks=legal_chunks,
                 status="SUCCESS",
                 metadata={"in_memory_raw_bytes": True, "ocr_used": ocr_used},
                 in_memory_only=True,
