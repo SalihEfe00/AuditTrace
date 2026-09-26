@@ -8,6 +8,7 @@ aynı alaka sıralamasından geçmeli ve uygunluk politikası sıralamadan önce
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 from typing import Any, Dict, List
 
 import numpy as np
@@ -100,6 +101,87 @@ class TestLexicalIndex(unittest.TestCase):
         # Kanonik görünüm küçük kayıttan aynı sonucu verir.
         from mufettis.corpus import canonical_view
         self.assertEqual(canonical_view(idx.metadatas[0]), canonical_view(meta))
+
+
+class TestDiskLexicalIndex(unittest.TestCase):
+    DOCS = ["kartlarının aidatı talep edilemez", "yetkisiz işlem yapılmıştır", "kredi kartı aidat ücreti",
+            "aidat aidat masraf", "faiz oranı", "hesap planı aidat"]
+    METAS = [{}, {}, {}, {}, {}, {"structure_type": "accounting_plan"}]
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+        self.path = Path(self.tmp.name) / "lex.sqlite3"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def _pages(self):
+        ids = [f"c{i}" for i in range(len(self.DOCS))]
+        return [(ids[:4], self.DOCS[:4], self.METAS[:4]), (ids[4:], self.DOCS[4:], self.METAS[4:])]
+
+    def test_same_ranking_as_in_memory_index(self):
+        from mufettis.rag.lexical import DiskLexicalIndex
+        memory = LexicalIndex.from_pages(self._pages())
+        disk = DiskLexicalIndex.build(self.path, self._pages(), "sig-1")
+        try:
+            admit = lambda m: m["normative_role"] != "classification"
+            for query in ("kartım için aidat", "aidat masraf", "yetki devri", "faiz"):
+                for kw in ({}, {"admit": admit}):
+                    self.assertEqual(disk.search(query_terms(query), 3, **kw), memory.search(query_terms(query), 3, **kw))
+            self.assertEqual(len(disk), len(memory))
+        finally:
+            disk.close()
+
+    def test_signature_mismatch_requires_rebuild_and_failed_build_keeps_old_file(self):
+        from mufettis.rag.lexical import DiskLexicalIndex
+        DiskLexicalIndex.build(self.path, self._pages(), "sig-1").close()
+        self.assertIsNone(DiskLexicalIndex.open(self.path, "sig-2"))
+
+        def broken_pages():
+            yield from self._pages()[:1]
+            raise RuntimeError("okuma kesildi")
+
+        with self.assertRaises(RuntimeError):
+            DiskLexicalIndex.build(self.path, broken_pages(), "sig-2")
+        old = DiskLexicalIndex.open(self.path, "sig-1")
+        self.assertIsNotNone(old)
+        self.assertEqual(len(old), len(self.DOCS))
+        old.close()
+
+
+class TestPersistentLexicalIndexOnChroma(unittest.TestCase):
+    """Gerçek Chroma: indeks diskte kalır, yeni süreç yeniden kurmaz, yazma sonrası yenilenir."""
+
+    def test_reuse_and_refresh(self):
+        import tempfile
+        from unittest.mock import patch
+        from mufettis.config import CHUNK_SCHEMA_VERSION
+        from mufettis.rag import engine as engine_module
+        from mufettis.rag.lexical import DiskLexicalIndex
+
+        # Chroma, dosyalarını süreç bitene kadar açık tutar (Windows'ta silinemez).
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            db = Path(tmp) / "mevzuat_db"
+            rag = engine_module.LocalRAG(db_path=db)
+            meta = {"chunk_schema_version": CHUNK_SCHEMA_VERSION, "title": "Örnek"}
+            rag.collection.add(ids=["a", "b"], documents=["kart aidatı talep edilemez", "faiz oranı"],
+                               metadatas=[meta, meta], embeddings=[[1.0, 0.0], [0.0, 1.0]])
+            first = rag._lexical_index()
+            self.assertIsInstance(first, DiskLexicalIndex)
+            self.assertEqual([i for i, _ in first.search(query_terms("aidat"), 5)], ["a"])
+            self.assertEqual(len(list(Path(tmp).glob("mevzuat_db_lexical_*.sqlite3"))), 1)
+
+            again = engine_module.LocalRAG(db_path=db)
+            with patch.object(DiskLexicalIndex, "build", side_effect=AssertionError("yeniden kuruldu")):
+                self.assertEqual(len(again._lexical_index()), 2)
+
+            rag.collection.add(ids=["c"], documents=["aidat iadesi"], metadatas=[meta], embeddings=[[0.5, 0.5]])
+            refreshed = again._lexical_index()
+            self.assertEqual([i for i, _ in refreshed.search(query_terms("iade"), 5)], ["c"])
+            for index in (first, refreshed):
+                index.close()
+            again._lexical_index().close()
 
 
 class TestHybridQuery(unittest.TestCase):

@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import hashlib
 import os
 import re
 import shutil
 import uuid
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -51,7 +52,7 @@ from mufettis.legal.parser import (
     split_legal_chunks,
 )
 from mufettis.rag.index import IngestIndex
-from mufettis.rag.lexical import LexicalIndex, query_terms
+from mufettis.rag.lexical import LEXICAL_INDEX_VERSION, DiskLexicalIndex, LexicalIndex, query_terms
 from mufettis.rag.paging import iter_pages
 
 # Serbest aramada vektör adaylarına eklenen sözcüksel (BM25) aday sayısı: max(alt sınır, k * çarpan).
@@ -458,14 +459,62 @@ class LocalRAG:
         out.extend(r for r in self._lexical_candidates(query, embedding, lexical_n, eligibility) if r["id"] not in seen)
         return prefer_official_matches(out, limit=max(1,min(k,MAX_RAG_RESULTS)), query=query)
 
-    def _lexical_index(self) -> LexicalIndex:
-        """Güncel şemadaki parçaların BM25 indeksi; koleksiyon değişince yeniden kurulur."""
-        signature=(self.collection.count(), getattr(self, "_mutations", 0))
+    def lexical_index_path(self, signature: str) -> Optional[Path]:
+        """Kalıcı BM25 indeksinin yeri: Chroma veritabanının yanında (veri dizinine özgü). Dosya adı
+        imzayı içerir: Windows'ta başka bir süreçte (ör. açık arayüz) açık olan dosyanın üzerine
+        yazılamaz; yeni indeks yeni dosyaya kurulur, eskisi kullanılmıyorsa silinir."""
+        db_path=getattr(self, "db_path", None)
+        if not db_path:
+            return None
+        digest=hashlib.sha256(signature.encode("utf-8")).hexdigest()[:16]
+        return Path(db_path).with_name(f"{Path(db_path).name}_lexical_{digest}.sqlite3")
+
+    def _remove_stale_lexical_indexes(self, keep: Path) -> None:
+        for old in keep.parent.glob(f"{Path(self.db_path).name}_lexical_*.sqlite3*"):
+            if old != keep:
+                try:
+                    old.unlink()
+                except OSError:
+                    pass  # başka bir süreç hâlâ kullanıyor; sonraki kurulumda silinir
+
+    def _collection_signature(self) -> str:
+        """Koleksiyondaki her yazma (ekleme, silme, meta veri güncellemesi) Chroma'nın SQLite
+        dosyalarını değiştirir; okumalar değiştirmez. İmza bu dosyaların boyut ve zamanından ve
+        parça sayısından oluşur."""
+        parts=[LEXICAL_INDEX_VERSION, str(CHUNK_SCHEMA_VERSION), str(self.collection.count())]
+        for name in ("chroma.sqlite3", "chroma.sqlite3-wal"):
+            path=Path(self.db_path)/name
+            if path.exists():
+                st=path.stat()
+                parts.append(f"{name}:{st.st_size}:{st.st_mtime_ns}")
+        return "|".join(parts)
+
+    def _lexical_index(self) -> Union[LexicalIndex, DiskLexicalIndex]:
+        """Güncel şemadaki parçaların BM25 indeksi; koleksiyon değişince yeniden kurulur.
+
+        Gerçek veritabanında indeks diskte tutulur (düşük RAM'li laptoplar, tam mevzuat) ve
+        uygulama yeniden açıldığında yeniden kurulmaz. Yolu olmayan koleksiyonlarda bellek içidir."""
+        pages=lambda: iter_pages(self.collection, where={"chunk_schema_version":CHUNK_SCHEMA_VERSION})
+        if not getattr(self, "db_path", None):
+            signature=(self.collection.count(), getattr(self, "_mutations", 0))
+            cached=getattr(self, "_lexical_cache", None)
+            if cached is not None and cached[0]==signature:
+                return cached[1]
+            index=LexicalIndex.from_pages(pages())
+            self._lexical_cache=(signature, index)
+            return index
+        signature=self._collection_signature()
         cached=getattr(self, "_lexical_cache", None)
-        if cached is not None and cached[0]==signature:
-            return cached[1]
-        index=LexicalIndex.from_pages(iter_pages(self.collection, where={"chunk_schema_version":CHUNK_SCHEMA_VERSION}))
-        self._lexical_cache=(signature, index)
+        if isinstance(cached, DiskLexicalIndex) and cached.signature==signature:
+            return cached
+        if isinstance(cached, DiskLexicalIndex):
+            cached.close()
+        path=self.lexical_index_path(signature)
+        index=DiskLexicalIndex.open(path, signature)
+        if index is None:
+            index=DiskLexicalIndex.build(path, pages(), signature)
+            self._remove_stale_lexical_indexes(path)
+        self._lexical_cache=index
         return index
 
     def _lexical_candidates(

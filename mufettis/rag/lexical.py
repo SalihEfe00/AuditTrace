@@ -12,9 +12,13 @@ yoksunluk ekli kelimeler kökten ayrıdır, 4 harfli kökler önek eşleşir).
 """
 from __future__ import annotations
 
+import json
 import math
+import os
+import sqlite3
 import sys
 from collections import Counter, defaultdict
+from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 BM25_K1 = 1.2
@@ -120,16 +124,12 @@ class LexicalIndex:
         n = len(self.ids)
         if not n or limit <= 0:
             return []
-        scores: Dict[int, float] = defaultdict(float)
-        for term in dict.fromkeys(terms):
+
+        def postings(term: str) -> Optional[List[Tuple[int, int, int]]]:
             posting = self.postings.get(term)
-            if not posting or len(posting) > MAX_DOC_RATIO * n:
-                continue
-            idf = math.log(1.0 + (n - len(posting) + 0.5) / (len(posting) + 0.5))
-            for pos, tf in posting:
-                norm = 1.0 - BM25_B + BM25_B * (self.lengths[pos] / self.avg_length if self.avg_length else 1.0)
-                scores[pos] += idf * tf * (BM25_K1 + 1.0) / (tf + BM25_K1 * norm)
-        ranked = sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))
+            return [(pos, tf, self.lengths[pos]) for pos, tf in posting] if posting else None
+
+        ranked = bm25_rank(terms, n, self.avg_length, postings, lambda term: len(self.postings.get(term, ())))
         out: List[Tuple[str, float]] = []
         for pos, score in ranked:
             if admit is not None and not admit(self.metadatas[pos]):
@@ -140,4 +140,157 @@ class LexicalIndex:
         return out
 
 
-__all__ = ["LexicalIndex", "eligibility_view", "query_terms"]
+def bm25_rank(
+    terms: Iterable[str],
+    n: int,
+    avg_length: float,
+    postings: Callable[[str], Optional[List[Tuple[int, int, int]]]],
+    doc_freq: Callable[[str], int],
+) -> List[Tuple[int, float]]:
+    """Bellek içi ve disk indeksinin ortak BM25 puanlaması: (konum, puan), puana göre azalan,
+    eşitlikte konuma göre. postings(term) -> [(konum, tf, parça uzunluğu)]."""
+    scores: Dict[int, float] = defaultdict(float)
+    for term in dict.fromkeys(terms):
+        df = doc_freq(term)
+        # Parçaların yarısından fazlasında geçen anahtar okunmaz bile (ayırt edici değil).
+        if not df or df > MAX_DOC_RATIO * n:
+            continue
+        idf = math.log(1.0 + (n - df + 0.5) / (df + 0.5))
+        for pos, tf, length in postings(term) or ():
+            norm = 1.0 - BM25_B + BM25_B * (length / avg_length if avg_length else 1.0)
+            scores[pos] += idf * tf * (BM25_K1 + 1.0) / (tf + BM25_K1 * norm)
+    return sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))
+
+
+LEXICAL_INDEX_VERSION = "1"
+ADMIT_FETCH_BATCH = 200
+
+
+class DiskLexicalIndex:
+    """Diskte (SQLite) tutulan BM25 indeksi. Bellekte yalnızca sorgudaki terimlerin kayıtları ve
+    sıralanan adayların uygunluk alanları bulunur; mevzuatın tamamı yüklendiğinde de 8 GB RAM'li
+    bir laptopta çalışır. Puanlama bellek içi indeksle birebir aynıdır (bm25_rank).
+
+    Dosya, kurulduğu koleksiyonun imzasını saklar; imza değişmişse `open` None döner ve çağıran
+    yeniden kurar. Kurulum geçici dosyaya yapılır ve tamamlanınca atomik olarak yerine konur:
+    yarım kalan kurulum eski indeksi bozmaz."""
+
+    def __init__(self, path: Path, conn: sqlite3.Connection):
+        self.path = path
+        self._conn = conn
+        meta = dict(conn.execute("SELECT key, value FROM meta"))
+        self.signature = meta.get("signature", "")
+        self._n = int(meta.get("n", 0))
+        self._avg_length = float(meta.get("avg_length", 0.0))
+
+    @classmethod
+    def open(cls, path: Path, signature: str) -> Optional["DiskLexicalIndex"]:
+        if not Path(path).exists():
+            return None
+        try:
+            conn = sqlite3.connect(str(path), check_same_thread=False)
+            index = cls(Path(path), conn)
+        except sqlite3.Error:
+            return None
+        if index.signature != signature:
+            conn.close()
+            return None
+        return index
+
+    @classmethod
+    def build(cls, path: Path, pages: Iterable[Tuple[Sequence[str], Sequence[str], Sequence[Dict[str, Any]]]],
+              signature: str) -> "DiskLexicalIndex":
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_name(f"{path.name}.{os.getpid()}.building")
+        if tmp.exists():
+            tmp.unlink()
+        conn = sqlite3.connect(str(tmp))
+        try:
+            conn.executescript(
+                "PRAGMA journal_mode=OFF; PRAGMA synchronous=OFF;"
+                "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT);"
+                "CREATE TABLE docs (pos INTEGER PRIMARY KEY, id TEXT NOT NULL, length INTEGER NOT NULL, elig TEXT NOT NULL);"
+                "CREATE TABLE postings (term TEXT NOT NULL, pos INTEGER NOT NULL, tf INTEGER NOT NULL);"
+            )
+            pos = 0
+            total_length = 0
+            for ids, documents, metadatas in pages:
+                docs, rows = [], []
+                for cid, text, meta in zip(ids, documents, metadatas or [{}] * len(ids)):
+                    terms = _document_terms(text or "")
+                    docs.append((pos, cid, len(terms), json.dumps(eligibility_view(meta or {}), ensure_ascii=False)))
+                    rows.extend((term, pos, tf) for term, tf in Counter(terms).items())
+                    total_length += len(terms)
+                    pos += 1
+                conn.executemany("INSERT INTO docs VALUES (?, ?, ?, ?)", docs)
+                conn.executemany("INSERT INTO postings VALUES (?, ?, ?)", rows)
+            conn.executescript(
+                "CREATE INDEX postings_term ON postings(term);"
+                "CREATE TABLE terms AS SELECT term, COUNT(*) AS df FROM postings GROUP BY term;"
+                "CREATE UNIQUE INDEX terms_term ON terms(term);"
+            )
+            conn.executemany("INSERT INTO meta VALUES (?, ?)", [
+                ("version", LEXICAL_INDEX_VERSION), ("signature", signature), ("n", str(pos)),
+                ("avg_length", repr(total_length / pos if pos else 0.0)),
+            ])
+            conn.commit()
+        except BaseException:
+            conn.close()
+            tmp.unlink(missing_ok=True)
+            raise
+        conn.close()
+        try:
+            os.replace(tmp, path)
+        except PermissionError:
+            # Aynı imzalı indeksi başka bir süreç kurup açmış (Windows açık dosyayı değiştirmez).
+            tmp.unlink(missing_ok=True)
+        index = cls.open(path, signature)
+        assert index is not None
+        return index
+
+    def close(self) -> None:
+        self._conn.close()
+
+    def __len__(self) -> int:
+        return self._n
+
+    def search(
+        self,
+        terms: Iterable[str],
+        limit: int,
+        admit: Optional[Callable[[Dict[str, Any]], bool]] = None,
+    ) -> List[Tuple[str, float]]:
+        if not self._n or limit <= 0:
+            return []
+        conn = self._conn
+
+        def doc_freq(term: str) -> int:
+            row = conn.execute("SELECT df FROM terms WHERE term = ?", (term,)).fetchone()
+            return int(row[0]) if row else 0
+
+        def postings(term: str) -> List[Tuple[int, int, int]]:
+            return conn.execute(
+                "SELECT p.pos, p.tf, d.length FROM postings p JOIN docs d ON d.pos = p.pos WHERE p.term = ?",
+                (term,),
+            ).fetchall()
+
+        ranked = bm25_rank(terms, self._n, self._avg_length, postings, doc_freq)
+        out: List[Tuple[str, float]] = []
+        # Uygunluk alanları sıralama sırasıyla, küçük gruplar hâlinde okunur.
+        for start in range(0, len(ranked), ADMIT_FETCH_BATCH):
+            batch = ranked[start:start + ADMIT_FETCH_BATCH]
+            placeholders = ",".join("?" * len(batch))
+            rows = {pos: (cid, elig) for pos, cid, elig in conn.execute(
+                f"SELECT pos, id, elig FROM docs WHERE pos IN ({placeholders})", [pos for pos, _ in batch])}
+            for pos, score in batch:
+                cid, elig = rows[pos]
+                if admit is not None and not admit(json.loads(elig)):
+                    continue
+                out.append((cid, score))
+                if len(out) >= limit:
+                    return out
+        return out
+
+
+__all__ = ["DiskLexicalIndex", "LexicalIndex", "bm25_rank", "eligibility_view", "query_terms"]
