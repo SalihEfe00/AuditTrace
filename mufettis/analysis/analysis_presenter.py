@@ -95,6 +95,30 @@ class AnalysisPresenter:
         except Exception:
             pass
 
+    def configure_llm_verification(
+        self,
+        enabled: bool,
+        health_fn: Optional[Callable[[], Dict[str, Any]]] = None,
+        generate_fn: Optional[Callable[[str], str]] = None,
+    ) -> Optional[str]:
+        """İddia-kanıt eşleşmesinde yerel dil modeli doğrulamasını açar/kapatır.
+
+        Model erişilemezse doğrulama kapalı kalır ve nedeni döner (analiz sözcüksel eşleştirmeyle
+        sürer). health_fn/generate_fn verilmezse yerel Ollama kullanılır.
+        """
+        if not enabled:
+            self.engine.claim_verifier = None
+            return None
+        from mufettis.analysis.claim_verifier import LLMClaimVerifier
+        from mufettis.llm.client import ollama_generate, ollama_health
+
+        health = (health_fn or ollama_health)()
+        if not health.get("ok"):
+            self.engine.claim_verifier = None
+            return f"Yerel dil modeli erişilemiyor ({health.get('error') or health.get('status_code')}); sözcüksel eşleştirme kullanıldı."
+        self.engine.claim_verifier = LLMClaimVerifier(generate_fn or ollama_generate)
+        return None
+
     def validate_input(self, text: Optional[str]) -> Tuple[bool, Optional[str]]:
         """Validates that document input is non-empty and contains substantive content."""
         if text is None:

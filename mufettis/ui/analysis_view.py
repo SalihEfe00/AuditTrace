@@ -261,6 +261,13 @@ def render_analysis_page(
         help="En az 15 karakter içeren metin girilmelidir.",
     )
 
+    use_llm = st.checkbox(
+        "Yerel dil modeliyle kanıt doğrulaması (Ollama)",
+        value=False,
+        key="analysis_ui_llm_verification",
+        help="Model, yalnızca getirilen mevzuat parçaları arasından iddiaya uygulanabilir hükmü seçer ve "
+             "alıntısı birebir doğrulanır. Model erişilemezse sözcüksel eşleştirme kullanılır.",
+    )
     analyze_clicked = st.button("🚀 ANALİZİ BAŞLAT", type="primary", use_container_width=True)
 
     # ── Pipeline Execution ────────────────────────────────────────────────────
@@ -268,6 +275,9 @@ def render_analysis_page(
         doc_text = st.session_state.get("analysis_ui_text", "")
         doc_title = st.session_state.get("analysis_ui_title", "")
         doc_source = st.session_state.get("analysis_ui_source", "")
+        llm_note = presenter.configure_llm_verification(use_llm is True)
+        if llm_note:
+            st.warning(llm_note)
 
         # Aşama satırları presenter bir aşamaya geçtiği anda yazılır (gerçek ilerleme).
         with st.status("Analiz Intelligence hattı çalıştırılıyor...", expanded=True) as status:

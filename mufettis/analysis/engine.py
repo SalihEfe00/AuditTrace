@@ -99,6 +99,9 @@ class AnalysisEngine:
         # Varsayılan: sabit WEAK_DOMAIN_WORDS. Gerçek korpusla çalışırken use_term_stats ile
         # belge frekansına dayalı yüklem verilir (bkz. mufettis.analysis.term_stats).
         self.is_weak_term: Callable[[str], bool] = is_weak_term
+        # İsteğe bağlı dil modeli doğrulayıcısı (bkz. mufettis.analysis.claim_verifier). None ise
+        # eşleştirme yalnızca sözcükseldir.
+        self.claim_verifier: Optional[Any] = None
 
     def use_term_stats(self, stats: Optional[Dict[str, Any]]) -> None:
         """Korpus terim istatistiğini kullan; None veya yetersizse sabit listeye döner."""
@@ -329,13 +332,23 @@ class AnalysisEngine:
 
         for claim in claims_to_process:
             matched_ev = self._find_best_evidence_for_claim(claim, doc.subjects, evidence_pool, doc=doc)
+            verdict = None
+            if self.claim_verifier is not None:
+                candidates = self._verification_candidates(
+                    claim, evidence_pool, doc, getattr(self.claim_verifier, "max_candidates", 5)
+                )
+                verdict = self.claim_verifier.choose(claim.statement, candidates) if candidates else None
+                if verdict is not None:
+                    # Geçerli bir model kararı sözcüksel seçimin yerine geçer; "hiçbiri" kararı eşleşmeyi
+                    # kaldırır. Karar geçersizse (erişim/biçim/alıntı hatası) sözcüksel seçim kalır.
+                    matched_ev = candidates[verdict.evidence_index] if verdict.evidence_index is not None else None
             if not matched_ev:
                 unsupported.append(claim)
                 continue
 
             # Build grounded Finding
             statement_terms, context_terms = self._claim_terms(claim, doc)
-            verbatim_span = self._extract_verbatim_span(
+            verbatim_span = verdict.quote if verdict is not None else self._extract_verbatim_span(
                 matched_ev.text_span, focus_terms=statement_terms | context_terms
             )
             citation = Citation(
@@ -374,6 +387,9 @@ class AnalysisEngine:
                 ),
                 claim_reference_id=claim.claim_id,
                 model_interpretation=(
+                    f"Yerel dil modeli bu hükmü iddia edilen davranışa uygulanabilir buldu: {verdict.reason} "
+                    "Nihai tespit yetkili denetçi incelemesine bağlıdır."
+                    if verdict is not None else
                     "Mevzuat hükümleri ile belgedeki beyan arasında inceleme gerektiren olası bir "
                     "uyum riski bulunmaktadır. Nihai tespit yetkili denetçi incelemesine bağlıdır."
                 ),
@@ -408,13 +424,22 @@ class AnalysisEngine:
         Kanıt başlığı tek başına yetmez, yalnızca sıralamada kullanılır. Adaylar en iyi cümlenin
         eşleşmesine, parçanın toplam eşleşmesine, başlık eşleşmesine ve mesafeye göre sıralanır.
         """
+        ranked = self._rank_evidence_for_claim(claim, evidence_pool, doc)
+        return ranked[0] if ranked else None
+
+    def _rank_evidence_for_claim(
+        self,
+        claim: DocumentClaim,
+        evidence_pool: List[Evidence],
+        doc: Optional[DocumentUnderstanding] = None,
+    ) -> List[Evidence]:
+        """Sözcüksel kabul ölçütünü geçen kanıtlar, en iyiden kötüye (bkz. _find_best_evidence_for_claim)."""
         statement_terms, context_terms = self._claim_terms(claim, doc)
         all_terms = statement_terms | context_terms
 
-        best_ev: Optional[Evidence] = None
-        best_rank: Tuple[float, ...] = (-1.0,)
+        accepted: List[Tuple[Tuple[float, ...], int, Evidence]] = []
 
-        for ev in evidence_pool:
+        for position, ev in enumerate(evidence_pool):
             distance = ev.metadata.get("retrieval_distance")
             too_far = distance is not None and float(distance) > MAX_RELEVANT_DISTANCE
             best_unit_stems = 0
@@ -445,10 +470,27 @@ class AnalysisEngine:
                 float(len(distinct_stems(title_only))),
                 -float(distance) if distance is not None else 0.0,
             )
-            if rank > best_rank:
-                best_rank, best_ev = rank, ev
+            accepted.append((rank, position, ev))
 
-        return best_ev
+        # Eşit sıralamada havuzdaki ilk kanıt kazanır (önceki davranış).
+        accepted.sort(key=lambda item: (tuple(-x for x in item[0]), item[1]))
+        return [ev for _, _, ev in accepted]
+
+    def _verification_candidates(
+        self,
+        claim: DocumentClaim,
+        evidence_pool: List[Evidence],
+        doc: Optional[DocumentUnderstanding],
+        limit: int,
+    ) -> List[Evidence]:
+        """Dil modeline gösterilecek adaylar: sözcüksel olarak kabul edilenler, ardından retrieval
+        yakınlığına göre diğerleri (terim paylaşmayan doğru hüküm de değerlendirilebilsin)."""
+        lexical = self._rank_evidence_for_claim(claim, evidence_pool, doc)
+        rest = sorted(
+            (ev for ev in evidence_pool if not any(ev is chosen for chosen in lexical)),
+            key=lambda ev: float(ev.metadata.get("retrieval_distance") if ev.metadata.get("retrieval_distance") is not None else 99.0),
+        )
+        return (lexical[:2] + rest + lexical[2:])[:limit]
 
     @staticmethod
     def _claim_terms(
