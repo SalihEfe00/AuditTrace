@@ -7,6 +7,7 @@ pypdf
 python-docx
 openpyxl
 requests
+truststore>=0.10  # BDDK / Resmi Gazete missing intermediate certs, see mufettis/common/http.py
 beautifulsoup4
 chromadb
 sentence-transformers

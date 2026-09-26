@@ -564,12 +564,15 @@ def run_rag_diagnostic(
     fetch_info: Dict[str, Any] = {"status": "not_attempted", "url": source_url}
     if source_url:
         try:
-            response = requests.get(
-                source_url,
-                timeout=20,
-                verify=True,
-                headers={"User-Agent": "MufettisAI-RAG-Diagnostic/0.13.48"},
-            )
+            from mufettis.common.http import build_http_session  # requests opsiyonel; hata aşağıda yakalanır
+
+            with build_http_session() as session:
+                response = session.get(
+                    source_url,
+                    timeout=20,
+                    verify=True,
+                    headers={"User-Agent": "MufettisAI-RAG-Diagnostic/0.13.48"},
+                )
             fetch_info.update({
                 "status": f"http_{response.status_code}",
                 "content_type": response.headers.get("Content-Type", ""),

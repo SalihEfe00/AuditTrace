@@ -16,7 +16,6 @@ from urllib.parse import urljoin, urlparse
 
 import requests
 from bs4 import BeautifulSoup
-from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 try:
@@ -43,6 +42,7 @@ from mufettis.config import (
     WEB_SOURCE_MAX_PAGES,
     resolve_dynamic,
 )
+from mufettis.common.http import SystemTrustAdapter
 from mufettis.common.utils import (
     atomic_write_json,
     canonical_source_id,
@@ -90,7 +90,8 @@ class WebSourceHarvester:
             retry = Retry(**retry_kwargs, allowed_methods=frozenset(["GET"]))
         except TypeError:
             retry = Retry(**retry_kwargs, method_whitelist=frozenset(["GET"]))
-        adapter = HTTPAdapter(max_retries=retry)
+        # Resmî sitelerin eksik ara sertifikası işletim sistemi güven deposuyla tamamlanır (bkz. mufettis.common.http).
+        adapter = SystemTrustAdapter(max_retries=retry)
         session.mount("http://", adapter)
         session.mount("https://", adapter)
         return session

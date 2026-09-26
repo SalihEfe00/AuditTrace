@@ -18,10 +18,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import requests
 from bs4 import BeautifulSoup
 
 from tests.data_integrity import data_integrity_problems
+from mufettis.common.http import build_http_session
 from mufettis.common.utils import sha256_bytes, now_iso
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.maintenance import versioned_ingest_text
@@ -59,8 +59,10 @@ class TestFaz19LivePilot(unittest.TestCase):
         # Fetch real live web content once for all pilot steps
         cls.live_url = "https://www.bddk.org.tr/Mevzuat"
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+        # Production toplayıcılarıyla aynı güven zinciri (eksik ara sertifika OS deposundan tamamlanır).
+        session = build_http_session()
         try:
-            resp = requests.get(cls.live_url, timeout=12, headers=headers)
+            resp = session.get(cls.live_url, timeout=12, headers=headers)
             cls.http_status = resp.status_code
             cls.raw_bytes = resp.content
             cls.raw_sha256 = hashlib.sha256(cls.raw_bytes).hexdigest()
@@ -68,7 +70,7 @@ class TestFaz19LivePilot(unittest.TestCase):
         except Exception as exc:
             # Fallback to secondary official endpoint if temporary network glitch
             cls.live_url = "https://www.resmigazete.gov.tr/fihrist"
-            resp = requests.get(cls.live_url, timeout=12, headers=headers)
+            resp = session.get(cls.live_url, timeout=12, headers=headers)
             cls.http_status = resp.status_code
             cls.raw_bytes = resp.content
             cls.raw_sha256 = hashlib.sha256(cls.raw_bytes).hexdigest()
