@@ -113,10 +113,13 @@ idempotenttir: değişiklik yoksa hiçbir şey yazmaz.
 
 ## Görünen ad
 
-Atıflarda belgenin **kendi beyan ettiği ad** kullanılır, dosya adı değil (görüntüleme alanıdır,
-kanonik türetmeye girmez):
+Atıflarda belgenin **kendi beyan ettiği ad** kullanılır, dosya adı değil:
 
-- `declared_title`: kanunlarda "Kanun Numarası" beyanının üstündeki büyük harfli ad bloğu.
+- `declared_title`: kanunlarda "Kanun Numarası" beyanının üstündeki büyük harfli ad bloğu;
+  Resmî Gazete biçiminde yayımlayan kurum satırının ("...Kurumundan:") altındaki blok; mevzuat
+  metinlerinde belgenin en başındaki blok (yalnızca bir tür adıyla bitiyorsa). Şema 2'den beri
+  kanonik türün de ilk dayanağıdır (`instrument_basis=declared_title`): adın sonundaki baş isim
+  ("... İLİŞKİN YÖNETMELİK") dosya adından ve gövdedeki kanun atıflarından güvenilirdir.
 - `declared_subject`: resmî yazışmadaki "Konu:" satırı (genelgelerde numarasıyla). Yalnızca
   başlık bir yayıncı numarasıysa kullanılır.
 
@@ -124,9 +127,8 @@ kanonik türetmeye girmez):
 
 ## Bilinen sınırlar
 
-- Başlığı yalnızca bir sayı olan belgelerde (ör. yayıncı kimliğiyle kaydedilmiş belgeler) tür,
-  parser'ın gövde tahminine dayanır (`instrument_basis=document_type`). Pipeline beyanı bu
-  eksikliği giderir.
+- Başlığı yalnızca bir sayı olan ve beyan edilen adı çıkarılamayan belgelerde tür, parser'ın
+  gövde tahminine dayanır (`instrument_basis=document_type`). Pipeline beyanı bu eksikliği giderir.
 - Aynı kanunun iki yayıncıdaki kopyaları metin olarak birebir aynı değilse ayrı expression sayılır
   (ör. biri konsolide metin, biri değişiklik öncesi). Doğru birleştirme için pipeline'ın sürüm
   işareti vermesi gerekir.

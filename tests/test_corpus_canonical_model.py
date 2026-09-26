@@ -32,6 +32,7 @@ from mufettis.corpus import (
     with_canonical,
 )
 from mufettis.corpus.identity import content_fingerprint, instrument_from_title
+from mufettis.corpus.model import CANONICAL_SCHEMA
 from mufettis.corpus.provenance import reconcile_fingerprints
 from mufettis.legal.parser import extract_legal_metadata, prefer_official_matches
 
@@ -321,7 +322,7 @@ class TestIngestionWritesCanonicalFields(unittest.TestCase):
         for m in chunk_metas:
             self.assertEqual(m["work_id"], meta["work_id"])
             self.assertEqual(m["expression_id"], meta["expression_id"])
-            self.assertEqual(m["canonical_schema"], "1")
+            self.assertEqual(m["canonical_schema"], CANONICAL_SCHEMA)
         self.assertEqual(result["canonical"]["work_id"], "tr/kanun/99001")
 
     def test_identity_correction_refreshes_canonical_fields(self):
@@ -413,6 +414,32 @@ class TestDeclaredTitle(unittest.TestCase):
                     "Karar Sayısı: 99005 Karar Tarihi: 01.01.2026\nKurulun toplantısında ...")
         self.assertEqual(extract_declared_title(decision), "ÖRNEK DÜZENLEME KURULU KARARI 99005")
         self.assertEqual(extract_declared_title("Örnek Kurumundan:\nKüçük harfli gövde metni.\n"), "")
+
+    REGULATION = ("ÖRNEK RİSKLERİN STANDART YÖNTEMLE\nÖLÇÜLMESİNE İLİŞKİN YÖNETMELİK\nBİRİNCİ BÖLÜM\n"
+                  "Amaç ve Kapsam\nMADDE 1 – (1) Bu Yönetmelik 99001 sayılı Örnek Kanununa dayanır.\n")
+
+    def test_leading_title_block_needs_an_instrument_head_noun(self):
+        from mufettis.legal.parser import extract_declared_title
+
+        self.assertEqual(extract_declared_title(self.REGULATION),
+                         "ÖRNEK RİSKLERİN STANDART YÖNTEMLE ÖLÇÜLMESİNE İLİŞKİN YÖNETMELİK")
+        # Kurum/sayfa başlığı ad değildir.
+        self.assertEqual(extract_declared_title("T.C.\nÖRNEK DÜZENLEME KURUMU\n\nKonu: Bilgi talebi\n"), "")
+
+    def test_document_type_from_declared_title_not_from_cited_law(self):
+        from mufettis.legal.parser import declared_document_type, detect_doc_type
+
+        # Gövde kanuna atıf yapıyor, dosya adı anlamsız: tür belgenin kendi adından gelir.
+        self.assertEqual(detect_doc_type("mevzuat_99", self.REGULATION, "local_file"), "Yönetmelik")
+        self.assertEqual(declared_document_type("ÖRNEK DÜZENLEME KURULU KARARI 99005"), "Kurul Kararı")
+        self.assertEqual(declared_document_type("ÖRNEK VERGİ KANUNU GENEL TEBLİĞİ (SIRA NO: 1)"), "Tebliğ")
+        # Kanun adı ortada geçen yönetmelik yönetmeliktir.
+        self.assertEqual(declared_document_type("ÖRNEK KANUNUNUN 5 İNCİ MADDESİNE İLİŞKİN YÖNETMELİK"), "Yönetmelik")
+
+    def test_canonical_instrument_prefers_declared_title_over_file_name(self):
+        meta = {"title": "mevzuat_99", "document_type": "Kanun",
+                "declared_title": "ÖRNEK RİSKLERİN ÖLÇÜLMESİNE İLİŞKİN YÖNETMELİK"}
+        self.assertEqual(canonical_view(meta).instrument_type, InstrumentType.REGULATION)
 
     def test_correspondence_subject_and_circular_number(self):
         from mufettis.analysis.engine import evidence_display_title

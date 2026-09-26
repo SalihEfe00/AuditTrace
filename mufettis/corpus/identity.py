@@ -43,7 +43,7 @@ _TITLE_INSTRUMENT_PATTERNS: Tuple[Tuple[str, str], ...] = (
     (InstrumentType.REGULATION, r"\byönetmeli[kğ]\w*"),
     (InstrumentType.COMMUNIQUE, r"\btebli[ğg]\w*"),
     (InstrumentType.PROCEDURE, r"\busul\s+ve\s+esas\w*"),
-    (InstrumentType.BOARD_DECISION, r"\bkurul\s+kararı\w*"),
+    (InstrumentType.BOARD_DECISION, r"\bkurulu?\s+kararı\w*"),  # "... Denetleme Kurulu Kararı"
     (InstrumentType.CIRCULAR, r"\bgenelge\w*"),
     (InstrumentType.GUIDELINE, r"\brehber\w*|\bkılavuz\w*"),
     (InstrumentType.CHART_OF_ACCOUNTS, r"\bhesap\s+planı\w*"),
@@ -79,7 +79,7 @@ def instrument_from_title(title: Any) -> Optional[str]:
 
 # Tür dayanakları. Güçlü olanlar belgenin kendi başlığı/resmî numarası veya pipeline beyanıdır;
 # parser'ın gövde metninden yaptığı tür tahmini ve parça yapısı zayıf dayanaktır.
-STRONG_INSTRUMENT_BASES = frozenset({"declared", "title", "official_number"})
+STRONG_INSTRUMENT_BASES = frozenset({"declared", "declared_title", "title", "official_number"})
 
 
 def instrument_identity(meta: Dict[str, Any]) -> Tuple[str, str]:
@@ -87,6 +87,10 @@ def instrument_identity(meta: Dict[str, Any]) -> Tuple[str, str]:
     declared = _clean(meta.get("declared_instrument_type")).lower()
     if declared in InstrumentType.ALL:
         return declared, "declared"
+    # Belgenin kendi başlığı dosya adından güvenilirdir (dosya adı "mevzuat_1310" veya yanıltıcı olabilir).
+    from_declared = instrument_from_title(meta.get("declared_title"))
+    if from_declared:
+        return from_declared, "declared_title"
     from_title = instrument_from_title(meta.get("title"))
     if from_title:
         return from_title, "title"

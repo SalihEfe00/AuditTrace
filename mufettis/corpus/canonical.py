@@ -29,6 +29,7 @@ DERIVATION_INPUTS = (
     "declared_work_id", "eli", "declared_instrument_type", "declared_version", "issuer",
     "title", "title_normalized", "law_number", "document_type", "structure_type",
     "source_id", "source_document_id", "url", "file_hash", "content_fingerprint", "verified_against",
+    "declared_title",
 )
 
 

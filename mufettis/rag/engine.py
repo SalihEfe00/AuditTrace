@@ -35,6 +35,7 @@ from mufettis.config import (
 )
 from mufettis.common.utils import canonical_source_id, now_iso, safe_json, mask_sensitive
 from mufettis.corpus import NOT_IN_FORCE_STATUSES, EligibilityPolicy, refresh_canonical, with_canonical
+from mufettis.corpus.model import CANONICAL_SCHEMA
 from mufettis.extraction.text_repair import normalize_extracted_text, repair_extracted_spacing
 from mufettis.legal.parser import (
     _chunk_is_retrievable,
@@ -482,7 +483,8 @@ class LocalRAG:
         """Chroma her yazmayı (ekleme, silme, meta veri güncellemesi) artan bir sıra numarasıyla
         kuyruğa yazar; okumalar numarayı değiştirmez. İmza bu numara ve parça sayısıdır. (Dosya
         zamanı kullanılamaz: Chroma veritabanını her açışta dosyaya yazar.)"""
-        parts=[LEXICAL_INDEX_VERSION, str(CHUNK_SCHEMA_VERSION), str(self.collection.count())]
+        # Kanonik şema: indeks uygunluk alanlarını kurulumda saklar; türetme kuralı değişince yenilenmeli.
+        parts=[LEXICAL_INDEX_VERSION, str(CHUNK_SCHEMA_VERSION), CANONICAL_SCHEMA, str(self.collection.count())]
         sqlite_path=Path(self.db_path)/"chroma.sqlite3"
         if sqlite_path.exists():
             conn=sqlite3.connect(f"{sqlite_path.as_uri()}?mode=ro", uri=True)

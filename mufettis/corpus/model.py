@@ -26,7 +26,7 @@ from typing import Dict
 
 # Kayıttaki kanonik alanların şema sürümü. Türetme kuralları değişirse artırılır; eski
 # sürümdeki kayıtlar okunurken yeniden türetilir (canonical_view) ve backfill ile güncellenir.
-CANONICAL_SCHEMA = "1"
+CANONICAL_SCHEMA = "2"  # 2: belgenin beyan ettiği ad, türde dosya adından önce gelir
 
 
 class PublisherKind:

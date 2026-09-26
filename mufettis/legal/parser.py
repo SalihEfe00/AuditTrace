@@ -60,6 +60,12 @@ def detect_doc_type(
         if any(re.search(p,title_text,re.I) for p in pats):
             return name
 
+    # Belgenin kendi beyan ettiği ad, gövdede geçen tür sözcüklerinden güvenilirdir: yönetmelikler
+    # dayanak maddesinde kanuna atıf yapar, bu yüzden "gövdede 'kanun' geçiyor" kanıt değildir.
+    declared = declared_document_type(extract_declared_title(text))
+    if declared:
+        return declared
+
     # BDDK kaynaklarında başlık sadece sayıysa, gövde içinde geçen Kanun
     # kelimesi belge türünü Kanun yapmasın.
     if "bddk" in sid:
@@ -91,6 +97,31 @@ def detect_doc_type(
         if any(n in combined for n in needles):
             return name
     return "Diğer"
+def declared_document_type(declared_title: str) -> str:
+    """Beyan edilen addaki baş isimden (sondaki tür sözcüğü) belge türü etiketi; yoksa ""."""
+    from mufettis.corpus.identity import instrument_from_title
+    from mufettis.corpus.model import InstrumentType
+
+    if not declared_title:
+        return ""
+    instrument = instrument_from_title(_title_tail(declared_title))
+    if instrument == InstrumentType.GUIDELINE and "KILAVUZ" in declared_title.upper():
+        return "Kılavuz"
+    return {
+        InstrumentType.CONSTITUTION: "Anayasa",
+        InstrumentType.LAW: "Kanun",
+        InstrumentType.PRESIDENTIAL_DECREE: "Cumhurbaşkanlığı Kararnamesi",
+        InstrumentType.PRESIDENTIAL_DECISION: "Cumhurbaşkanı Kararı",
+        InstrumentType.REGULATION: "Yönetmelik",
+        InstrumentType.COMMUNIQUE: "Tebliğ",
+        InstrumentType.PROCEDURE: "Usul ve Esas",
+        InstrumentType.BOARD_DECISION: "Kurul Kararı",
+        InstrumentType.CIRCULAR: "Genelge",
+        InstrumentType.GUIDELINE: "Rehber",
+        InstrumentType.DECISION: "Karar",
+    }.get(instrument, "")
+
+
 def extract_first(text: str, patterns: Iterable[str]) -> Optional[str]:
     for pattern in patterns:
         m = re.search(pattern, text, flags=re.I | re.M)
@@ -356,10 +387,12 @@ def _title_block(lines: List[str]) -> str:
 
 
 def extract_declared_title(text: str) -> str:
-    """Belgenin kendi beyan ettiği ad; bulunamazsa "". İki yayım biçimi tanınır:
+    """Belgenin kendi beyan ettiği ad; bulunamazsa "". Üç yayım biçimi tanınır:
 
     - Kanun: "Kanun Numarası" beyanının hemen üstündeki büyük harfli blok.
     - Resmî Gazete: yayımlayan kurum satırının ("...Kurumundan:") hemen altındaki büyük harfli blok.
+    - Mevzuat metni: belgenin en başındaki büyük harfli blok; yalnızca bir düzenleme türüyle
+      bitiyorsa ("... İLİŞKİN YÖNETMELİK") ad sayılır, aksi halde sayfa/kurum başlığı olabilir.
 
     Blok yalnızca genel sözcüklerden oluşuyorsa ("HAKKINDA KANUN": adın ilk satırı sayfa başlığına
     karışmış) ad eksiktir ve kullanılmaz."""
@@ -369,12 +402,26 @@ def extract_declared_title(text: str) -> str:
         return _law_title(head[:law.start()])
     issuer = _ISSUER_LINE_RE.search(head)
     if not issuer:
-        return ""
+        return _leading_title(head)
     title = _title_block(head[issuer.end():].splitlines())
     decision = _DECISION_NUMBER_RE.search(head[issuer.end():])
     if title and title.endswith("KARARI") and decision:
         return f"{title} {decision.group(1)}"
     return title
+
+
+def _leading_title(head: str) -> str:
+    from mufettis.corpus.identity import instrument_from_title
+
+    title = _title_block(head.splitlines())
+    return title if title and instrument_from_title(_title_tail(title)) else ""
+
+
+def _title_tail(title: str) -> str:
+    # Türün baş isim olarak sonda olması gerekir: "... KANUNU (SIRA NO: 531)" gibi ekler atılır,
+    # ardından yalnızca son sözcükler (adın ortasındaki "KANUNU" atıftır) değerlendirilir.
+    core = re.sub(r"\s*\([^()]*\)\s*$", "", title)
+    return " ".join(core.split()[-3:])
 
 
 def _law_title(before: str) -> str:
