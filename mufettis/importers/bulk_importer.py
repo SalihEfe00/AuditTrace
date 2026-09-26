@@ -187,6 +187,7 @@ class BulkRegulationImporter:
             "too_large": 0,
             "empty": 0,
             "errors": 0,
+            "quarantined": 0,
             "chunks": 0,
             "ocr_files": 0,
             "files": [],
@@ -237,6 +238,21 @@ class BulkRegulationImporter:
                 result_status = result.get("status", "")
                 result_meta = result.get("meta", meta)
                 chunk_count = int(result.get("count", 0) or 0)
+                if result_status in ("quarantined", "blocked"):
+                    # Kapı indeks kaydını kendisi yazdı (önceki sürüm geri yüklendiyse o kayıt
+                    # korunur); burada "ingested" sayıp chunk_count=0 ile üzerine yazılmamalı.
+                    stats["quarantined"] += 1
+                    item.update({
+                        "status": result_status,
+                        "hash": file_hash,
+                        "title": result_meta.get("title"),
+                        "error": result.get("error", ""),
+                    })
+                    stats["files"].append(item)
+                    stats["processed"] += 1
+                    if progress_callback:
+                        progress_callback(i, len(files), path.name, item["status"], stats)
+                    continue
                 if result_status == "skipped":
                     stats["skipped_chroma"] += 1
                     item["status"] = "skipped_chroma"

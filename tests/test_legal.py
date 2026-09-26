@@ -99,6 +99,31 @@ class TestV1314SourceParsing(unittest.TestCase):
         self.assertIn("14", nums)
         self.assertTrue(all(c.get("chunk_type") in {"section","document"} for c in chunks))
 
+    def test_own_law_number_declaration_beats_references(self):
+        """"Kanun Numarası : 6361" beyanı, metindeki "765 sayılı Kanun" atfından önce gelir."""
+        text = (
+            "FİNANSAL KİRALAMA, FAKTORİNG, FİNANSMAN VE TASARRUF FİNANSMAN ŞİRKETLERİ KANUNU\n\n"
+            "Kanun Numarası : 6361\nKabul Tarihi : 21/11/2012\n"
+            "MADDE 1 – ... 765 sayılı Kanun hükümleri saklıdır."
+        )
+        self.assertEqual(extract_legal_metadata("Finansal Kiralama", text, {"file_hash": "x"})["law_number"], "6361")
+
+    def test_article_repeal_notes_do_not_mark_whole_law_repealed(self):
+        from mufettis.legal.parser import detect_document_status
+
+        law = "BANKACILIK KANUNU\nKanun Numarası : 5411\nMadde 22 – (Mülga: 4/12/1985-3239/138 md.)\n"
+        self.assertEqual(extract_legal_metadata("BANKACILIK KANUNU", law, {"file_hash": "x"})["status"], "active")
+        amending = "Değişiklik Kanunu\nMADDE 1 – 213 sayılı Kanunun 5 inci maddesi yürürlükten kaldırılmıştır."
+        self.assertEqual(detect_document_status("Değişiklik Kanunu", "MADDE 1 – " + "x " * 400 + amending), "active")
+        bddk_page = "Mevzuat Detay Kapat Tebliğler ve Rehberler Tekdüzen Hesap Planı Diğer " + "x" * 520 + " Mülga Düzenlemeler"
+        self.assertEqual(detect_document_status("873", bddk_page), "active")
+
+    def test_real_document_level_repeal_is_detected(self):
+        from mufettis.legal.parser import detect_document_status
+
+        self.assertEqual(detect_document_status("Eski Yönetmelik (Mülga)", "Yönetmelik metni"), "repealed_or_changed")
+        self.assertEqual(detect_document_status("Tebliğ", "Bu Tebliğ yürürlükten kaldırılmıştır."), "repealed")
+
     def test_law_number_metadata(self):
         meta = extract_legal_metadata(
             "5549 sayılı Kanun",
@@ -238,3 +263,36 @@ Risk iştahı dikkate alınır."""
         sections = [c for c in chunks if c.get("chunk_type") == "section"]
         self.assertEqual([c["section_no"] for c in sections[:2]], ["2.3.1", "2.3.2"])
 
+
+
+class TestE7QueryLawIdentifier(unittest.TestCase):
+    """Kanun adı "sayılı" ile "Kanunu" arasına girdiğinde açık kanun filtresi devre dışı kalıyordu;
+    3 haneli kanunlar (193 GVK, 213 VUK) ise hesap kodu sanılıyordu."""
+
+    def test_law_name_between_number_and_kanun(self):
+        from mufettis.extraction.text_repair import extract_legal_identifier
+        from mufettis.legal.parser import extract_query_account_code
+
+        cases = {
+            "5411 sayılı Bankacılık Kanunu kredi sınırları": "5411",
+            "193 sayılı Gelir Vergisi Kanunu gelirin unsurları": "193",
+            "213 sayılı Vergi Usul Kanunu defter tutma": "213",
+            "6362 sayılı Sermaye Piyasası Kanununun 3 üncü maddesi": "6362",
+            "320 satıcılar hesabı 5411 sayılı kanuna göre": "5411",
+            "5549 sayılı kanun": "5549",
+            "Kanun No: 6362": "6362",
+        }
+        for query, law in cases.items():
+            with self.subTest(query=query):
+                self.assertEqual(extract_legal_identifier(query), law)
+                self.assertNotEqual(extract_query_account_code(query), law)
+
+    def test_account_codes_and_bddk_decisions_are_not_laws(self):
+        from mufettis.extraction.text_repair import extract_legal_identifier
+        from mufettis.legal.parser import extract_query_account_code, extract_query_document_reference
+
+        self.assertIsNone(extract_legal_identifier("193 hesap peşin ödenen vergiler"))
+        self.assertEqual(extract_query_account_code("193 hesap peşin ödenen vergiler"), "193")
+        self.assertIsNone(extract_legal_identifier("1040 sayılı karar kredi"))
+        self.assertEqual(extract_query_document_reference("1040 sayılı karar kredi"), "1040")
+        self.assertEqual(extract_query_account_code("320 satıcılar hesabı 5411 sayılı kanuna göre"), "320")

@@ -37,6 +37,10 @@ logger = logging.getLogger(__name__)
 DEFAULT_QUALITY_THRESHOLD = 0.88
 
 
+# Yeniden taramada en düşük kalite puanı hesabına katılan en kısa parça uzunluğu.
+RESCAN_MIN_SCORED_CHARS = 120
+
+
 class AutoHealingIngestionGate:
     """Automated Quality and Self-Healing Gate for Ingestion Pipelines."""
 
@@ -256,6 +260,7 @@ class AutoHealingIngestionGate:
             mojibake_total = 0
             replacement_total = 0
             scores = []
+            short_scores = []
             issues = []
 
             for doc_str in docs:
@@ -263,8 +268,14 @@ class AutoHealingIngestionGate:
                 q = _pdf_generic_quality_metrics(doc_text)
                 mojibake_total += int(q.get("mojibake_sequence_count", 0) or 0)
                 replacement_total += int(q.get("replacement_char_count", 0) or 0)
+                # U+FFFE/U+FFFF: geçersiz Unicode; bozuk font eşlemesinde harf yerine çıkar ("ed\uFFFElen" = "edilen").
+                replacement_total += doc_text.count("\uFFFE") + doc_text.count("\uFFFF")
                 if doc_text.strip():
-                    scores.append(float(q.get("score", 0.0) or 0.0))
+                    score = float(q.get("score", 0.0) or 0.0)
+                    # Kısa atıf kırıntılarında ("(4), (5),") satır kırılma oranı doğal olarak yüksektir;
+                    # tek böyle parça bütün kanunu karantinaya düşürmemeli. Bozulma sinyalleri
+                    # (mojibake, geçersiz karakter, yapışık kelime) tüm parçalarda sayılmaya devam eder.
+                    (scores if len(doc_text.strip()) >= RESCAN_MIN_SCORED_CHARS else short_scores).append(score)
 
                 # True glued token evaluation
                 tokens = re.findall(r"[A-Za-zÇĞİÖŞÜçğıöşü]{24,}", doc_text)
@@ -272,6 +283,8 @@ class AutoHealingIngestionGate:
                     if _is_true_glued_token(t):
                         glued_total += 1
 
+            if not scores:
+                scores = short_scores  # tüm parçalar kısaysa hepsi değerlendirilir
             min_score = min(scores) if scores else 0.0
             avg_score = sum(scores) / len(scores) if scores else 0.0
 
@@ -316,12 +329,32 @@ class AutoHealingIngestionGate:
         issues: List[str],
         text: Optional[str] = None,
         raw_bytes: Optional[bytes] = None,
+        previous_state: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """Safely rolls back any staged Chroma chunks, caches payload in quarantine cache, and marks quarantined."""
+        """Safely rolls back any staged Chroma chunks, caches payload in quarantine cache, and marks quarantined.
+
+        previous_state (ingest başında alınan önceki parçalar ve indeks kaydı) verilirse
+        belge önceki haline döndürülür: yeni sürüm reddedildi diye çalışan eski sürüm
+        kaybolmaz. Önceki aktif kayıt korunur, reddedilen deneme geçmişe yazılır.
+        """
         try:
             rag.delete_hash(file_hash)
         except Exception as exc:
             logger.warning("Quarantine: Chroma cleanup warning for %s: %s", file_hash, exc)
+
+        restored_chunks = 0
+        previous_chunks = (previous_state or {}).get("chunks") or {}
+        if previous_chunks.get("ids"):
+            try:
+                rag.collection.upsert(
+                    ids=list(previous_chunks["ids"]),
+                    embeddings=list(previous_chunks["embeddings"]),
+                    documents=list(previous_chunks["documents"]),
+                    metadatas=list(previous_chunks["metadatas"]),
+                )
+                restored_chunks = len(previous_chunks["ids"])
+            except Exception as exc:
+                logger.error("Quarantine: previous chunks could not be restored for %s: %s", file_hash, exc)
 
         # Isolated quarantine cache saving
         try:
@@ -366,6 +399,13 @@ class AutoHealingIngestionGate:
             "reviewed_by": quarantine_meta.get("reviewed_by", existing.get("reviewed_by") if existing else None),
             "review_notes": quarantine_meta.get("review_notes", existing.get("review_notes") if existing else None),
         })
+
+        previous_record = (previous_state or {}).get("index_record")
+        if restored_chunks and previous_record and previous_record.get("status") != "quarantined":
+            # Çalışan önceki sürüm geri yüklendi: kayıt aktif kalır, reddedilen deneme geçmişe eklenir.
+            quarantine_meta = dict(previous_record)
+            quarantine_meta["quarantine_history"] = existing_history
+            quarantine_meta["last_rejected_ingest"] = history_entry
 
         if index is not None:
             try:
@@ -413,6 +453,28 @@ class AutoHealingIngestionGate:
         }
 
     # ── Main Ingestion Flow ───────────────────────────────────────────────────
+
+    def _capture_previous_state(self, rag: LocalRAG, index: IngestIndex, file_hash: str) -> Dict[str, Any]:
+        """Belgenin mevcut Chroma parçaları (embedding dahil) ve indeks kaydı."""
+        try:
+            got = rag.collection.get(
+                where={"file_hash": file_hash},
+                include=["embeddings", "documents", "metadatas"],
+            )
+        except Exception as exc:
+            raise RuntimeError(f"Önceki parçalar okunamadı, ingest durduruldu ({file_hash[:12]}): {exc}") from exc
+        ids = list((got or {}).get("ids") or [])
+        embeddings = (got or {}).get("embeddings")
+        chunks = {
+            "ids": ids,
+            "embeddings": [list(e) for e in embeddings] if ids and embeddings is not None else [],
+            "documents": list((got or {}).get("documents") or []),
+            "metadatas": list((got or {}).get("metadatas") or []),
+        }
+        if ids and len(chunks["embeddings"]) != len(ids):
+            raise RuntimeError(f"Önceki parçaların embedding'leri eksik, ingest durduruldu ({file_hash[:12]})")
+        record = index.get(file_hash) if index is not None else None
+        return {"chunks": chunks, "index_record": dict(record) if record else None}
 
     def ingest(
         self,
@@ -474,6 +536,10 @@ class AutoHealingIngestionGate:
                 "meta": merged,
             }
 
+        # 1b. Önceki durum: karantina kararında belge bu hale döndürülür. Alınamazsa hiçbir
+        # şey değiştirilmeden durulur (commit mevcut parçaları siler, geri getirilemezdi).
+        previous_state = self._capture_previous_state(rag, index, file_hash)
+
         # 2. Quality Gate Inspection
         raw_metrics = self.evaluate_text_quality(text, meta.get("title", ""))
         effective_text = text
@@ -501,6 +567,7 @@ class AutoHealingIngestionGate:
                     issues=healed_metrics["issues"],
                     text=effective_text or text,
                     raw_bytes=effective_raw_bytes,
+                    previous_state=previous_state,
                 )
 
             effective_text = repaired_text
@@ -522,6 +589,7 @@ class AutoHealingIngestionGate:
                 issues=[str(exc)],
                 text=effective_text,
                 raw_bytes=effective_raw_bytes,
+                previous_state=previous_state,
             )
 
         # 4. VERIFY Stage
@@ -537,6 +605,7 @@ class AutoHealingIngestionGate:
                 issues=v_errors,
                 text=effective_text,
                 raw_bytes=effective_raw_bytes,
+                previous_state=previous_state,
             )
 
         # 5. RESCAN Stage
@@ -552,6 +621,7 @@ class AutoHealingIngestionGate:
                 issues=r_issues,
                 text=effective_text,
                 raw_bytes=effective_raw_bytes,
+                previous_state=previous_state,
             )
 
         # 6. Commit Succeeded! Finalize Index and Cache

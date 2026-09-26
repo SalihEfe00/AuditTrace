@@ -270,6 +270,26 @@ def classify_legal_structure(
         "evidence_indexable_reason":evidence_indexable_reason,
         "text_char_count":meaningful_chars,
     }
+# Belge düzeyi durum yalnızca başlık bölgesinden okunur. Metnin gövdesindeki madde notları
+# ("(Mülga: 4/12/1985-3239/138 md.)"), değiştirici hükümler ("… maddesi yürürlükten
+# kaldırılmıştır") ve BDDK site menüsü ("Mülga Düzenlemeler") belgenin kendisinin
+# kaldırıldığını göstermez; önceden bunlar yürürlükteki kanunları aramadan dışlıyordu.
+STATUS_HEADER_CHARS = 600
+# Madde notları hep iki noktalıdır ("(Mülga: …)"); başlıktaki "(Mülga)" gerçek durum bilgisidir.
+_STATUS_NOISE = re.compile(r"mülga\s+düzenlemeler|\(\s*mülga\s*:[^)]*\)|mülga\s*:", re.I)
+
+
+def detect_document_status(title: str, head: str) -> str:
+    # Gürültü kesmeden önce temizlenir; aksi halde sınırda kalan "Mülga Düz…" eşleşmezdi.
+    zone = f"{title}\n{_STATUS_NOISE.sub(' ', head[:STATUS_HEADER_CHARS * 4])[:STATUS_HEADER_CHARS]}"
+    zone = _STATUS_NOISE.sub(" ", zone)
+    if re.search(r"\byürürlükten\s+(?:kaldırılmıştır|kalkmıştır)\b", zone, re.I):
+        return "repealed"
+    if re.search(r"\bmülga\b", zone, re.I):
+        return "repealed_or_changed"
+    return "active"
+
+
 def extract_legal_metadata(
     title: str,
     text: str,
@@ -281,12 +301,14 @@ def extract_legal_metadata(
     doc_type=detect_doc_type(title,head,source_id)
     combined=f"{title}\n{head[:40000]}"
 
+    # Belgenin kendi beyanı ("Kanun Numarası : 6361") metindeki atıflardan ("765 sayılı
+    # Kanun") önce gelir; aksi halde kanun, atıf yaptığı ilk kanunun numarasını alırdı.
     law_number=extract_first(
         combined,
         [
-            r"\b(\d{2,8})\s+sayılı\s+Kanun\b",
-            r"\bKanun\s+No(?:'su|su|)\s*[:№.-]?\s*(\d{2,8})\b",
             r"\bKanun\s+Numarası\s*[:№.-]?\s*(\d{2,8})\b",
+            r"\bKanun\s+No(?:'su|su|)\s*[:№.-]?\s*(\d{2,8})\b",
+            r"\b(\d{2,8})\s+sayılı\s+Kanun\b",
         ],
     ) or extract_first(
         str(title),
@@ -325,13 +347,7 @@ def extract_legal_metadata(
         ],
     ) or ""
 
-    status="active"
-    if re.search(r"\bmülga\b",head,re.I):
-        status="repealed_or_changed"
-    if re.search(r"\byürürlükten kaldırılmıştır\b",head,re.I):
-        status="repealed"
-    if re.search(r"\byürürlükten kalkmıştır\b",head,re.I):
-        status="repealed"
+    status=detect_document_status(title, head)
 
     normalized_title=re.sub(r"\s+"," ",str(title)).strip().lower()
     document_key=str(law_number or number or normalized_title)
@@ -367,8 +383,9 @@ def extract_query_account_code(query: str) -> Optional[str]:
     """Sorgudaki açık hesap kodunu yakalar; belge numarası tek başına hesap kodu sayılmaz."""
     q = str(query or "")
     doc_ref = extract_query_document_reference(q)
+    law_ref = extract_legal_identifier(q)  # "193 sayılı Gelir Vergisi Kanunu" hesap 193 değildir
     for token in re.findall(r"(?<!\d)(\d{3,6})(?!\d)", q):
-        if token == doc_ref:
+        if token in (doc_ref, law_ref):
             continue
         # 3 haneli kökler ve 4-6 haneli hesap kodları kabul edilir.
         if len(token) >= 3:
@@ -1063,6 +1080,7 @@ __all__ = [
     "detect_doc_type",
     "extract_first",
     "classify_legal_structure",
+    "detect_document_status",
     "extract_legal_metadata",
     "extract_query_document_reference",
     "extract_query_account_code",

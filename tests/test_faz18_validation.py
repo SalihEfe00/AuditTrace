@@ -63,11 +63,13 @@ class MockChromaCollection:
         embeddings: Optional[Any] = None,
     ):
         metas = metadatas or [{}] * len(ids)
-        for chunk_id, doc, meta in zip(ids, documents, metas):
+        embs = list(embeddings) if embeddings is not None else [[0.0, 0.0, 1.0]] * len(ids)
+        for chunk_id, doc, meta, emb in zip(ids, documents, metas, embs):
             self.records[chunk_id] = {
                 "id": chunk_id,
                 "document": doc,
                 "metadata": dict(meta),
+                "embedding": list(emb),
             }
 
     def get(
@@ -78,6 +80,7 @@ class MockChromaCollection:
         matched_ids = []
         matched_docs = []
         matched_metas = []
+        matched_embs = []
 
         where_clause = where or {}
         for chunk_id, rec in self.records.items():
@@ -90,12 +93,15 @@ class MockChromaCollection:
                 matched_ids.append(chunk_id)
                 matched_docs.append(rec["document"])
                 matched_metas.append(rec["metadata"])
+                matched_embs.append(rec.get("embedding", [0.0, 0.0, 1.0]))
 
         res = {"ids": matched_ids}
         if include is None or "documents" in include:
             res["documents"] = matched_docs
         if include is None or "metadatas" in include:
             res["metadatas"] = matched_metas
+        if include is not None and "embeddings" in include:
+            res["embeddings"] = matched_embs
         return res
 
     def delete(self, where: Optional[Dict[str, Any]] = None):

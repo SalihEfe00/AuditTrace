@@ -138,8 +138,17 @@ class LocalRAG:
                 where={"file_hash": file_hash},
                 include=["metadatas"],
             )
-            if existing and existing.get("ids"):
-                return {"status": "skipped", "count": len(existing["ids"])}
+            existing_ids = (existing or {}).get("ids") or []
+            if existing_ids:
+                current = [
+                    m for m in (existing.get("metadatas") or [])
+                    if str((m or {}).get("chunk_schema_version", "")) == str(CHUNK_SCHEMA_VERSION)
+                ]
+                if current:
+                    return {"status": "skipped", "count": len(existing_ids)}
+                # Yalnızca eski şema parçaları var: bunlar sorgularda dışlandığı için belge fiilen
+                # aranamaz durumdadır. Atlamak yerine eski parçalar silinip güncel şemayla yüklenir.
+                self.delete_hash(file_hash)
 
         chunks = split_legal_chunks(text)
         if not chunks:

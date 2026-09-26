@@ -422,7 +422,10 @@ def extract_legal_identifier(query: str) -> Optional[str]:
     """5549, 5411 gibi açık kanun numarasını sorgudan çıkar."""
     q = str(query or "")
     patterns = [
-        r"\b(\d{4,6})\s*(?:sayılı\s*)?(?:kanun|kanunu|kanunun)\b",
+        # "5411 sayılı Bankacılık Kanunu", "193 sayılı Gelir Vergisi Kanununun": kanun adı araya
+        # girebilir; "sayılı" açıkça yazıldığında 3 haneli kanunlar (193, 213, 488) da kabul edilir.
+        r"(?<!\d)(\d{3,6})\s*sayılı(?:\s+[^\s\d]+){0,8}?\s+kanun\w*",
+        r"\b(\d{4,6})\s*(?:kanun|kanunu|kanunun)\b",
         r"\b(?:kanun|kanunu)\s*(?:no|numarası)?\s*[:\-]?\s*(\d{4,6})\b",
     ]
     for pattern in patterns:
