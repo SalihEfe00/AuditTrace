@@ -72,6 +72,34 @@ class TestRunBenchmark(unittest.TestCase):
         self.assertEqual(available_specs(cases, [ART54]), {EvidenceSpec(law_number="5411", article="54")})
 
 
+class TestWrongFindingsAndBaseline(unittest.TestCase):
+    def test_extra_wrong_finding_is_counted_even_when_case_is_correct(self):
+        r = evaluate_case(_case([{"law_number": "5411", "article": "54"}]),
+                          [(ART54, "Madde 54"), (ART51, "Madde 51")], [ART54], expected_available=True)
+        self.assertEqual((r.outcome, r.wrong_findings), (CORRECT, 1))
+        neg = evaluate_case(_case([]), [(ART51, "Madde 51")], [], expected_available=False)
+        self.assertEqual(neg.wrong_findings, 1)
+        self.assertEqual(summarize([r, neg])["all"]["wrong_findings"], 2)
+
+    def test_check_baseline_reports_only_regressions(self):
+        from mufettis.analysis.benchmark import check_baseline
+
+        base = {"splits": {"dev": {"correct": 10, "wrong_basis": 2, "false_positives": 0, "wrong_findings": 2}}}
+        better = {"dev": {"correct": 11, "wrong_basis": 1, "false_positives": 0, "wrong_findings": 1}}
+        self.assertEqual(check_baseline(better, base), [])
+        worse = {"dev": {"correct": 9, "wrong_basis": 2, "false_positives": 1, "wrong_findings": 2}}
+        self.assertEqual(len(check_baseline(worse, base)), 2)
+        self.assertEqual(check_baseline({}, base), ["dev: sonuç yok"])
+
+    def test_committed_baseline_is_well_formed(self):
+        from mufettis.analysis.benchmark import BASELINE_FILE, BASELINE_METRICS
+
+        data = json.loads(BASELINE_FILE.read_text(encoding="utf-8"))
+        self.assertTrue(data["note"] and data["reranker"])
+        for split in ("dev", "holdout", "all"):
+            self.assertEqual(set(data["splits"][split]), {m for m, _ in BASELINE_METRICS})
+
+
 class TestCaseFile(unittest.TestCase):
     def test_case_file_is_valid(self):
         cases = load_cases(CASES_FILE)

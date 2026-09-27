@@ -8,6 +8,8 @@ Kullanım:
     python scripts/eval_accuracy.py --split all --out run.json
     python scripts/eval_accuracy.py --compare onceki.json    # sonucu değişen vakaları listeler
     python scripts/eval_accuracy.py --only dev-card          # kimliği bu metni içeren vakalar
+    python scripts/eval_accuracy.py --split all --check-baseline   # tabandan kötüleşme varsa çıkış kodu 1
+    python scripts/eval_accuracy.py --split all --write-baseline "not"   # tabanı bilinçli olarak güncelle
 """
 from __future__ import annotations
 
@@ -21,7 +23,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 os.environ.setdefault("OMP_NUM_THREADS", "2")
 
 from mufettis.analysis.benchmark import (  # noqa: E402
-    CASES_FILE, compare, load_cases, results_to_json, run_benchmark, summarize,
+    BASELINE_FILE, CASES_FILE, baseline_from_summary, check_baseline, compare, load_cases, results_to_json,
+    run_benchmark, summarize,
 )
 
 
@@ -34,6 +37,8 @@ def main() -> int:
     parser.add_argument("--out", type=Path, help="sonuçların yazılacağı JSON")
     parser.add_argument("--compare", type=Path, help="karşılaştırılacak önceki sonuç JSON'u")
     parser.add_argument("--no-rerank", action="store_true", help="yeniden sıralayıcıyı (cross-encoder) kapat")
+    parser.add_argument("--check-baseline", action="store_true", help=f"sonucu {BASELINE_FILE.name} ile karşılaştır")
+    parser.add_argument("--write-baseline", metavar="NOT", help="sonucu yeni taban olarak yaz (yalnızca --split all)")
     args = parser.parse_args()
 
     from mufettis.analysis.analysis_presenter import AnalysisPresenter
@@ -44,6 +49,8 @@ def main() -> int:
     rag = LocalRAG()
     presenter = AnalysisPresenter(audit_sink=lambda *a, **k: None)
     presenter.use_reranker = not args.no_rerank
+    reranker = presenter.reranker_fn() if presenter.use_reranker else None
+    reranker_name = getattr(reranker, "name", "") or "yok"
 
     def corpus_metadatas():
         for _ids, _docs, metas in iter_pages(rag.collection, include=("metadatas",)):
@@ -57,10 +64,27 @@ def main() -> int:
     results = run_benchmark(cases, lambda text: presenter.execute_analysis(text=text, rag_client=rag),
                             corpus_metadatas(), progress=show)
     print()
-    for split, m in summarize(results).items():
+    summary = summarize(results)
+    for split, m in summary.items():
         print(f"[{split}] pozitif {m['positives']}: doğru {m['correct']}, yanlış dayanak {m['wrong_basis']}, "
               f"kaçan {m['missed']} | havuz isabeti {m['retrieval_recall']}, isabette seçim {m['selection_accuracy_on_hits']} "
-              f"| negatif {m['negatives']}: yanlış pozitif {m['false_positives']}")
+              f"| negatif {m['negatives']}: yanlış pozitif {m['false_positives']} | yanlış bulgu {m['wrong_findings']}")
+    status = 0
+    if args.check_baseline:
+        baseline = json.loads(BASELINE_FILE.read_text(encoding="utf-8"))
+        if baseline.get("reranker") != reranker_name:
+            print(f"\nUYARI: taban '{baseline.get('reranker')}' yeniden sıralayıcısıyla ölçüldü, bu koşu '{reranker_name}'.")
+        problems = check_baseline(summary, baseline)
+        print("\nTabandan kötüleşme:" if problems else "\nTaban korunuyor.")
+        for line in problems:
+            print("  " + line)
+        status = 1 if problems else 0
+    if args.write_baseline:
+        if args.split != "all" or args.only:
+            parser.error("--write-baseline yalnızca --split all ile ve --only olmadan kullanılır")
+        BASELINE_FILE.write_text(json.dumps(baseline_from_summary(summary, args.write_baseline, reranker_name),
+                                            ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        print(f"\nTaban yazıldı: {BASELINE_FILE}")
     if args.compare:
         changes = compare(json.loads(args.compare.read_text(encoding="utf-8")), results)
         print("\nDeğişen vakalar:" if changes else "\nDeğişen vaka yok.")
@@ -68,7 +92,7 @@ def main() -> int:
             print("  " + line)
     if args.out:
         args.out.write_text(json.dumps(results_to_json(results), ensure_ascii=False, indent=1), encoding="utf-8")
-    return 0
+    return status
 
 
 if __name__ == "__main__":

@@ -104,8 +104,11 @@ class CaseResult:
     pool_size: int
     seconds: float
     # Bulguların yeniden sıralayıcı puanı (citation.metadata["rerank_score"]; yoksa None). Eşik
-    # (engine.RERANK_MIN_SCORE) doğru bulgular ile yanlış pozitiflerin puanlarına bakılarak seçilir.
+    # (mufettis.rag.reranker.MIN_SCORES) doğru bulgular ile yanlış pozitiflerin puanlarına bakılarak seçilir.
     scores: List[Optional[float]] = field(default_factory=list)
+    # Beklenen dayanaklardan hiçbirine uymayan bulgu sayısı (negatif vakada tüm bulgular). Vaka doğru
+    # sayılsa bile raporda yanlış atıf taşıyan ek bulgular bu sayıda görünür.
+    wrong_findings: int = 0
 
 
 def load_cases(path: Path = CASES_FILE) -> List[BenchmarkCase]:
@@ -144,6 +147,7 @@ def evaluate_case(
         case_id=case.case_id, split=case.split, outcome=outcome, expected_available=expected_available,
         retrieval_hit=(first_hit is not None) if positive else None, first_hit_rank=first_hit,
         findings=labels, pool_size=len(pool_meta), seconds=round(seconds, 2), scores=list(scores),
+        wrong_findings=sum(1 for meta, _ in findings_meta if not (positive and matches(meta))),
     )
 
 
@@ -177,8 +181,41 @@ def summarize(results: Sequence[CaseResult]) -> Dict[str, Dict[str, Any]]:
             "selection_accuracy_on_hits": round(count(hits, CORRECT) / len(hits), 3) if hits else None,
             "negatives": len(negatives),
             "false_positives": count(negatives, FALSE_POSITIVE),
+            "wrong_findings": sum(r.wrong_findings for r in rs),
         }
     return out
+
+
+# Kalite tabanı: bir değişiklik bu sayıların hiçbirini kötüleştirmemeli (bkz. check_baseline).
+BASELINE_FILE = Path(__file__).resolve().parents[2] / "benchmarks" / "baseline.json"
+# (metrik, daha büyük daha iyi mi)
+BASELINE_METRICS = (("correct", True), ("wrong_basis", False), ("false_positives", False), ("wrong_findings", False))
+
+
+def check_baseline(summary: Dict[str, Dict[str, Any]], baseline: Dict[str, Any]) -> List[str]:
+    """Tabana göre kötüleşen metrikler (boşsa geçti). Taban yalnızca aynı korpus ve aynı yeniden
+    sıralayıcıyla anlamlıdır; bu bilgiler taban dosyasında yazılıdır."""
+    problems = []
+    for split, expected in (baseline.get("splits") or {}).items():
+        got = summary.get(split)
+        if got is None:
+            problems.append(f"{split}: sonuç yok")
+            continue
+        for metric, higher_is_better in BASELINE_METRICS:
+            if metric not in expected:
+                continue
+            worse = got[metric] < expected[metric] if higher_is_better else got[metric] > expected[metric]
+            if worse:
+                problems.append(f"{split}.{metric}: {got[metric]} (taban {expected[metric]})")
+    return problems
+
+
+def baseline_from_summary(summary: Dict[str, Dict[str, Any]], note: str, reranker: str) -> Dict[str, Any]:
+    return {
+        "note": note,
+        "reranker": reranker,
+        "splits": {split: {m: summary[split][m] for m, _ in BASELINE_METRICS} for split in summary},
+    }
 
 
 def run_benchmark(
@@ -218,8 +255,10 @@ def compare(previous: Sequence[Dict[str, Any]], current: Sequence[CaseResult]) -
     lines = []
     for r in current:
         old = before.get(r.case_id)
-        if old and (old["outcome"] != r.outcome or old.get("retrieval_hit") != r.retrieval_hit):
-            lines.append(f"{r.case_id}: {old['outcome']} -> {r.outcome} (havuz: {old.get('retrieval_hit')} -> {r.retrieval_hit})")
+        if old and (old["outcome"] != r.outcome or old.get("retrieval_hit") != r.retrieval_hit
+                    or old.get("wrong_findings", 0) != r.wrong_findings):
+            lines.append(f"{r.case_id}: {old['outcome']} -> {r.outcome} (havuz: {old.get('retrieval_hit')} -> {r.retrieval_hit}; "
+                         f"yanlış bulgu: {old.get('wrong_findings', 0)} -> {r.wrong_findings})")
     return lines
 
 
@@ -231,4 +270,5 @@ __all__ = [
     "CASES_FILE", "CORRECT", "WRONG_BASIS", "MISSED", "FALSE_POSITIVE", "TRUE_NEGATIVE",
     "EvidenceSpec", "BenchmarkCase", "CaseResult", "load_cases", "evaluate_case",
     "available_specs", "summarize", "run_benchmark", "compare", "results_to_json",
+    "BASELINE_FILE", "BASELINE_METRICS", "check_baseline", "baseline_from_summary",
 ]

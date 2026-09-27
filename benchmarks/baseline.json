@@ -1,0 +1,24 @@
+{
+ "note": "Üretim korpusu 2026-09-27 (bakım işlemleri sonrası, 57 belge yeniden parçalandı); 67 vaka.",
+ "reranker": "cross-encoder--mmarco-mMiniLMv2-L12-H384-v1",
+ "splits": {
+  "dev": {
+   "correct": 12,
+   "wrong_basis": 2,
+   "false_positives": 0,
+   "wrong_findings": 2
+  },
+  "holdout": {
+   "correct": 15,
+   "wrong_basis": 0,
+   "false_positives": 0,
+   "wrong_findings": 0
+  },
+  "all": {
+   "correct": 27,
+   "wrong_basis": 2,
+   "false_positives": 0,
+   "wrong_findings": 2
+  }
+ }
+}
