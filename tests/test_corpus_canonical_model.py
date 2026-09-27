@@ -31,7 +31,7 @@ from mufettis.corpus import (
     validity,
     with_canonical,
 )
-from mufettis.corpus.identity import content_fingerprint, instrument_from_title
+from mufettis.corpus.identity import content_fingerprint, instrument_from_title, instrument_identity
 from mufettis.corpus.model import CANONICAL_SCHEMA
 from mufettis.corpus.provenance import reconcile_fingerprints
 from mufettis.legal.parser import extract_legal_metadata, prefer_official_matches
@@ -436,6 +436,21 @@ class TestDeclaredTitle(unittest.TestCase):
         for text in ("Konu: Örnek Kredi Yönetmeliği\n", "I. Örnek Tekdüzen Hesap Planı\n",
                      "Bu metin Örnek Kredi Yönetmeliği.\n", "Örnek Kart Taksit Sınırları ve Yasakları\n"):
             self.assertEqual(extract_declared_title(text), "", text)
+
+    def test_head_noun_coordinated_with_a_second_noun(self):
+        from mufettis.legal.parser import declared_document_type, extract_declared_title
+
+        # "... HESAP PLANI VE İZAHNAMESİ": baş isim son üç sözcüğün dışında kalıyordu, belge adsızdı.
+        plan = ("ÖRNEK KURULUŞLARCA UYGULANACAK TEKDÜZEN HESAP\nPLANI VE İZAHNAMESİ\n\n"
+                "1/8/2019 tarihli ve 99999 sayılı Resmi Gazete'de yayımlanan Örnek Yönetmelik uyarınca "
+                "uygulanacak plan aşağıdadır.\n\nI. Tekdüzen Hesap Planı\n\n010 KASA\n011 EFEKTİF DEPOSU\n")
+        title = extract_declared_title(plan)
+        self.assertEqual(title, "ÖRNEK KURULUŞLARCA UYGULANACAK TEKDÜZEN HESAP PLANI VE İZAHNAMESİ")
+        self.assertEqual(declared_document_type(title), "Hesap Planı")
+        self.assertEqual(instrument_identity({"declared_title": title})[0], InstrumentType.CHART_OF_ACCOUNTS)
+        # Asıl kuyruk tür veriyorsa kural devreye girmez; ek atılınca da tür yoksa ad yoktur.
+        self.assertEqual(declared_document_type("ÖRNEK İŞLEMLERE İLİŞKİN USUL VE ESASLAR"), "Usul ve Esas")
+        self.assertEqual(extract_declared_title("ÖRNEK KART TAKSİT SINIRLARI VE YASAKLARI\nMetin.\n"), "")
 
     def test_backfill_and_ingest_derive_names_alike(self):
         from mufettis.legal.parser import declared_names, extract_legal_metadata

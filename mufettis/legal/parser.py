@@ -99,12 +99,11 @@ def detect_doc_type(
     return "Diğer"
 def declared_document_type(declared_title: str) -> str:
     """Beyan edilen addaki baş isimden (sondaki tür sözcüğü) belge türü etiketi; yoksa ""."""
-    from mufettis.corpus.identity import instrument_from_title
     from mufettis.corpus.model import InstrumentType
 
     if not declared_title:
         return ""
-    instrument = instrument_from_title(_title_tail(declared_title))
+    instrument = _title_instrument(declared_title)
     if instrument == InstrumentType.GUIDELINE and "KILAVUZ" in declared_title.upper():
         return "Kılavuz"
     return {
@@ -118,6 +117,7 @@ def declared_document_type(declared_title: str) -> str:
         InstrumentType.BOARD_DECISION: "Kurul Kararı",
         InstrumentType.CIRCULAR: "Genelge",
         InstrumentType.GUIDELINE: "Rehber",
+        InstrumentType.CHART_OF_ACCOUNTS: "Hesap Planı",
         InstrumentType.DECISION: "Karar",
     }.get(instrument, "")
 
@@ -419,10 +419,8 @@ def extract_declared_title(text: str) -> str:
 
 
 def _leading_title(head: str) -> str:
-    from mufettis.corpus.identity import instrument_from_title
-
     title = _title_block(head.splitlines())
-    if title and instrument_from_title(_title_tail(title)):
+    if title and _title_instrument(title):
         return title
     return _leading_mixed_case_title(head)
 
@@ -437,8 +435,6 @@ _ENUMERATED_HEADING_RE = re.compile(r"\W*(?:\d|(?:[IVXLC]+|[A-Za-z])[.)-]\s)")
 
 
 def _leading_mixed_case_title(head: str) -> str:
-    from mufettis.corpus.identity import instrument_from_title
-
     lines = [re.sub(r"\s+", " ", ln).strip() for ln in head.splitlines()]
     for line in [ln for ln in lines if ln][:LEADING_TITLE_SCAN_LINES]:
         words = re.findall(r"[^\W\d_]+", line)
@@ -451,7 +447,7 @@ def _leading_mixed_case_title(head: str) -> str:
             or not all(w[0].isupper() for w in content)
         ):
             continue
-        if instrument_from_title(_title_tail(line)):
+        if _title_instrument(line):
             return line
     return ""
 
@@ -461,6 +457,24 @@ def _title_tail(title: str) -> str:
     # ardından yalnızca son sözcükler (adın ortasındaki "KANUNU" atıftır) değerlendirilir.
     core = re.sub(r"\s*\([^()]*\)\s*$", "", title)
     return " ".join(core.split()[-3:])
+
+
+# Tür adı eşgüdümle ikinci bir ada bağlanabilir ("... HESAP PLANI VE İZAHNAMESİ", "... YÖNETMELİĞİ
+# VE EKLERİ"); sondaki "ve <sözcük>" baş ismi son üç sözcüğün dışına iter. Yalnızca asıl kuyruk tür
+# vermezse denenir: "USUL VE ESASLAR" gibi adlar ilk denemede tanınır, sonuçları değişmez.
+_TRAILING_COORDINATE_RE = re.compile(r"\s+(?:ve|VE|Ve)\s+[^\W\d_]+\s*$")
+
+
+def _title_instrument(title: str) -> Optional[str]:
+    """Addaki baş isimden kanonik tür (mufettis.corpus.identity.instrument_from_title); yoksa None."""
+    from mufettis.corpus.identity import instrument_from_title
+
+    found = instrument_from_title(_title_tail(title))
+    if found:
+        return found
+    core = re.sub(r"\s*\([^()]*\)\s*$", "", title)
+    stripped = _TRAILING_COORDINATE_RE.sub("", core)
+    return instrument_from_title(_title_tail(stripped)) if stripped != core else None
 
 
 def _law_title(before: str) -> str:

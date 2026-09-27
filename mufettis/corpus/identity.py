@@ -63,6 +63,7 @@ _DOCUMENT_TYPE_MAP = {
     "genelge": InstrumentType.CIRCULAR,
     "rehber": InstrumentType.GUIDELINE,
     "kılavuz": InstrumentType.GUIDELINE,
+    "hesap planı": InstrumentType.CHART_OF_ACCOUNTS,
     "karar": InstrumentType.DECISION,
 }
 
