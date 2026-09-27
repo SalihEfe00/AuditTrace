@@ -1,5 +1,5 @@
 {
- "note": "Üretim korpusu 2026-09-27 (bakım işlemleri sonrası, 57 belge yeniden parçalandı); 67 vaka.",
+ "note": "2026-09-27: tarayıcı yazdırma üst/alt bilgisi temizlendi (8 belge yeniden parçalandı). ho2-pin-written-on-card kaçandan yanlış dayanağa döndü (5464 Md.3 tanım bendi, puan -1.83): eski sonuç gürültünün adayı bastırmasıydı; eşik dev'de temiz korpusla yeniden ölçüldü, -2.15 en iyisi kaldı.",
  "reranker": "cross-encoder--mmarco-mMiniLMv2-L12-H384-v1",
  "splits": {
   "dev": {
@@ -10,15 +10,15 @@
   },
   "holdout": {
    "correct": 15,
-   "wrong_basis": 0,
+   "wrong_basis": 1,
    "false_positives": 0,
-   "wrong_findings": 0
+   "wrong_findings": 1
   },
   "all": {
    "correct": 27,
-   "wrong_basis": 2,
+   "wrong_basis": 3,
    "false_positives": 0,
-   "wrong_findings": 2
+   "wrong_findings": 3
   }
  }
 }
