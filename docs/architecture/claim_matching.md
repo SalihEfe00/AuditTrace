@@ -71,6 +71,13 @@ Hepsi dev'de kötüleştirdi ya da gürültü düzeyinde kaldı.
 - Yan cümle düzeyinde iddia algılama: +1 doğru, +3 yanlış dayanak.
 - Birinci kişi olgu yüklemleri ("yatırdım", "bilemedim", "alamıyorum") iddia sayılsın: dev değişmedi, ancak holdout'ta +1 doğru, +2 yanlış dayanak çıktı. Nedenleri: yeni iddialardan birinin doğru hükmü havuzda yok (5411 Md.60); ötekinde model komşu maddeyi seçiyor (5464 Md.19 yerine Md.22). Bu yüzden iddia algılamayı genişletmek, seçim güçlenmeden yapılmamalı.
 
+**Parçalama tarafı:**
+- **Madde başlıklarını kendi maddesine taşımak:** Kanun PDF'lerinde madde başlığı ("Zamanaşımı") ile kısım/bölüm başlıkları "MADDE N" satırının üstündedir. Parçalayıcı bunları önceki maddenin sonuna ekliyor.
+  - Bu hukuken yanlıştır; 14 belgeyi etkiler.
+  - Düzeltme ölçüldü: holdout'ta +2 doğru, ama dev'de -1 doğru ve +1 yanlış dayanak.
+  - Nedeni: MiniLM gömmesi Md.26'nın başına "Faiz hesaplaması" eklenince "faiz işletmiştir" sorgusundan uzaklaştı (0.733'ten 0.839'a) ve parça havuzdan düştü.
+  - Tekrar denenecekse başlık metne değil, meta veriye ve sözcüksel indekse eklenmeli; ya da önce daha iyi bir gömme modeli gelmeli.
+
 **Arama tarafı:**
 - `_legal_rerank` içinde BM25 karışımı
 - IDF ağırlıklı seçim
