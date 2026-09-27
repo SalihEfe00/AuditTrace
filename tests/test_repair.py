@@ -32,6 +32,7 @@ from repair.models import (
 )
 from repair.scanner import scan_document, scan_production
 
+
 def _real_pdf_fixture():
     """Gerçek PDF duman testleri için isteğe bağlı dosya (MUFETTIS_REPAIR_PDF); yoksa None."""
     path = Path(os.environ.get("MUFETTIS_REPAIR_PDF", "").strip() or "-")
