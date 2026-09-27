@@ -51,13 +51,38 @@ class TestVerifyAndInstall(unittest.TestCase):
             self.assertEqual(reranker.verify_model_dir(target), [])
             self.assertEqual(sorted(p.name for p in target.parent.iterdir()), ["model"])
 
-    def test_installed_model_matches_pinned_digest(self):
-        from mufettis.config import RERANKER_MODEL_DIR
+    def test_installed_models_match_pinned_digests(self):
+        from mufettis.config import RERANKER_MODELS_ROOT
 
-        if not (Path(RERANKER_MODEL_DIR) / "model.safetensors").is_file():
+        installed = [m for m in reranker.MODELS.values()
+                     if (Path(RERANKER_MODELS_ROOT) / m.name / "model.safetensors").is_file()]
+        if not installed:
             self.skipTest("yeniden sıralayıcı modeli bu makinede kurulu değil")
-        self.assertEqual(reranker.verify_model_dir(Path(RERANKER_MODEL_DIR)), [])
+        for model in installed:
+            self.assertEqual(reranker.verify_model_dir(Path(RERANKER_MODELS_ROOT) / model.name), [], model.name)
 
+    def test_default_model_prefers_finetuned_and_falls_back(self):
+        root = self.tmp / "modeller"
+        with mock.patch("mufettis.config.RERANKER_MODELS_ROOT", root), \
+                mock.patch("mufettis.config.RERANKER_MODEL_DIR", None):
+            self.assertIsNone(reranker.default_model_dir())
+            _fake_model(root / reranker.BASE_MODEL.name)
+            self.assertEqual(reranker.default_model_dir(), root / reranker.BASE_MODEL.name)
+            _fake_model(root / reranker.FINETUNED_MODEL.name)
+            self.assertEqual(reranker.default_model_dir(), root / reranker.FINETUNED_MODEL.name)
+        with mock.patch("mufettis.config.RERANKER_MODEL_DIR", self.tmp / "zorla"):
+            self.assertEqual(reranker.default_model_dir(), self.tmp / "zorla")
+
+    def test_finetuned_model_verified_with_its_own_file_list(self):
+        model = reranker.FINETUNED_MODEL
+        source = self.tmp / "ft"
+        source.mkdir()
+        for name in model.files:
+            (source / name).write_bytes(b"agirliklar" if name == "model.safetensors" else b"{}")
+        spec = reranker.RerankerModel(model.name, model.min_score, model.confident_score, model.files,
+                                      hashlib.sha256(b"agirliklar").hexdigest())
+        self.assertEqual(installer.install(self.tmp / "hedef" / model.name, source, spec), 0)
+        self.assertEqual(reranker.verify_model_dir(self.tmp / "hedef" / model.name, spec), [])
 
 if __name__ == "__main__":
     unittest.main()

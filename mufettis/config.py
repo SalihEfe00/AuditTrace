@@ -31,12 +31,12 @@ OLLAMA_URL = "http://127.0.0.1:11434"
 # MUFETTIS_LLM_MODEL ile seçilir. Varsayılan küçüktür: düşük donanımlı makineler hedeftedir.
 DEFAULT_LLM = os.environ.get("MUFETTIS_LLM_MODEL", "").strip() or "llama3.2:3b"
 EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-# İddia-kanıt yeniden sıralayıcısı (cross-encoder). İsteğe bağlıdır: klasör yoksa analiz sözcüksel
+# İddia-kanıt yeniden sıralayıcısı (cross-encoder). İsteğe bağlıdır: model yoksa analiz sözcüksel
 # sıralamayla sürer. Model analizde indirilmez; scripts/install_reranker_model.py ile kurulur (bkz. mufettis/rag/reranker.py).
-RERANKER_MODEL_DIR = Path(os.environ.get(
-    "MUFETTIS_RERANKER_DIR",
-    str(Path.home() / ".cache" / "mufettis-models" / "cross-encoder--mmarco-mMiniLMv2-L12-H384-v1"),
-))
+# Modeller RERANKER_MODELS_ROOT/<model adı> klasörlerindedir; kurulu olanlardan reranker.MODELS tercih sırasıyla ilki
+# kullanılır. MUFETTIS_RERANKER_DIR belirli bir klasörü zorlar (ölçüm / deneme); boşsa None.
+RERANKER_MODELS_ROOT = Path(os.environ.get("MUFETTIS_MODELS_DIR", str(Path.home() / ".cache" / "mufettis-models")))
+RERANKER_MODEL_DIR = Path(os.environ["MUFETTIS_RERANKER_DIR"]) if os.environ.get("MUFETTIS_RERANKER_DIR") else None
 CHROMA_COLLECTION = "mevzuat"
 MAX_RAG_RESULTS = 100
 EMBED_BATCH_SIZE_CPU = 32
@@ -147,6 +147,7 @@ __all__ = [
     "OLLAMA_URL",
     "DEFAULT_LLM",
     "EMBEDDING_MODEL",
+    "RERANKER_MODELS_ROOT",
     "RERANKER_MODEL_DIR",
     "CHROMA_COLLECTION",
     "MAX_RAG_RESULTS",

@@ -1,24 +1,24 @@
 {
- "note": "2026-09-27: madde başlıkları kendi maddesinin meta verisine ve BM25'e taşındı (13 belge). holdout 20->22 doğru; yanlış dayanak/pozitif değişmedi.",
- "reranker": "cross-encoder--mmarco-mMiniLMv2-L12-H384-v1",
+ "note": "mufettis-reranker-ft1 (ince ayarlı sıralayıcı, M0): yanlış dayanak 6→1, doğru 34→32, YP 0",
+ "reranker": "mufettis-reranker-ft1",
  "splits": {
   "dev": {
-   "correct": 12,
-   "wrong_basis": 2,
+   "correct": 10,
+   "wrong_basis": 1,
    "false_positives": 0,
-   "wrong_findings": 2
+   "wrong_findings": 1
   },
   "holdout": {
    "correct": 22,
-   "wrong_basis": 4,
+   "wrong_basis": 0,
    "false_positives": 0,
-   "wrong_findings": 4
+   "wrong_findings": 0
   },
   "all": {
-   "correct": 34,
-   "wrong_basis": 6,
+   "correct": 32,
+   "wrong_basis": 1,
    "false_positives": 0,
-   "wrong_findings": 6
+   "wrong_findings": 1
   }
  }
 }

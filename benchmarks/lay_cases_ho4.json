@@ -1,0 +1,134 @@
+{
+ "description": "ho4 taslak",
+ "cases": [
+  {
+   "id": "ho4-fon-transfer-fees",
+   "split": "ho4",
+   "note": "ho4 taslak (egitimde-yok): madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28)",
+   "text": "Sayı: 2026/TK-14\nKonu: Devralınan Alacaklar\nTeftiş Kurulu Başkanlığına\nFonun tasfiye halindeki bankadan devraldığı alacaklara ilişkin temlik sözleşmeleri için Fondan damga vergisi ve harç tahsil edildiği tespit edilmiştir.\nBilgilerinize arz ederim.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "140"
+    }
+   ]
+  },
+  {
+   "id": "ho4-fon-enforcement-penalty",
+   "split": "ho4",
+   "note": "ho4 taslak (egitimde-yok): madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28)",
+   "text": "Fon aleyhine sonuçlanan icra takibinde İcra ve İflas Kanununda yazılı tazminat ve cezaların Fona yükletildiği görülmüştür.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "138"
+    }
+   ]
+  },
+  {
+   "id": "ho4-expert-report-late",
+   "split": "ho4",
+   "note": "ho4 taslak (egitimde-yok): madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28)",
+   "text": "Zimmet suçuna ilişkin ceza davasında atanan bilirkişinin raporunu dosyanın kendisine verilmesinden itibaren altı ay geçtiği halde mahkemeye sunmadığı ve yeni bilirkişi atanmadığı tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "165"
+    }
+   ]
+  },
+  {
+   "id": "ho4-leasing-stamp-duty",
+   "split": "ho4",
+   "note": "ho4 taslak (egitimde-yok): madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28)",
+   "text": "Finansal kiralama şirketinin müşterileriyle imzaladığı finansal kiralama sözleşmeleri için müşterilerden damga vergisi tahsil ettiği tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "6361",
+     "article": "37"
+    }
+   ]
+  },
+  {
+   "id": "ho4-leasing-incentive",
+   "split": "ho4",
+   "note": "ho4 taslak (egitimde-yok): madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28)",
+   "text": "Yatırımın finansal kiralama yoluyla gerçekleştirildiği makineler için kiracının satın alma halinde uygulanan teşviklerden yararlandırılmadığı görülmüştür.",
+   "expect": [
+    {
+     "law_number": "6361",
+     "article": "35"
+    }
+   ]
+  },
+  {
+   "id": "ho4-financing-max-rate",
+   "split": "ho4",
+   "note": "ho4 taslak (egitimde-yok): madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28)",
+   "text": "Finansman şirketinin ödünç para verme işlemlerinde Cumhurbaşkanınca belirlenen azami faiz oranının üzerinde faiz uyguladığı tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "6361",
+     "article": "51"
+    }
+   ]
+  },
+  {
+   "id": "ho4-card-issuer-internal-systems",
+   "split": "ho4",
+   "note": "ho4 taslak (egitimde-var): madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28)",
+   "text": "Sayı: 2026/TK-15\nKonu: Kart Kuruluşu İç Sistemleri\nTeftiş Kurulu Başkanlığına\nFaaliyet izni verilen kart çıkaran kuruluşun iç kontrol, risk yönetimi ve iç denetim sistemlerini kurmadığı ve finansal raporlama birimi oluşturmadığı tespit edilmiştir.\nBilgilerinize arz ederim.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "27"
+    }
+   ]
+  },
+  {
+   "id": "ho4-uniform-accounting",
+   "split": "ho4",
+   "note": "ho4 taslak (egitimde-var): madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28)",
+   "text": "Bankanın muhasebe sisteminde tek düzen hesap planını uygulamadığı ve işlemlerini finansal raporlama standartlarına aykırı şekilde kaydettiği tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "37"
+    }
+   ]
+  },
+  {
+   "id": "ho4-leasing-oral-contract",
+   "split": "ho4",
+   "note": "ho4 taslak (egitimde-var): madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28)",
+   "text": "Finansal kiralama sözleşmesinin yazılı olarak düzenlenmeden sözlü mutabakatla kurulduğu ve sözleşmenin şekil şartına uyulmadığı tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "6361",
+     "article": "22"
+    }
+   ]
+  },
+  {
+   "id": "ho4-neg-parking",
+   "split": "ho4",
+   "note": "ho4 taslak (negatif): madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28)",
+   "text": "Şube otoparkının yetersiz olduğu, müşterilerin araçlarını park edecek yer bulamadığı gözlemlenmiştir.",
+   "expect": []
+  },
+  {
+   "id": "ho4-neg-cafeteria",
+   "split": "ho4",
+   "note": "ho4 taslak (negatif): madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28)",
+   "text": "Genel müdürlük binasındaki personel yemekhanesinde menü çeşitliliğinin az olduğu çalışanlarca dile getirilmiştir.",
+   "expect": []
+  },
+  {
+   "id": "ho4-neg-atm-glare",
+   "split": "ho4",
+   "note": "ho4 taslak (negatif): madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28)",
+   "text": "Şube önündeki ATM ekranının güneşli havalarda zor okunduğu, müşterilerin işlem yaparken zorlandığı görülmüştür.",
+   "expect": []
+  }
+ ]
+}

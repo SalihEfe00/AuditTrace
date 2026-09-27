@@ -1,0 +1,115 @@
+{"key": "6361||4", "i": 1, "karar": "ZAYIF", "not": "işlem yapılması faaliyet izni (6361/7) ya da izinsiz faaliyet (6361/46) konusu; 4 yalnız kuruluş iznini düzenler"}
+{"key": "6361||4", "i": 2, "karar": "ZAYIF", "not": "faaliyete hazırlık 4'te yasaklanmıyor"}
+{"key": "6361||7", "i": 2, "karar": "ZAYIF", "not": "faaliyet izninin Resmî Gazete'de yayımı Kurulun işlemi; şirkete yükümlülük değil"}
+{"key": "6361||18", "i": 0, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor"}
+{"key": "6361||18", "i": 1, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor"}
+{"key": "6361||18", "i": 2, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor; ayrıca çok genel"}
+{"key": "6361||19", "i": 2, "karar": "ZAYIF", "not": "19/2 yalnız asli niteliğini koruyan malın konu olabileceğini söyler; yasak yalnız a contrario çıkarım"}
+{"key": "6361||20", "i": 2, "karar": "ZAYIF", "not": "bedel ve dönemlerin taraflarca belirleneceğini söyler; belirlememe açık bir ihlal değil"}
+{"key": "6361||23", "i": 0, "karar": "ZAYIF", "not": "23 satın alma hakkının kararlaştırılabileceğini söyler; devir borcu sözleşmeden doğar, kiralayana açık yükümlülük yok"}
+{"key": "6361||23", "i": 1, "karar": "ZAYIF", "not": "23 satın alma hakkının kararlaştırılabileceğini söyler; devir borcu sözleşmeden doğar"}
+{"key": "6361||24", "i": 2, "karar": "ZAYIF", "not": "24/3 'sözleşmede aksine hüküm yok ise' masraf kiracıya; kiralayana yükleme maddenin ihlali sayılmaz"}
+{"key": "6361||38", "i": 0, "karar": "YANLIŞ", "not": "doğrusu 6361/9(2): faktoring şirketi fatura ile tevsik edilemeyen alacakları devir alamaz; 38 tanım"}
+{"key": "6361||38", "i": 1, "karar": "YANLIŞ", "not": "doğrusu 6361/9(2): mal/hizmet satışına dayanmayan alacak devralınamaz; 38 tanım"}
+{"key": "6361||38", "i": 2, "karar": "YANLIŞ", "not": "doğrusu 6361/9(2): 'kambiyo senetlerine dayalı olsa bile' faturasız alacak devralınamaz; 38 tanım"}
+{"key": "6361||39", "i": 0, "karar": "ZAYIF", "not": "39/1 finansman sözleşmesi tanımı; nakit kredi yasağı 6361/9(1)(b)"}
+{"key": "6361||39", "i": 1, "karar": "YANLIŞ", "not": "doğrusu 6361/9(1)(b): nakdi kredi kullandırma yasağı; 39 tanım"}
+{"key": "6361||39", "i": 2, "karar": "YANLIŞ", "not": "doğrusu 6361/9(1)(b) (nakdi kredi yasağı) / 9(1)(a) ana faaliyet dışı; 39 tanım"}
+{"key": "6361||41", "i": 1, "karar": "ZAYIF", "not": "Birlik görev maddesi; üyelere tedbir alma yükümlülüğü somut değil (d haksız rekabetle sınırlı)"}
+{"key": "6361||41", "i": 2, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "6361||42", "i": 1, "karar": "ZAYIF", "not": "metin listenin 15 gün önce hâkime tevdiini ister, 'ilan'ı değil"}
+{"key": "6361||42", "i": 2, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "6361||44", "i": 0, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede (6361/8)"}
+{"key": "6361||44", "i": 1, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede (6361/9(1)(b))"}
+{"key": "6361||44", "i": 2, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede; ayrıca çok genel"}
+{"key": "6361||45", "i": 1, "karar": "ZAYIF", "not": "45/2 yalnız valilikçe kapatmayı düzenler; kapatılan şubenin faaliyete devamı için açık hüküm yok"}
+{"key": "6361||45", "i": 2, "karar": "ZAYIF", "not": "savunma süresinin beklenmesi ihlal değil"}
+{"key": "6361||50", "i": 1, "karar": "YANLIŞ", "not": "doğrusu 6361/10(3): adres değişikliğini 15 iş günü içinde bildirme yükümlülüğü; 50/1-c ayrıca tebligata rağmen adreste bulunmamayı arar"}
+{"key": "6361||50", "i": 2, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "5464||5", "i": 2, "karar": "ZAYIF", "not": "Kurul 'iptal edebilir' — takdir yetkisi; iptal etmemek ihlal değil"}
+{"key": "5464||6", "i": 0, "karar": "ZAYIF", "not": "Kurul/Kurum/Fon yetki ya da takdir hükmü; iddianın muhatabına açık yükümlülük yok"}
+{"key": "5464||6", "i": 1, "karar": "ZAYIF", "not": "Kurul/Kurum/Fon yetki ya da takdir hükmü; iddianın muhatabına açık yükümlülük yok"}
+{"key": "5464||6", "i": 2, "karar": "ZAYIF", "not": "Kurul/Kurum/Fon yetki ya da takdir hükmü; iddianın muhatabına açık yükümlülük yok; bildirim yükümlülüğü metinde yok"}
+{"key": "5464||7", "i": 0, "karar": "ZAYIF", "not": "7 Kurulun ret yetkisi; başvuruda gizleme 5464/5 (gerçeğe aykırı beyan) daha yakın"}
+{"key": "5464||7", "i": 2, "karar": "ZAYIF", "not": "Kurul/Kurum/Fon yetki ya da takdir hükmü; iddianın muhatabına açık yükümlülük yok"}
+{"key": "5464||27", "i": 2, "karar": "ZAYIF", "not": "27 muhasebe birimi kurmayı ve kayıtları denetime hazır tutmayı ister; 'düzenli tutmama' metinden çıkmıyor"}
+{"key": "5464||28", "i": 0, "karar": "ZAYIF", "not": "Kurul/Kurum/Fon yetki ya da takdir hükmü; iddianın muhatabına açık yükümlülük yok (izin kaldırma)"}
+{"key": "5464||28", "i": 1, "karar": "YANLIŞ", "not": "doğrusu 5464/14: kuruluşlar Kurulca istenen tedbirleri belirlenen sürede almakla yükümlü; 28 yalnız Kurul yetkisi"}
+{"key": "5464||28", "i": 2, "karar": "ZAYIF", "not": "Kurul/Kurum/Fon yetki ya da takdir hükmü; iddianın muhatabına açık yükümlülük yok"}
+{"key": "5464||29", "i": 2, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "5464||31", "i": 0, "karar": "ZAYIF", "not": "'kendi yararına kullanma' yasağı yalnız Kurul üyeleri/Kurum personeli için; üye işyeri için yalnız açıklama yasağı (bkz. 5464/23)"}
+{"key": "5464||33", "i": 0, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor (genel özen hükmü)"}
+{"key": "5464||33", "i": 1, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor; şüpheli işlemi engelleme yükümlülüğü metinde yok"}
+{"key": "5464||33", "i": 2, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "5464||35", "i": 0, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede"}
+{"key": "5464||35", "i": 1, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede"}
+{"key": "5464||35", "i": 2, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede"}
+{"key": "5464||42", "i": 1, "karar": "ZAYIF", "not": "başvuru muhakeme şartı; Kuruma başvurma yükümlülüğü yüklemiyor"}
+{"key": "5464||42", "i": 2, "karar": "ZAYIF", "not": "başvurunun yapılmaması tek başına ihlal değil"}
+{"key": "5464||43", "i": 1, "karar": "ZAYIF", "not": "değerlendirme; ihlal anlatmıyor"}
+{"key": "5464||43", "i": 2, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "5411||4", "i": 0, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "5411||4", "i": 1, "karar": "YANLIŞ", "not": "doğrusu 5411/57 (2. fıkra): bankalar ticaret amacıyla emtia alım satımı ile uğraşamaz; 4 yalnız izinli faaliyet listesi"}
+{"key": "5411||4", "i": 2, "karar": "ZAYIF", "not": "faaliyet izninin kapsamı 5411/10 ile belirlenir; 4 ihlal hükmü içermiyor"}
+{"key": "5411||5", "i": 0, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor (dolaylı pay hesaplama kuralı; yükümlülük 18'de)"}
+{"key": "5411||5", "i": 1, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor"}
+{"key": "5411||5", "i": 2, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor"}
+{"key": "5411||33", "i": 1, "karar": "ZAYIF", "not": "bağımsız denetim kuruluşunun yetkilendirilmesi 5411/15'te; 33 ilave şartlar/liste"}
+{"key": "5411||33", "i": 2, "karar": "ZAYIF", "not": "yetkilendirme 5411/15'te; 33 ilave şartlar/liste"}
+{"key": "5411||36", "i": 2, "karar": "YANLIŞ", "not": "doğrusu 5411/33: 'Bağımsız denetim kuruluşları... üçüncü kişilere verdikleri zararlardan sorumludurlar'; 36 yalnız sigorta yükümlülüğü"}
+{"key": "5411||37", "i": 2, "karar": "ZAYIF", "not": "'kronolojik tutma' metinde yok; 37 tek düzen ve gerçek mahiyete uygun muhasebeleştirme"}
+{"key": "5411||44", "i": 0, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor (ödenmiş sermaye/özkaynak tanımı)"}
+{"key": "5411||44", "i": 1, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor"}
+{"key": "5411||44", "i": 2, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor; ayrıca çok genel"}
+{"key": "5411||47", "i": 1, "karar": "ZAYIF", "not": "plan hazırlama yükümlülüğü metinde yok"}
+{"key": "5411||47", "i": 2, "karar": "YANLIŞ", "not": "doğrusu 5411/43 (son cümle): eşik/aşım oluşunca banka derhal Kuruma bildirir; 47 raporlama öngörmez"}
+{"key": "5411||48", "i": 0, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor (kredi sayılan işlemler)"}
+{"key": "5411||48", "i": 1, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor; sınırlamadan kaçırma 54'ün konusu"}
+{"key": "5411||48", "i": 2, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor"}
+{"key": "5411||49", "i": 0, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor (risk grubu)"}
+{"key": "5411||49", "i": 1, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor"}
+{"key": "5411||49", "i": 2, "karar": "ZAYIF", "not": "tanım/nitelendirme maddesi; kuruluşa açık yükümlülük yüklemiyor; ayrıca çok genel"}
+{"key": "5411||55", "i": 0, "karar": "ZAYIF", "not": "istisna maddesi; 'değerlendirilmiştir' ihlal anlatmıyor"}
+{"key": "5411||55", "i": 2, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "5411||63", "i": 2, "karar": "ZAYIF", "not": "müşteriye sigorta kapsamını açıklama yükümlülüğü 63'te yok"}
+{"key": "5411||68", "i": 0, "karar": "ZAYIF", "not": "Kurumun tedbir isteme yetkisi; 'değerlendirilmiştir' ihlal anlatmıyor"}
+{"key": "5411||69", "i": 0, "karar": "YANLIŞ", "not": "doğrusu 5411/70(a): şube/teşkilat kısıtlaması kısıtlayıcı önlem; 69 iyileştirici önlemleri sayar, şube sınırlaması içermez"}
+{"key": "5411||70", "i": 1, "karar": "ZAYIF", "not": "'istenmiştir' Kurul işlemi; ihlal anlatmıyor"}
+{"key": "5411||75", "i": 1, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor (etik ilkeler)"}
+{"key": "5411||77", "i": 0, "karar": "YANLIŞ", "not": "doğrusu 5411/4 (son fıkra): kalkınma ve yatırım bankaları (a) mevduat kabulü faaliyetini gerçekleştiremez; 77 uygulanacak hükümler listesi"}
+{"key": "5411||77", "i": 1, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor; 77 esas olarak kalkınma/yatırım bankaları için"}
+{"key": "5411||77", "i": 2, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "5411||80", "i": 1, "karar": "ZAYIF", "not": "birliğin üyeler hakkında işlem yapma yükümlülüğü 80'de açık değil (disiplin cezası 81)"}
+{"key": "5411||81", "i": 1, "karar": "ZAYIF", "not": "metin listenin hâkime tevdiini ister, 'ilan'ı değil"}
+{"key": "5411||81", "i": 2, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "5411||130", "i": 0, "karar": "YANLIŞ", "not": "doğrusu 5411/62: zamanaşımına uğrayan mevduat ilan sonrası Fona gelir kaydedilir; 130 yalnız Fon gelirleri listesi"}
+{"key": "5411||130", "i": 1, "karar": "ZAYIF", "not": "prim ödeme yükümlülüğü 5411/63'te; 130 gelir listesi"}
+{"key": "5411||130", "i": 2, "karar": "ZAYIF", "not": "sisteme giriş payı yükümlülüğü 5411/10'da; 130 gelir listesi"}
+{"key": "5411||131", "i": 1, "karar": "ZAYIF", "not": "Kurul/Kurum/Fon yetki ya da takdir hükmü; iddianın muhatabına açık yükümlülük yok"}
+{"key": "5411||131", "i": 2, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "5411||132", "i": 1, "karar": "ZAYIF", "not": "'süresinde takibe alma' metinde yok; 132 tahsil usulü"}
+{"key": "5411||132", "i": 2, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "5411||133", "i": 0, "karar": "ZAYIF", "not": "'dava açılabilir' — Fonun takdiri"}
+{"key": "5411||133", "i": 1, "karar": "ZAYIF", "not": "'dava açılabilir' — Fonun takdiri"}
+{"key": "5411||133", "i": 2, "karar": "ZAYIF", "not": "'dava açılabilir' — Fonun takdiri"}
+{"key": "5411||134", "i": 0, "karar": "ZAYIF", "not": "Kurul/Kurum/Fon yetki ya da takdir hükmü; iddianın muhatabına açık yükümlülük yok"}
+{"key": "5411||134", "i": 1, "karar": "ZAYIF", "not": "Kurul/Kurum/Fon yetki ya da takdir hükmü; iddianın muhatabına açık yükümlülük yok"}
+{"key": "5411||134", "i": 2, "karar": "ZAYIF", "not": "Kurul/Kurum/Fon yetki ya da takdir hükmü; iddianın muhatabına açık yükümlülük yok"}
+{"key": "5411||135", "i": 2, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "5411||143", "i": 1, "karar": "ZAYIF", "not": "izinsiz şirkete devir için 143'te açık hüküm yok"}
+{"key": "5411||143", "i": 2, "karar": "ZAYIF", "not": "borçluya haber verme yükümlülüğü 143'te yok"}
+{"key": "5411||146", "i": 0, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede (asıl ihlal 13/14)"}
+{"key": "5411||146", "i": 1, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede"}
+{"key": "5411||146", "i": 2, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede"}
+{"key": "5411||147", "i": 0, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede (asıl ihlal 18)"}
+{"key": "5411||147", "i": 1, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede (asıl ihlal 36)"}
+{"key": "5411||147", "i": 2, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede"}
+{"key": "5411||148", "i": 0, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede (asıl ihlal 54)"}
+{"key": "5411||148", "i": 1, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede"}
+{"key": "5411||148", "i": 2, "karar": "ZAYIF", "not": "yaptırım/ceza miktarı maddesi; ihlal anlatmıyor, asıl ihlal başka maddede"}
+{"key": "5411||149", "i": 1, "karar": "ZAYIF", "not": "savunma süresinin beklenmesi ihlal değil"}
+{"key": "5411||149", "i": 2, "karar": "ZAYIF", "not": "'kapatılabilir' — takdir; kapatma kararının uygulanmaması için açık hüküm yok"}
+{"key": "5411||162", "i": 0, "karar": "ZAYIF", "not": "başvuru muhakeme şartı; yapılmaması tek başına ihlal değil"}
+{"key": "5411||162", "i": 1, "karar": "ZAYIF", "not": "başvuru muhakeme şartı; ayrıca 160/3 zimmetinde re'sen soruşturma var"}
+{"key": "5411||162", "i": 2, "karar": "ZAYIF", "not": "çok genel; maddeden somut bir hükme bağlanmıyor"}
+{"key": "5411||164", "i": 0, "karar": "ZAYIF", "not": "164 görevli ağır ceza mahkemesini düzenler, 'özel görevli savcılık' değil"}

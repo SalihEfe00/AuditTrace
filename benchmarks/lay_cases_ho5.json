@@ -1,0 +1,225 @@
+{
+ "description": "ho5 zor vakalar",
+ "cases": [
+  {
+   "id": "ho5-ust-tutar-kendiliginden",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5464/9 vs 25 sözleşme değişikliği); gündelik dil, 'limit' geçmiyor",
+   "text": "Hiçbir talebim olmadığı halde bankam kartımla harcayabileceğim en yüksek tutarı 20 binden 45 bine çıkarmış, bunu da ancak markette ödeme yaparken fark ettim. Ben bu kadar yüksek bir tutar istemiyorum.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "9"
+    }
+   ]
+  },
+  {
+   "id": "ho5-yazdim-donmediler",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5464/11 vs 16 bildirim, 32 ispat); 'itiraz/şikâyet' kelimesi yok",
+   "text": "Ekimde kartımdan tanımadığım bir yurt dışı sitesine 2.800 TL çekilmiş, hemen bankanın uygulamasından yazılı olarak bildirdim ve paramı geri istedim. Aradan bir buçuk ay geçti, ne kabul ettiler ne reddettiler, sadece 'inceleniyor' diyorlar.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "11"
+    }
+   ]
+  },
+  {
+   "id": "ho5-cuzdan-metroda",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5464/12 vs 16 hamilin saklama yükümlülüğü); 'kayıp/çalınma' yerine olay anlatımı",
+   "text": "Sabah metroda cüzdanımı yürüttüler, fark edip bankayı aramam öğleni buldu. O arada kartımla üç ayrı mağazadan toplam 6.500 TL'lik alışveriş yapılmış ve banka bu paranın tamamını benden tahsil etmeye çalışıyor.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "12"
+    }
+   ]
+  },
+  {
+   "id": "ho5-kismi-odeme-faiz-baslangici",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5464/26 vs 24 sözleşmede olmayan kesinti); faiz hesaplama ayrıntısı ayırt ettiriyor",
+   "text": "Bu ay ödemem gereken borcun yarısını yatırdım. Sonraki dökümde gördüm ki kalan kısım için değil, ay içindeki her alışverişin yapıldığı günden itibaren borcun hepsine ayrıca işletilmiş bir tutar yansıtılmış.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "26"
+    }
+   ]
+  },
+  {
+   "id": "ho5-imzada-olmayan-kalem",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5464/24 vs 26 faiz, 25 değişiklik); 'ücret/komisyon/sözleşme' kelimeleri yok",
+   "text": "Bankam kartımdan 'dijital hizmet paketi' adı altında her ay 89 TL çekiyor. Kartı alırken imzaladığım evraklarda böyle bir kalem yok, bana da hiç sorulmadı.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "24"
+    }
+   ]
+  },
+  {
+   "id": "ho5-oran-artisi-bir-hafta",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5464/25 vs 26 azami oran, 24); süre ayrıntısı (30 gün) ayırt ettiriyor",
+   "text": "Bankam kart borcuma uyguladığı aylık oranı yükselttiğini bana ödeme gününden sadece bir hafta önce kısa mesajla bildirdi. Yeni oran daha o ayın dökümünde uygulanmış, borcu kapatıp kartı bırakmaya bile fırsatım olmadı.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "25"
+    }
+   ]
+  },
+  {
+   "id": "ho5-market-ek-yuzde",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5464/17 vs 19 belge, 22 bölme); işyeri tarafı, gündelik dil",
+   "text": "Mahallemizdeki büyük market kasada kartla ödeyeceğimi söyleyince toplamın üzerine yüzde üç ekledi, 'nakit verirsen eklemem' dedi. İndirim haftalarında kartla ödemeyi hiç kabul etmediği günler de oluyor.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "17"
+    }
+   ]
+  },
+  {
+   "id": "ho5-babamin-unutulan-hesabi",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); gündelik dil; 'mevduat/zamanaşımı' geçmiyor, Fon'a gelir kaydı olayı",
+   "text": "Rahmetli babamın evrakları arasında 2011 yılında bir bankada açtırdığı birikim hesabının cüzdanını bulduk; o tarihten beri hiç işlem yapılmamış. Şubeye gittiğimizde paranın 'süresi dolduğu için' devlete aktarıldığını, artık kendilerinde olmadığını söylediler.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "62"
+    }
+   ]
+  },
+  {
+   "id": "ho5-mudur-esine-borc",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5411/50 yasak vs 51 karardan çekilme, 54 sınır); müfettiş dili",
+   "text": "Ankara Kızılay şubesinde, kredi onay yetkisi bulunan şube müdürünün eşinin sahibi olduğu şahıs işletmesine, genel müdürlük onayıyla 3,5 milyon TL tutarında işletme finansmanı ile 1 milyon TL tutarında teminat mektubu sağlandığı tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "50"
+    }
+   ]
+  },
+  {
+   "id": "ho5-komite-uyesi-oglu",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5411/51 vs 50 — reşit çocuk nedeniyle 50 değil 51); ayrıntı ayırt ettiriyor",
+   "text": "Kredi komitesi üyesi Y.K.'nin 34 yaşındaki oğlunun genel müdürü olduğu lojistik firmasının finansman talebinin görüşüldüğü toplantıda ilgilinin oylamaya katıldığı, bu yakınlığı herhangi bir yazılı beyanla bildirmediği tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "51"
+    }
+   ]
+  },
+  {
+   "id": "ho5-insaat-grubu-yogunlasma",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5411/54 vs 49 tanım, 55 istisnalar); 'risk grubu/kredi sınırı' geçmiyor",
+   "text": "Aynı aileye ait ve birbirine karşılıklı kefil olan üç inşaat şirketine kullandırılan nakdi ve gayrinakdi toplam tutarın bankanın kendi sermaye tabanının yüzde 31'ine ulaştığı, bu tutarın büyük kısmının nakit veya devlet tahvili gibi karşılıklara dayanmadığı tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "54"
+    }
+   ]
+  },
+  {
+   "id": "ho5-daire-al-sat",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5411/57 vs 56 iştirak sınırı); 'gayrimenkul ticareti' yerine olay",
+   "text": "Bankanın, herhangi bir alacağın tahsili amacı olmaksızın bir konut projesinden 40 daire satın aldığı ve bunların 28'ini aynı yıl içinde kâr elde ederek üçüncü kişilere yeniden sattığı tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "57"
+    }
+   ]
+  },
+  {
+   "id": "ho5-tek-taksit-15-gun",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (6361/31 vs 33 fesih sonuçları, 32 iade); süre ayrıntısı (60 gün) ayırt ettiriyor",
+   "text": "Finansal kiralama şirketinin, süre sonunda ekskavatörün mülkiyetinin müşteriye geçeceği kararlaştırılmış bir işlemde, tek bir aylık taksidin gecikmesi üzerine müşteriye 15 gün süre vererek sözleşmeyi sona erdirdiği ve makineyi geri aldığı tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "6361",
+     "article": "31"
+    }
+   ]
+  },
+  {
+   "id": "ho5-satis-fazlasi-alikonmus",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (6361/33 vs 31 fesih şartları, 32 iade); para hesabı ayrıntısı",
+   "text": "Kira ödemeleri aksayan müşteriden geri alınan tır çekicisinin ikinci el piyasada satıldığı; satış bedelinin kalan vadeli kira bedelleri ile şirketin zararının toplamını 420 bin TL aştığı halde bu farkın müşteriye ödenmediği, şirket gelirlerine kaydedildiği tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "6361",
+     "article": "33"
+    }
+   ]
+  },
+  {
+   "id": "ho5-fatura-bildirilmemis",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); gündelik müfettiş dili; 'Risk Merkezi/toplulaştırma' geçmiyor, 6361/38 tanımla karışabilir",
+   "text": "Faktoring şirketinin 2025 yılında satın aldığı yaklaşık 1.200 adet faturalı alacağı sektörün ortak veri havuzuna hiç girmediği; bu nedenle aynı tekstil firmasına ait bazı faturaların bir başka kuruma da ikinci kez devredilebildiği tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "6361",
+     "article": "43"
+    }
+   ]
+  },
+  {
+   "id": "ho5-tek-satis-alti-slip",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5464/22 vs 19 belge düzenleme, 17 kabul); 'harcama belgesi/yetki' geçmiyor",
+   "text": "Anlaşmalı bir mobilya mağazasının 60 bin TL'lik tek bir koltuk takımı satışını, bankadan onay almak zorunda kalmamak için aynı müşteri kartıyla dakikalar içinde altı ayrı 10 bin TL'lik işlem hâlinde çektiği tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "22"
+    }
+   ]
+  },
+  {
+   "id": "ho5-neg-gise-kabalik",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); negatif: personel davranışı, kanun maddesi gerektirmez",
+   "text": "Şubedeki gişe görevlisi sıra bana geldiğinde telefonla konuşmaya devam etti, soru sorduğumda da sesini yükseltip beni azarladı. Böyle kaba bir muameleyi hak etmedim.",
+   "expect": []
+  },
+  {
+   "id": "ho5-neg-otopark-bariyeri",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); negatif: bina/tesis, kanun maddesi gerektirmez",
+   "text": "Bölge müdürlüğü binasında otopark bariyerinin iki haftadır arızalı olduğu, güvenlik görevlilerinin vardiya çizelgesinin panoya asılmadığı ve yangın merdiveni kapısının kilit mekanizmasının sert çalıştığı tespit edilmiştir.",
+   "expect": []
+  },
+  {
+   "id": "ho5-neg-reklam-muzigi",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); negatif: reklam beğenisi, kanun maddesi gerektirmez",
+   "text": "Bankamın yeni televizyon reklamındaki şarkı çok yüksek sesli ve sinir bozucu, her maç arasında çıkıyor. Kart kampanyasını beğensem de bu reklamı değiştirmelerini istiyorum.",
+   "expect": []
+  },
+  {
+   "id": "ho5-neg-yilbasi-hediyeleri",
+   "split": "ho5",
+   "note": "ho5: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); negatif: iç personel uygulaması, kanun maddesi gerektirmez",
+   "text": "Yılbaşı dolayısıyla personele dağıtılan hediye çeklerinin şubeler arasında farklı tutarlarda verildiği ve bazı şubelerde dağıtım listesinin imzalatılmadığı tespit edilmiştir.",
+   "expect": []
+  }
+ ]
+}

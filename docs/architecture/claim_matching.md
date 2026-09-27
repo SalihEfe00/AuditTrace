@@ -24,7 +24,7 @@ Kod:
    - Aday üretimi: BM25 (Türkçe kök anahtarlı) ve vektör sıraları ağırlıklı RRF ile birleştirilir (BM25 1.0, vektör 0.5, k=10), ilk 30 aday alınır.
    - Hukuki yeniden sıralama bu adımda **uygulanmaz**; adaylar ham alaka sırasıyla gider.
 3. **Kelime kapısı** (`_rank_evidence_for_claim`): Kanıtın tek bir cümlesi, iddiayla en az iki içerik kökü paylaşmalıdır. Bu köklerden en az biri iddia cümlesinden gelmeli ve ayırt edici olmalıdır (ya da ortak bir eşdizim olmalıdır). Kapı **sıralama yapmaz, yalnızca eler**.
-4. **Yeniden sıralayıcı** (cross-encoder, `mmarco-mMiniLMv2-L12-H384-v1`): Kapıyı geçenler iddia cümlesiyle birlikte okunur ve puanlanır. En yüksek puanlı aday seçilir.
+4. **Yeniden sıralayıcı** (cross-encoder; kurulu olanlardan `reranker.MODELS` sırasıyla ilki: ince ayarlı `mufettis-reranker-ft1`, yoksa temel `mmarco-mMiniLMv2-L12-H384-v1`): Kapıyı geçenler iddia cümlesiyle birlikte okunur ve puanlanır. En yüksek puanlı aday seçilir.
 5. **Eşik** (`reranker.MIN_SCORES`): Seçilen adayın puanı modelin eşiğinin altındaysa bulgu çıkmaz.
    - Eşik modele özgüdür, model değişirse yeniden ölçülür.
    - Yalnızca geliştirme (dev) vakalarıyla seçilir: negatiflerin en yüksek puanı -2.57, doğruların en düşüğü -1.74; eşik aradaki orta nokta, -2.15.
@@ -65,6 +65,7 @@ Vakalar:
 | Karar | Ölçüm |
 |---|---|
 | Geniş havuz + yeniden sıralayıcı + eşik | Eski sistem: holdout 6/14 doğru, 7 yanlış dayanak. Yeni sistem: 10/14 doğru, 0 yanlış dayanak, 0 yanlış pozitif. ho2- vakalarında 3/10'dan 5/10'a; yanlış dayanak 4'ten 0'a. |
+| İnce ayarlı sıralayıcı (`mufettis-reranker-ft1`, 2026-09-28) | Temel modele göre toplamda 34→32 doğru, yanlış dayanak 6→1, yanlış pozitif 0. Holdout 22 doğru, 0 yanlış dayanak (temel: 22, 4). Mühürlü gündelik dil kümesi `lay_cases_ho6` (bir kez): 4/16 doğru, 2 yanlış dayanak (temel: 3, 4). Kabul kuralı ölçümden önce yazıldı. Ayrıntı: aşağıda "İnce ayar". |
 | Vektör modeli değiştirilmedi (MiniLM kaldı) | e5-small aday recall'unu artırmadı. Tüm korpusu yeniden gömmek gerekirdi. |
 
 ### Reddedilen deneyler
@@ -92,10 +93,41 @@ Hepsi dev'de kötüleştirdi ya da gürültü düzeyinde kaldı.
 - `_legal_rerank` içinde BM25 karışımı
 - IDF ağırlıklı seçim
 - LocalRAG içinde RRF
+- İddiadan önceki cümleyi sorguya katmak (bağlam sorgusu): gündelik dil kümesinde doğru sayısı değişmedi.
+- Gündelik dil genişletmesi (madde başına 4 açıklama cümlesi, ayrı BM25 + MiniLM indeksi, eşleşen maddenin parçaları adaylara eklenir): `lay_cases_ho5`'te aday isabeti 0.56→0.81, kapıdan geçirilince doğru 2→3; ama normal kümede yanlış pozitif üretti (dev 3). Kapı kuralı daraltılmadan ürüne alınmaz (v1 planı M13).
+
+**Eğitim tarafı:**
+- İlk ince ayar denemesi (pilot 1): ölçüm dayanakları pozitif olarak dışlanmış ama negatif olarak kullanılmıştı; model tam ölçülen maddeleri aşağı itmeyi öğrendi. Kural: ölçüm dayanakları eğitimde ne pozitif ne negatif görünür.
+- İncelemesiz veriyle eğitim (pilot 2, 365 grup): 33 doğru / 3 yanlış dayanak; temizlenmiş veri (pilot 3, 250 grup) daha az yanlış dayanak verdi ve seçildi.
+
+## İnce ayar (`mufettis-reranker-ft1`)
+
+Temel model Türkçe hukuk metninde aynı kanunun komşu maddelerini karıştırıyordu ve düşük güvenli bantta yanlış
+dayanaklar üretiyordu. İnce ayarlı model bu hatayı azaltır; dil modeli gerektirmez.
+
+- **Veri:** 5411, 5464 ve 6361 maddeleri için denetçi / müşteri dilinde yazılmış sentetik iddialar
+  (`benchmarks/reranker_finetune/claims.jsonl`, madde başına 3). Her iddia incelendi; ZAYIF / YANLIŞ işaretliler
+  (`claims_review.jsonl`, 115) atıldı.
+- **Grup:** iddia + doğru madde + 7 zor negatif (hattın gerçek adaylarından, temel modelin en yüksek puan verdikleri;
+  eksikse komşu maddeler). Ölçüm kümelerinin dayanakları hiçbir rolde yok; benchmark cümlelerine çok benzeyen
+  iddialar sızıntı süzgeciyle atılır.
+- **Eğitim:** listwise softmax çapraz entropi, 2 epoch, lr 2e-5, CPU 2 iş parçacığı (~40 dk).
+- **Eşik:** yalnızca dev'den, `thresholds.py` kuralıyla (doğru − yanlış dayanak − yanlış pozitif en büyük).
+- **Doğrulama:** kabul kuralı önceden yazıldı; mühürlü küme bir kez kullanıldı.
+
+```bash
+python scripts/reranker_finetune/build_groups.py <çalışma klasörü> --drop-reviewed   # MUFETTIS_DATA_DIR=<kopya>
+python scripts/reranker_finetune/train.py <çalışma>/train.jsonl <temel model klasörü> <çıktı>
+MUFETTIS_RERANKER_DIR=<çıktı> python scripts/eval_accuracy.py --split all --min-score none --out r.json
+python scripts/reranker_finetune/thresholds.py r.json          # dev'den eşik
+python scripts/install_reranker_model.py --from <çıktı>        # eşik ve özet reranker.MODELS'e yazıldıktan sonra
+```
+
+Yeni eğitim turu v1 planının M14 adımıdır (tur açma koşulu ve durma kuralı orada).
 
 ## Kalite tabanı
 
-`benchmarks/baseline.json`, üretim korpusu ve bu model için tabanı tutar.
+`benchmarks/baseline.json`, üretim korpusu ve varsayılan model (bugün `mufettis-reranker-ft1`) için tabanı tutar.
 
 Kurallar:
 - Doğru sayısı düşmemeli.
@@ -106,17 +138,18 @@ Komutlar:
 - İsteğe bağlı test: `MUFETTIS_BENCHMARK_DATA_DIR=<data kopyası> python -m pytest tests/test_accuracy_baseline.py`.
 - Tabanı güncellemek bilinçli bir işlemdir: `--split all --write-baseline "<not>"` (`--only` ile kullanılamaz).
 
-Yeniden sıralayıcı kapalıyken denetim 10 metrikte başarısız olur: holdout doğru 15'ten 9'a düşer, yanlış pozitif 0'dan 6'ya çıkar. Model doğruluğun temelidir.
+Yeniden sıralayıcı kapalıyken denetim çok sayıda metrikte başarısız olur (temel modelle yapılan ilk ölçümde holdout doğru 15'ten 9'a düştü, yanlış pozitif 0'dan 6'ya çıktı). Model doğruluğun temelidir.
 
 ## Model kurulumu
 
 ```bash
-python scripts/install_reranker_model.py            # durum
-python scripts/install_reranker_model.py --download # sabit sürüm, özet doğrulamalı
-python scripts/install_reranker_model.py --from D:/model   # internetsiz makine
+python scripts/install_reranker_model.py            # durum (tüm modeller)
+python scripts/install_reranker_model.py --download # temel model: sabit sürüm, özet doğrulamalı
+python scripts/install_reranker_model.py --from D:/model   # ince ayarlı model (ya da --model ile temel model)
 ```
 
-- **Sabitler:** Sürüm (`MODEL_REVISION`) ve ağırlık özeti (`MODEL_WEIGHTS_SHA256`) sabittir.
+- **Sabitler:** Her model `reranker.MODELS` içinde adı, eşikleri, dosya listesi ve ağırlık özetiyle tanımlıdır; temel modelin sürümü sabittir.
+- **Seçim:** `~/.cache/mufettis-models/<ad>` altında kurulu olanlardan tercih sırasıyla ilki kullanılır; `MUFETTIS_RERANKER_DIR` belirli bir klasörü zorlar.
 - **Güvenli kurulum:** Dosyalar önce geçici klasöre alınır ve doğrulanır, ardından yerine taşınır. Bozuk bir kaynak kurulu modeli bozmaz.
 - **Donanım:** Model CPU'da 2 iş parçacığıyla çalışır ve iddia başına yaklaşık 1–2 saniye sürer.
   - Daha büyük çok dilli modeller (ör. bge-reranker-v2-m3, ~2.3 GB) i5 ve 8 GB RAM hedefinde iddia başına onlarca saniye sürer.

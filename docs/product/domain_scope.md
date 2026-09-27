@@ -93,12 +93,13 @@ Sıralama ilkeleri:
 
 | # | Kilometre taşı | Bitti sayılma ölçütü | Bağımlılık |
 |---|---|---|---|
-| M0 | Sıralayıcı ince ayarının kapanışı | Pilot 2/3'ten biri mühürlü ho6'da önceden yazılan kurala göre kabul ya da ret; ret ise mevcut model kalır | — |
+| M0 | Sıralayıcı ince ayarının kapanışı ✓ | Pilot 2/3'ten biri mühürlü ho6'da önceden yazılan kurala göre kabul ya da ret; ret ise mevcut model kalır — **bitti 2026-09-28: pilot 3 kabul, `mufettis-reranker-ft1` varsayılan model** | — |
 | M0.1 | Pilot 2 (benchmark dayanakları eğitimden tamamen dışlanmış) | Tüm bölümlerde ve ho5'te eşiksiz ölçüm; eşik yalnızca dev'den (✓ 2026-09-28: −3,1'de 33 doğru / 3 yanlış dayanak / 0 YP; taban 34/6/0) | — |
-| M0.2 | Pilot 3 (incelemede zayıf/yanlış işaretli 115 iddia atılmış) | Aynı ölçüm | — |
-| M0.3 | Seçim | Kural: YP 0 → daha az yanlış dayanak → daha çok doğru; eşitlikte pilot 2 | M0.1, M0.2 |
-| M0.4 | Mühürlü ho6 doğrulaması (bir kez) | Kabul: YP 0, yanlış dayanak ≤ taban, doğru ≥ taban − 1 | M0.3 |
-| M0.5 | Ürüne alma ya da rafa kaldırma | Kabulse: model sürüm adıyla kurulur, eşik ve özet reranker.py'de, baseline.json yeniden yazılır; retse mevcut model kalır ve sonuç kaydedilir | M0.4 |
+| M0.2 | Pilot 3 (incelemede zayıf/yanlış işaretli 115 iddia atılmış) | Aynı ölçüm (✓ −4,48'de 32 doğru / 1 yanlış dayanak / 0 YP) | — |
+| M0.3 | Seçim | Kural: YP 0 → daha az yanlış dayanak → daha çok doğru; eşitlikte pilot 2 (✓ pilot 3: 1 yanlış dayanak, pilot 2: 3) | M0.1, M0.2 |
+| M0.4 | Mühürlü ho6 doğrulaması (bir kez) | Kabul: YP 0, yanlış dayanak ≤ taban, doğru ≥ taban − 1 (✓ pilot 3: 4 doğru / 2 yanlış dayanak / 0 YP; taban 3 / 4 / 0) | M0.3 |
+| M0.5 | Ürüne alma ya da rafa kaldırma | Kabulse: model sürüm adıyla kurulur, eşik ve özet reranker.py'de, baseline.json yeniden yazılır; retse mevcut model kalır ve sonuç kaydedilir (✓ `reranker.MODELS` kaydı, çok modelli kurulum betiği, taban 32 / 1 / 0; testler geçiyor) | M0.4 |
+| M0.6 | Ürüne giren modelin tekrar üretilebilirliği (M0.5'te çıkan alt adım) | Eğitim verisi, grup kurma, eğitim ve eşik seçme betikleri repoda (`scripts/reranker_finetune/`, `benchmarks/reranker_finetune/`); tarif `claim_matching.md`'de; eşik aracı iki pilotun eşiğini aynen üretiyor (✓) | M0.5 |
 | M1 | **Ölü kod temizliği** | Kullanılmayan fonksiyon, içe aktarım, ayar ve dizinler kaldırılmış; statik denetim (vulture/ruff) temiz; testler geçiyor | — |
 | M2 | **Eski yedeklerin temizliği** | Kullanıcı onayıyla data/backups eski kopyaları ve bayat data/mevzuat_db silinmiş; saklama politikası (kaç yedek, nerede) kodda. Tam mevzuat için disk açar | kullanıcı onayı |
 | M3 | **Paketleme ve arayüz teknolojisi kararı** | Bugünkü uygulama (Streamlit) ile ve bir masaüstü alternatifiyle deneme paketi; temiz Windows'ta boyut, açılış süresi, RAM, internetsiz çalışma ölçülmüş; karar yazılı | — |

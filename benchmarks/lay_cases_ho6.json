@@ -1,0 +1,229 @@
+{
+ "description": "ho6 mühürlü zor vakalar",
+ "cases": [
+  {
+   "id": "ho6-fis-kopyasi-45-gun",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5464/8 işlem belgesi süresi vs 10 aylık döküm, 11 cevap süresi); gündelik dil",
+   "text": "Kartımla bir beyaz eşya mağazasında yaptığım ödemenin belgesinin ve ayrıntılarının bir örneğini bankamdan istedim. Aradan 45 gün geçti, hâlâ 'arşivden gelecek' deyip oyalıyorlar.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "8"
+    }
+   ]
+  },
+  {
+   "id": "ho6-aylik-bildirim-gelmiyor",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5464/10 vs 8, 11); 'hesap özeti' geçmiyor",
+   "text": "Kredi kartımın her ay ne kadar ödeyeceğimi gösteren bildirim üç aydır ne posta ile ne de e-postama geliyor. Tutarı uygulamadaki rakamlardan tahmin ederek yatırıyorum, bankayı aradığımda da 'sistemsel' diyorlar.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "10"
+    }
+   ]
+  },
+  {
+   "id": "ho6-telefonla-siparis-dolandiricilik",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5464/15 vs 12 kayıp/çalınma, 16); kart elde iken uzaktan kullanım ayrıntısı",
+   "text": "Kartım sürekli cüzdanımda olduğu halde, birisi numarasını kullanarak internetten ve telefonla sipariş vererek 7.200 TL'lik alışveriş yapmış. Bankam numarayı iyi korumadığımı söyleyip bu tutarı benden tahsil etmekte ısrar ediyor.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "15"
+    },
+    {
+     "law_number": "5464",
+     "article": "32"
+    }
+   ]
+  },
+  {
+   "id": "ho6-iade-belgesi-yok",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5464/19 vs 22 işlem bölme, 17 kabul); 'alacak belgesi' geçmiyor",
+   "text": "Aldığım ayakkabıyı mağazaya geri götürdüm, 'parası kartınıza döndü' dediler ama elime hiçbir kâğıt vermediler. Üç haftadır para hesabıma yansımadı ve iade yaptıklarını gösteren bir şeyim de yok.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "19"
+    }
+   ]
+  },
+  {
+   "id": "ho6-borc-senedi-sureti",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); gündelik dil; 'kredi sözleşmesi/onaylı örnek' geçmiyor",
+   "text": "Geçen ay konut almak için bankamdan borç çektim ve bir yığın evrak imzaladım. İmzaladığım metnin bir kopyasını istediğimde şube 'sistemde duruyor, müşteriye verilmiyor' dedi.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "76"
+    }
+   ]
+  },
+  {
+   "id": "ho6-kooperatif-aylik-getiri",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); gündelik dil; 'mevduat kabulü' geçmiyor, 6361/9 ile karışabilir",
+   "text": "Komşumun tavsiyesiyle bir 'yatırım kooperatifi'ne her ay 5.000 TL yatırıyorum, istediğim an geri çekebileceğimi ve her ay yüzde dört getiri vereceklerini söylediler. Paramı verdiğimde bir makbuz kesiyorlar, ama bu yer banka değil.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "60"
+    }
+   ]
+  },
+  {
+   "id": "ho6-makine-gelmeden-taksit",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (6361/20 vs 25 teslim edilmemesi kiralayan kusuru); ayrıntı: sözleşmede hüküm yok",
+   "text": "İşyerim için kiralama yoluyla aldığım CNC tezgâhı üretici fabrikadaki gecikme yüzünden dört aydır teslim edilmedi. Buna rağmen şirket imzaladığım günden beri her ay taksit tahsil ediyor; imzaladığım metinde teslimden önce ödeme yapılacağına dair hiçbir şey yazmıyor.",
+   "expect": [
+    {
+     "law_number": "6361",
+     "article": "20"
+    }
+   ]
+  },
+  {
+   "id": "ho6-kiraci-vefat-taksit",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (6361/30 kendiliğinden sona erme vs 31 fesih, 32 iade); ayrıntı: ölüm",
+   "text": "Babam kendi işletmesi için bir kamyonu kiralama şirketinden uzun vadeli almıştı ve geçen ay vefat etti. Aldığımız metinde bu durumla ilgili özel bir şey yazmadığı halde şirket kalan aylık bedelleri biz mirasçılardan istemeye devam ediyor.",
+   "expect": [
+    {
+     "law_number": "6361",
+     "article": "30"
+    }
+   ]
+  },
+  {
+   "id": "ho6-otel-kart-fotokopisi",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5464/23 vs 18 işyeri güvenliği, 8 kart çıkaranın gizlilik tedbiri); başlıklı teftiş notu",
+   "text": "Sayı: 2026/417\nKonu: Anlaşmalı otel işletmesinde yapılan inceleme\nTeftiş Kurulu Başkanlığına\nBankamızla anlaşmalı bir otel işletmesinin resepsiyonunda, konaklayan misafirlerin kartlarının ön ve arka yüzlerinin fotokopilerinin bir klasörde tutulduğu ve bu listenin misafirlerin yazılı onayı olmaksızın bir tur operatörüyle e-posta yoluyla paylaşıldığı tespit edilmiştir.\nBilgilerinize arz ederim.",
+   "expect": [
+    {
+     "law_number": "5464",
+     "article": "23"
+    }
+   ]
+  },
+  {
+   "id": "ho6-turizm-sirketi-payi",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5411/56 vs 57 taşınmaz sınırı); başlıklı teftiş notu",
+   "text": "Sayı: 2026/422\nKonu: İştirak portföyü incelemesi\nTeftiş Kurulu Başkanlığına\nBankanın bir otel zinciri işleten turizm şirketindeki payının, kendi sermaye tabanının yüzde 19'una ulaştığı; finans dışı alanlardaki tüm ortaklık paylarının toplamının ise yüzde 64 seviyesinde bulunduğu tespit edilmiştir.\nBilgilerinize arz ederim.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "56"
+    }
+   ]
+  },
+  {
+   "id": "ho6-yardimci-atama-deneyim",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5411/25 vs 23 yönetim kurulu şartları); başlıklı teftiş notu",
+   "text": "Sayı: 2026/431\nKonu: Üst yönetim atamaları\nTeftiş Kurulu Başkanlığına\nHazine ve fon yönetiminden sorumlu olarak atanan genel müdür yardımcısının bankacılıktaki toplam deneyiminin dört yıl olduğu, atamanın denetim otoritesine önceden hiçbir belge sunulmadan yapıldığı tespit edilmiştir.\nBilgilerinize arz ederim.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "25"
+    }
+   ]
+  },
+  {
+   "id": "ho6-komite-kararlari-gevsek-yaprak",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); başlıklı teftiş notu; 'karar defteri' geçmiyor, 5411/42 belge saklama ile karışabilir",
+   "text": "Sayı: 2026/438\nKonu: Kredi komitesi kayıtları\nTeftiş Kurulu Başkanlığına\nKredi komitesinin 2026 yılı ilk yarısına ait kararlarının numarasız ve onaysız gevşek yapraklara yazıldığı, bazı kararların satır aralarına sonradan el yazısıyla ekleme yapıldığı ve üyelerin imzalarının karar tarihinden üç ay sonra toplandığı tespit edilmiştir.\nBilgilerinize arz ederim.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "28"
+    }
+   ]
+  },
+  {
+   "id": "ho6-faktoring-nakit-borc",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (6361/9 vs 5411/60, 6361/38); başlıklı teftiş notu",
+   "text": "Sayı: 2026/445\nKonu: Faktoring şirketi nakit kullandırımları\nTeftiş Kurulu Başkanlığına\nŞirketin herhangi bir fatura veya alacak devri almaksızın üç müşterisine ve bir ortağına doğrudan nakit borç verdiği, bu tutarların toplamının ödenmiş sermayenin yüzde dokuzuna ulaştığı tespit edilmiştir.\nBilgilerinize arz ederim.",
+   "expect": [
+    {
+     "law_number": "6361",
+     "article": "9"
+    }
+   ]
+  },
+  {
+   "id": "ho6-bayi-agi-basvuru-topluyor",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); başlıklı teftiş notu; 'şube/acentelik' geçmiyor",
+   "text": "Sayı: 2026/452\nKonu: Finansman şirketinin taşra örgütlenmesi\nTeftiş Kurulu Başkanlığına\nŞirketin izin alınmış herhangi bir yerel birimi bulunmadığı halde 12 ilde otomobil galerileriyle yaptığı anlaşmalarla bu galerileri kendi adına müşteri başvurusu alan, evrak toplayan ve imza attıran temsilci noktaları olarak çalıştırdığı tespit edilmiştir.\nBilgilerinize arz ederim.",
+   "expect": [
+    {
+     "law_number": "6361",
+     "article": "8"
+    }
+   ]
+  },
+  {
+   "id": "ho6-bagis-binde-alti",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (5411/59 vs 58 sandık/vakıf kaynak aktarımı); müfettiş dili",
+   "text": "Bankanın 2025 mali yılında çeşitli vakıf ve derneklere yaptığı yardımların toplamının kendi sermaye tabanının binde altısına ulaştığı ve bu yardımların büyük kısmının vergiden düşülemeyen nitelikte olduğu tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "5411",
+     "article": "59"
+    }
+   ]
+  },
+  {
+   "id": "ho6-kiraci-makineyi-devretmis",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); kardeş madde (6361/26 kiracının devri vs 27 kiralayanın devri); müfettiş dili",
+   "text": "Kiralama şirketinin portföyündeki bir vinç işleminde, müşterinin şirketten yazılı onay almaksızın hem makineyi hem de ödeme yükümlülüklerini başka bir inşaat firmasına geçirdiği ve şirketin bu değişikliği yıllar sonra saha ziyaretinde öğrendiği tespit edilmiştir.",
+   "expect": [
+    {
+     "law_number": "6361",
+     "article": "26"
+    }
+   ]
+  },
+  {
+   "id": "ho6-neg-bekleme-salonu",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); negatif: şube konforu, kanun maddesi gerektirmez",
+   "text": "Şubenin bekleme salonundaki koltuklar çok rahatsız ve su sebili haftalardır boş. Sıra beklerken ayakta kalmak zorunda kalıyoruz.",
+   "expect": []
+  },
+  {
+   "id": "ho6-neg-uygulama-karanlik-mod",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); negatif: uygulama tasarımı tercihi, kanun maddesi gerektirmez",
+   "text": "Bankamın mobil uygulamasındaki karanlık tema yeni güncellemeyle kaldırılmış, gece ekran gözümü yoruyor. Eski görünümü geri getirmelerini istiyorum.",
+   "expect": []
+  },
+  {
+   "id": "ho6-neg-cay-ocagi",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); negatif: başlıklı format tuzağı, kanun maddesi gerektirmez",
+   "text": "Sayı: 2026/460\nKonu: Şube çay ocağı düzeni\nTeftiş Kurulu Başkanlığına\nŞube çay ocağında kullanılan su ısıtıcısının kireçlendiği, bardakların yetersiz olduğu ve temizlik çizelgesinin düzenli doldurulmadığı tespit edilmiştir.\nBilgilerinize arz ederim.",
+   "expect": []
+  },
+  {
+   "id": "ho6-neg-spor-turnuvasi",
+   "split": "ho6",
+   "note": "ho6: madde metninden etiketlendi, sistem çıktısına bakılmadan (2026-09-28); negatif: personel sosyal etkinliği, kanun maddesi gerektirmez",
+   "text": "Bölge personeline yönelik düzenlenen kurum içi futbol turnuvasına katılımın düşük kaldığı ve turnuva ödüllerinin dağıtımının gecikmeli yapıldığı tespit edilmiştir.",
+   "expect": []
+  }
+ ]
+}
