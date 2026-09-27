@@ -37,17 +37,37 @@ _OBSERVATION_MARKERS = re.compile(
 # kesinlik (-mış, -mıştır) ve 3. kişi şimdiki zaman (-ıyor, -maktadır; olumsuzları dahil) bir olay
 # veya durum bildirir: "aktarmıştır", "sunulmamıştır", "ilgilenmedi", "yazmıyor".
 _FACT_PREDICATE_RE = re.compile(
-    r"(?:m[ıiuü]ş(?:t[ıiuü]r|lar(?:d[ıi]r)?)?|[dt][ıiuü](?:lar)?|[ıiuü]?yor(?:lar)?|m[ae]kt[ae]d[ıi]r)$"
+    r"(?:m[ıiuü]ş(?:t[ıiuü]r|l[ae]r(?:d[ıi]r)?)?|[dt][ıiuü](?:l[ae]r)?|[ıiuü]?yor(?:lar)?|m[ae]kt[ae]d[ıi]r)$"
 )
 # Birinci kişi talep/dilek yüklemleri olgu bildirmez ("talep ediyorum", "rica ederim").
 _REQUEST_PREDICATE_RE = re.compile(r"(?:[ıiuü]?yorum|[ae]rim|[ıiuü]r[ıiuü]m|m[ae]kt[ae]y[ıi]m)$")
 MIN_CLAIM_CONTENT_TERMS = 2
 
 
+_HEADING_WORD_RE = re.compile(r"[A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû]+")
+# Başlık satırında kelimelerin çoğu büyük harfle başlar ("Teftiş Kurulu Başkanlığı - İç Denetim Notu").
+HEADING_CAPITALIZED_RATIO = 0.6
+
+
+def _looks_like_heading(line: str) -> bool:
+    """Noktasız ve kelimelerinin çoğu büyük harfle başlayan satır başlıktır, olgu cümlesi değil.
+    Ek biçimi yükleme benzeyebilir ("Notu" ~ "-tu"); bu yüzden yüklem kuralından önce elenir."""
+    stripped = line.strip()
+    if not stripped or stripped[-1] in ".!?":
+        return False
+    words = _HEADING_WORD_RE.findall(stripped)
+    if len(words) < 2:
+        return False
+    capitalized = sum(1 for w in words if w[0].isupper())
+    return capitalized / len(words) >= HEADING_CAPITALIZED_RATIO
+
+
 def states_a_fact(sentence: str) -> bool:
     """Cümlenin yüklemi bir olay/durum bildiriyor mu? (Marker listesinden bağımsız genel kural.)"""
     words = re.findall(r"[0-9a-zçğıöşüâîû]+", turkish_lower(sentence))
     if len(words) < 3:
+        return False
+    if _looks_like_heading(sentence):
         return False
     predicate = words[-1]
     if _REQUEST_PREDICATE_RE.search(predicate):

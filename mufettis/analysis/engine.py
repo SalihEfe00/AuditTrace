@@ -32,11 +32,14 @@ from mufettis.analysis.turkish_text import (
     content_terms,
     distinct_stems,
     is_weak_term,
+    matched_bigrams,
     matched_terms,
     matches_any,
+    statement_bigrams,
+    tokenize,
     turkish_lower,
 )
-from mufettis.common.utils import canonical_source_id
+from mufettis.common.utils import article_label, canonical_source_id
 from mufettis.config import MAX_RAG_RESULTS
 from mufettis.corpus import EligibilityPolicy, InstrumentType, canonical_view
 from mufettis.extraction.text_repair import clean_evidence_text, normalize_legal_whitespace
@@ -70,6 +73,10 @@ def _evidence_units(text: str) -> List[str]:
 
 
 _TITLE_CONNECTORS = frozenset({"ve", "ile", "veya", "ya", "da", "de", "dair", "hakkında", "ilişkin"})
+
+
+def _is_transitional(meta: Dict[str, Any]) -> bool:
+    return turkish_lower(str(meta.get("article_prefix", "") or "")).startswith("geç")
 
 
 def _turkish_title_case(text: str) -> str:
@@ -158,7 +165,7 @@ class AnalysisEngine:
 
         ref_parts = []
         if article_no:
-            ref_parts.append(f"Madde {article_no}")
+            ref_parts.append(article_label(article_no, meta.get("article_prefix")))
         if paragraph_no:
             ref_parts.append(f"Fıkra {paragraph_no}")
         if item_no:
@@ -203,6 +210,9 @@ class AnalysisEngine:
           modeline göre uygulanır: kural koymayan parçalar veya ikincil yayıncı kopyaları elenir.
         - Tekilleştirme sürüm kimliği (expression) + parça konumu + metin özeti ile yapılır: aynı
           sürümün farklı format/kaynaktaki kopyaları tek kanıt sayılır, farklı parçalar birleşmez.
+        - Sorguların sonuçları sıra sıra harmanlanır (1. sorgunun 1. sonucu, 2. sorgunun 1. sonucu,
+          ...): ilk sorgu (çoğu zaman belge başlığı) havuzu tek başına doldurup iddia cümlesinin
+          sorgusunu dışarıda bırakamaz. Bir sorgu en fazla query_depths'teki sayıda yeni kanıt katar.
         """
         scope = {canonical_source_id(s) for s in (retrieval_plan.source_scope or [])}
         law_filter = str((retrieval_plan.filters or {}).get("law_number", "") or "").strip()
@@ -210,17 +220,13 @@ class AnalysisEngine:
         limit = retrieval_plan.max_evidence_items
         # Elenen parçalar sonuçların çoğunu tutabildiğinden (hesap planları) fazladan istenir.
         fetch_k = min(MAX_RAG_RESULTS, limit * EXCLUSION_OVERFETCH) if policy else limit
-        collected: List[Tuple[int, int, Evidence]] = []
-        seen_keys = set()
         query_kwargs: Dict[str, Any] = {}
         # Yetenek açıkça bildirilmeli (LocalRAG); test sahteleri her argümanı kabul ediyor görünebilir.
         if policy and getattr(rag_client, "supports_eligibility_policy", False) is True:
             query_kwargs["eligibility"] = policy
 
+        per_query: List[Tuple[List[Dict[str, Any]], Optional[int]]] = []
         for query_str in retrieval_plan.queries:
-            if len(collected) >= limit:
-                break
-
             try:
                 results = rag_client.query(query_str, k=fetch_k, **query_kwargs)
             except Exception as exc:
@@ -228,7 +234,7 @@ class AnalysisEngine:
                 if errors is not None:
                     errors.append(f"{query_str[:60]}: {type(exc).__name__}: {exc}")
                 continue
-
+            admitted = []
             for r in results:
                 meta = r.get("metadata", {}) or {}
                 source_id = str(meta.get("source_id", "") or "").strip()
@@ -236,6 +242,20 @@ class AnalysisEngine:
                     continue
                 if policy and not policy.admits(meta):
                     continue
+                admitted.append(r)
+            per_query.append((admitted, retrieval_plan.query_depths.get(query_str)))
+
+        collected: List[Tuple[int, int, Evidence]] = []
+        contributed = [0] * len(per_query)
+        seen_keys = set()
+        for rank in range(max((len(rs) for rs, _ in per_query), default=0)):
+            if len(collected) >= limit:
+                break
+            for qi, (results, depth) in enumerate(per_query):
+                if rank >= len(results) or (depth is not None and contributed[qi] >= depth):
+                    continue
+                r = results[rank]
+                meta = r.get("metadata", {}) or {}
                 text = str(r.get("document", "") or "")
                 key = (
                     canonical_view(meta).expression_id,
@@ -248,9 +268,9 @@ class AnalysisEngine:
                 if key in seen_keys:
                     continue
                 seen_keys.add(key)
+                contributed[qi] += 1
                 law_rank = 0 if law_filter and str(meta.get("law_number", "")).strip() == law_filter else 1
                 collected.append((law_rank, len(collected), self.chunk_to_evidence(r)))
-
                 if len(collected) >= limit:
                     break
 
@@ -467,6 +487,7 @@ class AnalysisEngine:
         """Sözcüksel kabul ölçütünü geçen kanıtlar, en iyiden kötüye (bkz. _find_best_evidence_for_claim)."""
         statement_terms, context_terms = self._claim_terms(claim, doc)
         all_terms = statement_terms | context_terms
+        bigrams = self._claim_bigrams(claim, doc)
 
         accepted: List[Tuple[Tuple[float, ...], int, Evidence]] = []
 
@@ -479,14 +500,19 @@ class AnalysisEngine:
                 unit_matched = matched_terms(all_terms, content_terms(unit))
                 unit_stems = len(distinct_stems(unit_matched))
                 distinctive = distinct_stems(t for t in unit_matched & statement_terms if not self.is_weak_term(t))
+                # İddiadaki bitişik kelime çifti ("iç denetim sistemi") birimde de bitişik geçiyorsa
+                # ayırt edicidir: kelimeleri tek tek korpusun her yerinde geçse bile birlikte bir
+                # kavramı adlandırırlar. Her eşdizim sıralamada ayrıca bir eşleşme sayılır.
+                phrases = matched_bigrams(bigrams, unit) if bigrams and unit_stems >= MIN_MATCHED_TERMS else []
                 if (
                     unit_stems >= MIN_MATCHED_TERMS
                     and len(distinct_stems(unit_matched & statement_terms)) >= MIN_CLAIM_STATEMENT_TERMS
-                    and distinctive
+                    and (distinctive or phrases)
                 ):
-                    best_unit_stems = max(best_unit_stems, unit_stems)
+                    best_unit_stems = max(best_unit_stems, unit_stems + len(phrases))
                     strong_lexical = strong_lexical or (
-                        unit_stems >= STRONG_LEXICAL_STEMS and len(distinctive) >= STRONG_LEXICAL_DISTINCTIVE
+                        unit_stems >= STRONG_LEXICAL_STEMS
+                        and len(distinctive) + len(phrases) >= STRONG_LEXICAL_DISTINCTIVE
                     )
             if not best_unit_stems or (too_far and not strong_lexical):
                 continue
@@ -497,6 +523,9 @@ class AnalysisEngine:
             }
             rank = (
                 float(best_unit_stems),
+                # Geçici madde yürürlük anındaki geçişi düzenler (ör. eski kart borçlarının
+                # yapılandırılması); eşit eşleşmede güncel olaya asıl madde uygulanır.
+                0.0 if _is_transitional(ev.metadata) else 1.0,
                 float(len(distinct_stems(text_matched))),
                 float(len(distinct_stems(title_only))),
                 -float(distance) if distance is not None else 0.0,
@@ -547,6 +576,16 @@ class AnalysisEngine:
             t for t in content_terms(context_text) - excluded if not matches_any(t, statement_terms)
         }
         return statement_terms, context_terms
+
+    @staticmethod
+    def _claim_bigrams(claim: DocumentClaim, doc: Optional[DocumentUnderstanding]) -> List[Tuple[str, str]]:
+        """İddia cümlesinin eşdizimleri; kurum adı içerenler ("ziraat bankası") alınmaz."""
+        excluded: Set[str] = set()
+        if doc:
+            for entity in doc.entities:
+                if entity.entity_type == "institution":
+                    excluded |= set(tokenize(entity.text, min_length=2))
+        return [bg for bg in statement_bigrams(claim.statement) if not (set(bg) & excluded)]
 
     def _extract_verbatim_span(
         self,

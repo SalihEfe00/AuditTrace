@@ -166,6 +166,42 @@ def matches_any(term: str, terms: Iterable[str]) -> bool:
     return any(terms_match(term, other) for other in terms)
 
 
+def _phrase_tokens(text: str) -> list:
+    """Eşdizim araması için kelime dizisi: 2 harfli kelimeler ("iç", "dış") de tutulur."""
+    return tokenize(text, min_length=2)
+
+
+def _token_match(a: str, b: str) -> bool:
+    if len(a) < MIN_PREFIX_MATCH or len(b) < MIN_PREFIX_MATCH:
+        return a == b
+    return terms_match(a, b)
+
+
+def statement_bigrams(text: str) -> list:
+    """Cümledeki bitişik kelime çiftleri ("iç denetim", "denetim sistemi", "hesap kesim").
+
+    Tek tek her belgede geçen kelimeler bitişik geçtiklerinde belirli bir kavramı adlandırır.
+    Durak kelime veya sayı içeren çiftler ile yalnızca genel/zayıf bankacılık kelimelerinden
+    oluşan çiftler ("kredi kartı") alınmaz: bunlar korpusun her yerinde bitişik de geçer."""
+    tokens = _phrase_tokens(text)
+    out = []
+    for a, b in zip(tokens, tokens[1:]):
+        if a in STOP_WORDS or b in STOP_WORDS or a.isdigit() or b.isdigit():
+            continue
+        if all(is_generic_term(t) or is_weak_term(t) for t in (a, b)):
+            continue
+        if (a, b) not in out:
+            out.append((a, b))
+    return out
+
+
+def matched_bigrams(bigrams: Iterable[tuple], text: str) -> list:
+    """bigrams içinden metinde (kök düzeyinde) bitişik geçenler."""
+    tokens = _phrase_tokens(text)
+    pairs = list(zip(tokens, tokens[1:]))
+    return [bg for bg in bigrams if any(_token_match(bg[0], x) and _token_match(bg[1], y) for x, y in pairs)]
+
+
 def contains_phrase(text: str, phrase: str) -> bool:
     """Türkçe ekleri tolere ederek ifade araması: her kelime başında eşleşir, sonu serbesttir.
 
@@ -196,4 +232,6 @@ __all__ = [
     "distinct_stems",
     "matches_any",
     "contains_phrase",
+    "statement_bigrams",
+    "matched_bigrams",
 ]

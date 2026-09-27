@@ -116,12 +116,14 @@ class AnalysisPlannerService:
             queries.append("Bankacılık Kanunu müşteri hakları ve bilgilendirme yükümlülüğü")
             keywords.extend(["tüketici hakları", "bankacılık", "hizmet kusuru"])
 
+        doc_queries = self._document_queries(doc)
         retrieval_scope = RetrievalScope(
             target_domains=scope,
             explicit_laws=self._cited_laws(doc),
             keywords=list(set(keywords)),
-            generated_queries=self._document_queries(doc) + queries,
+            generated_queries=doc_queries + queries,
             top_k_per_query=3,
+            document_query_count=len(doc_queries),
         )
 
         parameters = AnalysisParameters(
@@ -168,12 +170,14 @@ class AnalysisPlannerService:
             "Kredi tahsis yetkileri, limitler ve yönetim kurulu onay süreçleri",
         ]
 
+        doc_queries = self._document_queries(doc)
         retrieval_scope = RetrievalScope(
             target_domains=scope,
             explicit_laws=self._cited_laws(doc),
             keywords=keywords,
-            generated_queries=self._document_queries(doc) + queries,
+            generated_queries=doc_queries + queries,
             top_k_per_query=3,
+            document_query_count=len(doc_queries),
         )
 
         parameters = AnalysisParameters(
@@ -215,7 +219,8 @@ class AnalysisPlannerService:
         # Belgenin kendi cümleleri sorgudur. Önceden sabit bir "5411 sayılı …" sorgusu ekleniyordu;
         # açık kanun yoluna düştüğü için kart veya KVKK konulu bir metin bile Bankacılık Kanunu
         # maddeleriyle eşleştiriliyordu.
-        queries = self._document_queries(doc) or ["bankacılık mevzuatı genel yükümlülükler"]
+        doc_queries = self._document_queries(doc)
+        queries = doc_queries or ["bankacılık mevzuatı genel yükümlülükler"]
 
         retrieval_scope = RetrievalScope(
             target_domains=scope,
@@ -223,6 +228,7 @@ class AnalysisPlannerService:
             keywords=keywords,
             generated_queries=queries,
             top_k_per_query=2,
+            document_query_count=len(doc_queries),
         )
 
         parameters = AnalysisParameters(

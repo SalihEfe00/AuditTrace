@@ -113,6 +113,10 @@ class RetrievalScope(BaseModel):
     keywords: List[str] = Field(default_factory=list, description="Focus keywords for retrieval")
     generated_queries: List[str] = Field(default_factory=list, description="Draft queries for evidence retrieval")
     top_k_per_query: int = Field(default=3, ge=1, le=50, description="Chunk count to request per query")
+    document_query_count: int = Field(
+        default=0, ge=0,
+        description="Leading generated_queries taken from the document's own text (title, claims)",
+    )
 
 
 class AnalysisPlan(BaseModel):
@@ -142,6 +146,11 @@ class RetrievalPlan(BaseModel):
     source_scope: List[str] = Field(default_factory=list, description="Target sources, e.g. bddk_official")
     evidence_requirements: List[str] = Field(default_factory=list, description="Evidence criteria")
     max_evidence_items: int = Field(default=5, ge=1, le=100, description="Maximum evidence items to return")
+    query_depths: Dict[str, int] = Field(
+        default_factory=dict,
+        description="Per-query cap on evidence items contributed to the pool (query text -> count); "
+                    "queries not listed share the pool without a cap",
+    )
     citation_requirements: List[str] = Field(default_factory=list, description="Required citation fields")
 
     @field_validator("queries")

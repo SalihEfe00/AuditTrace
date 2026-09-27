@@ -26,6 +26,8 @@ NON_RULE_ROLES = (NormativeRole.CLASSIFICATION,)
 # İkincil yayıncıların kopyaları tek başına hukuki dayanak sayılmaz. Kaynak kimliği listesi
 # yerine yayıncı niteliğine bakılır: yeni bir kaynak eklendiğinde planlayıcı değişmez.
 EXCLUDED_PUBLISHER_KINDS = (PublisherKind.SECONDARY,)
+DOCUMENT_QUERY_DEPTH_FACTOR = 2
+MAX_EVIDENCE_POOL = 20
 
 
 class RetrievalPlannerService:
@@ -71,7 +73,15 @@ class RetrievalPlannerService:
             # ("zararımın karşılanması" ~ "beklenen zarar karşılığı" gibi yanlış eşleşmeler).
             filters["exclude_roles"] = list(NON_RULE_ROLES)
 
-        max_items = max(3, min(20, scope.top_k_per_query * len(queries[:4])))
+        # Belgenin kendi cümleleriyle yapılan sorgular olayı taşır; şablon sorgular konu kategorisine
+        # göre geneldir. Belge sorgularının havuza katkısı iki kat derindir (ilgili hüküm bu
+        # sorgularda da çoğu zaman ilk 3'ün hemen altında kalıyor), şablonlarınki top_k ile sınırlı.
+        document_queries = set(scope.generated_queries[:scope.document_query_count])
+        depths = {
+            q: scope.top_k_per_query * (DOCUMENT_QUERY_DEPTH_FACTOR if q in document_queries else 1)
+            for q in queries
+        }
+        max_items = max(3, min(MAX_EVIDENCE_POOL, sum(depths.values())))
 
         retrieval_plan = RetrievalPlan(
             queries=queries,
@@ -81,6 +91,7 @@ class RetrievalPlannerService:
             source_scope=[],
             evidence_requirements=analysis_plan.required_evidence or ["statutory_rule"],
             max_evidence_items=max_items,
+            query_depths=depths,
             citation_requirements=[
                 "source",
                 "document_identity",
