@@ -134,6 +134,14 @@ def extract_first(text: str, patterns: Iterable[str]) -> Optional[str]:
 # "NNNNN sayılı" sayısı (küçük harfle devam ettiği için kod sayılmaz).
 ACCOUNTING_MIN_CODES = 5
 ACCOUNTING_MIN_CODES_PER_1000_CHARS = 3.0
+# Madde başlığındaki numara. Kesme işaretiyle ek alan numara ("Geçici Madde 2'ye paralel olarak",
+# "MADDE 5'te belirtilen") metin içi atıftır, başlık değildir; aksi halde atıf yeni bir madde başlatır
+# ve tek bir atıf satırı rehberin tüm numaralı bölüm yapısını kapatır (has_article -> guidance_mode yok).
+# Madde başlığını arayan tüm kalıplar bu parçayı kullanır.
+_ARTICLE_SUFFIX_GUARD = r"\b(?!\s?['’‘`´])"
+ARTICLE_NUMBER = r"\d+[A-Za-z]?" + _ARTICLE_SUFFIX_GUARD
+ARTICLE_NUMBER_GROUP = r"(?P<number>\d+[A-Za-z]?)" + _ARTICLE_SUFFIX_GUARD
+
 _ACCOUNT_LINE_RE = re.compile(r"(?m)^\s*\d{3,6}\s+[A-ZÇĞİÖŞÜa-zçğıöşü0-9][^\n]{2,160}$")
 _ACCOUNT_INLINE_RE = re.compile(r"(?<![\d.,/])\d{3,6}(?=\s+[A-ZÇĞİÖŞÜ])")
 
@@ -167,11 +175,11 @@ def classify_legal_structure(
     doc_norm=str(document_type or "").lower()
 
     line_article_count=len(re.findall(
-        r"(?im)^\s*(?:(?:GEÇİCİ|EK)\s+)?MADDE\s*[-:]?\s*\d+[A-Za-z]?\b",
+        r"(?im)^\s*(?:(?:GEÇİCİ|EK)\s+)?MADDE\s*[-:]?\s*" + ARTICLE_NUMBER,
         norm,
     ))
     inline_article_count=len(re.findall(
-        r"(?i)(?<![A-ZÇĞİÖŞÜa-zçğıöşü0-9])(?:GEÇİCİ|EK)?\s*MADDE\s*[-:]?\s*\d+[A-Za-z]?\b",
+        r"(?i)(?<![A-ZÇĞİÖŞÜa-zçğıöşü0-9])(?:GEÇİCİ|EK)?\s*MADDE\s*[-:]?\s*" + ARTICLE_NUMBER,
         norm,
     ))
     article_count=max(line_article_count, inline_article_count)
@@ -498,7 +506,7 @@ def extract_legal_metadata(
     article=extract_first(
         head,
         [
-            r"\b(?:GEÇİCİ|EK)?\s*MADDE\s*[-:]?\s*(\d+[A-Za-z]?)",
+            r"\b(?:GEÇİCİ|EK)?\s*MADDE\s*[-:]?\s*(" + ARTICLE_NUMBER + ")",
             r"\bMADDE\s+(\d+[A-Za-z]?)",
         ],
     ) or ""
@@ -915,7 +923,7 @@ def split_legal_chunks(
 
     # Yapı tipi metnin kendisinden güvenli biçimde çıkarılır; mevcut çağrı
     # imzası korunur, dışarıdaki hiçbir kodun title/document_type göndermesi gerekmez.
-    has_article=bool(re.search(r"(?i)(?:^|\n)\s*(?:(?:GEÇİCİ|EK)\s+)?MADDE\s*[-:]?\s*\d+[A-Za-z]?\b", clean))
+    has_article=bool(re.search(r"(?i)(?:^|\n)\s*(?:(?:GEÇİCİ|EK)\s+)?MADDE\s*[-:]?\s*" + ARTICLE_NUMBER, clean))
     guidance_mode=(
         not has_article
         and bool(re.search(r"(?i)(İYİ\s+UYGULAMA\s+REHBERİ|\bREHBER\b|\bKILAVUZ\b|\bBİRİNCİ\s+KISIM\b)", clean))
@@ -945,7 +953,7 @@ def split_legal_chunks(
 
     article_re=re.compile(
         r"^(?:(?P<prefix>GEÇİCİ|EK)\s+)?MADDE\s*[-:]?\s*"
-        r"(?P<number>\d+[A-Za-z]?)\b(?:\s*[–—-]\s*)?(?P<title>.*)$",
+        + ARTICLE_NUMBER_GROUP + r"(?:\s*[–—-]\s*)?(?P<title>.*)$",
         re.I|re.U,
     )
     paragraph_re=re.compile(
