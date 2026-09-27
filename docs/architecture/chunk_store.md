@@ -44,6 +44,8 @@ Tam mevzuat ölçeğinde yaklaşık 1 milyon parça hedefleniyor. Hedef donanım
 | 200 bin parça: önbellekli filtreli sorgu | 53 ms |
 | 200 bin parça: belgeye göre okuma / silme | 1 ms / 7 ms |
 | 200 bin parça: hesap kodu veya belge kimliğiyle okuma | ~0,13 sn |
+| 25 bin belge (tam mevzuat ölçeği) / 100 bin parça: belge kimliğiyle okuma | 82 ms |
+| 25 bin belge / 100 bin parça: soğuk uygunluk filtresi (35 bin satır döner) | 0,64 sn |
 
 ## Seçim ve geçiş
 
