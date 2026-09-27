@@ -32,17 +32,21 @@ Kod:
    - Eşik yanlış dayanakları ayıramıyor: dev'de yanlış dayanak puanları -1.91 ve -0.74, doğruların bir kısmı daha düşük. Bu yüzden yanlış dayanaklar elenmez, işaretlenir.
    - Sınır ayarlanmadı: 0, çapraz kodlayıcı logit'inin "yüzde elli ilgili" noktasıdır.
    - Ölçüm (2026-09-27): düşük bantta 6 yanlış dayanaktan 5'i, 32 doğrudan 7'si var. `eval_accuracy.py` bunu "[güven]" satırında raporlar.
-7. **İsteğe bağlı dil modeli doğrulayıcısı** aynı sıralamayı (`_gated_ranking`) kullanır.
-   - Ölçüm (qwen2.5:7b, `eval_accuracy.py --verifier`, 2026-09-27):
+7. **İsteğe bağlı dil modeli doğrulayıcısı** aynı sıralamayı (`_gated_ranking`) kullanır. Yeniden sıralayıcı varken **yalnızca düşük güvenli seçimi denetler ve yalnızca veto eder**:
+   - Yüksek güvenli seçim ve eşiğin altında kalan (bulgu çıkmayan) iddia modele gönderilmez.
+   - Model seçilen adayı onaylarsa bulgu kalır ("düşük" güven işareti de kalır). Başka adayı seçerse ya da hiçbirini seçmezse bulgu çıkmaz. Yanıt geçersizse seçim olduğu gibi kalır.
+   - Yeniden sıralayıcı kurulu değilse (sözcüksel mod) eski davranış sürer: model seçimi değiştirebilir.
+   - Gerekçe, ilk sürümün ölçümünün güven bandına göre dökümüdür. Yüksek bantta model 1 doğru bulguyu sildi. Düşük bantta 2 yanlış dayanağı sildi, doğrulara dokunmadı. Sıralayıcının sustuğu iddialarda 3 doğru ekledi, ama 1 yanlış dayanak ve 1 yanlış pozitif de ekledi.
+   - Ölçüm (veto kuralı, qwen2.5:7b, tüm vakalar, 2026-09-27): doğru 34 → 34, yanlış dayanak 6 → 3, yanlış pozitif 0 → 0. Düşük bantta kalan 8 doğru bulgunun hiçbiri silinmedi. Veto edilen üç vakadan biri (ho3-loan-to-branch-officer) kural kurulurken ölçülmemişti.
+   - Varsayılan olarak kapalı kalır (ekran kartı ve Ollama gerekir). Taban onsuz ölçülür.
+   - İlk sürümün ölçümü (her iddiada seçimi değiştirebilen model, qwen2.5:7b, 2026-09-27):
 
      | Vaka grubu | Doğru | Yanlış dayanak | Yanlış pozitif |
      |---|---|---|---|
      | dev | 12 → 13 | 2 → 1 | 0 |
      | holdout | 15 → 16 | 1 → 1 | 0 → 1 |
 
-   - Yanlış pozitif bir eğitim notunda çıktı. Doğrulayıcı eşiğin altındaki adaylardan da seçim yapabildiği için yanlış pozitif ekleyebiliyor.
-   - Vaka başına süre 2–3 kat artıyor ve ekran kartında 3–19 sn sürüyor.
-   - Bu yüzden varsayılan olarak kapalı kalır. Açılacaksa güçlü makinede, denetçinin bilgisiyle açılmalıdır.
+     Yanlış pozitif bir eğitim notunda çıktı: ilk sürüm eşiğin altındaki adaylardan da seçim yapabiliyordu. Vaka başına süre 2–3 kat artıyordu (ekran kartında 3–19 sn). Veto kuralında model yalnızca düşük bantta çağrıldığı için ek süre bu bantla sınırlıdır.
 
 Model kurulu değilse sistem eski davranışa döner:
 - Geniş iddia havuzu kullanılmaz.

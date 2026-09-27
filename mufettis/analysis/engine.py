@@ -462,15 +462,27 @@ class AnalysisEngine:
             ranked = self._gated_ranking(claim, claim_pool, doc)
             matched_ev, rerank_score = self._pick(ranked)
             verdict = None
-            if self.claim_verifier is not None:
+            if self.claim_verifier is not None and self.reranker is None:
+                # Sözcüksel mod: geçerli bir model kararı sözcüksel seçimin yerine geçer; "hiçbiri" kararı
+                # eşleşmeyi kaldırır. Karar geçersizse (erişim/biçim/alıntı hatası) sözcüksel seçim kalır.
                 candidates = self._verification_candidates(
                     claim, claim_pool, doc, getattr(self.claim_verifier, "max_candidates", 5), ranked=ranked
                 )
                 verdict = self.claim_verifier.choose(claim.statement, candidates) if candidates else None
                 if verdict is not None:
-                    # Geçerli bir model kararı sözcüksel seçimin yerine geçer; "hiçbiri" kararı eşleşmeyi
-                    # kaldırır. Karar geçersizse (erişim/biçim/alıntı hatası) sözcüksel seçim kalır.
                     matched_ev = candidates[verdict.evidence_index] if verdict.evidence_index is not None else None
+            elif self.claim_verifier is not None and matched_ev is not None and self._low_confidence(rerank_score):
+                # Yeniden sıralayıcı modu: model yalnızca düşük güvenli seçimi denetler ve yalnızca veto
+                # edebilir (bkz. docs/architecture/claim_matching.md, "Dil modeli doğrulayıcısı").
+                # Başka adayı seçerse ya da hiçbirini seçmezse bulgu çıkmaz; eşiğin altında kalan ya da
+                # yüksek güvenli iddialara dokunmaz (ölçümde yeni bulgu eklemek yanlış pozitif üretti).
+                candidates = self._verification_candidates(
+                    claim, claim_pool, doc, getattr(self.claim_verifier, "max_candidates", 5), ranked=ranked
+                )
+                verdict = self.claim_verifier.choose(claim.statement, candidates)
+                if verdict is not None and (verdict.evidence_index is None
+                                            or candidates[verdict.evidence_index] is not matched_ev):
+                    matched_ev, verdict = None, None
             if not matched_ev:
                 unsupported.append(claim)
                 continue
@@ -488,7 +500,7 @@ class AnalysisEngine:
                 metadata={"file_hash": matched_ev.metadata.get("file_hash", "")},
             )
             confidence = None
-            if rerank_score is not None and verdict is None:
+            if rerank_score is not None:
                 citation.metadata["rerank_score"] = round(rerank_score, 4)
                 confident = getattr(self.reranker, "confident_score", None)
                 if confident is not None:
@@ -577,6 +589,11 @@ class AnalysisEngine:
         arasından iddia cümlesiyle birlikte okunduğunda en ilgili olan seçilir; puanı modelin eşiğinin
         (reranker.min_score) altındaysa bulgu çıkmaz. Yeniden sıralayıcı yoksa sözcüksel sıralamanın ilki seçilir."""
         return self._pick(self._gated_ranking(claim, candidates, doc))
+
+    def _low_confidence(self, score: Optional[float]) -> bool:
+        """Seçimin puanı modelin güven bandının altında mı; bandı olmayan modelde her seçim düşük sayılır."""
+        confident = getattr(self.reranker, "confident_score", None)
+        return score is not None and (confident is None or score < confident)
 
     def _pick(self, ranked: List[Tuple[Evidence, Optional[float]]]) -> Tuple[Optional[Evidence], Optional[float]]:
         """Sıralamanın ilki; yeniden sıralayıcı puanı modelin eşiğinin altındaysa hiçbiri."""

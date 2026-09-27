@@ -11,6 +11,7 @@ from unittest.mock import MagicMock
 
 from mufettis.analysis.analysis_presenter import AnalysisPresenter
 from mufettis.analysis.engine import AnalysisEngine
+from mufettis.analysis.claim_verifier import Verdict
 from mufettis.analysis.models import DocumentClaim, DocumentUnderstanding, Evidence, RetrievalPlan
 from mufettis.rag.fusion import reciprocal_rank_fusion
 from mufettis.rag.reranker import load_reranker
@@ -161,6 +162,51 @@ class TestVerifierUsesSameRanking(unittest.TestCase):
         shown = verifier.choose.call_args.args[1]
         self.assertEqual([e.metadata["law_number"] for e in shown], ["B", "A"])
         self.assertEqual(len(engine.reranker.calls), 1)
+
+
+class TestVerifierOnlyVetoesLowConfidence(unittest.TestCase):
+    """Yeniden sıralayıcı varken dil modeli yalnızca düşük güvenli seçimi denetler ve yalnızca veto eder."""
+
+    def _run(self, top_score, answer, min_score=-2.0):
+        engine = AnalysisEngine()
+        engine.reranker = FakeReranker({"iade edilir": top_score, "tahsil": top_score - 3.0}, min_score=min_score)
+        engine.reranker.confident_score = 0.0
+        verifier = MagicMock(max_candidates=2)
+        verifier.choose.side_effect = lambda claim, cands: answer(cands)
+        engine.claim_verifier = verifier
+        findings, _ = engine._match_claims_to_evidence(
+            _doc(TestRerankedSelection.CLAIM.statement), MagicMock(), TestRerankedSelection._pool(None))
+        return findings, verifier
+
+    @staticmethod
+    def _pick_law(law):
+        def answer(cands):
+            index = next(i for i, e in enumerate(cands) if e.metadata["law_number"] == law)
+            return Verdict(evidence_index=index, quote=cands[index].text_span, reason="uygun")
+        return answer
+
+    def test_high_confidence_choice_is_not_sent_to_model(self):
+        findings, verifier = self._run(3.0, lambda c: Verdict(None, "", "hiçbiri"))
+        verifier.choose.assert_not_called()
+        self.assertEqual(findings[0].evidence[0].metadata["law_number"], "B")
+
+    def test_low_confidence_choice_survives_only_if_model_agrees(self):
+        findings, _ = self._run(-1.0, self._pick_law("B"))
+        self.assertEqual(findings[0].evidence[0].metadata["law_number"], "B")
+        self.assertEqual(findings[0].match_confidence, "düşük")
+        self.assertEqual(self._run(-1.0, lambda c: Verdict(None, "", "hiçbiri"))[0], [])
+
+    def test_model_cannot_switch_to_another_candidate(self):
+        self.assertEqual(self._run(-1.0, self._pick_law("A"))[0], [])
+
+    def test_invalid_model_answer_keeps_the_choice(self):
+        findings, _ = self._run(-1.0, lambda c: None)
+        self.assertEqual(findings[0].evidence[0].metadata["law_number"], "B")
+
+    def test_model_cannot_add_a_finding_below_threshold(self):
+        findings, verifier = self._run(-3.0, self._pick_law("B"))
+        self.assertEqual(findings, [])
+        verifier.choose.assert_not_called()
 
 
 class TestPresenterRerankerScope(unittest.TestCase):
