@@ -36,6 +36,40 @@ MIN_SCORES = {
     "cross-encoder--mmarco-mMiniLMv2-L12-H384-v1": -2.15,
 }
 
+# Kurulum (scripts/install_reranker_model.py): sabit sürüm ve dosya özetleri. Ağırlık dosyası
+# değişirse eşik (MIN_SCORES) ve benchmarks/baseline.json yeniden ölçülmelidir.
+MODEL_REPO = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
+MODEL_REVISION = "1427fd652930e4ba29e8149678df786c240d8825"
+MODEL_FILES = (
+    "config.json", "model.safetensors", "sentencepiece.bpe.model",
+    "special_tokens_map.json", "tokenizer.json", "tokenizer_config.json",
+)
+MODEL_WEIGHTS_SHA256 = {"model.safetensors": "5daeca2481a76b5976a2bdc32f0a78532b6716da4f8cd3ff59460ef8d2f359b4"}
+MISSING_MODEL_WARNING = (
+    "İddia-kanıt yeniden sıralayıcı modeli kurulu değil; eşleştirme yalnızca sözcüksel sıralamayla yapıldı "
+    "ve daha az isabetlidir (ölçümde yanlış dayanak ve yanlış pozitif belirgin biçimde artıyor). Kurulum: "
+    "python scripts/install_reranker_model.py --download (ya da --from <klasör>)."
+)
+
+
+def verify_model_dir(model_dir: Path) -> List[str]:
+    """Model klasöründeki sorunlar (boşsa kurulu ve özetleri doğru)."""
+    import hashlib
+
+    model_dir = Path(model_dir)
+    problems = [f"eksik dosya: {name}" for name in MODEL_FILES if not (model_dir / name).is_file()]
+    for name, expected in MODEL_WEIGHTS_SHA256.items():
+        path = model_dir / name
+        if not path.is_file():
+            continue
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for block in iter(lambda: handle.read(1 << 20), b""):
+                digest.update(block)
+        if digest.hexdigest() != expected:
+            problems.append(f"özet uyuşmuyor: {name}")
+    return problems
+
 
 class CrossEncoderReranker:
     """score(sorgu, metinler) -> metin başına alaka puanı (büyük = ilgili; ölçek modele özgü)."""
@@ -95,4 +129,7 @@ def load_reranker(model_dir: Optional[Path] = None) -> Optional[CrossEncoderRera
         return _DEFAULT
 
 
-__all__ = ["CrossEncoderReranker", "load_reranker", "MAX_PASSAGE_CHARS", "MIN_SCORES"]
+__all__ = [
+    "CrossEncoderReranker", "load_reranker", "verify_model_dir", "MAX_PASSAGE_CHARS", "MIN_SCORES",
+    "MODEL_REPO", "MODEL_REVISION", "MODEL_FILES", "MODEL_WEIGHTS_SHA256", "MISSING_MODEL_WARNING",
+]

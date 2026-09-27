@@ -162,12 +162,20 @@ class TestPresenterCandidateScope(unittest.TestCase):
         presenter = AnalysisPresenter(audit_sink=lambda *a, **k: None, catalog_fn=lambda: [])
         presenter._use_corpus_term_stats = lambda _rag: []
         presenter.reranker_fn = lambda: reranker
-        presenter.execute_analysis(text=self.TEXT, rag_client=rag)
+        self.execution = presenter.execute_analysis(text=self.TEXT, rag_client=rag)
         return rag
 
     def test_claim_candidates_only_with_reranker(self):
         self.assertFalse(self._run(None).claim_candidates.called)
         self.assertTrue(self._run(FakeReranker({})).claim_candidates.called)
+
+    def test_missing_model_is_reported_not_silent(self):
+        from mufettis.rag.reranker import MISSING_MODEL_WARNING
+
+        self._run(None)
+        self.assertIn(MISSING_MODEL_WARNING, self.execution.result.warnings)
+        self._run(FakeReranker({}))
+        self.assertNotIn(MISSING_MODEL_WARNING, self.execution.result.warnings)
 
 
 class TestLoadReranker(unittest.TestCase):

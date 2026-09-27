@@ -276,6 +276,11 @@ class AnalysisPresenter:
                 retrieval_warnings = retrieval_error_warnings(retrieval_plan, retrieval_errors)
                 if self.use_reranker:
                     self.engine.reranker = self.reranker_fn()
+                    if self.engine.reranker is None:
+                        # Sessiz kalite düşüşü olmasın: denetçi eşleştirmenin zayıf modda yapıldığını görmeli.
+                        from mufettis.rag.reranker import MISSING_MODEL_WARNING
+
+                        retrieval_warnings.append(MISSING_MODEL_WARNING)
                 # İddia başına geniş aday havuzu yalnızca yeniden sıralayıcıyla: sözcüksel sıralama
                 # geniş havuzda yanlış pozitif üretir (ölçüm: dev negatiflerinde 2/11 -> 5/11).
                 if self.engine.reranker is not None:
