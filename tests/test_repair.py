@@ -32,6 +32,11 @@ from repair.models import (
 )
 from repair.scanner import scan_document, scan_production
 
+def _real_pdf_fixture():
+    """Gerçek PDF duman testleri için isteğe bağlı dosya (MUFETTIS_REPAIR_PDF); yoksa None."""
+    path = Path(os.environ.get("MUFETTIS_REPAIR_PDF", "").strip() or "-")
+    return path if path.is_file() else None
+
 
 class DummyCollection:
     """Mock Chroma collection for read-only scanner tests."""
@@ -642,9 +647,9 @@ class TestFaz10VerifiedCandidateExtraction(unittest.TestCase):
 
     # Real PDF Smoke Test
     def test_f10_real_pdf_smoke_test(self):
-        real_pdf = Path("/home/keremc/.gemini/antigravity/brain/67bad724-f392-4ed0-8f76-5e71d0163d53/.user_uploaded/media_1789736170273.pdf")
-        if not real_pdf.exists():
-            self.skipTest("Real test PDF fixture not available")
+        real_pdf = _real_pdf_fixture()
+        if real_pdf is None:
+            self.skipTest("MUFETTIS_REPAIR_PDF ile gerçek bir PDF yolu verin")
         from repair.extractor import extract_candidate, validate_source
         from mufettis.common.utils import sha256_bytes
         h = sha256_bytes(real_pdf.read_bytes())
@@ -932,9 +937,9 @@ class TestFaz11AQualityGateCore(unittest.TestCase):
 
     # 21. REAL PDF FIXTURE VS CONTROLLED BASELINE COMPARISON
     def test_f11_21_real_pdf_fixture_vs_controlled_baseline(self):
-        real_pdf = Path("/home/keremc/.gemini/antigravity/brain/67bad724-f392-4ed0-8f76-5e71d0163d53/.user_uploaded/media_1789736170273.pdf")
-        if not real_pdf.exists():
-            self.skipTest("Real test PDF fixture not available")
+        real_pdf = _real_pdf_fixture()
+        if real_pdf is None:
+            self.skipTest("MUFETTIS_REPAIR_PDF ile gerçek bir PDF yolu verin")
         from repair.extractor import extract_candidate
         from repair.comparator import compare_quality
         from repair.models import ComparisonStatus, QualitySnapshot

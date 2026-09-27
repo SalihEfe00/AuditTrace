@@ -4,9 +4,9 @@
 Gömme modeli sorguyu ve parçayı ayrı ayrı vektöre çevirir; cross-encoder ikisini birlikte okuyup
 "bu parça bu cümleye cevap mı" puanı verir. Gerçek korpus ölçümünde (benchmarks/, iddia cümlesiyle
 BM25+vektör RRF ilk 30 aday) beklenen hükmü ilk sıraya koyma: RRF 7/18 dev, 4/14 holdout;
-cross-encoder ile 11/18 ve 13/14.
+cross-encoder ile 11/18 ve 13/14 (ilk 14 pozitifli holdout; güncel sayılar benchmarks/baseline.json).
 
-Model: cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (çok dilli, ~470 MB, CPU'da 2 iş parçacığıyla
+Model: cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (çok dilli, ~490 MB (≈470 MiB), CPU'da 2 iş parçacığıyla
 30 aday ~1.7 sn). Model analiz sırasında indirilmez; klasör config.RERANKER_MODEL_DIR'e (MUFETTIS_RERANKER_DIR)
 scripts/install_reranker_model.py ile kurulur (--download veya --from). Klasör veya sentence-transformers yoksa load_reranker None döner ve analiz sözcüksel
 sıralamayla sürer. Çıkarım deterministiktir (eval modu, sabit kırpma).
@@ -31,7 +31,9 @@ MAX_THREADS = 2
 # özgü olduğundan eşik modelle birlikte tutulur ve benchmark ile ayarlanır (scripts/eval_accuracy.py,
 # yalnızca dev vakaları; holdout doğrulama içindir). mmarco-mMiniLMv2: dev negatiflerinde seçilen
 # kanıtın en yüksek puanı -2.57, dev doğrularının en düşüğü -1.74; eşik aradaki orta nokta.
-# Ölçüm (48 vaka): dev 12/17 doğru, 0/11 yanlış pozitif; holdout 10/14 doğru, 0 yanlış dayanak, 0/6 yanlış pozitif.
+# (-2.57 / -1.74 ilk 48 vakalık ölçümden; eşik sonradan temiz korpusla dev'de yeniden doğrulandı.)
+# Güncel ölçüm (82 vaka, benchmarks/baseline.json): dev 12/18 doğru, 2 yanlış dayanak, 0/10 yanlış
+# pozitif; holdout 22/34 doğru, 4 yanlış dayanak, 0/20 yanlış pozitif.
 MIN_SCORES = {
     "cross-encoder--mmarco-mMiniLMv2-L12-H384-v1": -2.15,
 }
@@ -40,7 +42,7 @@ MIN_SCORES = {
 # hükmün iddiayla ilgili olduğunu doğrulamalıdır. Eşik yanlış dayanakları ayıramıyor (dev'de yanlış
 # dayanak puanları -1.91 ve -0.74, doğruların bir kısmı daha düşük); ayırmak yerine işaretlenir.
 # Sınır ayarlanmadı: çapraz kodlayıcının logit'i, 0 = modelin "yüzde elli ilgili" noktası.
-# Ölçüm (2026-09-27, üretim korpusu): dev'de 2/2 yanlış dayanak ve 12 doğrunun 5'i bu bantta.
+# Ölçüm (2026-09-27, üretim korpusu, 82 vaka): yanlış dayanakların 5/6'sı, doğruların 8/34'ü bu bantta.
 CONFIDENT_SCORES = {
     "cross-encoder--mmarco-mMiniLMv2-L12-H384-v1": 0.0,
 }

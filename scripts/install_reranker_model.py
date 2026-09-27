@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""İddia-kanıt yeniden sıralayıcı modelini (cross-encoder, ~490 MB) kurar ve doğrular.
+"""İddia-kanıt yeniden sıralayıcı modelini (cross-encoder, ~490 MB (≈470 MiB)) kurar ve doğrular.
 
 Model analiz doğruluğunun temelidir (bkz. mufettis/rag/reranker.py, benchmarks/baseline.json);
 yoksa uygulama çalışır ama eşleştirme yalnızca sözcükseldir ve analiz sonucunda uyarı gösterilir.
