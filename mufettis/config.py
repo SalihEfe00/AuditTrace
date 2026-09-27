@@ -15,7 +15,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = Path(os.environ["MUFETTIS_DATA_DIR"]).resolve() if os.environ.get("MUFETTIS_DATA_DIR") else BASE_DIR / "data"
 DB_PATH = DATA_DIR / "mevzuat_db"
 # Parça deposu: "sqlite" (SQLite + disk üzerinde kesin vektör taraması, mufettis/rag/store.py),
-# "chroma" veya "auto" (varsayılan): taşınmış bir SQLite deposu varsa o, yoksa Chroma. Böylece
+# "chroma" veya "auto" (varsayılan): taşınmış bir SQLite deposu varsa o, yoksa taşınmamış
+# Chroma veritabanı varsa Chroma, ikisi de yoksa (yeni kurulum) SQLite. Böylece mevcut kurulumda
 # scripts/migrate_chroma_to_sqlite.py çalıştırılana kadar hiçbir şey değişmez, sonra geçiş kendiliğinden olur.
 VECTOR_STORE = os.environ.get("MUFETTIS_VECTOR_STORE", "auto").strip().lower()
 CORPUS_STORE_PATH = DATA_DIR / "corpus_store"
@@ -31,7 +32,7 @@ OLLAMA_URL = "http://127.0.0.1:11434"
 DEFAULT_LLM = os.environ.get("MUFETTIS_LLM_MODEL", "").strip() or "llama3.2:3b"
 EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 # İddia-kanıt yeniden sıralayıcısı (cross-encoder). İsteğe bağlıdır: klasör yoksa analiz sözcüksel
-# sıralamayla sürer. Model internetten indirilmez; klasör elle kurulur (bkz. mufettis/rag/reranker.py).
+# sıralamayla sürer. Model analizde indirilmez; scripts/install_reranker_model.py ile kurulur (bkz. mufettis/rag/reranker.py).
 RERANKER_MODEL_DIR = Path(os.environ.get(
     "MUFETTIS_RERANKER_DIR",
     str(Path.home() / ".cache" / "mufettis-models" / "cross-encoder--mmarco-mMiniLMv2-L12-H384-v1"),

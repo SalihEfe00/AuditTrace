@@ -8,7 +8,7 @@ kaynakla karşılaştırılır.
 Kullanım:
     python scripts/migrate_chroma_to_sqlite.py                      # data/mevzuat_db → data/corpus_store
     python scripts/migrate_chroma_to_sqlite.py --source X --target Y [--replace]
-Uygulama yeni depoyu MUFETTIS_VECTOR_STORE=sqlite ile kullanır.
+Uygulama yeni depoyu kendiliğinden kullanır (MUFETTIS_VECTOR_STORE=auto, varsayılan); =sqlite ile zorlanabilir.
 """
 from __future__ import annotations
 

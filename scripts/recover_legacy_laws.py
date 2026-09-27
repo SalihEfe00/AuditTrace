@@ -8,7 +8,7 @@ bu yüzden aramada hiç çıkmıyor ve indekste de kayıtlı değil. Ayrıca mev
 klasöründeki bazı PDF'ler hiç içe aktarılmamış.
 
 Adımlar (--apply ile):
-  0. Yedek: DATA_DIR/backups/e7_legacy_recovery_<zaman>/ (ingest_index, source_cache, mevzuat_db)
+  0. Yedek: DATA_DIR/backups/e7_legacy_recovery_<zaman>/ (ingest_index, source_cache, etkin parça deposu)
   1. mevzuat_deposu/ PDF'leri BulkRegulationImporter ile içe aktarılır (güncel şema).
   2. PDF'i olmayan eski belgeler, eski parçaların sayfa/alt parça sırasıyla birleştirilmesiyle
      yeniden oluşturulup içe aktarılır (ingest_origin=legacy_chunk_recovery).

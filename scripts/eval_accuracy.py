@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Gerçek korpus doğruluk ölçümü (mufettis/analysis/benchmark.py).
 
-Korpusa yazmaz; analiz denetim kaydı (audit) tutulmaz. Veri dizini MUFETTIS_DATA_DIR ile seçilir.
+Korpusa yazmaz; analiz denetim kaydı (audit) tutulmaz. Veri dizini MUFETTIS_DATA_DIR ile seçilir;
+türetilmiş önbellekler (BM25 indeksi, term_stats.json) o dizine yazılabilir.
 
 Kullanım:
     python scripts/eval_accuracy.py                          # dev vakaları
@@ -41,7 +42,7 @@ def main() -> int:
     parser.add_argument("--verifier", action="store_true",
                         help="isteğe bağlı yerel dil modeli doğrulayıcısını aç (Ollama; taban onsuz ölçülür)")
     parser.add_argument("--check-baseline", action="store_true", help=f"sonucu {BASELINE_FILE.name} ile karşılaştır")
-    parser.add_argument("--write-baseline", metavar="NOT", help="sonucu yeni taban olarak yaz (yalnızca --split all)")
+    parser.add_argument("--write-baseline", metavar="NOT", help="sonucu yeni taban olarak yaz (yalnızca --split all, --only olmadan)")
     args = parser.parse_args()
 
     from mufettis.analysis.analysis_presenter import AnalysisPresenter

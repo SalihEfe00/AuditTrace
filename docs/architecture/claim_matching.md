@@ -104,7 +104,7 @@ Kurallar:
 Komutlar:
 - Denetim: `python scripts/eval_accuracy.py --split all --check-baseline`. Kötüleşme varsa çıkış kodu 1 döner.
 - İsteğe bağlı test: `MUFETTIS_BENCHMARK_DATA_DIR=<data kopyası> python -m pytest tests/test_accuracy_baseline.py`.
-- Tabanı güncellemek bilinçli bir işlemdir: `--write-baseline "<not>"`.
+- Tabanı güncellemek bilinçli bir işlemdir: `--split all --write-baseline "<not>"` (`--only` ile kullanılamaz).
 
 Yeniden sıralayıcı kapalıyken denetim 10 metrikte başarısız olur: holdout doğru 15'ten 9'a düşer, yanlış pozitif 0'dan 6'ya çıkar. Model doğruluğun temelidir.
 

@@ -7,8 +7,8 @@ BM25+vektör RRF ilk 30 aday) beklenen hükmü ilk sıraya koyma: RRF 7/18 dev, 
 cross-encoder ile 11/18 ve 13/14.
 
 Model: cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (çok dilli, ~470 MB, CPU'da 2 iş parçacığıyla
-30 aday ~1.7 sn). İnternetten indirilmez: klasör config.RERANKER_MODEL_DIR'e (MUFETTIS_RERANKER_DIR)
-elle konur. Klasör veya sentence-transformers yoksa load_reranker None döner ve analiz sözcüksel
+30 aday ~1.7 sn). Model analiz sırasında indirilmez; klasör config.RERANKER_MODEL_DIR'e (MUFETTIS_RERANKER_DIR)
+scripts/install_reranker_model.py ile kurulur (--download veya --from). Klasör veya sentence-transformers yoksa load_reranker None döner ve analiz sözcüksel
 sıralamayla sürer. Çıkarım deterministiktir (eval modu, sabit kırpma).
 """
 from __future__ import annotations

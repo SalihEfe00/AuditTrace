@@ -51,7 +51,7 @@ Tam mevzuat ölçeğinde yaklaşık 1 milyon parça hedefleniyor. Hedef donanım
 
 `MUFETTIS_VECTOR_STORE` üç değer alır: `auto` (varsayılan), `sqlite` ve `chroma`.
 
-- `auto`, taşınmış bir depo varsa (`data/corpus_store/mevzuat/store.sqlite3`) onu, yoksa Chroma'yı kullanır.
+- `auto`, taşınmış bir depo varsa (`data/corpus_store/mevzuat/store.sqlite3`) onu, yoksa taşınmamış bir Chroma veritabanı varsa Chroma'yı kullanır. İkisi de yoksa (yeni kurulum) SQLite deposu kullanılır.
 - Taşıma komutu kaynağa yazmaz. Kopyalar ve sayı, sıra, metin, metadata ve vektörleri doğrular. Chroma dizini yedek olarak yerinde kalır.
 
 ```bash

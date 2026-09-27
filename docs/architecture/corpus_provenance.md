@@ -146,4 +146,5 @@ Bu yüzden çalıştırıldığında, yüklemede doğru çıkan adların yerine 
 - İddia ile terim paylaşmayan doğru hüküm (ör. "aidat ücreti" ↔ "sözleşmede yer almayan … masraf")
   sözcüksel eşleştiricide bulunamaz. İsteğe bağlı yerel dil modeli doğrulayıcısı
   (`mufettis/analysis/claim_verifier.py`) yalnızca getirilen adaylar arasından seçim yapar ve
-  alıntısı birebir doğrulanır. Gerçek bir yerel modelle değerlendirmesi henüz yapılmadı.
+  alıntısı birebir doğrulanır. Yeniden sıralayıcı kuruluyken yalnızca düşük güvenli seçimi veto
+  edebilir; gerçek bir yerel modelle (qwen2.5:7b) ölçümü `claim_matching.md` içindedir.
