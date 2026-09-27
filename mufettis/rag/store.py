@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS chunks (
     vec INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS chunks_file_hash ON chunks(file_hash);
+CREATE INDEX IF NOT EXISTS chunks_vec ON chunks(vec);
 CREATE TABLE IF NOT EXISTS store_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 """
 
@@ -73,6 +74,9 @@ def _path(key: str) -> str:
 def _typed_eq(key: str, value: Any, params: List[Any]) -> str:
     """Tipe duyarlı eşitlik (Chroma gibi: 1, "1" ve True birbirine eşit değildir). Anahtarı olmayan
     kayıtta NULL değil yanlış döner; böylece `$ne`/`$nin` bu kayıtları da kapsar."""
+    if key == "file_hash" and isinstance(value, str):
+        params.append(value)
+        return "file_hash IS ?"  # NULL'a karşı güvenli ve indeksi kullanır
     return f"IFNULL({_typed_eq_raw(key, value, params)}, 0)"
 
 
@@ -81,9 +85,6 @@ def _typed_eq_raw(key: str, value: Any, params: List[Any]) -> str:
     if isinstance(value, bool):
         params.append(path)
         return f"json_type(metadata, ?) = '{'true' if value else 'false'}'"
-    if key == "file_hash" and isinstance(value, str):
-        params.append(value)
-        return "file_hash = ?"
     if isinstance(value, int):
         kind = "'integer'"
     elif isinstance(value, float):
@@ -549,7 +550,7 @@ class SqliteStoreClient:
         self.path.mkdir(parents=True, exist_ok=True)
 
     def _dir(self, name: str) -> Path:
-        if not name or any(ch in name for ch in '/\:') or name in (".", ".."):
+        if not name or any(ch in name for ch in r'/\:') or name in (".", ".."):
             raise ValueError(f"Geçersiz koleksiyon adı: {name!r}")
         return self.path / name
 
