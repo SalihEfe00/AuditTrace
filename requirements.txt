@@ -19,9 +19,8 @@ urllib3>=2.8,<3             # imported directly (Retry)
 truststore>=0.10.4,<0.11    # BDDK / Resmi Gazete missing intermediate certs, see mufettis/common/http.py
 beautifulsoup4>=4.15,<5
 
-# The on-disk vector store (data/mevzuat_db) is created by this Chroma line;
-# test a newer minor on a copy of the database before upgrading.
-chromadb>=1.5.9,<1.6
+# Chunks are stored in SQLite (mufettis/rag/store.py, data/corpus_store); chromadb is only
+# needed to read or migrate a legacy Chroma database (requirements-optional.txt).
 sentence-transformers>=6.1,<7
 tokenizers>=0.22.2,<=0.23.0
 pydantic>=2.13,<3

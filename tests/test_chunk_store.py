@@ -361,12 +361,16 @@ class TestStoreBackup(unittest.TestCase):
 
 
 class TestStoreSelection(unittest.TestCase):
-    def test_auto_uses_migrated_store_only_when_present(self):
-        from mufettis.rag.store import SqliteStoreClient, resolve_store_kind, store_root_for
+    def test_auto_prefers_sqlite_and_uses_chroma_only_for_unmigrated_database(self):
+        from mufettis.rag.store import CHROMA_DB_FILE, SqliteStoreClient, resolve_store_kind, store_root_for
 
         tmp = Path(tempfile.mkdtemp())
         try:
             db = tmp / "mevzuat_db"
+            # Yeni kurulum: hiçbir depo yok -> SQLite (chromadb gerekmez).
+            self.assertEqual(resolve_store_kind("auto", db), "sqlite")
+            db.mkdir()
+            (db / CHROMA_DB_FILE).write_bytes(b"")
             self.assertEqual(resolve_store_kind("auto", db), "chroma")
             SqliteStoreClient(store_root_for(db)).get_or_create_collection("mevzuat")
             self.assertEqual(resolve_store_kind("auto", db), "sqlite")

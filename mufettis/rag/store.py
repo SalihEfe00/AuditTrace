@@ -47,6 +47,8 @@ import numpy as np
 from mufettis.config import CHROMA_COLLECTION, CORPUS_STORE_PATH, DB_PATH, VECTOR_STORE
 
 STORE_FILE = "store.sqlite3"
+# Chroma'nın kalıcı istemcisinin veritabanı dizininde oluşturduğu dosya (eski depo işareti).
+CHROMA_DB_FILE = "chroma.sqlite3"
 STORE_SCHEMA = "2"  # 2: belge düzeyindeki metadata tabanlarda
 SCAN_BLOCK_ROWS = 65536
 RESCORE_FACTOR = 4          # int8 taramasından float16 yeniden puanlamaya giden aday çarpanı
@@ -721,10 +723,14 @@ def store_file_for(db_path: Path, name: str = CHROMA_COLLECTION) -> Path:
 
 
 def resolve_store_kind(requested: Optional[str], db_path: Path) -> str:
-    """"sqlite" veya "chroma". "auto": taşınmış SQLite deposu varsa o."""
+    """"sqlite" veya "chroma". "auto": SQLite deposu varsa o; yalnızca taşınmamış bir Chroma
+    veritabanı varsa Chroma; hiçbiri yoksa (yeni kurulum) SQLite. Böylece yeni kurulumlar chromadb
+    gerektirmez; Chroma yalnızca eski veritabanını okumak ve taşımak içindir."""
     kind = (requested or VECTOR_STORE or "auto").strip().lower()
     if kind == "auto":
-        return "sqlite" if store_file_for(db_path).is_file() else "chroma"
+        if store_file_for(db_path).is_file():
+            return "sqlite"
+        return "chroma" if (Path(db_path) / CHROMA_DB_FILE).is_file() else "sqlite"
     if kind not in ("sqlite", "chroma"):
         raise ValueError(f"Bilinmeyen parça deposu: {kind}")
     return kind
