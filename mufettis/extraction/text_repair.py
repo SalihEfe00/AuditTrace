@@ -367,10 +367,44 @@ def _repair_split_words_once(s: str) -> str:
 _C0_CONTROL_RE = re.compile(r"[\x01-\x08\x0b\x0c\x0e-\x1f\x7f]")
 
 
+# Tarayıcıdan yazdırılmış PDF'lerin her sayfaya eklediği satırlar belge metni değildir:
+# alt bilgi "https://www.mevzuat.gov.tr/mevzuat?... 3/45" (adres + sayfa sayacı), üst bilgi
+# "7.09.2026 19:59 Mevzuat Bilgi Sistemi" (yazdırma zamanı + site başlığı). Metnin ortasına,
+# çoğu zaman cümlenin içine düşer; aramayı, gömmeyi ve atıf metnini kirletir.
+# Satır, satır sonuyla birlikte kaldırılır: cümle ortasındaki sayfa geçişi paragraf sınırına dönmez.
+_PRINT_FOOTER_RE = re.compile(
+    r"^[ \t]*https?://\S+[^\n]*?\s\d{1,4}[ \t]*/[ \t]*\d{1,4}[ \t]*(?:\n|\Z)", re.MULTILINE
+)
+_PRINT_HEADER_RE = re.compile(
+    r"^[ \t]*\d{1,2}[./]\d{1,2}[./]\d{2,4},?[ \t]+\d{1,2}:\d{2}(?::\d{2})?(?:[ \t]*[AaPp][Mm])?[ \t]+"
+    r"(\S[^\n]*?)[ \t]*(?:\n|\Z)",
+    re.MULTILINE,
+)
+# Üst bilgi biçimi sıradan bir satıra da benzeyebilir ("01.03.2024 10:00 toplantı yapıldı"); yalnızca
+# aynı başlıkla tekrarlanıyorsa (her sayfada) ya da belgede yazdırma alt bilgisi varsa kaldırılır.
+MIN_PRINT_HEADER_REPEATS = 2
+
+
+def strip_print_artifacts(value: str) -> str:
+    """Tarayıcı yazdırma üst/alt bilgisi satırlarını kaldırır; başka satıra dokunmaz."""
+    text = str(value or "")
+    if not re.search(r"https?://|\d:\d{2}", text):
+        return text
+    has_footer = bool(_PRINT_FOOTER_RE.search(text))
+    text = _PRINT_FOOTER_RE.sub("", text)
+    titles: Dict[str, int] = {}
+    for match in _PRINT_HEADER_RE.finditer(text):
+        titles[match.group(1)] = titles.get(match.group(1), 0) + 1
+    running = {t for t, n in titles.items() if has_footer or n >= MIN_PRINT_HEADER_REPEATS}
+    if running:
+        text = _PRINT_HEADER_RE.sub(lambda m: "" if m.group(1) in running else m.group(0), text)
+    return text
+
+
 def normalize_extracted_text(value: str) -> str:
     """Extraction metnini normalize eder; mevcut yatay whitespace'i korur (kelime içine düşmüş
     sahte boşluklar hariç: onlar en son, diğer onarımlardan sonra kaldırılır; bkz. repair_split_words)."""
-    return repair_split_words(_normalize_extracted_text(value))
+    return repair_split_words(_normalize_extracted_text(strip_print_artifacts(value)))
 
 
 def _normalize_extracted_text(value: str) -> str:
@@ -531,6 +565,7 @@ __all__ = [
     "repair_account_code_spacing",
     "repair_extracted_spacing",
     "normalize_extracted_text",
+    "strip_print_artifacts",
     "normalize_legal_whitespace",
     "clean_evidence_text",
     "extract_legal_identifier",

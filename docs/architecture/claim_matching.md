@@ -59,6 +59,7 @@ Hepsi dev'de kötüleştirdi ya da gürültü düzeyinde kaldı.
 - Kelime kapısını kaldırmak ya da yüksek puanlıya kapıyı atlatmak: dev'e yanlış pozitif ekledi.
 - Kanıtı pencerelere bölüp en yüksek pencere puanını almak: dev 12'den 10'a düştü.
 - Yan cümle düzeyinde iddia algılama: +1 doğru, +3 yanlış dayanak.
+- Birinci kişi olgu yüklemleri ("yatırdım", "bilemedim", "alamıyorum") iddia sayılsın: dev değişmedi, ancak holdout'ta +1 doğru, +2 yanlış dayanak çıktı. Nedenleri: yeni iddialardan birinin doğru hükmü havuzda yok (5411 Md.60); ötekinde model komşu maddeyi seçiyor (5464 Md.19 yerine Md.22). Bu yüzden iddia algılamayı genişletmek, seçim güçlenmeden yapılmamalı.
 
 **Arama tarafı:**
 - `_legal_rerank` içinde BM25 karışımı
@@ -98,4 +99,4 @@ python scripts/install_reranker_model.py --from D:/model   # internetsiz makine
 
 - **Model:** Türkçe hukuk metninde aynı kanunun komşu maddelerini karıştırabiliyor (5464 Md.8 ile Md.10 gibi). Puanlar arasındaki fark küçük olduğunda seçim kararsız kalıyor.
 - **Kelime kapısı:** Eşanlamlı ifadelerde doğru hükmü engelleyebiliyor. Örnek: "işlem yapmadığım hesap" ile "zamanaşımı" (5411 Md.62).
-- **İddia algılama:** Yan cümledeki olguları kaçırabiliyor. Genişletme denendi ve reddedildi (yukarıya bakın).
+- **İddia algılama:** Yan cümledeki olguları ve birinci kişi anlatımını ("paramı yatırdım, geri alamıyorum") kaçırabiliyor. Genişletme denendi ve reddedildi (yukarıya bakın). Bu metinlerde hiç iddia çıkmadığı için bulgu da çıkmıyor; güvenli ama eksik bir davranış.
