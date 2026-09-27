@@ -63,6 +63,12 @@ STRONG_LEXICAL_DISTINCTIVE = 2
 # Uygunluk politikası varken RAG'dan istenen sonuç çarpanı (bkz. retrieve_evidence).
 EXCLUSION_OVERFETCH = 4
 
+# İddia başına, iddia cümlesiyle aranan aday sayısı (bkz. retrieve_claim_candidates). Ölçümde
+# (benchmarks/) beklenen hüküm BM25+vektör RRF'nin ilk 30'unda dev vakalarının çoğunda vardı.
+CLAIM_CANDIDATES = 30
+# Yeniden sıralayıcıya (cross-encoder) gönderilen en fazla aday: sözcüksel kapıyı geçenler, aday sırasıyla.
+RERANK_MAX_CANDIDATES = 30
+
 # Kanıt metnini alaka için cümle/satır birimlerine böler (çıkarım kaynaklı yapışık
 # metinlerde nokta olmayabileceği için satır sonları ve ; : da sınır sayılır).
 _EVIDENCE_UNIT_SPLIT = re.compile(r"(?<=[.!?;:])\s+|\n+")
@@ -140,6 +146,9 @@ class AnalysisEngine:
         # İsteğe bağlı dil modeli doğrulayıcısı (bkz. mufettis.analysis.claim_verifier). None ise
         # eşleştirme yalnızca sözcükseldir.
         self.claim_verifier: Optional[Any] = None
+        # İsteğe bağlı yeniden sıralayıcı (mufettis.rag.reranker): score(sorgu, metinler) -> puanlar.
+        # None ise seçim yalnızca sözcüksel sıralamayla yapılır.
+        self.reranker: Optional[Any] = None
 
     def use_term_stats(self, stats: Optional[Dict[str, Any]]) -> None:
         """Korpus terim istatistiğini kullan; None veya yetersizse sabit listeye döner."""
@@ -234,15 +243,7 @@ class AnalysisEngine:
                 if errors is not None:
                     errors.append(f"{query_str[:60]}: {type(exc).__name__}: {exc}")
                 continue
-            admitted = []
-            for r in results:
-                meta = r.get("metadata", {}) or {}
-                source_id = str(meta.get("source_id", "") or "").strip()
-                if scope and source_id and canonical_source_id(source_id) not in scope:
-                    continue
-                if policy and not policy.admits(meta):
-                    continue
-                admitted.append(r)
+            admitted = [r for r in results if self._admits(r, scope, policy)]
             per_query.append((admitted, retrieval_plan.query_depths.get(query_str)))
 
         collected: List[Tuple[int, int, Evidence]] = []
@@ -256,15 +257,7 @@ class AnalysisEngine:
                     continue
                 r = results[rank]
                 meta = r.get("metadata", {}) or {}
-                text = str(r.get("document", "") or "")
-                key = (
-                    canonical_view(meta).expression_id,
-                    meta.get("chunk_no", ""),
-                    meta.get("article_no", ""),
-                    meta.get("paragraph_no", ""),
-                    meta.get("item_no", ""),
-                    hashlib.sha1(normalize_legal_whitespace(text).encode("utf-8")).hexdigest()[:16],
-                )
+                key = self._result_key(meta, str(r.get("document", "") or ""))
                 if key in seen_keys:
                     continue
                 seen_keys.add(key)
@@ -277,6 +270,88 @@ class AnalysisEngine:
         collected.sort(key=lambda item: (item[0], item[1]))
         return [ev for _, _, ev in collected]
 
+    @staticmethod
+    def _admits(result: Dict[str, Any], scope: Set[str], policy: Optional[EligibilityPolicy]) -> bool:
+        """Kaynak kapsamı ve uygunluk politikası (bkz. retrieve_evidence)."""
+        meta = result.get("metadata", {}) or {}
+        source_id = str(meta.get("source_id", "") or "").strip()
+        if scope and source_id and canonical_source_id(source_id) not in scope:
+            return False
+        return not (policy and not policy.admits(meta))
+
+    @staticmethod
+    def _result_key(meta: Dict[str, Any], text: str) -> Tuple[Any, ...]:
+        """Tekilleştirme anahtarı: sürüm kimliği + parça konumu + metin özeti."""
+        return (
+            canonical_view(meta).expression_id,
+            meta.get("chunk_no", ""),
+            meta.get("article_no", ""),
+            meta.get("paragraph_no", ""),
+            meta.get("item_no", ""),
+            hashlib.sha1(normalize_legal_whitespace(text).encode("utf-8")).hexdigest()[:16],
+        )
+
+    def retrieve_claim_candidates(
+        self,
+        doc: DocumentUnderstanding,
+        retrieval_plan: RetrievalPlan,
+        rag_client: Any,
+        errors: Optional[List[str]] = None,
+    ) -> Dict[str, List[Evidence]]:
+        """Her iddia için, iddia cümlesinin kendisiyle aranan aday kanıtlar (claim_id -> sıralı liste).
+
+        Belge düzeyindeki sorgular (başlık, konu anahtar kelimeleri) havuzu belgenin genel konusuna
+        göre doldurur; bir iddianın dayanağı o havuzda olmayabilir. Adaylar LocalRAG.claim_candidates
+        ile (BM25 + vektör RRF, hukuki yeniden sıralama yok) alınır; istemci desteklemiyorsa boş döner.
+        Kapsam ve uygunluk politikası retrieve_evidence ile aynıdır."""
+        if getattr(rag_client, "supports_claim_candidates", False) is not True:
+            return {}
+        scope = {canonical_source_id(s) for s in (retrieval_plan.source_scope or [])}
+        policy = EligibilityPolicy.from_filters(retrieval_plan.filters)
+        out: Dict[str, List[Evidence]] = {}
+        for claim in self.claims_for_matching(doc):
+            try:
+                results = rag_client.claim_candidates(claim.statement, CLAIM_CANDIDATES, eligibility=policy)
+            except Exception as exc:
+                if errors is not None:
+                    errors.append(f"{claim.statement[:60]}: {type(exc).__name__}: {exc}")
+                continue
+            out[claim.claim_id] = self.merge_evidence(
+                [self.chunk_to_evidence(r) for r in results if self._admits(r, scope, policy)]
+            )
+        return out
+
+    @classmethod
+    def merge_evidence(cls, *groups: List[Evidence]) -> List[Evidence]:
+        """Kanıt listelerini sırayla birleştirir; aynı parçanın sonraki kopyaları alınmaz."""
+        seen: Set[Tuple[Any, ...]] = set()
+        merged: List[Evidence] = []
+        for group in groups:
+            for ev in group:
+                key = cls._result_key(ev.metadata, ev.text_span)
+                if key not in seen:
+                    seen.add(key)
+                    merged.append(ev)
+        return merged
+
+    @staticmethod
+    def claims_for_matching(doc: DocumentUnderstanding) -> List[DocumentClaim]:
+        """Eşleştirilecek iddialar. Şikâyet kalıbı taşımayan belgeler (ör. iç denetim notu) için
+        iddia, belgenin tespit cümlelerinden kurulur; içeriksiz sentetik bir cümle eşleşme üretmemeli."""
+        if doc.claims:
+            return list(doc.claims)
+        statement = DocumentUnderstandingService.observation_statement(doc)
+        if not statement:
+            return []
+        return [
+            DocumentClaim(
+                claim_id="claim_general",
+                statement=statement,
+                subject=doc.subjects[0] if doc.subjects else "genel_uyum",
+                involved_entities=[e.text for e in doc.entities[:2]],
+            )
+        ]
+
     def analyze(
         self,
         doc: DocumentUnderstanding,
@@ -285,8 +360,13 @@ class AnalysisEngine:
         retrieval_plan: RetrievalPlan,
         rag_client: Optional[Any] = None,
         retrieved_evidence: Optional[List[Evidence]] = None,
+        claim_candidates: Optional[Dict[str, List[Evidence]]] = None,
     ) -> AnalysisResult:
-        """Executes full vertical slice analysis and returns a validated AnalysisResult."""
+        """Executes full vertical slice analysis and returns a validated AnalysisResult.
+
+        claim_candidates: iddia başına aday kanıtlar (retrieve_claim_candidates); verilmezse ve
+        rag_client ve yeniden sıralayıcı varsa burada alınır. Adaylar havuza eklenir; doğrulama ikisini
+        birlikte görür."""
         warnings: List[str] = []
 
         # 1. Acquire evidence
@@ -296,8 +376,13 @@ class AnalysisEngine:
             retrieval_errors: List[str] = []
             evidence_pool = self.retrieve_evidence(retrieval_plan, rag_client, errors=retrieval_errors)
             warnings.extend(retrieval_error_warnings(retrieval_plan, retrieval_errors))
+            # Geniş aday havuzu yalnızca yeniden sıralayıcıyla (bkz. AnalysisPresenter.execute_analysis).
+            if claim_candidates is None and self.reranker is not None:
+                claim_candidates = self.retrieve_claim_candidates(doc, retrieval_plan, rag_client)
         else:
             evidence_pool = []
+        claim_candidates = claim_candidates or {}
+        evidence_pool = self.merge_evidence(evidence_pool, *claim_candidates.values())
 
         # 2. Empty Retrieval Guard: If no evidence exists, do NOT fabricate findings
         if not evidence_pool:
@@ -319,7 +404,7 @@ class AnalysisEngine:
 
         # 3. Match claims and subjects with evidence pool
         candidate_findings, unsupported_claims = self._match_claims_to_evidence(
-            doc, analysis_plan, evidence_pool
+            doc, analysis_plan, evidence_pool, claim_candidates
         )
 
         # 4. Citation and Evidence Validation Guard
@@ -361,32 +446,19 @@ class AnalysisEngine:
         doc: DocumentUnderstanding,
         analysis_plan: AnalysisPlan,
         evidence_pool: List[Evidence],
+        claim_candidates: Optional[Dict[str, List[Evidence]]] = None,
     ) -> Tuple[List[Finding], List[DocumentClaim]]:
         findings: List[Finding] = []
         unsupported: List[DocumentClaim] = []
 
-        claims_to_process = list(doc.claims)
-        if not claims_to_process:
-            # Şikâyet kalıbı taşımayan belgeler (ör. iç denetim notu) için iddia, belgenin
-            # tespit cümlelerinden kurulur; içeriksiz sentetik bir cümle eşleşme üretmemeli.
-            synth_subject = doc.subjects[0] if doc.subjects else "genel_uyum"
-            statement = DocumentUnderstandingService.observation_statement(doc)
-            if statement:
-                claims_to_process = [
-                    DocumentClaim(
-                        claim_id="claim_general",
-                        statement=statement,
-                        subject=synth_subject,
-                        involved_entities=[e.text for e in doc.entities[:2]],
-                    )
-                ]
-
-        for claim in claims_to_process:
-            matched_ev = self._find_best_evidence_for_claim(claim, doc.subjects, evidence_pool, doc=doc)
+        for claim in self.claims_for_matching(doc):
+            # Önce iddianın kendi cümlesiyle bulunan adaylar, sonra belge düzeyindeki havuz.
+            claim_pool = self.merge_evidence((claim_candidates or {}).get(claim.claim_id, []), evidence_pool)
+            matched_ev, rerank_score = self._select_evidence(claim, claim_pool, doc)
             verdict = None
             if self.claim_verifier is not None:
                 candidates = self._verification_candidates(
-                    claim, evidence_pool, doc, getattr(self.claim_verifier, "max_candidates", 5)
+                    claim, claim_pool, doc, getattr(self.claim_verifier, "max_candidates", 5)
                 )
                 verdict = self.claim_verifier.choose(claim.statement, candidates) if candidates else None
                 if verdict is not None:
@@ -409,6 +481,8 @@ class AnalysisEngine:
                 text_span=verbatim_span,
                 metadata={"file_hash": matched_ev.metadata.get("file_hash", "")},
             )
+            if rerank_score is not None and verdict is None:
+                citation.metadata["rerank_score"] = round(rerank_score, 4)
 
             # Determine risk level objectively
             risk = "Orta"
@@ -477,6 +551,33 @@ class AnalysisEngine:
         """
         ranked = self._rank_evidence_for_claim(claim, evidence_pool, doc)
         return ranked[0] if ranked else None
+
+    def _select_evidence(
+        self,
+        claim: DocumentClaim,
+        candidates: List[Evidence],
+        doc: Optional[DocumentUnderstanding] = None,
+    ) -> Tuple[Optional[Evidence], Optional[float]]:
+        """(seçilen kanıt, yeniden sıralayıcı puanı).
+
+        Sözcüksel ölçüt (_rank_evidence_for_claim) bir KAPIDIR: iddiayla aynı cümlede ayırt edici
+        terim paylaşmayan kanıt bulgu olamaz. Yeniden sıralayıcı (cross-encoder) varsa kapıyı geçenler
+        arasından iddia cümlesiyle birlikte okunduğunda en ilgili olan seçilir; puanı modelin eşiğinin
+        (reranker.min_score) altındaysa bulgu çıkmaz. Yeniden sıralayıcı yoksa sözcüksel sıralamanın ilki seçilir."""
+        accepted = self._rank_evidence_for_claim(claim, candidates, doc)
+        if not accepted:
+            return None, None
+        if self.reranker is None:
+            return accepted[0], None
+        # Aday sırası (iddianın kendi adayları önce) korunarak kapıyı geçenlerin ilk N'i puanlanır.
+        passed = {id(ev) for ev in accepted}
+        shortlist = [ev for ev in candidates if id(ev) in passed][:RERANK_MAX_CANDIDATES]
+        scores = self.reranker.score(claim.statement, [ev.text_span for ev in shortlist])
+        best = max(range(len(shortlist)), key=lambda i: (scores[i], -i))
+        min_score = getattr(self.reranker, "min_score", None)
+        if min_score is not None and scores[best] < min_score:
+            return None, scores[best]
+        return shortlist[best], scores[best]
 
     def _rank_evidence_for_claim(
         self,

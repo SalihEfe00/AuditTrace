@@ -221,3 +221,22 @@ class TestHybridQuery(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestClaimCandidates(unittest.TestCase):
+    """LocalRAG.claim_candidates: BM25 ve vektör sıraları RRF ile birleşir, hukuki yeniden sıralama yok."""
+    QUERY = "kredi kartım için sözleşmede olmayan aidat ücreti talep edildi"
+
+    def test_lexical_hit_outranks_vector_only_hit_and_policy_applies(self):
+        rag = _rag(ROWS, vector_hits=["def-1", "chart-1"])
+        out = rag.claim_candidates(self.QUERY, 5)
+        self.assertEqual(out[0]["id"], "fee-24")
+        self.assertIn("def-1", [r["id"] for r in out])
+        self.assertTrue(all(r["distance"] is not None and r["fusion_score"] > 0 for r in out))
+        policy = EligibilityPolicy(exclude_roles=frozenset({NormativeRole.CLASSIFICATION}))
+        self.assertNotIn("chart-1", [r["id"] for r in rag.claim_candidates(self.QUERY, 5, eligibility=policy)])
+
+    def test_limit_and_empty_query(self):
+        rag = _rag(ROWS, vector_hits=["def-1"])
+        self.assertEqual(len(rag.claim_candidates(self.QUERY, 1)), 1)
+        self.assertEqual(rag.claim_candidates("  ", 5), [])

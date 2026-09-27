@@ -28,6 +28,12 @@ SCRAPE_STATE_FILE = DATA_DIR / "scrape_state.json"
 OLLAMA_URL = "http://127.0.0.1:11434"
 DEFAULT_LLM = "llama3.2:3b"
 EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+# İddia-kanıt yeniden sıralayıcısı (cross-encoder). İsteğe bağlıdır: klasör yoksa analiz sözcüksel
+# sıralamayla sürer. Model internetten indirilmez; klasör elle kurulur (bkz. mufettis/rag/reranker.py).
+RERANKER_MODEL_DIR = Path(os.environ.get(
+    "MUFETTIS_RERANKER_DIR",
+    str(Path.home() / ".cache" / "mufettis-models" / "cross-encoder--mmarco-mMiniLMv2-L12-H384-v1"),
+))
 CHROMA_COLLECTION = "mevzuat"
 MAX_RAG_RESULTS = 100
 EMBED_BATCH_SIZE_CPU = 32
@@ -138,6 +144,7 @@ __all__ = [
     "OLLAMA_URL",
     "DEFAULT_LLM",
     "EMBEDDING_MODEL",
+    "RERANKER_MODEL_DIR",
     "CHROMA_COLLECTION",
     "MAX_RAG_RESULTS",
     "EMBED_BATCH_SIZE_CPU",

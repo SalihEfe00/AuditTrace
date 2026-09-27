@@ -33,6 +33,7 @@ def main() -> int:
     parser.add_argument("--only", default="", help="vaka kimliği parçası")
     parser.add_argument("--out", type=Path, help="sonuçların yazılacağı JSON")
     parser.add_argument("--compare", type=Path, help="karşılaştırılacak önceki sonuç JSON'u")
+    parser.add_argument("--no-rerank", action="store_true", help="yeniden sıralayıcıyı (cross-encoder) kapat")
     args = parser.parse_args()
 
     from mufettis.analysis.analysis_presenter import AnalysisPresenter
@@ -42,6 +43,7 @@ def main() -> int:
     cases = [c for c in load_cases(args.cases) if args.split in ("all", c.split) and args.only in c.case_id]
     rag = LocalRAG()
     presenter = AnalysisPresenter(audit_sink=lambda *a, **k: None)
+    presenter.use_reranker = not args.no_rerank
 
     def corpus_metadatas():
         for _ids, _docs, metas in iter_pages(rag.collection, include=("metadatas",)):
@@ -50,7 +52,7 @@ def main() -> int:
     def show(r):
         mark = {"correct": "OK ", "true_negative": "OK "}.get(r.outcome, "XX ")
         pool = "" if r.retrieval_hit is None else f"havuz={'+' if r.retrieval_hit else '-'}{'' if r.first_hit_rank is None else r.first_hit_rank}/{r.pool_size}"
-        print(f"{mark}{r.outcome:14s} {r.case_id:34s} {pool:12s} {r.seconds:4.1f}s {r.findings[:3]}", flush=True)
+        print(f"{mark}{r.outcome:14s} {r.case_id:34s} {pool:12s} {r.seconds:4.1f}s {r.findings[:3]} {[s for s in r.scores if s is not None]}", flush=True)
 
     results = run_benchmark(cases, lambda text: presenter.execute_analysis(text=text, rag_client=rag),
                             corpus_metadatas(), progress=show)

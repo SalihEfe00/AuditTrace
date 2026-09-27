@@ -54,12 +54,15 @@ from mufettis.legal.parser import (
     split_legal_chunks,
 )
 from mufettis.rag.index import IngestIndex
+from mufettis.rag.fusion import LEXICAL_WEIGHT, SEMANTIC_WEIGHT, reciprocal_rank_fusion
 from mufettis.rag.lexical import LEXICAL_INDEX_VERSION, DiskLexicalIndex, LexicalIndex, query_terms
 from mufettis.rag.paging import iter_pages
 
 # Serbest aramada vektör adaylarına eklenen sözcüksel (BM25) aday sayısı: max(alt sınır, k * çarpan).
 LEXICAL_CANDIDATES_MIN = 10
 LEXICAL_CANDIDATES_PER_K = 2
+# İddia adaylarında (claim_candidates) her kaynaktan (BM25, vektör) okunan aday sayısı.
+CLAIM_SOURCE_DEPTH = 100
 
 
 class LocalRAG:
@@ -472,6 +475,51 @@ class LocalRAG:
         out.extend(r for r in self._lexical_candidates(query, embedding, lexical_n, eligibility) if r["id"] not in seen)
         return prefer_official_matches(out, limit=max(1,min(k,MAX_RAG_RESULTS)), query=query)
 
+    # AnalysisEngine iddia başına aday ister (bkz. AnalysisEngine.retrieve_claim_candidates).
+    supports_claim_candidates = True
+
+    def claim_candidates(
+        self,
+        statement: str,
+        n: int,
+        eligibility: Optional[EligibilityPolicy] = None,
+    ) -> List[Dict[str, Any]]:
+        """Bir iddia cümlesi için aday parçalar: BM25 ve vektör sıralamaları ağırlıklı RRF ile
+        birleştirilir (mufettis.rag.fusion), ilk n döner. query()'den farkı: yayıncı/başlık
+        bonuslu hukuki yeniden sıralama (_legal_rerank) uygulanmaz; adaylar yeniden sıralayıcıya
+        (cross-encoder) ve iddia-kanıt seçimine ham alaka sırasıyla gider. Her aday "distance"
+        (gerçek gömmeden kare L2) ve "fusion_score" taşır."""
+        if not statement.strip() or n <= 0:
+            return []
+        embedding=self.embed([statement])[0]
+        where: Dict[str, Any] = {"chunk_schema_version":CHUNK_SCHEMA_VERSION}
+        policy_clauses = eligibility.chroma_clauses() if eligibility else []
+        if policy_clauses:
+            where = {"$and":[where, *policy_clauses]}
+        depth=min(CLAIM_SOURCE_DEPTH, MAX_RAG_RESULTS)
+        result=self.collection.query(query_embeddings=[embedding], n_results=depth, where=where)
+        semantic=[]
+        for cid,doc,meta,distance in zip(
+            (result.get("ids") or [[]])[0], result.get("documents",[[]])[0],
+            result.get("metadatas",[[]])[0], result.get("distances",[[]])[0],
+        ):
+            meta=meta or {}
+            if cid is None or not _chunk_is_retrievable(meta, doc):
+                continue
+            if eligibility and not eligibility.admits(meta):
+                continue
+            semantic.append({"id":cid,"document":clean_evidence_text(doc,12000),"metadata":meta,
+                             "distance":float(distance) if distance is not None else None})
+        lexical=self._lexical_candidates(statement, embedding, depth, eligibility)
+        by_id={r["id"]:r for r in lexical}
+        by_id.update({r["id"]:r for r in semantic})
+        scores=reciprocal_rank_fusion([
+            ([r["id"] for r in lexical], LEXICAL_WEIGHT),
+            ([r["id"] for r in semantic], SEMANTIC_WEIGHT),
+        ])
+        ranked=sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))[:n]
+        return [dict(by_id[cid], fusion_score=score) for cid, score in ranked]
+
     def lexical_index_path(self, signature: str) -> Optional[Path]:
         """Kalıcı BM25 indeksinin yeri: Chroma veritabanının yanında (veri dizinine özgü). Dosya adı
         imzayı içerir: Windows'ta başka bir süreçte (ör. açık arayüz) açık olan dosyanın üzerine
@@ -558,8 +606,14 @@ class LocalRAG:
         if embeddings is None:
             return []
         q=np.asarray(embedding, dtype=np.float32)
+        # get() sırayı korumaz; adaylar BM25 sırasıyla döner.
+        order={cid:i for i,(cid,_) in enumerate(hits)}
+        rows=sorted(
+            zip(got.get("ids") or [], got.get("documents") or [], got.get("metadatas") or [], embeddings),
+            key=lambda row: order.get(row[0], len(order)),
+        )
         out=[]
-        for cid,doc,meta,emb in zip(got.get("ids") or [], got.get("documents") or [], got.get("metadatas") or [], embeddings):
+        for cid,doc,meta,emb in rows:
             meta=meta or {}
             if not _chunk_is_retrievable(meta, doc):
                 continue

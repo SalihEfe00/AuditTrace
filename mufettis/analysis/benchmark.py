@@ -103,6 +103,9 @@ class CaseResult:
     findings: List[str]
     pool_size: int
     seconds: float
+    # Bulguların yeniden sıralayıcı puanı (citation.metadata["rerank_score"]; yoksa None). Eşik
+    # (engine.RERANK_MIN_SCORE) doğru bulgular ile yanlış pozitiflerin puanlarına bakılarak seçilir.
+    scores: List[Optional[float]] = field(default_factory=list)
 
 
 def load_cases(path: Path = CASES_FILE) -> List[BenchmarkCase]:
@@ -121,6 +124,7 @@ def evaluate_case(
     pool_meta: Sequence[Dict[str, Any]],
     expected_available: bool,
     seconds: float = 0.0,
+    scores: Sequence[Optional[float]] = (),
 ) -> CaseResult:
     """findings_meta: (bulgunun kanıt meta verisi, görünen referans); pool_meta: havuz sırasıyla."""
     matches = lambda meta: any(spec.matches(meta) for spec in case.expect)
@@ -139,7 +143,7 @@ def evaluate_case(
     return CaseResult(
         case_id=case.case_id, split=case.split, outcome=outcome, expected_available=expected_available,
         retrieval_hit=(first_hit is not None) if positive else None, first_hit_rank=first_hit,
-        findings=labels, pool_size=len(pool_meta), seconds=round(seconds, 2),
+        findings=labels, pool_size=len(pool_meta), seconds=round(seconds, 2), scores=list(scores),
     )
 
 
@@ -193,11 +197,14 @@ def run_benchmark(
         execution = analyze(case.text)
         if not execution.success or execution.result is None:
             raise RuntimeError(f"{case.case_id}: analiz başarısız: {execution.error_message}")
-        findings = [(f.evidence[0].metadata, f.evidence[0].chunk_reference) for f in execution.result.findings if f.evidence]
+        with_evidence = [f for f in execution.result.findings if f.evidence]
+        findings = [(f.evidence[0].metadata, f.evidence[0].chunk_reference) for f in with_evidence]
+        scores = [next((c.metadata.get("rerank_score") for c in f.citations if "rerank_score" in c.metadata), None)
+                  for f in with_evidence]
         pool = [ev.metadata for ev in execution.retrieved_evidence or []]
         result = evaluate_case(
             case, findings, pool, expected_available=any(spec in available for spec in case.expect),
-            seconds=time.perf_counter() - start,
+            seconds=time.perf_counter() - start, scores=scores,
         )
         results.append(result)
         if progress:

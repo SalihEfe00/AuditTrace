@@ -62,10 +62,13 @@ class TestRunBenchmark(unittest.TestCase):
         evidence = SimpleNamespace(metadata=ART54, chunk_reference="Madde 54")
         execution = SimpleNamespace(
             success=True, error_message=None, retrieved_evidence=[evidence],
-            result=SimpleNamespace(findings=[SimpleNamespace(evidence=[evidence])]),
+            result=SimpleNamespace(findings=[SimpleNamespace(
+                evidence=[evidence], citations=[SimpleNamespace(metadata={"rerank_score": 1.5})],
+            )]),
         )
         results = run_benchmark(cases, lambda _t: execution, [ART51, ART54])
         self.assertEqual([r.outcome for r in results], [CORRECT, FALSE_POSITIVE])
+        self.assertEqual(results[0].scores, [1.5])
         self.assertEqual(available_specs(cases, [ART54]), {EvidenceSpec(law_number="5411", article="54")})
 
 

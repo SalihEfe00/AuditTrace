@@ -63,6 +63,12 @@ _STAGE_LABELS = dict(PIPELINE_STAGES)
 _CATALOG_CACHE: Dict[Tuple[str, int, int], List[CatalogEntry]] = {}
 
 
+def _default_reranker() -> Optional[Any]:
+    from mufettis.rag.reranker import load_reranker
+
+    return load_reranker()
+
+
 def _index_catalog() -> List[CatalogEntry]:
     from mufettis.rag.index import IngestIndex
 
@@ -114,6 +120,9 @@ class AnalysisPresenter:
         # Belgenin atıf yaptığı mevzuatın veritabanında olup olmadığını söylemek için katalog.
         # Verilmezse gerçek veritabanıyla yapılan analizde ingest index'ten okunur.
         self.catalog_fn = catalog_fn
+        # İddia-kanıt yeniden sıralayıcısı (cross-encoder); model kurulu değilse None döner.
+        self.use_reranker = True
+        self.reranker_fn: Callable[[], Optional[Any]] = _default_reranker
 
     @staticmethod
     def _notify(progress_callback: Optional[ProgressCallback], stage_key: str) -> None:
@@ -254,6 +263,9 @@ class AnalysisPresenter:
             retrieval_warnings: List[str] = []
             # Örnek kanıtla (test/gold set) sabit liste kullanılır; sonuçlar korpusa bağlı olmaz.
             self.engine.use_term_stats(None)
+            # Yeniden sıralayıcı yalnızca gerçek korpusla: örnek kanıtlı sonuçlar kurulu modele bağlı olmaz.
+            self.engine.reranker = None
+            claim_candidates: Dict[str, List[Evidence]] = {}
             if sample_evidence is not None:
                 evidence_pool = list(sample_evidence)
             elif rag_client is not None:
@@ -262,6 +274,21 @@ class AnalysisPresenter:
                 evidence_pool = self.engine.retrieve_evidence(retrieval_plan, rag_client, errors=retrieval_errors)
                 # Tüm sorgular başarısızsa RetrievalUnavailableError: analiz "kanıt yok" yerine hata verir.
                 retrieval_warnings = retrieval_error_warnings(retrieval_plan, retrieval_errors)
+                if self.use_reranker:
+                    self.engine.reranker = self.reranker_fn()
+                # İddia başına geniş aday havuzu yalnızca yeniden sıralayıcıyla: sözcüksel sıralama
+                # geniş havuzda yanlış pozitif üretir (ölçüm: dev negatiflerinde 2/11 -> 5/11).
+                if self.engine.reranker is not None:
+                    claim_errors: List[str] = []
+                    claim_candidates = self.engine.retrieve_claim_candidates(
+                        doc, retrieval_plan, rag_client, errors=claim_errors
+                    )
+                    if claim_errors:
+                        retrieval_warnings.append(
+                            f"{len(claim_errors)} iddianın aday araması hata verdi; belge havuzu kullanıldı. "
+                            f"İlk hata: {claim_errors[0]}"
+                        )
+                    evidence_pool = self.engine.merge_evidence(evidence_pool, *claim_candidates.values())
             else:
                 evidence_pool = []
             stage_durations["evidence_retrieval"] = round(time.perf_counter() - t0, 3)
@@ -275,6 +302,7 @@ class AnalysisPresenter:
                 analysis_plan=analysis_plan,
                 retrieval_plan=retrieval_plan,
                 retrieved_evidence=evidence_pool,
+                claim_candidates=claim_candidates,
             )
             result.warnings.extend(retrieval_warnings)
             result.cited_regulations = [
