@@ -189,6 +189,9 @@ def backup(stamp: str) -> Path:
     IngestIndex().backup(target / "ingest_index.sqlite3")  # tutarlı SQLite yedeği
     shutil.copytree(SOURCE_CACHE_DIR, target / "source_cache")
     shutil.copytree(DB_PATH, target / "mevzuat_db")  # Chroma açılmadan önce
+    from mufettis.rag.store import backup_corpus_store
+
+    backup_corpus_store(target)  # SQLite parça deposu (etkinse değiştirilecek olan odur)
     return target
 
 

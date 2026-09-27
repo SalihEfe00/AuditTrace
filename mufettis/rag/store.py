@@ -677,6 +677,27 @@ class SqliteVectorCollection:
         self._remove_filesets(keep={fileset, new})
         return {"removed": total - len(live), "rows": len(live), "fileset": new}
 
+    def backup(self, target: Path) -> Path:
+        """Tutarlı yedek: yazma kilidi tutulurken SQLite yedekleme arayüzüyle veritabanı ve geçerli
+        vektör dosya kümesi (aynı adlarla) kopyalanır. Yedek dizini doğrudan depo olarak açılabilir."""
+        import shutil
+
+        target = Path(target)
+        target.mkdir(parents=True, exist_ok=False)
+        with self._lock, self._txn("IMMEDIATE") as con:
+            fileset = self._state(con)[1]
+            dest = sqlite3.connect(str(target / STORE_FILE))
+            source = sqlite3.connect(str(self.db_file), timeout=BUSY_TIMEOUT_S)
+            try:
+                source.backup(dest)
+            finally:
+                source.close()
+                dest.close()
+            for kind in ("i8", "f16", "aux"):
+                if self._vf(kind, fileset).exists():
+                    shutil.copy2(self._vf(kind, fileset), target / self._vf(kind, fileset).name)
+        return target
+
     def _remove_filesets(self, keep: set) -> None:
         for f in self.path.glob("vec_*.bin"):
             parts = f.name.split(".")
@@ -709,6 +730,20 @@ def resolve_store_kind(requested: Optional[str], db_path: Path) -> str:
     return kind
 
 
+def backup_corpus_store(target: Path, db_path: Path = DB_PATH) -> Optional[Path]:
+    """Veritabanı yolunun SQLite parça deposunu (varsa) `target/corpus_store` altına yedekler.
+    Veri onaran betikler Chroma dizinini yedeklerken bunu da çağırır: hangi depo etkin olursa olsun
+    değiştirilen veri yedekte bulunur."""
+    root = store_root_for(db_path)
+    collections = [d for d in root.iterdir() if (d / STORE_FILE).is_file()] if root.is_dir() else []
+    if not collections:
+        return None
+    out = Path(target) / "corpus_store"
+    for directory in collections:
+        SqliteVectorCollection(directory, name=directory.name).backup(out / directory.name)
+    return out
+
+
 class SqliteStoreClient:
     """`chromadb.PersistentClient` yerine: koleksiyonlar `path/<ad>/` dizinleridir."""
 
@@ -738,4 +773,4 @@ class SqliteStoreClient:
         shutil.rmtree(target)
 
 
-__all__ = ["SqliteStoreClient", "SqliteVectorCollection", "resolve_store_kind", "store_file_for", "store_root_for"]
+__all__ = ["SqliteStoreClient", "SqliteVectorCollection", "backup_corpus_store", "resolve_store_kind", "store_file_for", "store_root_for"]

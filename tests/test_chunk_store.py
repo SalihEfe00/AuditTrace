@@ -334,6 +334,32 @@ class TestStoreDurability(unittest.TestCase):
 
 
 
+class TestStoreBackup(unittest.TestCase):
+    def test_backup_is_a_consistent_openable_copy(self):
+        from mufettis.rag.store import SqliteStoreClient, backup_corpus_store, store_root_for
+
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            db = tmp / "mevzuat_db"
+            self.assertIsNone(backup_corpus_store(tmp / "yedek0", db))  # depo yoksa yedek yok
+            store = SqliteStoreClient(store_root_for(db)).get_or_create_collection("mevzuat")
+            vecs = _vectors(60)
+            store.upsert(ids=[f"c{i}" for i in range(60)], embeddings=vecs.tolist(), metadatas=[_meta(i) for i in range(60)])
+            store.delete(ids=["c0", "c1"])
+            store.compact()  # geçerli küme 1: yedek bu kümeyi taşımalı
+            before = store.get(include=["metadatas", "embeddings"])
+            out = backup_corpus_store(tmp / "yedek", db)
+            store.delete(where={"file_hash": "h3"})
+            copy = SqliteVectorCollection(out / "mevzuat")
+            after = copy.get(include=["metadatas", "embeddings"])
+            self.assertEqual(after["ids"], before["ids"])
+            self.assertEqual(after["metadatas"], before["metadatas"])
+            np.testing.assert_array_equal(after["embeddings"], before["embeddings"])
+            self.assertEqual(copy.query(query_embeddings=[vecs[5].tolist()], n_results=1)["ids"], [["c5"]])
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 class TestStoreSelection(unittest.TestCase):
     def test_auto_uses_migrated_store_only_when_present(self):
         from mufettis.rag.store import SqliteStoreClient, resolve_store_kind, store_root_for
