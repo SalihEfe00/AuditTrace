@@ -347,7 +347,7 @@ def run_streamlit() -> None:
     with tabs[2]:
         st.subheader("Mevzuat RAG")
         rag = _get_rag(allow_download=allow_embedding_download)
-        st.write(f"Chroma kayıt sayısı: {rag.count() if rag else 0}")
+        st.write(f"Parça (kayıt) sayısı: {rag.count() if rag else 0}")
         st.caption(
             f"Aktif chunk şeması: {CHUNK_SCHEMA_VERSION}. "
             "Kaynak yönetimi ve indeksleme işlemleri Admin sekmesindedir."

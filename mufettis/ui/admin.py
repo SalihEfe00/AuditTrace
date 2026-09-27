@@ -83,7 +83,7 @@ def render_mevzuat_admin(
     st.subheader("Mevzuat kaynak yönetimi")
     if rag is None:
         rag = _get_rag(allow_download=allow_embedding_download)
-    st.write(f"Chroma kayıt sayısı: {rag.count() if rag else 0}")
+    st.write(f"Parça (kayıt) sayısı: {rag.count() if rag else 0}")
 
     st.markdown("### RAG Envanteri")
     st.caption(
@@ -220,7 +220,7 @@ def render_mevzuat_admin(
                             f"{rebuild.get('chunks', 0):,} chunk / 0 hata."
                         )
                     st.session_state["rag_rebuild_completed"] = True
-                    st.write(f"Yeni Chroma kayıt sayısı: {rag.count():,}")
+                    st.write(f"Yeni parça (kayıt) sayısı: {rag.count():,}")
                 except Exception as exc:
                     st.error(f"RAG sıfırdan kurulum hatası: {exc}")
     if rag is not None:
@@ -255,7 +255,7 @@ def render_mevzuat_admin(
                     st.success(
                         f"Migration tamamlandı: {rr.get('reindexed', 0)} belge yeni chunk şemasına geçirildi."
                     )
-                st.write(f"Chroma kayıt sayısı: {rag.count():,}")
+                st.write(f"Parça (kayıt) sayısı: {rag.count():,}")
             except Exception as exc:
                 st.error(f"Chunk migration hatası: {exc}")
 
@@ -287,13 +287,13 @@ def render_mevzuat_admin(
                         if boot_result.get("partial"):
                             st.warning(
                                 f"İlk kurulum kısmi tamamlandı. "
-                                f"Chroma kayıtları: {rag.count():,} | "
+                                f"Parça kayıtları: {rag.count():,} | "
                                 f"Hata: {boot_result.get('errors', 0)}"
                             )
                         else:
                             st.success(
                                 f"İlk kurulum tamamlandı. "
-                                f"Chroma kayıtları: {rag.count():,}"
+                                f"Parça kayıtları: {rag.count():,}"
                             )
                     else:
                         st.error(
@@ -934,7 +934,7 @@ def render_production_health_panel(
             sqlite_status = f"Hata: {exc}"
 
     h1, h2, h3, h4 = st.columns(4)
-    h1.metric("Chroma Vektör Sayısı", f"{chroma_count:,}")
+    h1.metric("Parça (vektör) sayısı", f"{chroma_count:,}")
     h2.metric("İndeks Kayıt Sayısı", f"{index_count:,}")
     h3.metric("Kaynak Önbellek (TXT)", f"{source_cache_count:,}")
     h4.metric("Denetim Kayıtları (Audit)", f"{audit_count:,}")
