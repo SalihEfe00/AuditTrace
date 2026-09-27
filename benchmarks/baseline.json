@@ -1,5 +1,5 @@
 {
- "note": "2026-09-27: tarayıcı yazdırma üst/alt bilgisi temizlendi (8 belge yeniden parçalandı). ho2-pin-written-on-card kaçandan yanlış dayanağa döndü (5464 Md.3 tanım bendi, puan -1.83): eski sonuç gürültünün adayı bastırmasıydı; eşik dev'de temiz korpusla yeniden ölçüldü, -2.15 en iyisi kaldı.",
+ "note": "2026-09-27: ho3 eklendi (15 vaka, madde metninden etiketli, sistem çıktısından önce commit edildi). Taze ölçüm: ho3 pozitiflerinde 5/10 doğru, 3 yanlış dayanak — önceki holdout yanlış atıf oranını iyimser gösteriyordu.",
  "reranker": "cross-encoder--mmarco-mMiniLMv2-L12-H384-v1",
  "splits": {
   "dev": {
@@ -9,16 +9,16 @@
    "wrong_findings": 2
   },
   "holdout": {
-   "correct": 15,
-   "wrong_basis": 1,
+   "correct": 20,
+   "wrong_basis": 4,
    "false_positives": 0,
-   "wrong_findings": 1
+   "wrong_findings": 4
   },
   "all": {
-   "correct": 27,
-   "wrong_basis": 3,
+   "correct": 32,
+   "wrong_basis": 6,
    "false_positives": 0,
-   "wrong_findings": 3
+   "wrong_findings": 6
   }
  }
 }
