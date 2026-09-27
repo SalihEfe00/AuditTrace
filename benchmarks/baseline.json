@@ -1,5 +1,5 @@
 {
- "note": "2026-09-27: ho3 eklendi (15 vaka, madde metninden etiketli, sistem çıktısından önce commit edildi). Taze ölçüm: ho3 pozitiflerinde 5/10 doğru, 3 yanlış dayanak — önceki holdout yanlış atıf oranını iyimser gösteriyordu.",
+ "note": "2026-09-27: madde başlıkları kendi maddesinin meta verisine ve BM25'e taşındı (13 belge). holdout 20->22 doğru; yanlış dayanak/pozitif değişmedi.",
  "reranker": "cross-encoder--mmarco-mMiniLMv2-L12-H384-v1",
  "splits": {
   "dev": {
@@ -9,13 +9,13 @@
    "wrong_findings": 2
   },
   "holdout": {
-   "correct": 20,
+   "correct": 22,
    "wrong_basis": 4,
    "false_positives": 0,
    "wrong_findings": 4
   },
   "all": {
-   "correct": 32,
+   "correct": 34,
    "wrong_basis": 6,
    "false_positives": 0,
    "wrong_findings": 6
