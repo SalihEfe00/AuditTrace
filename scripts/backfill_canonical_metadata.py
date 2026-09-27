@@ -38,7 +38,7 @@ from mufettis.corpus.canonical import DERIVATION_INPUTS
 from mufettis.corpus.identity import content_fingerprint
 from mufettis.corpus.model import CANONICAL_FIELDS
 from mufettis.corpus.provenance import reconcile_fingerprints
-from mufettis.legal.parser import extract_declared_subject, extract_declared_title
+from mufettis.legal.parser import declared_names
 from mufettis.rag.paging import iter_pages
 
 
@@ -75,8 +75,8 @@ def plan_index(items: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
         rec = clean_legacy_title(rec)
         text = _cache_text(h)
         if text.strip():
-            rec = {**rec, "declared_title": extract_declared_title(text),
-                   "declared_subject": extract_declared_subject(text)}
+            title, subject = declared_names(text)
+            rec = {**rec, "declared_title": title, "declared_subject": subject}
         fresh[h] = with_canonical(rec, text) if text.strip() else with_canonical(rec)
     # Özdeş içerik doğrulaması tüm corpus üzerinde yapılır.
     by_manifestation = {rec["manifestation_id"]: h for h, rec in fresh.items()}

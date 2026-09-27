@@ -120,10 +120,17 @@ Atıflarda belgenin **kendi beyan ettiği ad** kullanılır, dosya adı değil:
   metinlerinde belgenin en başındaki blok (yalnızca bir tür adıyla bitiyorsa). Şema 2'den beri
   kanonik türün de ilk dayanağıdır (`instrument_basis=declared_title`): adın sonundaki baş isim
   ("... İLİŞKİN YÖNETMELİK") dosya adından ve gövdedeki kanun atıflarından güvenilirdir.
+  Web sayfasından alınan metinlerde ad büyük harfle yazılmaz ve önünde sayfa öğeleri bulunur
+  ("Mevzuat Detay", "Kapat"). Bu durumda ilk satırlardan ad sayılan satır şu koşulları sağlar: bir
+  tür adıyla biter; sözcükleri büyük harfle başlar; etiket ("Konu:"), numaralı başlık ("I. …") ya
+  da cümle değildir.
 - `declared_subject`: resmî yazışmadaki "Konu:" satırı (genelgelerde numarasıyla). Yalnızca
   başlık bir yayıncı numarasıysa kullanılır.
 
-İkisi de `extract_legal_metadata` ve backfill tarafından doldurulur.
+İkisi de aynı işlevle türetilir: `parser.declared_names`, yani yüklemedeki `extract_legal_metadata`
+ile aynı onarılmış baş metin (`legal_head`). Backfill daha önce ham önbellek metninden türetiyordu.
+Bu yüzden çalıştırıldığında, yüklemede doğru çıkan adların yerine PDF bölünmeli adları
+("FA İZ ORANI R İSK") yazıyordu.
 
 ## Bilinen sınırlar
 

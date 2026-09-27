@@ -426,6 +426,25 @@ class TestDeclaredTitle(unittest.TestCase):
         # Kurum/sayfa başlığı ad değildir.
         self.assertEqual(extract_declared_title("T.C.\nÖRNEK DÜZENLEME KURUMU\n\nKonu: Bilgi talebi\n"), "")
 
+    def test_mixed_case_title_line_after_page_chrome(self):
+        from mufettis.legal.parser import extract_declared_title
+
+        page = ("Mevzuat Detay\n×\nKapat\nKapat\nÖrnek Bankaların Kredi İşlemlerine İlişkin Yönetmelik\n"
+                "Ekler\nDokuman Linki\n")
+        self.assertEqual(extract_declared_title(page), "Örnek Bankaların Kredi İşlemlerine İlişkin Yönetmelik")
+        # Etiket satırı, numaralı bölüm başlığı, cümle ve türsüz ad ad değildir.
+        for text in ("Konu: Örnek Kredi Yönetmeliği\n", "I. Örnek Tekdüzen Hesap Planı\n",
+                     "Bu metin Örnek Kredi Yönetmeliği.\n", "Örnek Kart Taksit Sınırları ve Yasakları\n"):
+            self.assertEqual(extract_declared_title(text), "", text)
+
+    def test_backfill_and_ingest_derive_names_alike(self):
+        from mufettis.legal.parser import declared_names, extract_legal_metadata
+
+        # PDF'te bölünmüş büyük "İ": yükleme onarılmış baştan türetir; toplu güncelleme de aynısını yapmalı.
+        text = "ÖRNEK FA İZ ORANI R İSK İNİN YÖNETİMİNE İLİŞKİN YÖNETMELİK\nMADDE 1 – Amaç.\n"
+        meta = extract_legal_metadata("99", text, {})
+        self.assertEqual(declared_names(text), (meta["declared_title"], meta["declared_subject"]))
+
     def test_document_type_from_declared_title_not_from_cited_law(self):
         from mufettis.legal.parser import declared_document_type, detect_doc_type
 

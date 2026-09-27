@@ -422,7 +422,38 @@ def _leading_title(head: str) -> str:
     from mufettis.corpus.identity import instrument_from_title
 
     title = _title_block(head.splitlines())
-    return title if title and instrument_from_title(_title_tail(title)) else ""
+    if title and instrument_from_title(_title_tail(title)):
+        return title
+    return _leading_mixed_case_title(head)
+
+
+# Web sayfasından alınan metinlerde ad büyük harfle yazılmaz ve önünde sayfa öğeleri bulunur
+# ("Mevzuat Detay", "Kapat"): "Bankaların Kredi İşlemlerine İlişkin Yönetmelik". İlk satırlardaki,
+# sözcükleri büyük harfle başlayan, bir düzenleme türüyle biten, etiket ("Konu:") ve cümle olmayan satır addır.
+LEADING_TITLE_SCAN_LINES = 8
+MIN_MIXED_CASE_TITLE_WORDS = 3
+# Numaralı satır bir bölüm başlığıdır, belgenin adı değildir ("I. Tekdüzen Hesap Planı", "1- ...").
+_ENUMERATED_HEADING_RE = re.compile(r"\W*(?:\d|(?:[IVXLC]+|[A-Za-z])[.)-]\s)")
+
+
+def _leading_mixed_case_title(head: str) -> str:
+    from mufettis.corpus.identity import instrument_from_title
+
+    lines = [re.sub(r"\s+", " ", ln).strip() for ln in head.splitlines()]
+    for line in [ln for ln in lines if ln][:LEADING_TITLE_SCAN_LINES]:
+        words = re.findall(r"[^\W\d_]+", line)
+        content = [w for w in words if w not in _TITLE_LOWERCASE_CONNECTORS]
+        if (
+            len(words) < MIN_MIXED_CASE_TITLE_WORDS
+            or len(line) > DECLARED_TITLE_MAX_CHARS
+            or line[-1] in ".,;" or ":" in line
+            or _ENUMERATED_HEADING_RE.match(line)
+            or not all(w[0].isupper() for w in content)
+        ):
+            continue
+        if instrument_from_title(_title_tail(line)):
+            return line
+    return ""
 
 
 def _title_tail(title: str) -> str:
@@ -463,13 +494,28 @@ def detect_document_status(title: str, head: str) -> str:
     return "active"
 
 
+LEGAL_HEAD_CHARS = 80000
+
+
+def legal_head(text: str) -> str:
+    """Kimlik alanlarının türetildiği metin: belgenin başı, hukuki boşlukları onarılmış halde."""
+    return normalize_legal_whitespace(str(text or "")[:LEGAL_HEAD_CHARS])
+
+
+def declared_names(text: str) -> Tuple[str, str]:
+    """(declared_title, declared_subject), yüklemedeki extract_legal_metadata ile aynı türetme.
+    Ham metinden türetmek ayrı sonuç verir (PDF'teki "FA İZ" gibi bölünmeler onarılmamış olur)."""
+    head = legal_head(text)
+    return extract_declared_title(head), extract_declared_subject(head)
+
+
 def extract_legal_metadata(
     title: str,
     text: str,
     base_meta: Dict[str, Any],
 ) -> Dict[str, Any]:
     """Belge kimliği + hukuki yapı + parse kalitesi metadata'sı."""
-    head=normalize_legal_whitespace(text[:80000])
+    head=legal_head(text)
     source_id=str(base_meta.get("source_id","") or "")
     doc_type=detect_doc_type(title,head,source_id)
     combined=f"{title}\n{head[:40000]}"
