@@ -194,6 +194,11 @@ class Finding(BaseModel):
     claim_reference_id: Optional[str] = Field(default=None, description="Linked document claim ID")
     model_interpretation: Optional[str] = Field(default=None, description="Distinct model analytical interpretation")
     risk_level: Optional[str] = Field(default=None, description="Risk level (Yüksek, Orta, Düşük, Belirsiz)")
+    match_confidence: Optional[str] = Field(
+        default=None,
+        description="Dayanak eşleşmesinin güveni: 'yüksek' / 'düşük' (yeniden sıralayıcı puanına göre); "
+                    "None: ölçülmedi (model yok, ayarsız model veya dil modeli kararı)",
+    )
 
 
 class CitedRegulation(BaseModel):

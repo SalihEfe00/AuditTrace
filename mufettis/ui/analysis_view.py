@@ -539,9 +539,13 @@ def render_analysis_page(
             }.get(finding.risk_level or "Orta", "🟡")
 
             with st.container():
+                confidence_badge = {
+                    "yüksek": " `Dayanak güveni: yüksek`",
+                    "düşük": " `⚠ Dayanak güveni: düşük — atfı doğrulayın`",
+                }.get(finding.match_confidence or "", "")
                 st.markdown(
                     f"#### Bulgu #{idx}: {risk_color} {finding.issue} "
-                    f"`Risk: {finding.risk_level or 'Orta'}`"
+                    f"`Risk: {finding.risk_level or 'Orta'}`{confidence_badge}"
                 )
 
                 # Strict Separation of the 5 Inspector Dimensions

@@ -76,6 +76,14 @@ def main() -> int:
         print(f"[{split}] pozitif {m['positives']}: doğru {m['correct']}, yanlış dayanak {m['wrong_basis']}, "
               f"kaçan {m['missed']} | havuz isabeti {m['retrieval_recall']}, isabette seçim {m['selection_accuracy_on_hits']} "
               f"| negatif {m['negatives']}: yanlış pozitif {m['false_positives']} | yanlış bulgu {m['wrong_findings']}")
+    band = getattr(reranker, "confident_score", None)
+    if band is not None:
+        # Güven bandı (reranker.CONFIDENT_SCORES): düşük bantta işaretlenen doğru / yanlış bulgular.
+        def low(r):
+            return any(s is not None and s < band for s in r.scores)
+        right = [r for r in results if r.outcome == "correct"]
+        wrong = [r for r in results if r.outcome in ("wrong_basis", "false_positive")]
+        print(f"[güven] düşük bantta: yanlış {sum(map(low, wrong))}/{len(wrong)}, doğru {sum(map(low, right))}/{len(right)}")
     status = 0
     if args.check_baseline:
         baseline = json.loads(BASELINE_FILE.read_text(encoding="utf-8"))

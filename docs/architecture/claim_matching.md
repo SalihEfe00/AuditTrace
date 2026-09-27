@@ -28,7 +28,11 @@ Kod:
 5. **Eşik** (`reranker.MIN_SCORES`): Seçilen adayın puanı modelin eşiğinin altındaysa bulgu çıkmaz.
    - Eşik modele özgüdür, model değişirse yeniden ölçülür.
    - Yalnızca geliştirme (dev) vakalarıyla seçilir: negatiflerin en yüksek puanı -2.57, doğruların en düşüğü -1.74; eşik aradaki orta nokta, -2.15.
-6. **İsteğe bağlı dil modeli doğrulayıcısı** aynı sıralamayı (`_gated_ranking`) kullanır.
+6. **Güven bandı** (`reranker.CONFIDENT_SCORES`): Eşiği geçen ama puanı 0'ın altında kalan bulgu "düşük güvenli" gösterilir (`Finding.match_confidence`). Denetçinin ilk adımı atfın kendisini doğrulamaktır.
+   - Eşik yanlış dayanakları ayıramıyor: dev'de yanlış dayanak puanları -1.91 ve -0.74, doğruların bir kısmı daha düşük. Bu yüzden yanlış dayanaklar elenmez, işaretlenir.
+   - Sınır ayarlanmadı: 0, çapraz kodlayıcı logit'inin "yüzde elli ilgili" noktasıdır.
+   - Ölçüm (2026-09-27): düşük bantta 6 yanlış dayanaktan 5'i, 32 doğrudan 7'si var. `eval_accuracy.py` bunu "[güven]" satırında raporlar.
+7. **İsteğe bağlı dil modeli doğrulayıcısı** aynı sıralamayı (`_gated_ranking`) kullanır.
    - Ölçüm (qwen2.5:7b, `eval_accuracy.py --verifier`, 2026-09-27):
 
      | Vaka grubu | Doğru | Yanlış dayanak | Yanlış pozitif |

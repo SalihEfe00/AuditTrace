@@ -68,6 +68,11 @@ EXCLUSION_OVERFETCH = 4
 CLAIM_CANDIDATES = 30
 # Yeniden sıralayıcıya (cross-encoder) gönderilen en fazla aday: sözcüksel kapıyı geçenler, aday sırasıyla.
 RERANK_MAX_CANDIDATES = 30
+# Düşük güvenli eşleşmede (reranker.CONFIDENT_SCORES) denetçinin ilk adımı atfın kendisini doğrulamaktır.
+LOW_CONFIDENCE_ACTION = (
+    "Dayanak eşleşmesi düşük güvenlidir: önce atıf yapılan hükmün belgedeki olayı gerçekten "
+    "düzenleyip düzenlemediği doğrulanmalıdır. "
+)
 
 # Kanıt metnini alaka için cümle/satır birimlerine böler (çıkarım kaynaklı yapışık
 # metinlerde nokta olmayabileceği için satır sonları ve ; : da sınır sayılır).
@@ -482,8 +487,12 @@ class AnalysisEngine:
                 text_span=verbatim_span,
                 metadata={"file_hash": matched_ev.metadata.get("file_hash", "")},
             )
+            confidence = None
             if rerank_score is not None and verdict is None:
                 citation.metadata["rerank_score"] = round(rerank_score, 4)
+                confident = getattr(self.reranker, "confident_score", None)
+                if confident is not None:
+                    confidence = "yüksek" if rerank_score >= confident else "düşük"
 
             # Determine risk level objectively
             risk = "Orta"
@@ -507,7 +516,8 @@ class AnalysisEngine:
                     f"uygunluğu değerlendirilmelidir."
                 ),
                 inspector_action=(
-                    f"Denetçi tarafından {institution} nezdindeki işlem kayıtları, müşteri onay/sözleşme "
+                    (LOW_CONFIDENCE_ACTION if confidence == "düşük" else "")
+                    + f"Denetçi tarafından {institution} nezdindeki işlem kayıtları, müşteri onay/sözleşme "
                     f"örnekleri ve bildirim logları temin edilerek {matched_ev.chunk_reference} hükmüne "
                     f"uygunluğu doğrulanmalıdır."
                 ),
@@ -520,6 +530,7 @@ class AnalysisEngine:
                     "uyum riski bulunmaktadır. Nihai tespit yetkili denetçi incelemesine bağlıdır."
                 ),
                 risk_level=risk,
+                match_confidence=confidence,
             )
             findings.append(finding)
 

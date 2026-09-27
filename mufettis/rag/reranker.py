@@ -36,6 +36,15 @@ MIN_SCORES = {
     "cross-encoder--mmarco-mMiniLMv2-L12-H384-v1": -2.15,
 }
 
+# Eşiği geçen ama bu puanın altında kalan bulgu "düşük güvenli" gösterilir: denetçi önce atıf yapılan
+# hükmün iddiayla ilgili olduğunu doğrulamalıdır. Eşik yanlış dayanakları ayıramıyor (dev'de yanlış
+# dayanak puanları -1.91 ve -0.74, doğruların bir kısmı daha düşük); ayırmak yerine işaretlenir.
+# Sınır ayarlanmadı: çapraz kodlayıcının logit'i, 0 = modelin "yüzde elli ilgili" noktası.
+# Ölçüm (2026-09-27, üretim korpusu): dev'de 2/2 yanlış dayanak ve 12 doğrunun 5'i bu bantta.
+CONFIDENT_SCORES = {
+    "cross-encoder--mmarco-mMiniLMv2-L12-H384-v1": 0.0,
+}
+
 # Kurulum (scripts/install_reranker_model.py): sabit sürüm ve dosya özetleri. Ağırlık dosyası
 # değişirse eşik (MIN_SCORES) ve benchmarks/baseline.json yeniden ölçülmelidir.
 MODEL_REPO = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
@@ -74,11 +83,13 @@ def verify_model_dir(model_dir: Path) -> List[str]:
 class CrossEncoderReranker:
     """score(sorgu, metinler) -> metin başına alaka puanı (büyük = ilgili; ölçek modele özgü)."""
 
-    def __init__(self, model_dir: Path, min_score: Optional[float] = None):
+    def __init__(self, model_dir: Path, min_score: Optional[float] = None, confident_score: Optional[float] = None):
         self.model_dir = Path(model_dir)
         self.name = self.model_dir.name
         # None: eşik yok (ayarı yapılmamış model; seçim yine sözcüksel kapıdan geçenler arasındadır).
         self.min_score = min_score
+        # None: güven bandı yok (ayarı yapılmamış model; bulgular güven etiketi taşımaz).
+        self.confident_score = confident_score
         self._model = None
         self._lock = threading.Lock()
 
@@ -125,11 +136,11 @@ def load_reranker(model_dir: Optional[Path] = None) -> Optional[CrossEncoderRera
             min_score = MIN_SCORES.get(path.name)
             if min_score is None:
                 logger.warning("Yeniden sıralayıcı %s için ayarlı eşik yok; puan eşiği uygulanmayacak.", path.name)
-            _DEFAULT = CrossEncoderReranker(path, min_score)
+            _DEFAULT = CrossEncoderReranker(path, min_score, CONFIDENT_SCORES.get(path.name))
         return _DEFAULT
 
 
 __all__ = [
-    "CrossEncoderReranker", "load_reranker", "verify_model_dir", "MAX_PASSAGE_CHARS", "MIN_SCORES",
+    "CrossEncoderReranker", "load_reranker", "verify_model_dir", "MAX_PASSAGE_CHARS", "MIN_SCORES", "CONFIDENT_SCORES",
     "MODEL_REPO", "MODEL_REVISION", "MODEL_FILES", "MODEL_WEIGHTS_SHA256", "MISSING_MODEL_WARNING",
 ]

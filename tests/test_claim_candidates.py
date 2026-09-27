@@ -122,6 +122,33 @@ class TestRerankedSelection(unittest.TestCase):
         self.assertEqual(unsupported, [])
 
 
+class TestMatchConfidence(unittest.TestCase):
+    def _finding(self, score, confident_score):
+        engine = AnalysisEngine()
+        engine.reranker = FakeReranker({"iade edilir": score, "tahsil": -4.0}, min_score=-5.0)
+        engine.reranker.confident_score = confident_score
+        pool = TestRerankedSelection._pool(None)
+        findings, _ = engine._match_claims_to_evidence(_doc(TestRerankedSelection.CLAIM.statement), MagicMock(), pool)
+        return findings[0]
+
+    def test_low_score_is_flagged_for_inspector(self):
+        low = self._finding(-1.0, 0.0)
+        self.assertEqual(low.match_confidence, "düşük")
+        self.assertTrue(low.inspector_action.startswith("Dayanak eşleşmesi düşük güvenlidir"))
+        high = self._finding(2.0, 0.0)
+        self.assertEqual(high.match_confidence, "yüksek")
+        self.assertFalse(high.inspector_action.startswith("Dayanak eşleşmesi"))
+
+    def test_untuned_model_gives_no_label(self):
+        self.assertIsNone(self._finding(2.0, None).match_confidence)
+
+    def test_threshold_and_band_travel_with_model(self):
+        from mufettis.rag.reranker import CONFIDENT_SCORES, MIN_SCORES
+
+        for name, band in CONFIDENT_SCORES.items():
+            self.assertGreater(band, MIN_SCORES[name])
+
+
 class TestVerifierUsesSameRanking(unittest.TestCase):
     def test_verifier_candidates_follow_reranker_order_and_scores_once(self):
         engine = AnalysisEngine()
