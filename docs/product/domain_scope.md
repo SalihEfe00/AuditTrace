@@ -73,37 +73,48 @@ göstermek. Denetçinin asıl sorusu ise **uygunluk**. Aradaki fark eksiklerin �
 | 10 | **Şüpheli işlem tipolojileri** | Yok | MASAK tipolojilerine dayalı kural tabanlı uyarılar (kısa sürede çok sayıda eşik altı işlem vb.) |
 | 11 | **Ölçüm** | Benchmark şikâyet ve iç not ağırlıklı | Her belge türünden vaka; "ilgili hüküm" değil "doğru uygunluk kararı" ölçülmeli |
 
-## 5. v1 kapsamı (kullanıcı kararı, 2026-09-28)
+## 5. v1 kapsamı ve sırası (kullanıcı kararı, 2026-09-28)
 
-v1 = Bölüm 3'teki korpus (ve ardından tam mevzuat) + Bölüm 4'teki 11 eksiğin tamamı + genişletme, ikinci eğitim
-turu, kod ve veri temizliği, arayüz, marka ve .exe paketi. Hedef: kusursuza en yakın, masaüstünde kurulup
-çalışan bir ürün. Kapsam burada sabittir; v1 sırasında çıkan yeni fikirler "v2" listesine yazılır. Her kilometre
-taşı ölçütü sağlanınca kapanır.
+v1 = Bölüm 3'teki korpus ve ardından tam mevzuat + Bölüm 4'teki 11 eksiğin tamamı + gündelik dil genişletmesi,
+ikinci eğitim turu, kod ve veri temizliği, arayüz, marka ve .exe paketi. Hedef: kusursuza en yakın, masaüstünde
+kurulup çalışan bir ürün. Kapsam burada sabittir; v1 sırasında çıkan yeni fikirler "v2" listesine yazılır. Her
+kilometre taşı ölçütü sağlanınca kapanır. Numara = yapılış sırası.
 
-Sıra: M0 → M1 → M2 → M3 → M4/M5 → M6 → M7/M8 → M9 → M10 → M11 → M12 → M13/M14 → M15/M16 → M17 → M18.
-(M10 tam mevzuat, M11 ve M12 bu korpusa göre yapılır; arayüz ve paket en son, özellikler sabitlendikten sonra.)
+Sıralama ilkeleri:
+- **Önce temizlik ve karar gerektiren altyapı.** Ölü kod yeni özelliklerden önce gider (üzerine inşa edilmez);
+  paketleme / arayüz teknolojisi kararı erkenden verilir, çünkü sonraki her ekran o teknolojiyle yazılacak.
+- **Önce ölçüm, sonra özellik.** Belge türü bazlı benchmark altyapısı özelliklerden önce kurulur; sentetik örnekler
+  geldikçe dolar.
+- **Doğruluk işleri gerçek ölçekte ayarlanır.** 78 belgelik korpusta ayarlanan eşikler binlerce belgede bozulabilir;
+  bu yüzden tam mevzuat, uygunluk kataloğu / genişletme / eğitimden önce yüklenir.
+- **Kriter kaynakları kataloğdan önce.** Olay tarihi (hangi sürüm) ve iç düzenlemeler (banka talimatı) şart
+  kataloğunun ölçüt kaynaklarıdır; katalog bunlarla birlikte tasarlanır.
+- **Görsel tasarım en son**, özellikler sabitlendiğinde; o zamana kadar yeni özellikler sade işlevsel ekranlarla gelir.
 
-| # | Kilometre taşı | Bitti sayılma ölçütü |
-|---|---|---|
-| M0 | Sıralayıcı ince ayarının kapanışı | Pilot 2/3'ten biri mühürlü ho6'da önceden yazılan kurala göre kabul ya da ret; ret ise mevcut model kalır |
-| M1 | **Korpus**: 1. ve 2. öncelik mevzuat resmî kaynaklardan; mevzuat olmayan kayıtların ayıklanması | Listedeki her belge korpusta, kimliği (tür, numara, başlık) doğru; mevcut benchmark kötüleşmiyor |
-| M2 | **Belge türleri + alan çıkarımı** (eksik 2, 3) | Bölüm 2'deki türler sınıflandırılıyor; tarih, tutar, TCKN/VKN, IBAN, hesap no, kişi-rol, imza/onay, teminat, limit, oran çıkarılıyor; tür başına etiketli örneklerle ölçülüyor |
-| M3 | **Şart kataloğu = uygunluk kararı** (eksik 1, 5) | Veri olarak tutulan katalog (şart → madde → kontrol türü: alan var mı / tarih sırası / eşik / süre / metin); her şart için karşılandı / karşılanmadı / belirsiz + belgeden kanıt; kredi dosyası, hesap açılış/KYC, kasa, şikâyet, ücret, resmî yazı türleri kapsanıyor |
-| M4 | **Dosya düzeyi çapraz kontrol** (eksik 4) | Birden çok belge tek dosya olarak yüklenip belgeler arası şartlar (teminat ↔ kullandırım tarihi, imzalayan ↔ sirküler, mali tablo ↔ KKB) değerlendiriliyor |
-| M5 | **Olay tarihi** (eksik 6) | Olay tarihi belgeden çıkarılıyor; dayanak o tarihte yürürlükteki metinden seçiliyor; yürürlük değişikliği olan vakalarla test ediliyor |
-| M6 | **Bulgu formatı + yaptırım** (eksik 7, 8) | Bulgu: tespit, ölçüt, neden, etki/önem, öneri, sorumlu, aksiyon tarihi; ihlal edilen hükümden yaptırım hükmüne bağlantı; UI ve DOCX'te |
-| M7 | **İç düzenlemeler** (eksik 9) | Kullanıcı bankanın talimat / yetki tablosu / ücret tarifesini yükleyebiliyor; ayrı kaynak türü, mevzuattan ayırt ediliyor, şartlarda ölçüt olarak kullanılabiliyor |
-| M8 | **Tipoloji uyarıları** (eksik 10) | MASAK tipolojilerine dayalı kural tabanlı uyarılar işlem listesi / dekont kümeleri üzerinde |
-| M9 | **Ölçüm** (eksik 11) | Her belge türünden vaka; "doğru uygunluk kararı" metriği; tabana yazılıp testle korunuyor |
-| M10 | **Tam mevzuat** | Bankacılık, finansal tüketici, MASAK, ödeme, sermaye piyasası ile kesişen, vergi, ticaret ve borçlar hukukunun şube işlemlerine değen mevzuatı resmî kaynaklardan; güncelleme (yeni Resmî Gazete yayımları) yöntemiyle birlikte; 8 GB RAM'li dizüstünde performans ölçülmüş |
-| M11 | **Gündelik dil genişletmesi** | Tüm korpus için madde başına gündelik / denetçi dili açıklamaları; ürüne alınmış; yanlış pozitif artmıyor (bugünkü deneyde artıyordu → kapı kuralı daraltılacak) |
-| M12 | **Sıralayıcı eğitimi (ikinci tur)** | Çok modelli sentetik belgeler ve tam korpusla yeniden eğitim; mühürlü model çıktılarında doğrulanmış; eğitim düzeneği repoda, tekrarlanabilir |
-| M13 | **Ölü kod temizliği** | Kullanılmayan fonksiyon, içe aktarım, ayar ve dizinler kaldırılmış; statik denetim (vulture/ruff) temiz; testler geçiyor |
-| M14 | **Eski yedeklerin temizliği** | Kullanıcı onayıyla data/backups eski kopyaları ve bayat data/mevzuat_db silinmiş; saklama politikası (kaç yedek, nerede) kodda |
-| M15 | **Arayüz tasarımı** | Denetçi iş akışına göre yeniden tasarlanmış ekranlar (dosya yükleme → uygunluk kontrol listesi → bulgular → rapor); tutarlı görsel dil; erişilebilirlik ve düşük çözünürlük kontrolü |
-| M16 | **Logo ve marka** | Logo, uygulama simgesi, renk ve yazı tipi seçimi; arayüze ve DOCX raporuna uygulanmış |
-| M17 | **.exe paketleme** | Tek kurulum dosyası; Python / model / korpus dahil; internetsiz ilk açılış; 8 GB RAM, GPU'suz i5 dizüstünde temiz Windows'ta kurulum ve uçtan uca deneme; güncelleme ve kaldırma yolu |
-| M18 | Son kontrol ve v1 etiketi | Tüm testler, tüm benchmark'lar, mühürlü doğrulama, uçtan uca deneme, doküman ↔ kod uyumu |
+| # | Kilometre taşı | Bitti sayılma ölçütü | Bağımlılık |
+|---|---|---|---|
+| M0 | Sıralayıcı ince ayarının kapanışı | Pilot 2/3'ten biri mühürlü ho6'da önceden yazılan kurala göre kabul ya da ret; ret ise mevcut model kalır | — |
+| M1 | **Ölü kod temizliği** | Kullanılmayan fonksiyon, içe aktarım, ayar ve dizinler kaldırılmış; statik denetim (vulture/ruff) temiz; testler geçiyor | — |
+| M2 | **Eski yedeklerin temizliği** | Kullanıcı onayıyla data/backups eski kopyaları ve bayat data/mevzuat_db silinmiş; saklama politikası (kaç yedek, nerede) kodda. Tam mevzuat için disk açar | kullanıcı onayı |
+| M3 | **Paketleme ve arayüz teknolojisi kararı** | Bugünkü uygulama (Streamlit) ile ve bir masaüstü alternatifiyle deneme paketi; temiz Windows'ta boyut, açılış süresi, RAM, internetsiz çalışma ölçülmüş; karar yazılı | — |
+| M4 | **Ölçüm altyapısı** (eksik 11) | Belge türü bazlı vaka biçimi; "doğru uygunluk kararı", alan çıkarımı ve belge türü metrikleri; sentetik örnekleri (benchmarks/synthetic) içeri alan dönüştürücü; mühürlü model çıktıları ayrı; tabana yazılıp testle korunuyor | — |
+| M5 | **Belge türleri + alan çıkarımı** (eksik 2, 3) | Bölüm 2'deki türler sınıflandırılıyor; tarih, tutar, TCKN/VKN, IBAN, hesap no, kişi-rol, imza/onay, teminat, limit, oran çıkarılıyor; M4 ile ölçülüyor | M4 |
+| M6 | **Korpus: öncelikli set → tam mevzuat** | Yükleme hattı büyük ölçek için sağlamlaştırılmış; önce Bölüm 3'teki öncelikli set, ardından şube işlemlerine değen tüm mevzuat (bankacılık, tüketici, MASAK, ödeme, vergi, ticaret, borçlar) resmî kaynaklardan; mevzuat olmayan kayıtlar ayıklanmış; Resmî Gazete'den güncelleme yolu; 8 GB RAM'li dizüstünde performans ölçülmüş; mevcut benchmark kötüleşmiyor (kötüleşirse eşikler yeniden ayarlanır) | M2, kullanıcı onayı |
+| M7 | **Olay tarihi** (eksik 6) | Olay tarihi belgeden çıkarılıyor; dayanak o tarihte yürürlükteki metinden; yürürlük değişikliği olan vakalarla test | M5, M6 |
+| M8 | **İç düzenlemeler** (eksik 9) | Kullanıcı bankanın talimat / yetki tablosu / ücret tarifesini yükleyebiliyor; ayrı kaynak türü, mevzuattan ayırt ediliyor | M6 |
+| M9 | **Şart kataloğu = uygunluk kararı** (eksik 1, 5) | Veri olarak tutulan katalog (şart → mevzuat veya iç düzenleme hükmü → kontrol türü: alan var mı / tarih sırası / eşik / süre / metin); her şart için karşılandı / karşılanmadı / belirsiz + belgeden kanıt; kredi, teminat, hesap açılış/KYC, kasa, işlem, şikâyet, ücret, resmî yazı türleri; kullanıcı hukuki gözden geçirmesi | M5–M8 |
+| M10 | **Dosya düzeyi çapraz kontrol** (eksik 4) | Birden çok belge tek dosya; belgeler arası şartlar (teminat ↔ kullandırım tarihi, imzalayan ↔ sirküler, mali tablo ↔ KKB) | M9 |
+| M11 | **Bulgu formatı + yaptırım** (eksik 7, 8) | Bulgu: tespit, ölçüt, neden, etki/önem, öneri, sorumlu, aksiyon tarihi; ihlal edilen hükümden yaptırım hükmüne bağlantı; UI ve DOCX'te | M9 |
+| M12 | **Tipoloji uyarıları** (eksik 10) | MASAK tipolojilerine dayalı kural tabanlı uyarılar, işlem listeleri / dekont kümeleri üzerinde | M5, M6 |
+| M13 | **Gündelik dil genişletmesi** | Tam korpusta madde başına gündelik / denetçi dili açıklamaları (üretim yapım aşamasında, çalışma anında dil modeli yok); ürüne alınmış; yanlış pozitif artmıyor | M6 |
+| M14 | **Sıralayıcı eğitimi (ikinci tur)** | Tam korpus + çok modelli sentetik belgelerle; eğitim düzeneği repoda, tekrarlanabilir; mühürlü model çıktılarında doğrulanmış | M4, M6, M13 |
+| M15 | **Arayüz tasarımı** | M3 kararındaki teknolojiyle; denetçi iş akışı (dosya yükleme → kontrol listesi → bulgular → rapor); tutarlı görsel dil; düşük çözünürlük kontrolü | M3, M9–M12 |
+| M16 | **Logo ve marka** | Logo, uygulama simgesi, renk ve yazı tipi; arayüze ve DOCX raporuna uygulanmış (tasarım çalışması M15 ile paralel yürüyebilir) | M15 |
+| M17 | **.exe paketleme** | Tek kurulum dosyası; Python / model / korpus dahil; internetsiz ilk açılış; 8 GB RAM, GPU'suz i5 dizüstünde temiz Windows'ta kurulum ve uçtan uca deneme; güncelleme ve kaldırma yolu | M3, M15, M16 |
+| M18 | Son kontrol ve v1 etiketi | Tüm testler, tüm benchmark'lar, mühürlü doğrulama, uçtan uca deneme, doküman ↔ kod uyumu | hepsi |
+
+Paralel yürüyebilenler: kullanıcının sentetik örnek üretimi (M4'ten itibaren), logo çalışması (her an),
+şart kataloğunun hukuki gözden geçirmesi (M9 taslakları çıktıkça).
 
 İlkeler: çekirdek deterministik ve GPU'suz; dil modeli isteğe bağlı açıklama katmanı. Şartların hukuki doğruluğu
 bir alan uzmanının gözden geçirmesini gerektirir (katalog veri olduğu için uzman kod bilmeden düzeltebilir).
