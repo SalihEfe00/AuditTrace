@@ -333,5 +333,23 @@ class TestStoreDurability(unittest.TestCase):
             store.upsert(ids=["a"], embeddings=_vectors(1).tolist(), metadatas=[{"liste": [1]}])
 
 
+
+class TestStoreSelection(unittest.TestCase):
+    def test_auto_uses_migrated_store_only_when_present(self):
+        from mufettis.rag.store import SqliteStoreClient, resolve_store_kind, store_root_for
+
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            db = tmp / "mevzuat_db"
+            self.assertEqual(resolve_store_kind("auto", db), "chroma")
+            SqliteStoreClient(store_root_for(db)).get_or_create_collection("mevzuat")
+            self.assertEqual(resolve_store_kind("auto", db), "sqlite")
+            self.assertEqual(resolve_store_kind("chroma", db), "chroma")
+            with self.assertRaises(ValueError):
+                resolve_store_kind("baska", db)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 if __name__ == "__main__":
     unittest.main()

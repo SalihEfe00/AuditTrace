@@ -14,9 +14,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # MUFETTIS_DATA_DIR verilirse tüm veri yolları oraya yönlenir (ör. testlerde izole kopya).
 DATA_DIR = Path(os.environ["MUFETTIS_DATA_DIR"]).resolve() if os.environ.get("MUFETTIS_DATA_DIR") else BASE_DIR / "data"
 DB_PATH = DATA_DIR / "mevzuat_db"
-# Parça deposu: "chroma" (varsayılan) veya "sqlite" (SQLite + disk üzerinde kesin vektör taraması,
-# mufettis/rag/store.py). Geçiş, iki depo aynı sorgu kümesinde karşılaştırıldıktan sonra yapılır.
-VECTOR_STORE = os.environ.get("MUFETTIS_VECTOR_STORE", "chroma").strip().lower()
+# Parça deposu: "sqlite" (SQLite + disk üzerinde kesin vektör taraması, mufettis/rag/store.py),
+# "chroma" veya "auto" (varsayılan): taşınmış bir SQLite deposu varsa o, yoksa Chroma. Böylece
+# scripts/migrate_chroma_to_sqlite.py çalıştırılana kadar hiçbir şey değişmez, sonra geçiş kendiliğinden olur.
+VECTOR_STORE = os.environ.get("MUFETTIS_VECTOR_STORE", "auto").strip().lower()
 CORPUS_STORE_PATH = DATA_DIR / "corpus_store"
 LOG_DIR = DATA_DIR / "llm_logs"
 AUDIT_LOG_DIR = DATA_DIR / "audit_logs"

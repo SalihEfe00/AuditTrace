@@ -164,6 +164,22 @@ def check_production_corpus(
                 details["db_error"] = str(exc)
 
         # Preference 2: Pure read-only SQLite inspection (ZERO filesystem mutation, mtime preserved)
+        # Preference 1b: taşınmış SQLite parça deposu (salt okunur sayım)
+        if not count_resolved and db_p.is_dir():
+            from mufettis.rag.store import resolve_store_kind, store_file_for
+
+            store_file = store_file_for(db_p)
+            if resolve_store_kind(None, db_p) == "sqlite" and store_file.is_file():
+                try:
+                    con = sqlite3.connect(f"file:{store_file.as_posix()}?mode=ro", uri=True)
+                    try:
+                        details["embeddings_count"] = int(con.execute("SELECT COUNT(*) FROM chunks").fetchone()[0])
+                    finally:
+                        con.close()
+                    count_resolved = True
+                except Exception as exc:
+                    details["db_error"] = str(exc)
+
         if not count_resolved:
             sqlite_file = db_p if db_p.is_file() else (db_p / "chroma.sqlite3")
             if sqlite_file.exists() and sqlite_file.is_file():

@@ -91,8 +91,14 @@ def _get_rag(
     if allow_embedding_download is not None:
         # Geriye dönük uyumluluk: eski çağrı adı da kabul edilir.
         allow_download = bool(allow_embedding_download)
-    if chromadb is None or SentenceTransformer is None:
+    if SentenceTransformer is None:
         return None
+    if chromadb is None:
+        from mufettis.config import DB_PATH
+        from mufettis.rag.store import resolve_store_kind
+
+        if resolve_store_kind(None, DB_PATH) == "chroma":
+            return None
     try:
         return _create_rag_cached(bool(allow_download))
     except Exception as exc:

@@ -44,6 +44,8 @@ from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Sequ
 
 import numpy as np
 
+from mufettis.config import CHROMA_COLLECTION, CORPUS_STORE_PATH, DB_PATH, VECTOR_STORE
+
 STORE_FILE = "store.sqlite3"
 STORE_SCHEMA = "2"  # 2: belge düzeyindeki metadata tabanlarda
 SCAN_BLOCK_ROWS = 65536
@@ -686,6 +688,27 @@ class SqliteVectorCollection:
                     pass
 
 
+def store_root_for(db_path: Path) -> Path:
+    """Bir veritabanı yolunun SQLite parça deposu kökü: varsayılan yol için `CORPUS_STORE_PATH`,
+    başka yollar (ör. test laboratuvarı) için `<yol>/corpus_store`."""
+    db_path = Path(db_path)
+    return CORPUS_STORE_PATH if db_path.resolve() == Path(DB_PATH).resolve() else db_path / "corpus_store"
+
+
+def store_file_for(db_path: Path, name: str = CHROMA_COLLECTION) -> Path:
+    return store_root_for(db_path) / name / STORE_FILE
+
+
+def resolve_store_kind(requested: Optional[str], db_path: Path) -> str:
+    """"sqlite" veya "chroma". "auto": taşınmış SQLite deposu varsa o."""
+    kind = (requested or VECTOR_STORE or "auto").strip().lower()
+    if kind == "auto":
+        return "sqlite" if store_file_for(db_path).is_file() else "chroma"
+    if kind not in ("sqlite", "chroma"):
+        raise ValueError(f"Bilinmeyen parça deposu: {kind}")
+    return kind
+
+
 class SqliteStoreClient:
     """`chromadb.PersistentClient` yerine: koleksiyonlar `path/<ad>/` dizinleridir."""
 
@@ -715,4 +738,4 @@ class SqliteStoreClient:
         shutil.rmtree(target)
 
 
-__all__ = ["SqliteStoreClient", "SqliteVectorCollection"]
+__all__ = ["SqliteStoreClient", "SqliteVectorCollection", "resolve_store_kind", "store_file_for", "store_root_for"]

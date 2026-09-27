@@ -25,8 +25,6 @@ except Exception:
 
 from mufettis.config import (
     CHROMA_COLLECTION,
-    CORPUS_STORE_PATH,
-    VECTOR_STORE,
     CHROMA_UPSERT_BATCH_SIZE,
     CHUNK_SCHEMA_VERSION,
     DB_PATH,
@@ -67,9 +65,9 @@ LEXICAL_CANDIDATES_PER_K = 2
 class LocalRAG:
     def __init__(self, db_path: Path = DB_PATH, model_name: str = EMBEDDING_MODEL, allow_download: bool = False,
                  store: Optional[str] = None):
-        self.store_kind = (store or VECTOR_STORE or "chroma").lower()
-        if self.store_kind not in ("chroma", "sqlite"):
-            raise ValueError(f"Bilinmeyen parça deposu: {self.store_kind}")
+        from mufettis.rag.store import SqliteStoreClient, resolve_store_kind, store_root_for
+
+        self.store_kind = resolve_store_kind(store, db_path)
         if self.store_kind == "chroma" and chromadb is None:
             raise RuntimeError("chromadb kurulu değil. `pip install chromadb`")
         if SentenceTransformer is None:
@@ -80,10 +78,7 @@ class LocalRAG:
         self.allow_download = allow_download
         self._model = None
         if self.store_kind == "sqlite":
-            from mufettis.rag.store import SqliteStoreClient
-
-            store_root = CORPUS_STORE_PATH if self.db_path == Path(DB_PATH) else self.db_path / "corpus_store"
-            self.client = SqliteStoreClient(store_root)
+            self.client = SqliteStoreClient(store_root_for(self.db_path))
         else:
             self.client = chromadb.PersistentClient(path=str(self.db_path))
         self.collection = self.client.get_or_create_collection(name=CHROMA_COLLECTION, embedding_function=None)

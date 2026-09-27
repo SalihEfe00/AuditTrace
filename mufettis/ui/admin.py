@@ -921,7 +921,7 @@ def render_production_health_panel(
 
     # 5. SQLite PRAGMA integrity_check
     sqlite_status = "Bilinmiyor"
-    sqlite_file = Path(DB_PATH) / "chroma.sqlite3"
+    sqlite_file = (getattr(rag.collection, "db_file", None) if rag else None) or Path(DB_PATH) / "chroma.sqlite3"
     if sqlite_file.is_file():
         import sqlite3
         try:
