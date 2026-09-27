@@ -29,6 +29,16 @@ Kod:
    - Eşik modele özgüdür, model değişirse yeniden ölçülür.
    - Yalnızca geliştirme (dev) vakalarıyla seçilir: negatiflerin en yüksek puanı -2.57, doğruların en düşüğü -1.74; eşik aradaki orta nokta, -2.15.
 6. **İsteğe bağlı dil modeli doğrulayıcısı** aynı sıralamayı (`_gated_ranking`) kullanır.
+   - Ölçüm (qwen2.5:7b, `eval_accuracy.py --verifier`, 2026-09-27):
+
+     | Vaka grubu | Doğru | Yanlış dayanak | Yanlış pozitif |
+     |---|---|---|---|
+     | dev | 12 → 13 | 2 → 1 | 0 |
+     | holdout | 15 → 16 | 1 → 1 | 0 → 1 |
+
+   - Yanlış pozitif bir eğitim notunda çıktı. Doğrulayıcı eşiğin altındaki adaylardan da seçim yapabildiği için yanlış pozitif ekleyebiliyor.
+   - Vaka başına süre 2–3 kat artıyor ve ekran kartında 3–19 sn sürüyor.
+   - Bu yüzden varsayılan olarak kapalı kalır. Açılacaksa güçlü makinede, denetçinin bilgisiyle açılmalıdır.
 
 Model kurulu değilse sistem eski davranışa döner:
 - Geniş iddia havuzu kullanılmaz.
