@@ -52,8 +52,13 @@ def expected_chunks(text: str, record: Dict[str, Any]) -> List[str]:
 
     title, doc_type = record.get("title", ""), record.get("document_type", "")
     text = repair_extracted_spacing(normalize_extracted_text(text), title, doc_type)
-    return [_norm(mask_sensitive(repair_extracted_spacing(ch["text"], title, doc_type)))
+    return [_chunk_key(mask_sensitive(repair_extracted_spacing(ch["text"], title, doc_type)), ch.get("article_heading"))
             for ch in split_legal_chunks(text, title=str(title or ""))]
+
+
+def _chunk_key(text: str, heading: Any) -> str:
+    # Madde başlığı parça metninde değil meta veride taşınır; yalnızca başlığı değişen belge de güncel değildir.
+    return f"{_norm(text)}{_norm(heading or '')}"
 
 
 def stored_chunks(rag) -> Dict[str, List[str]]:
@@ -63,7 +68,8 @@ def stored_chunks(rag) -> Dict[str, List[str]]:
     for _, docs, metas in iter_pages(rag.collection):
         for doc, meta in zip(docs, metas):
             meta = meta or {}
-            rows[str(meta.get("file_hash", ""))].append((int(meta.get("chunk_no", 0) or 0), _norm(doc)))
+            rows[str(meta.get("file_hash", ""))].append(
+                (int(meta.get("chunk_no", 0) or 0), _chunk_key(doc, meta.get("article_heading"))))
     return {h: [t for _, t in sorted(r)] for h, r in rows.items()}
 
 

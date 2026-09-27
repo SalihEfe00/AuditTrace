@@ -219,6 +219,7 @@ class LocalRAG:
                 "article_prefix": ch.get("article_prefix") or "",
                 "article_no": ch.get("article_no") or "",
                 "article_title": ch.get("article_title") or "",
+                "article_heading": ch.get("article_heading") or "",
                 "paragraph_no": ch.get("paragraph_no") or "",
                 "item_no": ch.get("item_no") or "",
                 "subitem_no": ch.get("subitem_no") or "",

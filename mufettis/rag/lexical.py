@@ -27,6 +27,13 @@ BM25_B = 0.75
 MAX_DOC_RATIO = 0.5
 
 
+def indexed_text(text: Optional[str], meta: Optional[Dict[str, Any]]) -> str:
+    """Parçanın aranan metni: maddenin başlığı ("Zamanaşımı") + parça metni. Başlık gömülen metne
+    eklenmez (bkz. parser.split_legal_chunks); konu sözcüğü olarak yalnızca burada aranır."""
+    heading = str((meta or {}).get("article_heading") or "").strip()
+    return f"{heading}\n{text or ''}" if heading else (text or "")
+
+
 def _document_terms(text: str) -> List[str]:
     from mufettis.analysis.term_stats import term_key
     from mufettis.analysis.turkish_text import MIN_PREFIX_MATCH, STOP_WORDS, stem, tokenize
@@ -104,7 +111,7 @@ class LexicalIndex:
             pos = len(self.ids)
             self.ids.append(cid)
             self.metadatas.append(eligibility_view(meta or {}))
-            terms = _document_terms(text or "")
+            terms = _document_terms(indexed_text(text, meta))
             self.lengths.append(len(terms))
             for term, tf in Counter(terms).items():
                 self.postings[term].append((pos, tf))
@@ -162,7 +169,8 @@ def bm25_rank(
     return sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))
 
 
-LEXICAL_INDEX_VERSION = "1"
+# 2: madde başlığı (article_heading) da dizinlenir.
+LEXICAL_INDEX_VERSION = "2"
 ADMIT_FETCH_BATCH = 200
 
 
@@ -218,7 +226,7 @@ class DiskLexicalIndex:
             for ids, documents, metadatas in pages:
                 docs, rows = [], []
                 for cid, text, meta in zip(ids, documents, metadatas or [{}] * len(ids)):
-                    terms = _document_terms(text or "")
+                    terms = _document_terms(indexed_text(text, meta))
                     docs.append((pos, cid, len(terms), json.dumps(eligibility_view(meta or {}), ensure_ascii=False)))
                     rows.extend((term, pos, tf) for term, tf in Counter(terms).items())
                     total_length += len(terms)

@@ -945,6 +945,40 @@ INLINE_ARTICLE_HEADER_RE=re.compile(
 )
 
 
+HEADING_MAX_CHARS = 120
+HEADING_MAX_WORDS = 14
+_NOT_HEADING_START_RE = re.compile(r"(?i)^\s*(?:(?:(?:GEÇİCİ|EK)\s+)?MADDE\s*[-:]?\s*\d|\(?\s*\d{1,3}\s*[).-]|\(?[a-zçğıöşü]{1,2}\)\s)")
+_SENTENCE_END_RE = re.compile(r"[.:;!?…)\]”\"’']\s*$")
+
+
+def _is_heading_line(line: str) -> bool:
+    words = line.split()
+    first = next((ch for ch in line if ch.isalpha()), "")
+    return (
+        0 < len(words) <= HEADING_MAX_WORDS
+        and len(line) <= HEADING_MAX_CHARS
+        and first.isupper()
+        and not re.search(r"[.,;:]\s*$", line)
+        # Madde satırı ve numaralı fıkra/bent başlık değildir, metnin kendisidir.
+        and not _NOT_HEADING_START_RE.match(line)
+    )
+
+
+def _take_trailing_headings(buffer: List[str]) -> List[str]:
+    """Bloğun sonundaki başlık satırlarını çıkarıp döndürür (sonraki maddeye aittirler).
+
+    Yalnızca öncesindeki satır bir cümleyle bitiyorsa (ya da blok yalnızca başlıklardan oluşuyorsa)
+    alınır: aksi halde noktasız satır, alt satıra kaymış bir cümlenin parçası olabilir."""
+    split = len(buffer)
+    while split > 0 and _is_heading_line(buffer[split - 1]):
+        split -= 1
+    if split == len(buffer) or (split > 0 and not _SENTENCE_END_RE.search(buffer[split - 1])):
+        return []
+    headings = buffer[split:]
+    del buffer[split:]
+    return headings
+
+
 def split_legal_chunks(
     text: str,
     max_chars: int=1800,
@@ -1027,6 +1061,7 @@ def split_legal_chunks(
     article_prefix=""
     article_no=""
     article_title=""
+    article_heading=""
     paragraph_no=""
     item_no=""
     subitem_no=""
@@ -1046,6 +1081,7 @@ def split_legal_chunks(
                 "article_prefix":article_prefix,
                 "article_no":article_no,
                 "article_title":article_title,
+                "article_heading":article_heading,
                 "paragraph_no":paragraph_no,
                 "item_no":item_no,
                 "subitem_no":subitem_no,
@@ -1064,6 +1100,7 @@ def split_legal_chunks(
                 "article_prefix":article_prefix,
                 "article_no":article_no,
                 "article_title":article_title,
+                "article_heading":article_heading,
                 "paragraph_no":"",
                 "item_no":"",
                 "subitem_no":"",
@@ -1077,6 +1114,12 @@ def split_legal_chunks(
     for line in lines:
         am=article_re.match(line)
         if am:
+            # Maddenin başlığı ("Zamanaşımı") ve üstündeki kısım/bölüm başlıkları "MADDE" satırından
+            # önce gelir; önceki maddenin sonunda kalırlarsa madde konusunu kaybeder, önceki madde
+            # de yanıltıcı bir başlık kazanır. Başlık parça metnine eklenmez (gömme küçük metin
+            # değişikliklerine duyarlı: ölçümde ilgili maddeyi sorgudan uzaklaştırdı); maddenin
+            # parçalarına article_heading olarak taşınır ve sözcüksel indekste aranır.
+            headings=[] if article_header else _take_trailing_headings(buffer)
             if article_header:
                 flush_pending_article_header()
             else:
@@ -1084,6 +1127,7 @@ def split_legal_chunks(
             article_prefix=(am.group("prefix") or "").upper()
             article_no=am.group("number")
             article_title=(am.group("title") or "").strip()
+            article_heading=" — ".join(headings)
             paragraph_no=item_no=subitem_no=section_no=account_code=""
             article_header=line
             mode="article"
@@ -1169,6 +1213,7 @@ def split_legal_chunks(
             "article_prefix":"",
             "article_no":"",
             "article_title":"",
+            "article_heading":"",
             "paragraph_no":"",
             "item_no":"",
             "subitem_no":"",
