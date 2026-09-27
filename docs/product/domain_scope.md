@@ -94,6 +94,11 @@ Sıralama ilkeleri:
 | # | Kilometre taşı | Bitti sayılma ölçütü | Bağımlılık |
 |---|---|---|---|
 | M0 | Sıralayıcı ince ayarının kapanışı | Pilot 2/3'ten biri mühürlü ho6'da önceden yazılan kurala göre kabul ya da ret; ret ise mevcut model kalır | — |
+| M0.1 | Pilot 2 (benchmark dayanakları eğitimden tamamen dışlanmış) | Tüm bölümlerde ve ho5'te eşiksiz ölçüm; eşik yalnızca dev'den (✓ 2026-09-28: −3,1'de 33 doğru / 3 yanlış dayanak / 0 YP; taban 34/6/0) | — |
+| M0.2 | Pilot 3 (incelemede zayıf/yanlış işaretli 115 iddia atılmış) | Aynı ölçüm | — |
+| M0.3 | Seçim | Kural: YP 0 → daha az yanlış dayanak → daha çok doğru; eşitlikte pilot 2 | M0.1, M0.2 |
+| M0.4 | Mühürlü ho6 doğrulaması (bir kez) | Kabul: YP 0, yanlış dayanak ≤ taban, doğru ≥ taban − 1 | M0.3 |
+| M0.5 | Ürüne alma ya da rafa kaldırma | Kabulse: model sürüm adıyla kurulur, eşik ve özet reranker.py'de, baseline.json yeniden yazılır; retse mevcut model kalır ve sonuç kaydedilir | M0.4 |
 | M1 | **Ölü kod temizliği** | Kullanılmayan fonksiyon, içe aktarım, ayar ve dizinler kaldırılmış; statik denetim (vulture/ruff) temiz; testler geçiyor | — |
 | M2 | **Eski yedeklerin temizliği** | Kullanıcı onayıyla data/backups eski kopyaları ve bayat data/mevzuat_db silinmiş; saklama politikası (kaç yedek, nerede) kodda. Tam mevzuat için disk açar | kullanıcı onayı |
 | M3 | **Paketleme ve arayüz teknolojisi kararı** | Bugünkü uygulama (Streamlit) ile ve bir masaüstü alternatifiyle deneme paketi; temiz Windows'ta boyut, açılış süresi, RAM, internetsiz çalışma ölçülmüş; karar yazılı | — |
@@ -113,11 +118,22 @@ Sıralama ilkeleri:
 | M17 | **.exe paketleme** | Tek kurulum dosyası; Python / model / korpus dahil; internetsiz ilk açılış; 8 GB RAM, GPU'suz i5 dizüstünde temiz Windows'ta kurulum ve uçtan uca deneme; güncelleme ve kaldırma yolu | M3, M15, M16 |
 | M18 | Son kontrol ve v1 etiketi | Tüm testler, tüm benchmark'lar, mühürlü doğrulama, uçtan uca deneme, doküman ↔ kod uyumu | hepsi |
 
+**Plan disiplini.** Bir kilometre taşında farklı iş gerektiren bir sorun çıkarsa çözümler sınıflandırılır ve o taşın
+alt adımı olarak bu tabloya eklenir (ör. M9.1, M9.2; her biri kendi bitti ölçütüyle) — önce yazılır, sonra yapılır.
+Hiçbir kilometre taşına ait olmayan iş v1'de yapılmaz; aşağıdaki v2 listesine gider. İlerleme alt adım düzeyinde
+raporlanır.
+
 Paralel yürüyebilenler: kullanıcının sentetik örnek üretimi (M4'ten itibaren), logo çalışması (her an),
 şart kataloğunun hukuki gözden geçirmesi (M9 taslakları çıktıkça).
 
 İlkeler: çekirdek deterministik ve GPU'suz; dil modeli isteğe bağlı açıklama katmanı. Şartların hukuki doğruluğu
 bir alan uzmanının gözden geçirmesini gerektirir (katalog veri olduğu için uzman kod bilmeden düzeltebilir).
+
+### v2 listesi
+
+v1'de yapılmayacak, sonraya kalan fikirler buraya yazılır.
+
+- (boş)
 
 ## Kaynaklar
 
