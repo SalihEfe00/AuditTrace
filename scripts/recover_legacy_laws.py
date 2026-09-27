@@ -48,10 +48,12 @@ VERIFY_QUERIES = [
 
 def _legacy_groups(rag) -> Dict[str, List[Tuple[str, Dict[str, Any], str]]]:
     """Şema sürümü olmayan parçaları file_hash'e göre gruplar."""
-    got = rag.collection.get(include=["metadatas", "documents"])
+    from mufettis.rag.paging import iter_pages
+
     groups: Dict[str, List[Tuple[str, Dict[str, Any], str]]] = {}
-    for cid, meta, doc in zip(got["ids"], got["metadatas"], got["documents"]):
-        meta = meta or {}
+    pairs = ((cid, meta, doc) for ids, docs, metas in iter_pages(rag.collection)
+             for cid, doc, meta in zip(ids, docs, metas))
+    for cid, meta, doc in pairs:  # sayfalı: yalnızca eski şemadaki parçalar bellekte tutulur
         if str(meta.get("chunk_schema_version", "") or "") == str(CHUNK_SCHEMA_VERSION):
             continue
         groups.setdefault(str(meta.get("file_hash", "")), []).append((cid, meta, doc or ""))

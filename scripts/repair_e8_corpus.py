@@ -94,10 +94,12 @@ def plan_version_chains(items: Dict[str, Dict[str, Any]], new_keys: Dict[str, st
 
 
 def _chunk_texts_by_hash(rag) -> Dict[str, List[str]]:
-    got = rag.collection.get(include=["documents", "metadatas"])
+    from mufettis.rag.paging import iter_pages
+
     out: Dict[str, List[str]] = defaultdict(list)
-    for doc, meta in zip(got.get("documents") or [], got.get("metadatas") or []):
-        out[str((meta or {}).get("file_hash", ""))].append(doc or "")
+    for _ids, docs, metas in iter_pages(rag.collection):  # sayfalı: tek bir tam get kopyası tutulmaz
+        for doc, meta in zip(docs, metas):
+            out[str(meta.get("file_hash", ""))].append(doc or "")
     return out
 
 
