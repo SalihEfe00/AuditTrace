@@ -41,6 +41,9 @@ _FACT_PREDICATE_RE = re.compile(
 )
 # Birinci kişi talep/dilek yüklemleri olgu bildirmez ("talep ediyorum", "rica ederim").
 _REQUEST_PREDICATE_RE = re.compile(r"(?:[ıiuü]?yorum|[ae]rim|[ıiuü]r[ıiuü]m|m[ae]kt[ae]y[ıi]m)$")
+# Gereklilik ve öneri kipleri de olay bildirmez, yapılması gerekeni söyler ("incelenmesi
+# gerekmektedir", "iade yapılmalıdır", "önerilmektedir"); "-mektedir" eki olgu sanılmamalı.
+_MODAL_PREDICATE_RE = re.compile(r"^(?:gerek|öneril)|m[ae]l[ıi](?:d[ıi]r|y[ıi]z)?$")
 MIN_CLAIM_CONTENT_TERMS = 2
 
 
@@ -70,7 +73,7 @@ def states_a_fact(sentence: str) -> bool:
     if _looks_like_heading(sentence):
         return False
     predicate = words[-1]
-    if _REQUEST_PREDICATE_RE.search(predicate):
+    if _REQUEST_PREDICATE_RE.search(predicate) or _MODAL_PREDICATE_RE.search(predicate):
         return False
     return bool(_FACT_PREDICATE_RE.search(predicate)) and len(content_terms(sentence)) >= MIN_CLAIM_CONTENT_TERMS
 

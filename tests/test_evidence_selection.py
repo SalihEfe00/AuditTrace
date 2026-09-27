@@ -127,6 +127,16 @@ class TestCollocations(unittest.TestCase):
 
 
 class TestClaimDetection(unittest.TestCase):
+    def test_necessity_and_recommendation_are_not_facts(self):
+        for sentence in (
+            "İlgili yetki aşımının risk ve uyum açısından incelenmesi gerekmektedir.",
+            "Müşteri dekontu doğrulandı, banka iade yapmalıdır.",
+            "Şube personelinin kredi süreçleri konusunda eğitilmesi önerilmektedir.",
+            "Kredi dosyalarının genel müdürlükçe yeniden incelenmeli.",
+        ):
+            self.assertFalse(states_a_fact(sentence), sentence)
+        self.assertTrue(states_a_fact("Şube onay limitini aşarak kredi kullandırılmıştır."))
+
     def test_front_vowel_plural_predicates_state_facts(self):
         self.assertTrue(states_a_fact("Soruma cevap verecek bir birim bulunmadığını söylediler."))
         self.assertTrue(states_a_fact("Bankanın çalışanları bana eksik bilgi vermişlerdir."))
