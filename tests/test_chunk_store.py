@@ -360,6 +360,27 @@ class TestStoreBackup(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class TestBackupActiveStoreOnly(unittest.TestCase):
+    def test_sqlite_active_skips_legacy_chroma_directory(self):
+        from mufettis.rag.store import CHROMA_DB_FILE, SqliteStoreClient, backup_vector_store, store_root_for
+
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            db = tmp / "mevzuat_db"
+            db.mkdir()
+            (db / CHROMA_DB_FILE).write_bytes(b"eski chroma")
+            # Yalnızca Chroma: o yedeklenir.
+            out = backup_vector_store(tmp / "yedek1", db)
+            self.assertTrue((out / CHROMA_DB_FILE).is_file())
+            # Taşınmış SQLite deposu etkin: eski Chroma dizini yedeğe kopyalanmaz.
+            SqliteStoreClient(store_root_for(db)).get_or_create_collection("mevzuat")
+            out = backup_vector_store(tmp / "yedek2", db)
+            self.assertEqual(out, tmp / "yedek2" / "corpus_store")
+            self.assertFalse((tmp / "yedek2" / "mevzuat_db").exists())
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 class TestStoreSelection(unittest.TestCase):
     def test_auto_prefers_sqlite_and_uses_chroma_only_for_unmigrated_database(self):
         from mufettis.rag.store import CHROMA_DB_FILE, SqliteStoreClient, resolve_store_kind, store_root_for

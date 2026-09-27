@@ -16,7 +16,6 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
-import shutil
 import sys
 from pathlib import Path
 from typing import Any, Dict, List
@@ -56,17 +55,15 @@ def plan(index, rag) -> Dict[str, Any]:
 
 
 def backup(stamp: str) -> Path:
-    from mufettis.config import DB_PATH
 
     target = DATA_DIR / "backups" / f"version_links_{stamp}"
     target.mkdir(parents=True, exist_ok=False)
     from mufettis.rag.index import IngestIndex
 
     IngestIndex().backup(target / "ingest_index.sqlite3")  # tutarlı SQLite yedeği
-    shutil.copytree(DB_PATH, target / DB_PATH.name)
-    from mufettis.rag.store import backup_corpus_store
+    from mufettis.rag.store import backup_vector_store
 
-    backup_corpus_store(target)  # SQLite parça deposu (etkinse değiştirilecek olan odur)
+    backup_vector_store(target)  # yalnızca etkin parça deposu (SQLite veya Chroma)
     return target
 
 

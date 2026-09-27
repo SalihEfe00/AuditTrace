@@ -750,6 +750,23 @@ def backup_corpus_store(target: Path, db_path: Path = DB_PATH) -> Optional[Path]
     return out
 
 
+def backup_vector_store(target: Path, db_path: Path = DB_PATH) -> Path:
+    """Veri onaran betiklerin tek yedek noktası: yalnızca ETKİN parça deposu yedeklenir (auto kuralı,
+    resolve_store_kind). SQLite etkinken eski Chroma dizini (yüzlerce MB, artık yazılmıyor) her
+    yedeğe kopyalanmaz. Yedeğin kök dizinini döndürür."""
+    import shutil
+
+    target = Path(target)
+    if resolve_store_kind(None, db_path) == "sqlite":
+        out = backup_corpus_store(target, db_path)
+        if out is None:
+            raise RuntimeError(f"Etkin SQLite parça deposu yedeklenemedi: {store_root_for(db_path)}")
+        return out
+    out = target / Path(db_path).name
+    shutil.copytree(db_path, out)  # Chroma açılmadan önce çağrılmalı
+    return out
+
+
 class SqliteStoreClient:
     """`chromadb.PersistentClient` yerine: koleksiyonlar `path/<ad>/` dizinleridir."""
 
@@ -779,4 +796,4 @@ class SqliteStoreClient:
         shutil.rmtree(target)
 
 
-__all__ = ["SqliteStoreClient", "SqliteVectorCollection", "backup_corpus_store", "resolve_store_kind", "store_file_for", "store_root_for"]
+__all__ = ["SqliteStoreClient", "SqliteVectorCollection", "backup_corpus_store", "backup_vector_store", "resolve_store_kind", "store_file_for", "store_root_for"]

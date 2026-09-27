@@ -36,7 +36,7 @@ from typing import Any, Dict, Iterable, List, Tuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from mufettis.config import BASE_DIR, DATA_DIR, DB_PATH, SOURCE_CACHE_DIR
+from mufettis.config import BASE_DIR, DATA_DIR, SOURCE_CACHE_DIR
 
 DEPOSIT_DIR = BASE_DIR / "mevzuat_deposu"
 INVALID_CHARS = ("￾", "￿", "\x00")
@@ -190,10 +190,9 @@ def backup(stamp: str) -> Path:
 
     IngestIndex().backup(target / "ingest_index.sqlite3")  # tutarlı SQLite yedeği
     shutil.copytree(SOURCE_CACHE_DIR, target / "source_cache")
-    shutil.copytree(DB_PATH, target / "mevzuat_db")  # Chroma açılmadan önce
-    from mufettis.rag.store import backup_corpus_store
+    from mufettis.rag.store import backup_vector_store
 
-    backup_corpus_store(target)  # SQLite parça deposu (etkinse değiştirilecek olan odur)
+    backup_vector_store(target)  # yalnızca etkin parça deposu (SQLite veya Chroma)
     return target
 
 

@@ -25,7 +25,6 @@ import argparse
 import datetime as dt
 import json
 import re
-import shutil
 import sys
 from collections import Counter
 from pathlib import Path
@@ -33,7 +32,7 @@ from typing import Any, Dict, List
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from mufettis.config import CHROMA_UPSERT_BATCH_SIZE, DATA_DIR, DB_PATH, SOURCE_CACHE_DIR
+from mufettis.config import CHROMA_UPSERT_BATCH_SIZE, DATA_DIR, SOURCE_CACHE_DIR
 from mufettis.corpus import CANONICAL_SCHEMA, with_canonical
 from mufettis.corpus.canonical import DERIVATION_INPUTS
 from mufettis.corpus.identity import content_fingerprint
@@ -152,10 +151,9 @@ def backup(stamp: str) -> Path:
     from mufettis.rag.index import IngestIndex
 
     IngestIndex().backup(target / "ingest_index.sqlite3")  # tutarlı SQLite yedeği
-    shutil.copytree(DB_PATH, target / "mevzuat_db")  # Chroma açılmadan önce
-    from mufettis.rag.store import backup_corpus_store
+    from mufettis.rag.store import backup_vector_store
 
-    backup_corpus_store(target)  # SQLite parça deposu (etkinse değiştirilecek olan odur)
+    backup_vector_store(target)  # yalnızca etkin parça deposu (SQLite veya Chroma)
     return target
 
 
