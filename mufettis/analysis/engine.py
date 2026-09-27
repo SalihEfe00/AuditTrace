@@ -454,11 +454,12 @@ class AnalysisEngine:
         for claim in self.claims_for_matching(doc):
             # Önce iddianın kendi cümlesiyle bulunan adaylar, sonra belge düzeyindeki havuz.
             claim_pool = self.merge_evidence((claim_candidates or {}).get(claim.claim_id, []), evidence_pool)
-            matched_ev, rerank_score = self._select_evidence(claim, claim_pool, doc)
+            ranked = self._gated_ranking(claim, claim_pool, doc)
+            matched_ev, rerank_score = self._pick(ranked)
             verdict = None
             if self.claim_verifier is not None:
                 candidates = self._verification_candidates(
-                    claim, claim_pool, doc, getattr(self.claim_verifier, "max_candidates", 5)
+                    claim, claim_pool, doc, getattr(self.claim_verifier, "max_candidates", 5), ranked=ranked
                 )
                 verdict = self.claim_verifier.choose(claim.statement, candidates) if candidates else None
                 if verdict is not None:
@@ -564,20 +565,35 @@ class AnalysisEngine:
         terim paylaşmayan kanıt bulgu olamaz. Yeniden sıralayıcı (cross-encoder) varsa kapıyı geçenler
         arasından iddia cümlesiyle birlikte okunduğunda en ilgili olan seçilir; puanı modelin eşiğinin
         (reranker.min_score) altındaysa bulgu çıkmaz. Yeniden sıralayıcı yoksa sözcüksel sıralamanın ilki seçilir."""
-        accepted = self._rank_evidence_for_claim(claim, candidates, doc)
-        if not accepted:
+        return self._pick(self._gated_ranking(claim, candidates, doc))
+
+    def _pick(self, ranked: List[Tuple[Evidence, Optional[float]]]) -> Tuple[Optional[Evidence], Optional[float]]:
+        """Sıralamanın ilki; yeniden sıralayıcı puanı modelin eşiğinin altındaysa hiçbiri."""
+        if not ranked:
             return None, None
-        if self.reranker is None:
-            return accepted[0], None
+        best, score = ranked[0]
+        min_score = getattr(self.reranker, "min_score", None)
+        if score is not None and min_score is not None and score < min_score:
+            return None, score
+        return best, score
+
+    def _gated_ranking(
+        self,
+        claim: DocumentClaim,
+        candidates: List[Evidence],
+        doc: Optional[DocumentUnderstanding] = None,
+    ) -> List[Tuple[Evidence, Optional[float]]]:
+        """Sözcüksel kapıyı geçen kanıtlar, en iyiden kötüye, (kanıt, yeniden sıralayıcı puanı).
+        Seçim (_select_evidence) ve dil modeli doğrulayıcısının adayları aynı sıralamayı kullanır."""
+        accepted = self._rank_evidence_for_claim(claim, candidates, doc)
+        if self.reranker is None or not accepted:
+            return [(ev, None) for ev in accepted]
         # Aday sırası (iddianın kendi adayları önce) korunarak kapıyı geçenlerin ilk N'i puanlanır.
         passed = {id(ev) for ev in accepted}
         shortlist = [ev for ev in candidates if id(ev) in passed][:RERANK_MAX_CANDIDATES]
         scores = self.reranker.score(claim.statement, [ev.text_span for ev in shortlist])
-        best = max(range(len(shortlist)), key=lambda i: (scores[i], -i))
-        min_score = getattr(self.reranker, "min_score", None)
-        if min_score is not None and scores[best] < min_score:
-            return None, scores[best]
-        return shortlist[best], scores[best]
+        order = sorted(range(len(shortlist)), key=lambda i: (-scores[i], i))
+        return [(shortlist[i], scores[i]) for i in order]
 
     def _rank_evidence_for_claim(
         self,
@@ -643,10 +659,14 @@ class AnalysisEngine:
         evidence_pool: List[Evidence],
         doc: Optional[DocumentUnderstanding],
         limit: int,
+        ranked: Optional[List[Tuple[Evidence, Optional[float]]]] = None,
     ) -> List[Evidence]:
-        """Dil modeline gösterilecek adaylar: sözcüksel olarak kabul edilenler, ardından retrieval
-        yakınlığına göre diğerleri (terim paylaşmayan doğru hüküm de değerlendirilebilsin)."""
-        lexical = self._rank_evidence_for_claim(claim, evidence_pool, doc)
+        """Dil modeline gösterilecek adaylar: kapıyı geçenler (seçimle aynı sıralama; yeniden sıralayıcı
+        varsa onun sırası), ardından retrieval yakınlığına göre diğerleri (terim paylaşmayan doğru
+        hüküm de değerlendirilebilsin)."""
+        if ranked is None:
+            ranked = self._gated_ranking(claim, evidence_pool, doc)
+        lexical = [ev for ev, _ in ranked]
         rest = sorted(
             (ev for ev in evidence_pool if not any(ev is chosen for chosen in lexical)),
             key=lambda ev: float(ev.metadata.get("retrieval_distance") if ev.metadata.get("retrieval_distance") is not None else 99.0),

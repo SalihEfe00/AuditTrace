@@ -122,6 +122,20 @@ class TestRerankedSelection(unittest.TestCase):
         self.assertEqual(unsupported, [])
 
 
+class TestVerifierUsesSameRanking(unittest.TestCase):
+    def test_verifier_candidates_follow_reranker_order_and_scores_once(self):
+        engine = AnalysisEngine()
+        engine.reranker = FakeReranker({"iade edilir": 5.0, "tahsil": 1.0})
+        verifier = MagicMock(max_candidates=2)
+        verifier.choose.return_value = None
+        engine.claim_verifier = verifier
+        pool = TestRerankedSelection._pool(None)
+        engine._match_claims_to_evidence(_doc(TestRerankedSelection.CLAIM.statement), MagicMock(), pool)
+        shown = verifier.choose.call_args.args[1]
+        self.assertEqual([e.metadata["law_number"] for e in shown], ["B", "A"])
+        self.assertEqual(len(engine.reranker.calls), 1)
+
+
 class TestPresenterRerankerScope(unittest.TestCase):
     def test_sample_evidence_never_uses_reranker(self):
         presenter = AnalysisPresenter(audit_sink=lambda *a, **k: None)
