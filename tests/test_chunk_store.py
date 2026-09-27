@@ -58,6 +58,10 @@ WHERES = [
     {"score": {"$lt": 5}},
     {"$and": [{"chunk_schema_version": "3"}, {"file_hash": "h1"}]},
     {"$or": [{"file_hash": "h2"}, {"flag": True}]},
+    {"status": {"$ne": "active"}},  # belge düzeyi (tabanda) alanlar
+    {"chunk_schema_version": {"$nin": ["2", "4"]}},
+    {"$and": [{"status": "active"}, {"n": {"$lte": 1}}]},
+    {"file_hash": {"$nin": ["h1", "h2"]}},
     {"$and": [{"chunk_schema_version": "3"}, {"normative_role": {"$nin": ["guidance", "x"]}},
               {"$or": [{"n": 2}, {"n": {"$gt": 3}}]}]},
 ]
@@ -228,6 +232,33 @@ class TestStoreDurability(unittest.TestCase):
         self.assertEqual(sorted(p.name for p in self.tmp.glob("vec_*.bin")),
                          sorted(f"vec_{k}.{n}.bin" for k in ("i8", "f16", "aux") for n in (1, 2)))
         self.assertEqual(store.compact()["removed"], 0)
+
+    def test_document_level_metadata_is_stored_once(self):
+        import sqlite3
+
+        store = self._filled()
+        con = sqlite3.connect(str(self.tmp / "store.sqlite3"))
+        try:
+            bases = con.execute("SELECT COUNT(*) FROM bases").fetchone()[0]
+            delta_keys = {r[0] for r in con.execute("SELECT key FROM delta_keys")}
+        finally:
+            con.close()
+        self.assertLessEqual(bases, 7 * 6 + 7)  # belge × yazma grubu (+ güncelleme), parça sayısı değil
+        self.assertNotIn("file_hash", delta_keys)
+        self.assertNotIn("chunk_schema_version", delta_keys)
+        self.assertLessEqual(delta_keys, {"n", "normative_role", "flag", "score"})
+        # Belge düzeyi bir alan tüm parçalarda güncellenince parçalar tek yeni tabanda buluşur.
+        ids = store.get(where={"file_hash": "h3"})["ids"]
+        store.update(ids=ids, metadatas=[{"status": "superseded"}] * len(ids))
+        got = store.get(where={"file_hash": "h3"})
+        self.assertTrue(all(m["status"] == "superseded" for m in got["metadatas"]))
+        con = sqlite3.connect(str(self.tmp / "store.sqlite3"))
+        try:
+            used = con.execute("SELECT COUNT(DISTINCT base) FROM chunks WHERE file_hash = 'h3'").fetchone()[0]
+        finally:
+            con.close()
+        self.assertLessEqual(used, 6)
+        self.assertEqual(store.get(where={"status": "superseded"})["ids"], ids)
 
     def test_compaction_triggers_only_past_threshold(self):
         from unittest.mock import patch
