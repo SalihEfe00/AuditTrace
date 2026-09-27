@@ -68,8 +68,22 @@ def stored_chunks(rag) -> Dict[str, List[str]]:
     return {h: [t for _, t in sorted(r)] for h, r in rows.items()}
 
 
+def gate_text(gate, cached: str, record: Dict[str, Any]) -> str:
+    """Kapının bu önbellek metninden kaydedeceği metin (apply ile aynı meta veri ve aynı karar;
+    bkz. AutoHealingIngestionGate.effective_text). Kapı reddedecekse ham metin: belge güncel
+    değil görünür ve apply karantina kararını gösterir."""
+    from mufettis.legal.parser import extract_legal_metadata
+
+    meta = extract_legal_metadata(record.get("title", ""), cached, dict(record))
+    text, _healed, _metrics = gate.effective_text(cached, meta)
+    return cached if text is None else text
+
+
 def plan(rag, index, only: frozenset = frozenset()) -> Dict[str, Any]:
     """`only`: yalnızca bu başlık veya dosya özetine sahip belgeler (boşsa hepsi)."""
+    from repair.ingestion_gate import AutoHealingIngestionGate
+
+    gate = AutoHealingIngestionGate()
     items = index.data.get("indexed_items", {})
     stored = stored_chunks(rag)
     targets = []
@@ -81,7 +95,7 @@ def plan(rag, index, only: frozenset = frozenset()) -> Dict[str, Any]:
         cache = _cache_text(h)
         if not cache.strip() or h not in stored:
             continue
-        expected = expected_chunks(cache, rec)
+        expected = expected_chunks(gate_text(gate, cache, rec), rec)
         if expected != stored[h]:
             targets.append({"hash": h, "title": str(rec.get("title", ""))[:50],
                             "chunks_before": len(stored[h]), "chunks_after": len(expected)})

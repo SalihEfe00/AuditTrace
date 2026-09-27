@@ -498,6 +498,28 @@ class AutoHealingIngestionGate:
         record = index.get(file_hash) if index is not None else None
         return {"chunks": chunks, "index_record": dict(record) if record else None}
 
+    def effective_text(
+        self,
+        text: str,
+        meta: Dict[str, Any],
+        raw_bytes: Optional[bytes] = None,
+        source_path: Optional[str] = None,
+    ) -> Tuple[Optional[str], bool, Dict[str, Any]]:
+        """Kapının kaydedeceği metin: (metin | None = karantina, onarıldı mı, son metrikler).
+
+        Kararın tek yeri burasıdır: ingest ve "kayıtlı parçalar güncel mi" planlayıcısı
+        (scripts/rechunk_outdated_documents.py) aynı metni görür; aksi halde onarılarak kaydedilen
+        belge her planda yeniden "güncel değil" görünür. `meta` değiştirilebilir (source_fallback_used)."""
+        raw_metrics = self.evaluate_text_quality(text, meta.get("title", ""))
+        if raw_metrics["is_clean"]:
+            return text, False, raw_metrics
+        is_improved, repaired_text, healed_metrics = self.attempt_self_healing(
+            text, meta, raw_bytes=raw_bytes, source_path=source_path,
+        )
+        if not is_improved or not healed_metrics["is_clean"]:
+            return None, False, healed_metrics
+        return repaired_text, True, healed_metrics
+
     def ingest(
         self,
         rag: LocalRAG,
@@ -562,39 +584,25 @@ class AutoHealingIngestionGate:
         # şey değiştirilmeden durulur (commit mevcut parçaları siler, geri getirilemezdi).
         previous_state = self._capture_previous_state(rag, index, file_hash)
 
-        # 2. Quality Gate Inspection
+        # 2. Quality Gate Inspection (ham metrikler denetim kaydı içindir; karar effective_text'te)
         raw_metrics = self.evaluate_text_quality(text, meta.get("title", ""))
-        effective_text = text
-        was_healed = False
-        final_metrics = raw_metrics
-
-        if not raw_metrics["is_clean"]:
-            # CORRUPTED PATH -> Trigger Self-Healing
-            is_improved, repaired_text, healed_metrics = self.attempt_self_healing(
-                text,
-                meta,
+        effective_text, was_healed, final_metrics = self.effective_text(
+            text, meta, raw_bytes=effective_raw_bytes, source_path=effective_source_path,
+        )
+        if effective_text is None:
+            # UNRECOVERABLE CORRUPTION -> QUARANTINE
+            reason = f"Quality gate failed ({', '.join(final_metrics['issues'])}) and auto-healing could not resolve corruption."
+            return self.quarantine_document(
+                rag=rag,
+                index=index,
+                file_hash=file_hash,
+                meta=meta,
+                reason=reason,
+                issues=final_metrics["issues"],
+                text=text,
                 raw_bytes=effective_raw_bytes,
-                source_path=effective_source_path,
+                previous_state=previous_state,
             )
-
-            if not is_improved or not healed_metrics["is_clean"]:
-                # UNRECOVERABLE CORRUPTION -> QUARANTINE
-                reason = f"Quality gate failed ({', '.join(healed_metrics['issues'])}) and auto-healing could not resolve corruption."
-                return self.quarantine_document(
-                    rag=rag,
-                    index=index,
-                    file_hash=file_hash,
-                    meta=meta,
-                    reason=reason,
-                    issues=healed_metrics["issues"],
-                    text=effective_text or text,
-                    raw_bytes=effective_raw_bytes,
-                    previous_state=previous_state,
-                )
-
-            effective_text = repaired_text
-            was_healed = True
-            final_metrics = healed_metrics
 
         # 3. Staged Commit to Chroma
         try:

@@ -700,5 +700,31 @@ class TestStage3SourceFallback(unittest.TestCase):
         self.assertNotIn("raw_bytes", idx_entry)
 
 
+class TestEffectiveTextIsSingleDecision(unittest.TestCase):
+    """Kapının kaydedeceği metin tek yerde belirlenir; rechunk planlayıcısı da onu kullanır. Aksi
+    halde onarılarak kaydedilen belge her planda yeniden "güncel değil" görünürdü."""
+
+    MOJIBAKE = "MADDE 1 â€“ BankacÄ±lÄ±k DÃ¼zenleme ve Denetleme Kurumu tarafÄ±ndan hazÄ±rlanmÄ±ÅŸtÄ±r."
+
+    def test_clean_text_is_kept_and_corrupt_text_is_healed(self):
+        gate = AutoHealingIngestionGate(audit_logger=RepairAuditLogger(log_path=Path(tempfile.mkdtemp()) / "a.jsonl"))
+        clean = "MADDE 1 – Bankacılık Düzenleme ve Denetleme Kurumu tarafından hazırlanmıştır."
+        self.assertEqual(gate.effective_text(clean, {"title": "Yönetmelik"})[:2], (clean, False))
+        healed, was_healed, _ = gate.effective_text(self.MOJIBAKE, {"title": "Yönetmelik"})
+        self.assertTrue(was_healed)
+        self.assertIn("Bankacılık", healed)
+
+    def test_rechunk_planner_sees_the_healed_text(self):
+        import scripts.rechunk_outdated_documents as rechunk
+
+        gate = AutoHealingIngestionGate(audit_logger=RepairAuditLogger(log_path=Path(tempfile.mkdtemp()) / "a.jsonl"))
+        planned = rechunk.gate_text(gate, self.MOJIBAKE, {"title": "Yönetmelik"})
+        self.assertNotIn("Ä±", planned)
+        self.assertEqual(
+            rechunk.expected_chunks(planned, {"title": "Yönetmelik"}),
+            rechunk.expected_chunks(gate.effective_text(self.MOJIBAKE, {"title": "Yönetmelik"})[0], {"title": "Yönetmelik"}),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
