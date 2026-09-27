@@ -40,6 +40,7 @@ from mufettis.corpus.identity import content_fingerprint
 from mufettis.corpus.model import CANONICAL_FIELDS
 from mufettis.corpus.provenance import reconcile_fingerprints
 from mufettis.legal.parser import extract_declared_subject, extract_declared_title
+from mufettis.rag.paging import iter_pages
 
 
 def _cache_text(file_hash: str) -> str:
@@ -86,15 +87,20 @@ def plan_index(items: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
     return fresh
 
 
+def _chunks(rag):
+    """(kimlik, metadata) çiftleri, sayfa sayfa (tam mevzuatta tüm metadata belleğe alınmaz)."""
+    for ids, _docs, metas in iter_pages(rag.collection, include=("metadatas",)):
+        yield from zip(ids, metas)
+
+
 def plan(rag, index) -> Dict[str, Any]:
     items = index.data.get("indexed_items", {})
     fresh = plan_index(items)
     index_updates = [h for h, rec in items.items() if _canonical_part(rec) != _canonical_part(fresh[h])]
 
-    got = rag.collection.get(include=["metadatas"])
-    chunk_updates = 0
-    for meta in got.get("metadatas") or []:
-        meta = meta or {}
+    chunk_updates = chunk_count = 0
+    for _cid, meta in _chunks(rag):
+        chunk_count += 1
         target = _chunk_target(meta, fresh.get(str(meta.get("file_hash", ""))))
         if _canonical_part(meta) != _canonical_part(target):
             chunk_updates += 1
@@ -103,7 +109,7 @@ def plan(rag, index) -> Dict[str, Any]:
     return {
         "index_records": len(items),
         "index_updates": len(index_updates),
-        "chunks": len(got.get("ids") or []),
+        "chunks": chunk_count,
         "chunk_updates": chunk_updates,
         "active_distribution": {
             field: dict(Counter(str(rec.get(field)) for rec in active).most_common())
@@ -162,10 +168,8 @@ def apply(rag, index) -> Dict[str, Any]:
             index.upsert(h, fresh[h])
             index_written += 1
 
-    got = rag.collection.get(include=["metadatas"])
     ids, metas = [], []
-    for cid, meta in zip(got.get("ids") or [], got.get("metadatas") or []):
-        meta = meta or {}
+    for cid, meta in _chunks(rag):
         target = _chunk_target(meta, fresh.get(str(meta.get("file_hash", ""))))
         if _canonical_part(meta) != _canonical_part(target):
             ids.append(cid)
@@ -178,17 +182,17 @@ def apply(rag, index) -> Dict[str, Any]:
 
 def verify(rag, index) -> Dict[str, Any]:
     items = index.data.get("indexed_items", {})
-    got = rag.collection.get(include=["metadatas"])
-    metas = [m or {} for m in got.get("metadatas") or []]
-    missing_chunks = sum(1 for m in metas if m.get("canonical_schema") != CANONICAL_SCHEMA)
+    missing_chunks = 0
+    mismatched_set = set()
+    for _cid, m in _chunks(rag):
+        missing_chunks += m.get("canonical_schema") != CANONICAL_SCHEMA
+        # Parçalar ile index kaydı aynı Work/Expression'ı göstermeli.
+        record = items.get(str(m.get("file_hash", ""))) if str(m.get("file_hash", "")) in items else None
+        if record is not None and (m.get("work_id") != record.get("work_id")
+                                   or m.get("expression_id") != record.get("expression_id")):
+            mismatched_set.add(str(m.get("file_hash", ""))[:12])
     missing_index = [h[:12] for h, r in items.items() if r.get("canonical_schema") != CANONICAL_SCHEMA]
-    # Parçalar ile index kaydı aynı Work/Expression'ı göstermeli.
-    mismatched = sorted({
-        str(m.get("file_hash", ""))[:12] for m in metas
-        if str(m.get("file_hash", "")) in items and (
-            m.get("work_id") != items[m["file_hash"]].get("work_id")
-            or m.get("expression_id") != items[m["file_hash"]].get("expression_id"))
-    })
+    mismatched = sorted(mismatched_set)
     fingerprints_ok = all(
         items[h].get("content_fingerprint") == content_fingerprint(_cache_text(h))
         for h in items if _cache_text(h).strip()
