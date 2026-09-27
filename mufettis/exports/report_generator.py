@@ -17,7 +17,7 @@ except Exception:
     Document = None
 
 from mufettis.config import EXPORT_DIR, APP_VERSION
-from mufettis.common.utils import now_iso, mask_sensitive
+from mufettis.common.utils import article_label, now_iso, mask_sensitive
 from mufettis.audit.service import load_reviews
 from mufettis.extraction.text_repair import clean_evidence_text
 from mufettis.analysis.risk_engine import format_turkish_number
@@ -167,7 +167,7 @@ def create_docx_report(
 
                     hierarchy=[]
                     if candidate.get("article_no"):
-                        hierarchy.append(f"Madde {candidate.get('article_no')}")
+                        hierarchy.append(article_label(candidate.get("article_no"), candidate.get("article_prefix")))
                     if candidate.get("paragraph_no"):
                         hierarchy.append(f"Fıkra {candidate.get('paragraph_no')}")
                     if candidate.get("item_no"):

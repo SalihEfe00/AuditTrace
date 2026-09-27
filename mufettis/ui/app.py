@@ -27,7 +27,7 @@ from mufettis.analysis.risk_engine import (
     run_analysis,
 )
 from mufettis.audit.service import append_audit, apply_reviews, load_reviews, save_review
-from mufettis.common.utils import check_disk_health
+from mufettis.common.utils import article_label, check_disk_health
 from mufettis.corpus import canonical_view
 from mufettis.config import (
     APP_VERSION,
@@ -506,10 +506,8 @@ def run_streamlit() -> None:
                     for i, r in enumerate(results, 1):
                         m = r["metadata"]
                         hierarchy = []
-                        if m.get("article_prefix"):
-                            hierarchy.append(repair_mojibake(m.get("article_prefix")))
                         if m.get("article_no"):
-                            hierarchy.append(f"Madde {m.get('article_no')}")
+                            hierarchy.append(article_label(m.get("article_no"), repair_mojibake(m.get("article_prefix") or "")))
                         if m.get("paragraph_no"):
                             hierarchy.append(f"Fıkra {m.get('paragraph_no')}")
                         if m.get("item_no"):

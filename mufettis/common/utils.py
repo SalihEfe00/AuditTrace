@@ -28,6 +28,18 @@ from mufettis.config import (
 
 def canonical_source_id(source_id: str) -> str:
     return SOURCE_ALIASES.get(str(source_id), str(source_id))
+# Madde öneki (parser: "GEÇİCİ"/"EK"; eski kayıtlarda Python upper() ile "GEÇICI") görünen adı.
+_ARTICLE_PREFIX_LABELS = {"GEÇİCİ": "Geçici", "GEÇICI": "Geçici", "EK": "Ek"}
+def article_label(article_no: Any, article_prefix: Any = "") -> str:
+    """"Madde 4", "Geçici Madde 4", "Ek Madde 3". Önek atlanırsa geçici madde asıl maddeyle
+    karışır: 5464 Geçici Madde 4 (eski kart borçlarının yapılandırılması) "Madde 4" (faaliyet
+    izni) olarak gösteriliyordu."""
+    number = str(article_no or "").strip()
+    if not number:
+        return ""
+    prefix = str(article_prefix or "").strip()
+    label = _ARTICLE_PREFIX_LABELS.get(prefix.upper(), prefix.capitalize())
+    return f"{label} Madde {number}" if label else f"Madde {number}"
 def now_iso() -> str:
     return dt.datetime.now().replace(microsecond=0).isoformat(sep=" ")
 def normalize_title(title: str) -> str:
