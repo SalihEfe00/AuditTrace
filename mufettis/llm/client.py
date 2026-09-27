@@ -31,12 +31,28 @@ Yürürlük tarihi/madde/fıkra bilgisi verilmemişse uydurma.
 Kişisel verileri gereksiz yere tekrar etme; sayısal değerleri yalnızca karar desteği için kullan.
 Çıktı profesyonel Türkçe olsun.
 """.strip()
-def ollama_health() -> Dict[str, Any]:
+def _installed(model: str, names: List[str]) -> bool:
+    # Etiketsiz ad Ollama'da ":latest" demektir.
+    wanted = model if ":" in model else f"{model}:latest"
+    return wanted in names or model in names
+
+
+def ollama_health(model: Optional[str] = DEFAULT_LLM) -> Dict[str, Any]:
+    """Sunucu yanıt veriyor mu ve istenen model kurulu mu? Yalnızca sunucuya bakmak yetmez: model
+    yoksa her üretim çağrısı 404 döner ve çağıranlar (ör. iddia doğrulayıcısı) sessizce devre dışı
+    kalırdı. model=None yalnızca sunucuyu denetler."""
     try:
         r = requests.get(f"{OLLAMA_URL}/api/tags", timeout=3)
-        return {"ok": r.status_code == 200, "status_code": r.status_code}
+        if r.status_code != 200:
+            return {"ok": False, "status_code": r.status_code}
+        names = [str(m.get("name", "")) for m in (r.json() or {}).get("models", [])]
     except Exception as exc:
         return {"ok": False, "error": str(exc)}
+    if model and not _installed(model, names):
+        return {"ok": False, "status_code": 200, "models": names,
+                "error": f"'{model}' modeli kurulu değil (kurulu: {', '.join(names) or 'yok'}); "
+                         f"'ollama pull {model}' ile kurun ya da MUFETTIS_LLM_MODEL ile kurulu bir model seçin"}
+    return {"ok": True, "status_code": 200, "models": names}
 def ollama_generate(prompt: str, model: str = DEFAULT_LLM, temperature: float = 0.1, timeout: int = 300) -> str:
     payload = {
         "model": model,

@@ -666,8 +666,8 @@ def run_streamlit() -> None:
             st.divider()
             st.markdown("### Yerel LLM ile rapor taslağı")
             model = st.text_input("Ollama model", value=DEFAULT_LLM)
-            health = ollama_health()
-            st.write(f"Ollama: {'hazır' if health.get('ok') else 'ulaşılamıyor'}")
+            health = ollama_health(model)
+            st.write(f"Ollama: {'hazır' if health.get('ok') else (health.get('error') or 'ulaşılamıyor')}")
             if st.button("AI rapor taslağı oluştur"):
                 prompt = build_ai_report_prompt(summary, findings)
                 draft = ollama_generate(prompt, model=model)

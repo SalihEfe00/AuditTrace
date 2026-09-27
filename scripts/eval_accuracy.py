@@ -10,6 +10,7 @@ Kullanım:
     python scripts/eval_accuracy.py --only dev-card          # kimliği bu metni içeren vakalar
     python scripts/eval_accuracy.py --split all --check-baseline   # tabandan kötüleşme varsa çıkış kodu 1
     python scripts/eval_accuracy.py --split all --write-baseline "not"   # tabanı bilinçli olarak güncelle
+    python scripts/eval_accuracy.py --verifier                 # yerel dil modeli doğrulayıcısıyla (Ollama)
 """
 from __future__ import annotations
 
@@ -37,6 +38,8 @@ def main() -> int:
     parser.add_argument("--out", type=Path, help="sonuçların yazılacağı JSON")
     parser.add_argument("--compare", type=Path, help="karşılaştırılacak önceki sonuç JSON'u")
     parser.add_argument("--no-rerank", action="store_true", help="yeniden sıralayıcıyı (cross-encoder) kapat")
+    parser.add_argument("--verifier", action="store_true",
+                        help="isteğe bağlı yerel dil modeli doğrulayıcısını aç (Ollama; taban onsuz ölçülür)")
     parser.add_argument("--check-baseline", action="store_true", help=f"sonucu {BASELINE_FILE.name} ile karşılaştır")
     parser.add_argument("--write-baseline", metavar="NOT", help="sonucu yeni taban olarak yaz (yalnızca --split all)")
     args = parser.parse_args()
@@ -51,6 +54,10 @@ def main() -> int:
     presenter.use_reranker = not args.no_rerank
     reranker = presenter.reranker_fn() if presenter.use_reranker else None
     reranker_name = getattr(reranker, "name", "") or "yok"
+    if args.verifier:
+        problem = presenter.configure_llm_verification(True)
+        if problem:
+            parser.error(problem)
 
     def corpus_metadatas():
         for _ids, _docs, metas in iter_pages(rag.collection, include=("metadatas",)):

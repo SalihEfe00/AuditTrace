@@ -26,7 +26,9 @@ INGEST_INDEX_FILE = DATA_DIR / "ingest_index.json"
 REVIEW_FILE = DATA_DIR / "review_registry.json"
 SCRAPE_STATE_FILE = DATA_DIR / "scrape_state.json"
 OLLAMA_URL = "http://127.0.0.1:11434"
-DEFAULT_LLM = "llama3.2:3b"
+# İsteğe bağlı yerel dil modeli (Ollama). Kurulu olmalıdır (ollama_health denetler); başka bir model
+# MUFETTIS_LLM_MODEL ile seçilir. Varsayılan küçüktür: düşük donanımlı makineler hedeftedir.
+DEFAULT_LLM = os.environ.get("MUFETTIS_LLM_MODEL", "").strip() or "llama3.2:3b"
 EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 # İddia-kanıt yeniden sıralayıcısı (cross-encoder). İsteğe bağlıdır: klasör yoksa analiz sözcüksel
 # sıralamayla sürer. Model internetten indirilmez; klasör elle kurulur (bkz. mufettis/rag/reranker.py).
