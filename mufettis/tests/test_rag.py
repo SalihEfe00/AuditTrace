@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import io
-import json
 import re
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
-import numpy as np
 
 try:
     import chromadb
@@ -563,7 +560,6 @@ class TestV1379SourceCacheRechunkReindex(unittest.TestCase):
         self.assertEqual(load_source_cache(self.file_hash), new)
 
     def test_f2_rechunk_uses_current_cache_not_stale_cache(self):
-        old = "MADDE 1 - BOZUK METIN\nEski extraction kaydi"
         new = "MADDE 1 - GUNCEL METIN\nYeni extraction kaydi"
         save_source_cache(self.file_hash, new)
         index = IngestIndex(self.index_path)

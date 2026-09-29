@@ -5,7 +5,7 @@ import json
 import unittest
 from pathlib import Path
 
-from mufettis.config import DATA_DIR, EMBEDDING_MODEL, CHUNK_SCHEMA_VERSION, DB_PATH, SOURCE_CACHE_DIR
+from mufettis.config import DATA_DIR, EMBEDDING_MODEL, DB_PATH, SOURCE_CACHE_DIR
 from mufettis.legal.parser import _chunk_is_retrievable
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex

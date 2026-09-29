@@ -18,14 +18,13 @@ L. quarantine_cache is excluded from production corpus counts
 """
 from __future__ import annotations
 
-import json
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from mufettis.common.utils import sha256_bytes, now_iso
+from mufettis.common.utils import sha256_bytes
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.maintenance import versioned_ingest_text
 from repair.audit import RepairAuditLogger

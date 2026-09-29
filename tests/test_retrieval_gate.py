@@ -3,21 +3,17 @@ from __future__ import annotations
 
 import json
 import unittest
-from pathlib import Path
 
 from mufettis.config import DATA_DIR, EMBEDDING_MODEL
 from repair.models import (
     ComparisonResult,
     ComparisonStatus,
-    FinalGateDecision,
-    RetrievalBenchmarkResult,
     RetrievalComparisonResult,
 )
 from repair.retrieval_comparator import (
     RetrievalGatePolicy,
     compare_retrieval,
     evaluate_final_gate,
-    evaluate_single_benchmark,
 )
 
 RAG_LAB_DIR = DATA_DIR / "rag_lab"

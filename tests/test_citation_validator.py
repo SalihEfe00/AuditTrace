@@ -2,7 +2,6 @@
 """
 Tests for CitationValidator & Unsupported Claim Guard (FAZ 19.9 Stage 3).
 """
-import pytest
 
 from mufettis.analysis.citation_validator import CitationValidator
 from mufettis.analysis.models import Citation, Evidence, Finding

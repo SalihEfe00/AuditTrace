@@ -25,7 +25,6 @@ from repair.models import (
     ComparisonStatus,
     DocumentScanResult,
     ExtractionPlan,
-    Issue,
     IssueCode,
     IssueSeverity,
     ProductionScanReport,
@@ -130,7 +129,6 @@ class TestRepairInfrastructure(unittest.TestCase):
     def test_06_source_hash_mismatch_detected(self):
         test_file = Path(self.test_dir) / "real_file.pdf"
         test_file.write_bytes(b"%PDF-1.4 test content")
-        actual_hash = hashlib.sha256(b"%PDF-1.4 test content").hexdigest()
         different_hash = "0000000000000000000000000000000000000000000000000000000000000000"
 
         res = scan_document(
@@ -455,7 +453,7 @@ class TestFaz10VerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 3: Unreadable/invalid source (non-pdf or empty or invalid magic bytes)
     def test_f10_03_invalid_source_blocked(self):
-        from repair.extractor import extract_candidate, validate_source
+        from repair.extractor import validate_source
         bad_file = Path(self.test_dir) / "not_pdf.txt"
         bad_file.write_text("Metin dosyası", encoding="utf-8")
         val = validate_source(bad_file, expected_hash="dummy")
@@ -614,7 +612,7 @@ class TestFaz10VerifiedCandidateExtraction(unittest.TestCase):
         with patch("builtins.open", side_effect=open) as spy_open:
             from repair.extractor import extract_candidate
             mock_ext = MagicMock(return_value=("MADDE 1 - Test", 1, False))
-            cand = extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
+            extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
             # Ensure open() was never called with 'w', 'a', or 'wb'
             for call_args in spy_open.call_args_list:
                 args, kwargs = call_args

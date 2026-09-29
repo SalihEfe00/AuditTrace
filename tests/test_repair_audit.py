@@ -22,14 +22,11 @@ import tempfile
 import threading
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from typing import List
 
-from mufettis.config import DATA_DIR
 from repair.audit import (
-    AUDIT_SCHEMA_VERSION,
     REPAIR_AUDIT_LOG_FILE,
     RepairAuditLogger,
-    calculate_event_hash,
     generate_event_id,
     get_commit_audit,
     get_document_audit,
@@ -43,7 +40,6 @@ from repair.audit import (
 from repair.models import (
     AuditEvent,
     AuditEventType,
-    RepairLifecycleSummary,
 )
 
 _SAMPLE_HASH = "c" * 64

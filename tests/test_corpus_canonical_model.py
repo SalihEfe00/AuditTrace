@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import datetime as dt
 import unittest
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from mufettis.corpus import (
     AUTHORITY_PRIOR_MAX,

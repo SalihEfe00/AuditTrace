@@ -21,12 +21,9 @@ Validates the controlled automation orchestration layer:
 from __future__ import annotations
 
 import json
-import os
 import shutil
 import tempfile
-import time
 import unittest
-from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -41,21 +38,17 @@ from mufettis.rag.index import IngestIndex
 
 from repair.audit import RepairAuditLogger
 from repair.models import (
-    ApprovalRecord,
     AuditEventType,
     AutomationCycleSummary,
-    AutomationDecision,
     AutomationMode,
     AutomationPolicy,
     AutomationStatus,
     CandidateAutomationResult,
-    ClassificationResult,
     ClassificationType,
     CommitResult,
     CommitStatus,
     DocumentScanResult,
     ExtractionCandidate,
-    FinalGateDecision,
     Issue,
     IssueCode,
     IssueSeverity,
@@ -65,7 +58,6 @@ from repair.models import (
     VerificationStatus,
 )
 from repair.orchestrator import (
-    ApprovalManager,
     ControlledAutomationOrchestrator,
 )
 

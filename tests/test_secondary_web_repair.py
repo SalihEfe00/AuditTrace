@@ -25,27 +25,18 @@ from mufettis.config import (
 )
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex
-import mufettis.harvesting.web_harvester
 
-from repair.classifier import classify_document
 from repair.comparator import (
     ComparisonStatus,
     build_snapshot,
     compare_quality,
 )
 from repair.retrieval_comparator import evaluate_final_gate
-from repair.extractor import extract_candidate, extract_web_candidate
+from repair.extractor import extract_candidate
 from repair.models import (
-    ClassificationType,
-    DocumentScanResult,
-    ExtractionCandidate,
-    Issue,
-    IssueCode,
-    IssueSeverity,
     RetrievalComparisonResult,
     WaveConfig,
     WaveDocumentStatus,
-    WaveScope,
     WaveStatus,
 )
 from repair.wave import WaveOrchestrator

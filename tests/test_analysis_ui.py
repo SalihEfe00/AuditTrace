@@ -29,31 +29,22 @@ from __future__ import annotations
 
 import hashlib
 import json
-import sqlite3
 import unittest
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from mufettis.analysis.analysis_presenter import AnalysisExecutionResult, AnalysisPresenter
+from mufettis.analysis.analysis_presenter import AnalysisPresenter
 from mufettis.analysis.citation_validator import CitationValidator
-from mufettis.analysis.engine import AnalysisEngine
 from mufettis.analysis.models import (
-    AnalysisPlan,
     AnalysisResult,
     Citation,
-    DocumentClaim,
-    DocumentClassification,
-    DocumentUnderstanding,
     Evidence,
     Finding,
-    RetrievalPlan,
 )
 from mufettis.ui.analysis_view import (
     SAMPLE_COMPLAINT_TEXT,
     SAMPLE_INTERNAL_TEXT,
     SAMPLE_UNSUPPORTED_TEXT,
     render_analysis_page,
-    render_evidence_text_html,
 )
 from mufettis.ui.app import _get_rag, render_self_test_result
 from mufettis.ui.admin import normalize_display_boolean, render_mevzuat_admin

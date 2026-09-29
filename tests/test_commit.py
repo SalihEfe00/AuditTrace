@@ -1,26 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import json
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from mufettis.config import CHUNK_SCHEMA_VERSION, EMBEDDING_MODEL, DB_PATH, SOURCE_CACHE_DIR, DATA_DIR
+from mufettis.config import CHUNK_SCHEMA_VERSION, EMBEDDING_MODEL, DB_PATH, DATA_DIR
 from mufettis.rag.engine import LocalRAG
 from repair.committer import (
-    CommitPolicy,
     atomic_commit_source_cache,
     cleanup_same_hash_chroma,
     commit_candidate,
     stage_candidate,
     upsert_candidate_chroma,
-    validate_pre_commit,
 )
 from repair.models import (
-    CommitResult,
     CommitStatus,
     ComparisonStatus,
     ExtractionCandidate,
@@ -442,7 +438,7 @@ class TestFaz12SafeCommit(unittest.TestCase):
 
     # 22. candidate isolation in staging
     def test_22_candidate_isolation_in_staging(self):
-        staged = stage_candidate(
+        stage_candidate(
             self.valid_candidate,
             self.valid_decision,
             self.staging_dir / "test_stage",

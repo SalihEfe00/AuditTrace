@@ -9,31 +9,25 @@ temporary environments to guarantee zero production mutation.
 from __future__ import annotations
 
 import hashlib
-import json
 import os
 import re
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from bs4 import BeautifulSoup
 
 from tests.data_integrity import data_integrity_problems
 from mufettis.common.http import build_http_session
-from mufettis.common.utils import sha256_bytes, now_iso
+from mufettis.common.utils import now_iso
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.maintenance import versioned_ingest_text
 from repair.audit import RepairAuditLogger
-from repair.models import AuditEventType
 from repair.quarantine import (
     save_quarantine_payload,
-    load_quarantine_payload,
     verify_quarantine_payload_integrity,
-    list_quarantined_documents,
-    get_quarantine_detail,
-    review_quarantine_document,
     retry_quarantined_document,
 )
 from repair.telemetry import compute_operational_telemetry
@@ -67,7 +61,7 @@ class TestFaz19LivePilot(unittest.TestCase):
             cls.raw_bytes = resp.content
             cls.raw_sha256 = hashlib.sha256(cls.raw_bytes).hexdigest()
             cls.content_size = len(cls.raw_bytes)
-        except Exception as exc:
+        except Exception:
             # Fallback to secondary official endpoint if temporary network glitch
             cls.live_url = "https://www.resmigazete.gov.tr/fihrist"
             resp = session.get(cls.live_url, timeout=12, headers=headers)

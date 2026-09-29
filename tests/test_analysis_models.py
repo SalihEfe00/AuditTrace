@@ -2,7 +2,6 @@
 """
 Tests for Analysis Intelligence Data Contracts & Validation (FAZ 19.9 Stage 2).
 """
-import json
 import pytest
 from pydantic import ValidationError
 

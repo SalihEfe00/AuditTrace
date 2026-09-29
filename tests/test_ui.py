@@ -2,14 +2,10 @@
 from __future__ import annotations
 
 import unittest
-from pathlib import Path
-from typing import Any, Dict
 
-import pandas as pd
 
 from mufettis.rag.engine import LocalRAG
 from mufettis.ui.app import _get_rag, render_self_test_result
-from mufettis.ui.admin import render_mevzuat_admin
 
 
 class TestUIComponentsAndBridge(unittest.TestCase):
@@ -32,7 +28,7 @@ class TestUIComponentsAndBridge(unittest.TestCase):
         # Fonksiyon hata vermeden sonuç üretmeli
         try:
             render_self_test_result(result)
-        except Exception as exc:
+        except Exception:
             # Streamlit render ortamı yoksa bile fonksiyonel mantık kontrolü
             pass
         self.assertEqual(result.testsRun, 10)

@@ -16,7 +16,6 @@ I. Candidate detection aligns with --rag-scan criteria
 from __future__ import annotations
 
 import unittest
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from mufettis.config import CHUNK_SCHEMA_VERSION
@@ -25,7 +24,6 @@ from repair.comparator import build_snapshot, compare_quality
 from repair.models import (
     ClassificationType,
     ComparisonStatus,
-    DocumentScanResult,
     ExtractionCandidate,
     IssueCode,
 )

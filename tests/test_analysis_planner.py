@@ -2,15 +2,12 @@
 """
 Tests for AnalysisPlannerService (FAZ 19.9 Stage 2).
 """
-import pytest
 
 from mufettis.analysis.classifier import DocumentClassifierService
 from mufettis.analysis.document_understanding import DocumentUnderstandingService
 from mufettis.analysis.models import (
     AnalysisPlan,
     AnalysisType,
-    DocumentClassification,
-    DocumentType,
 )
 from mufettis.analysis.planner import AnalysisPlannerService
 from mufettis.analysis.validator import assert_valid_analysis_plan

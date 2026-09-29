@@ -18,19 +18,17 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from mufettis.config import CHUNK_SCHEMA_VERSION, EMBEDDING_MODEL, DATA_DIR, DB_PATH
 from mufettis.rag.engine import LocalRAG
 from repair.committer import commit_candidate
 from repair.models import (
-    CheckResult,
     CommitResult,
     CommitStatus,
     ComparisonStatus,
     ExtractionCandidate,
     FinalGateDecision,
-    VerificationResult,
     VerificationStatus,
 )
 from repair.verifier import verify_committed_repair, run_baseline_benchmarks
@@ -811,7 +809,6 @@ class TestFaz13IsolatedRagLabVerify(unittest.TestCase):
                                 "Expected at least 10 benchmark results from BM-01..BM-10")
         errors = [r for r in self._class_bm_results if r.get("status") == "ERROR"]
         self.assertEqual(len(errors), 0, f"Benchmark query errors: {errors}")
-        hits = [r for r in self._class_bm_results if r.get("status") == "HIT"]
         # All benchmarks should produce HITs on the baseline corpus
         miss = [r for r in self._class_bm_results if r.get("status") == "MISS"]
         self.assertEqual(len(miss), 0,
@@ -1113,7 +1110,7 @@ class TestSourceAwareVerification(unittest.TestCase):
 
         result = verify_committed_repair(cr, cand, rag, self.cache_dir)
 
-        quality_check = next(c for c in result.checks if c.check_id == "QUALITY_RECHECK")
+        self.assertTrue(any(c.check_id == "QUALITY_RECHECK" for c in result.checks))
         chunk_check = next(c for c in result.checks if c.check_id == "CHUNK_COUNT")
         # Either CHUNK_COUNT or QUALITY_RECHECK should signal the regression
         self.assertIn(chunk_check.status, ("FAIL", "REVIEW"))
@@ -1126,7 +1123,6 @@ class TestSourceAwareVerification(unittest.TestCase):
         cache, Chroma, or any file. We verify no files appear or change in cache_dir
         after the call (beyond the pre-written cache file).
         """
-        import hashlib, os
         cand = _make_secondary_candidate()
         cr = _make_commit_result(
             document_id=_SW_DOC_ID, source_sha256=_SW_HASH, candidate_id=_SW_DOC_ID

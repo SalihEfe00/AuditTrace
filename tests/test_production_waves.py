@@ -16,13 +16,10 @@ Covers:
 from __future__ import annotations
 
 import json
-import os
 import shutil
 import sqlite3
 import tempfile
-import time
 import unittest
-from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -32,7 +29,6 @@ from mufettis.rag.index import IngestIndex
 
 from repair.audit import RepairAuditLogger
 from repair.models import (
-    ApprovalRecord,
     AuditEventType,
     ClassificationResult,
     ClassificationType,
@@ -54,7 +50,6 @@ from repair.models import (
     WaveStatus,
     WaveSummary,
 )
-from repair.orchestrator import ApprovalManager
 from repair.wave import WaveOrchestrator, check_production_corpus
 
 SAMPLE_DOC_ID = "bddk_reg_01"
@@ -342,7 +337,7 @@ class TestProductionCorpusCheck(unittest.TestCase):
         self.assertFalse(missing_db.exists(), "check_production_corpus must NOT create missing db path!")
 
     def test_scenario_e_zero_production_write_guarantee(self):
-        from mufettis.config import DATA_DIR, DB_PATH, INGEST_INDEX_FILE, SOURCE_CACHE_DIR
+        from mufettis.config import DB_PATH, INGEST_INDEX_FILE
 
         paths_to_monitor = [DB_PATH, INGEST_INDEX_FILE, SOURCE_CACHE_DIR]
         def _take_snapshot():
@@ -1418,7 +1413,6 @@ class TestRescanIdentityAndCrossDocumentIsolation(unittest.TestCase):
 
     def test_F_zero_production_writes_guarantee(self):
         """F) Rescan identity logic operates strictly on isolated mock/staging structures; zero production mutations."""
-        from mufettis.config import DATA_DIR, DB_PATH
         self.assertNotEqual(self.cache_dir, DATA_DIR / "source_cache")
         self.assertNotEqual(self.staging_dir, DATA_DIR / "repair_staging")
 

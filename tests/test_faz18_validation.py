@@ -25,7 +25,6 @@ Strictly isolated: 0 production writes, 0 production mutation, temporary DB and 
 from __future__ import annotations
 
 import hashlib
-import json
 import re
 import shutil
 import tempfile
@@ -33,16 +32,14 @@ import unittest
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from mufettis.config import CHUNK_SCHEMA_VERSION
 from mufettis.extraction.text_repair import (
-    normalize_extracted_text,
     repair_extracted_spacing,
     repair_mojibake,
 )
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.maintenance import versioned_ingest_text
 from repair.audit import RepairAuditLogger
-from repair.ingestion_gate import AutoHealingIngestionGate, _is_true_glued_token
+from repair.ingestion_gate import AutoHealingIngestionGate
 
 
 # ---------------------------------------------------------------------------

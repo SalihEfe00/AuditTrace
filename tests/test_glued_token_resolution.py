@@ -30,11 +30,9 @@ from repair.models import (
     ComparisonStatus,
     DocumentScanResult,
     ExtractionCandidate,
-    Issue,
     IssueCode,
     IssueSeverity,
     ComparisonResult,
-    QualitySnapshot,
     VerificationResult,
     VerificationStatus,
     WaveConfig,
@@ -84,17 +82,6 @@ class TestGluedTokenResolution(unittest.TestCase):
             staging_dir=Path("tests/mock_staging"),
             audit_logger=MagicMock(),
             approval_manager=appr_mgr,
-        )
-
-        # Baseline snapshot with 282 glued tokens
-        old_snapshot = QualitySnapshot(
-            document_id="test_doc_c",
-            source_sha256="test_c_hash",
-            quality_score=0.595,
-            chars=50000,
-            glued_token_count=282,
-            mojibake_sequence_count=0,
-            replacement_char_count=0,
         )
 
         # Candidate with clean metrics
@@ -171,16 +158,6 @@ class TestGluedTokenResolution(unittest.TestCase):
             staging_dir=Path("tests/mock_staging"),
             audit_logger=MagicMock(),
             approval_manager=appr_mgr,
-        )
-
-        old_snapshot = QualitySnapshot(
-            document_id="test_doc_d",
-            source_sha256="test_d_hash",
-            quality_score=0.595,
-            chars=50000,
-            glued_token_count=282,
-            mojibake_sequence_count=0,
-            replacement_char_count=0,
         )
 
         candidate = ExtractionCandidate(

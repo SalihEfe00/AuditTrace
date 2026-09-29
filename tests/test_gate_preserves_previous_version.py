@@ -13,7 +13,7 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 from unittest.mock import patch
 
 from mufettis.rag.index import IngestIndex

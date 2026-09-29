@@ -2,7 +2,6 @@
 """
 Tests for DocumentClassifierService (FAZ 19.9 Stage 2).
 """
-import pytest
 
 from mufettis.analysis.classifier import DocumentClassifierService
 from mufettis.analysis.document_understanding import DocumentUnderstandingService

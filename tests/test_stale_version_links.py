@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 

@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import io
 import re
-import zipfile
 import shutil
-import tempfile
 import unittest
 from pathlib import Path
+from typing import Optional
 
-from pypdf import PdfReader
 
 try:
     import pypdfium2 as pdfium

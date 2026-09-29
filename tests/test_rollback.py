@@ -17,6 +17,7 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Any, Dict, Optional
 from unittest.mock import MagicMock, patch
 
 from mufettis.config import (
@@ -24,21 +25,14 @@ from mufettis.config import (
     DATA_DIR,
     DB_PATH,
     EMBEDDING_MODEL,
-    INGEST_INDEX_FILE,
-    SOURCE_CACHE_DIR,
 )
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex
 from repair.committer import (
-    CommitPolicy,
-    capture_before_snapshot,
     commit_candidate,
-    stage_candidate,
 )
 from repair.models import (
     BeforeSnapshot,
-    CheckResult,
-    CommitResult,
     CommitStatus,
     ComparisonStatus,
     ExtractionCandidate,
@@ -57,7 +51,6 @@ from repair.rollback import (
     rollback_commit,
     validate_snapshot,
 )
-from repair.verifier import verify_committed_repair
 
 _SAMPLE_HASH = "b" * 64
 _SAMPLE_DOC_ID = "doc_rollback_test"

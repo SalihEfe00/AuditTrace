@@ -2,14 +2,12 @@
 """
 End-to-End Vertical Slice & Semantic Gold Set Tests (FAZ 19.9 Stage 3).
 """
-import pytest
 
 from mufettis.analysis.classifier import DocumentClassifierService
 from mufettis.analysis.document_understanding import DocumentUnderstandingService
 from mufettis.analysis.engine import AnalysisEngine
 from mufettis.analysis.gold_set import (
     GoldSetEvaluationReport,
-    build_semantic_gold_set,
     evaluate_semantic_gold_set,
 )
 from mufettis.analysis.models import (
