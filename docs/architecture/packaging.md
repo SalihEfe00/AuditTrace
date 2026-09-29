@@ -63,3 +63,51 @@ Bellek yükünün çoğu (≈1,6 GB) kütüphaneler değil fp32 modellerdir. Str
 
 Ek gözlem: kullanıcı önbelleğinde kodun kullanmadığı `intfloat/multilingual-e5-small` modeli iki kopya
 (~1 GB) duruyor; depo dışıdır, pakete girmez.
+
+## M3.5 Modeller ONNX Runtime ile (2026-09-30)
+
+Dışa aktarma `torch.onnx.export` (opset 17, `attn_implementation="eager"`), ardından
+`onnxruntime.transformers.optimizer` (model_type bert, 12 kafa, 384 boyut; SkipLayerNorm + BiasGelu birleşimi —
+dikkat katmanı transformers 5'in maske yapısı yüzünden birleşmiyor) ve `quantize_dynamic`. Ölçüm ürün koduna
+dokunmadan, modeller süreç içinde ONNX oturumlarıyla değiştirilerek; korpus vektörleri değiştirilmedi (fp32 torch).
+Eşik her varyantta yalnızca dev'den seçildi (`scripts/reranker_finetune/thresholds.py`). Taban 32/1/0
+(dev 10/1/0, holdout 22/0/0) ve kapı bölüm bazında katıdır.
+
+| Varyant (gömme + sıralayıcı) | Modeller | dev eşiği | dev | holdout | Sonuç |
+|---|---|---|---|---|---|
+| fp32 ONNX | 897 MB | −4,48 | 10/1/0 | 22/0/0 | torch ile birebir (puan farkı 0,0000) |
+| tam int8 (dinamik) | 226 MB | −8,07 | 12/1/1 | 19/1/0 | ✗ yanlış pozitif |
+| gömme int8 + sıralayıcı fp32 | 562 MB | −4,54 | 11/1/0 | 21/0/0 | ✗ holdout doğru −1 |
+| gömme fp32 + sıralayıcı int8 | 561 MB | −7,94 | 12/1/1 | 19/1/0 | ✗ |
+| yalnızca kelime tablosu int8 ("gather8") | 347 MB | −4,50 | 10/1/0 | 22/0/0 | ✓ taban aynen |
+| gather8 + kanal bazlı int8 sıralayıcı | 287 MB | −5,60 | 10/2/0 | 22/1/0 | ✗ |
+| **eager + birleşim + gather8** | 347 MB | −4,50 | 10/1/0 | 22/0/0 | ✓ taban aynen |
+
+Tam int8'in sorunu sıralayıcıdır (MatMul etkinleşim nicemlemesi puanları 0,3'e kadar kaydırıyor). Modellerin
+boyutunun ~%80'i 250 bin sözcüklük gömme tablosudur; yalnızca onu int8 yapmak hesap katmanlarını fp32 bıraktığı
+için doğruluğu korur. Ürün eşiği −4,48 bu modelde dev'de bir doğruyu kaçırır; eşik −4,50 olmalıdır (bir dev vakası
+iki değer arasında — marj ince, M6/M14 ölçümlerinde yeniden seçilir).
+
+Torch'suz süreçte bellek ve hız (`onnxruntime` + `tokenizers`, 2 iş parçacığı; 64 çift × ~384 token puanlama):
+
+| Çalışma zamanı | Özel bellek (çalışma zamanı + iki model) | En yüksek çalışma kümesi | 64 çift |
+|---|---|---|---|
+| torch (bugünkü) | ~2,0 GB (440 MB kütüphane + 1,6 GB model) | — | 4,5 sn |
+| ONNX fp32, bellek havuzu açık | 2,07 GB | 1,89 GB | 6,8 sn |
+| ONNX fp32, havuz kapalı | 1,50 GB | 1,84 GB | 8,1 sn |
+| ONNX gather8, havuz kapalı | 0,95 GB | 1,31 GB | 8,0 sn |
+| **ONNX eager + birleşim + gather8, havuz kapalı** | **0,94 GB** | **1,14 GB** | **5,4 sn** |
+
+ONNX Runtime'ın bellek havuzu (`enable_cpu_mem_arena`) en yüksek kullanımı geri vermez; kapatılmalıdır. Eager
+dışa aktarma + birleşim puanlamayı 8,0 → 5,4 sn'ye indirir (torch'tan %20 yavaş). İçe aktarma: onnxruntime +
+tokenizers 0,2 sn (torch zinciri 5,3 sn).
+
+Uygulama kodu torch, transformers, sentence-transformers, sklearn, scipy, sympy, networkx'i doğrudan içe aktarmaz
+(yalnızca `engine.py` ve `reranker.py` sentence-transformers / torch üzerinden); ONNX çalışma zamanıyla bunlar
+paketten çıkar (~0,85 GB). Kaba paket tahmini: kütüphaneler ~0,4 GB + modeller 0,35 GB + veri 0,14 GB ≈ **0,9 GB**
+(bugünkü yığınla ~2,3 GB).
+
+Açık kalanlar (uygulama adımında): gömme ve sıralayıcı için ONNX arka ucu (`tokenizers` ile, transformers'sız) ve
+torch arka ucuyla sonuç eşitliği testi; dönüştürme tarifinin repoya betik olarak alınması (bugün oturum çalışma
+alanında `m35_export.py`, `m35_eval.py`, `m35_mem.py`); dönüştürülmüş modellerin özetleri `reranker.MODELS`
+benzeri bir kayıtta.
