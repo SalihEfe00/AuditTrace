@@ -107,7 +107,6 @@ def validate_pre_commit(
         return False, ["Candidate nesnesi None."]
 
     doc_id = str(getattr(candidate, "document_id", "") or "")
-    src_doc_id = str(getattr(candidate, "source_document_id", "") or doc_id)
     sha256 = str(getattr(candidate, "source_sha256", "") or "").strip().lower()
 
     if not doc_id:

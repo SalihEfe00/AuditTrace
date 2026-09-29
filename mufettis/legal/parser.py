@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import difflib
 import re
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
 
@@ -29,6 +29,10 @@ from mufettis.extraction.text_repair import (
     repair_extracted_spacing,
     repair_mojibake,
 )
+
+if TYPE_CHECKING:  # yalnızca tür ipucu; çalışma anında döngüsel içe aktarım yok
+    from mufettis.rag.engine import LocalRAG
+
 
 def detect_doc_type(
     title: str,

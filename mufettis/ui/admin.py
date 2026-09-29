@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import pandas as pd
 
@@ -50,6 +50,10 @@ from repair.quarantine import (
 )
 from repair.telemetry import compute_operational_telemetry
 from repair.audit import verify_audit_integrity, REPAIR_AUDIT_LOG_FILE, RepairAuditLogger
+
+if TYPE_CHECKING:  # yalnızca tür ipucu; çalışma anında döngüsel içe aktarım yok
+    from mufettis.rag.engine import LocalRAG
+
 
 def _get_rag(**kwargs):
     from mufettis.ui.app import _get_rag as _fn

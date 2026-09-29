@@ -689,7 +689,6 @@ class BrowserWebSourceHarvester(WebSourceHarvester):
 
         if is_download_endpoint:
             download = None
-            goto_response = None
             goto_error: Optional[Exception] = None
 
             try:
@@ -698,7 +697,7 @@ class BrowserWebSourceHarvester(WebSourceHarvester):
                 # yine de yakalar; exception'ı yalnızca download yoksa fatal say.
                 with page.expect_download(timeout=BROWSER_DOCUMENT_TIMEOUT_MS) as download_info:
                     try:
-                        goto_response = page.goto(
+                        page.goto(
                             url,
                             wait_until="commit",
                             timeout=BROWSER_DOCUMENT_TIMEOUT_MS,

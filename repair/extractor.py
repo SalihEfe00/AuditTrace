@@ -292,7 +292,7 @@ def extract_web_candidate(
     try:
         normalized = normalize_extracted_text(raw_text)
         normalized = repair_extracted_spacing(normalized, doc_title, doc_type)
-    except Exception as exc:
+    except Exception:
         normalized = raw_text
 
     # 5. Structure Discovery

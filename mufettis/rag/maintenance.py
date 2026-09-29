@@ -578,7 +578,6 @@ def run_rag_diagnostic(
             fetch_info.update({"status": "error", "error": f"{type(exc).__name__}: {exc}"})
 
     extraction = _diagnostic_pdf_candidates(downloaded_pdf) if downloaded_pdf else []
-    all_chunk_docs = [m[2] for m in matches]
 
     # Normal semantic query ayrıca gösterilir; fakat teşhisin "exact" katmanı yerine geçmez.
     try:

@@ -109,6 +109,7 @@ Sıralama ilkeleri:
 | M1.6 | Kalıcı koruma | ruff ayarı ve test: ruff + vulture (izin listesiyle) temiz değilse test başarısız; yeni ölü kod birikmez | M1.2, M1.3 |
 | M1.7 | Doğrulama | Tüm testler; benchmark tabanı değişmemiş (`--check-baseline`); uygulama veri kopyasında açılıp bir analiz yapıyor | M1.1–M1.6 |
 | M1.8 | Üretim izolasyon testleri etkin depoyu denetliyor (M1.7'de çıkan alt adım) | SQLite'a geçişten sonra 4 test dosyası hâlâ `chroma.sqlite3`'ü izliyordu (ikisi başarısız, ikisi sessizce hiçbir şeyi denetlemiyordu); `store.active_store_file` ile etkin depo izleniyor | — |
+| M1.9 | Statik denetimin bulduğu gizli hatalar (M1.2'de çıkan alt adım) | ruff F821 (tanımsız ad) uygulama kodunda temiz: `app.py` otomasyonunun üretim yolunda `SOURCE_CACHE_DIR` tanımsızdı (çalışınca çökerdi); tür ipuçlarında `LocalRAG` | M1.2 |
 
 **M1 güvenlik kuralı (kullanıcı, 2026-09-30: "ihtiyacımız olan bir şeyi asla silme").** Bir şey ancak (1) tüm depoda — kod, test, betik, doküman, ayar — hem adıyla hem metin olarak (getattr, Streamlit anahtarı, ortam değişkeni, dosya adı) aranıp kullanımı bulunmadıysa, (2) şüphe yoksa silinir; şüpheli olan "kullanıcı kararı" listesine gider. Silmeler küçük, gerekçeli ve ayrı commit'lerle yapılır; her gruptan sonra testler + benchmark tabanı + uygulama açılışı doğrulanır. `data/` altına dokunulmaz.
 

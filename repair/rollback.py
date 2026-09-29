@@ -380,7 +380,6 @@ def rollback_commit(
     rollback_id = f"rollback_{binascii.hexlify(os.urandom(6)).decode()}"
     failures: List[str] = []
     warnings: List[str] = []
-    evidence: List[Dict[str, Any]] = []
 
     # 1. Failure policy check: block rollback if verified repair and not forced
     if verification_result is not None:

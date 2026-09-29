@@ -21,7 +21,7 @@ if sys.stderr and hasattr(sys.stderr, "reconfigure"):
         pass
 
 from mufettis.common.utils import safe_json
-from mufettis.config import APP_VERSION, DATA_DIR
+from mufettis.config import APP_VERSION, DATA_DIR, SOURCE_CACHE_DIR
 from mufettis.importers.bootstrapper import RegulationBootstrapper
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex

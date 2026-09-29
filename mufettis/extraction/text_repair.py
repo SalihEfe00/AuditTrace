@@ -280,7 +280,6 @@ def repair_extracted_spacing(value: str, title: str = "", document_type: str = "
     # Bu kural yalnızca yeterli tekrar eden kod sinyali bulunan metinlerde uygulanır.
     inline_codes = re.findall(rf"(?<!\d)(\d{{3,6}})(?=[{upper}])", s)
     title_norm = str(title or "").lower()
-    type_norm = str(document_type or "").lower()
     accounting_hint = (
         "hesap plan" in title_norm
         or "hesap plan" in s.lower()
