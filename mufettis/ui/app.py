@@ -19,7 +19,6 @@ from mufettis.analysis.risk_engine import (
     attach_regulation_matches,
     data_quality_report,
     findings_to_dataframe,
-    normalize_amount_columns,
     run_analysis,
 )
 from mufettis.audit.service import append_audit, apply_reviews, load_reviews, save_review
@@ -212,7 +211,6 @@ def run_streamlit() -> None:
                     with st.expander("Veri kalite raporu"):
                         st.json(quality)
 
-                    num_df, num_cols = normalize_amount_columns(df)
                     amount_col = st.selectbox("Tutar kolonu", ["(otomatik)"] + list(df.columns))
                     amount_col = None if amount_col == "(otomatik)" else amount_col
                     method_labels = {

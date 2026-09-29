@@ -55,61 +55,6 @@ def _pdf_text_quality(value: str) -> Tuple[float, Dict[str, float]]:
     }
 
 
-def _select_best_pdf_raw_candidate(
-    candidates: List[Tuple[str, str]],
-) -> Optional[Tuple[str, str, float, Dict[str, float]]]:
-    """Extraction adaylarını yalnızca RAW metin üzerinden karşılaştır ve birini seç.
-
-    Kritik kural: ``repair_extracted_spacing`` burada çağrılmaz. Quality Gate,
-    extractor'ın gerçekten ürettiği RAW çıktıyı görmelidir. Seçim tamamlandıktan
-    sonra seçilen RAW aday ayrı bir adımda normalize/repair edilir.
-    """
-    if not candidates:
-        return None
-
-    evaluated: List[Tuple[float, str, str, Dict[str, float]]] = []
-    for source_name, raw_candidate in candidates:
-        raw_text = str(raw_candidate or "")
-        raw_score, raw_info = _pdf_text_quality(raw_text)
-
-        # Bu sürümde extractor bonusları bilinçli olarak korunuyor;
-        # aday seçiminin iyileştirilmesi ayrı bir adımda ele alınacaktır.
-        source_bonus = {
-            "pymupdf_spatial": 0.40,
-            "pdfplumber_words": 0.22,
-            "pypdf_layout": 0.03,
-            "pypdf_plain": 0.0,
-        }.get(source_name, 0.0)
-        evaluated.append((raw_score + source_bonus, source_name, raw_text, raw_info))
-
-    evaluated.sort(key=lambda item: item[0], reverse=True)
-
-    # Spatial aday glued-run'ları RAW seviyesinde belirgin biçimde azaltıyorsa
-    # genel skor nedeniyle diğer adaya geri dönme. Repair burada yapılmaz.
-    spatial_rows = [row for row in evaluated if row[1] == "pymupdf_spatial"]
-    if spatial_rows:
-        spatial = spatial_rows[0]
-        best_non_spatial = next(
-            (row for row in evaluated if row[1] != "pymupdf_spatial"),
-            None,
-        )
-        if best_non_spatial is not None:
-            spatial_glued = float(spatial[3].get("long_glued", 0.0))
-            other_glued = float(best_non_spatial[3].get("long_glued", 0.0))
-            if spatial_glued == 0.0 and other_glued > 0.0:
-                chosen = spatial
-            elif spatial_glued + 10.0 < other_glued:
-                chosen = spatial
-            else:
-                chosen = evaluated[0]
-        else:
-            chosen = spatial
-    else:
-        chosen = evaluated[0]
-
-    return chosen
-
-
 def _extract_pdfium_pages(pdf_bytes: bytes) -> List[str]:
     """pypdfium2 Fast Pass: PDF'yi sayfa sayfa ham metin olarak çıkarır."""
     if pdfium is None:
@@ -323,35 +268,6 @@ def _order_pdf_physical_lines(
     right.sort(key=lambda item: (-float(item["bbox"][3]), float(item["bbox"][0]), item["index"]))
     return left + right
 
-
-
-def _physical_line_tokens(line: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """A4 yardımcı: fiziksel bir satırı whitespace tabanlı tokenlara ayırır."""
-    chars = list(line.get("chars", []) or [])
-    tokens: List[Dict[str, Any]] = []
-    current: List[Dict[str, Any]] = []
-    def flush() -> None:
-        nonlocal current
-        if not current:
-            return
-        boxes = [c.get("box") for c in current if isinstance(c.get("box"), (tuple, list)) and len(c.get("box")) == 4]
-        if boxes:
-            bbox = (
-                min(float(b[0]) for b in boxes), min(float(b[1]) for b in boxes),
-                max(float(b[2]) for b in boxes), max(float(b[3]) for b in boxes),
-            )
-        else:
-            bbox = (0.0, 0.0, 0.0, 0.0)
-        tokens.append({"text": "".join(str(c.get("char", "")) for c in current), "bbox": bbox})
-        current = []
-    for c in chars:
-        ch = str(c.get("char", ""))
-        if ch.isspace():
-            flush()
-        else:
-            current.append(c)
-    flush()
-    return tokens
 
 
 def _build_pdf_visual_rows(model: Dict[str, Any]) -> List[Dict[str, Any]]:

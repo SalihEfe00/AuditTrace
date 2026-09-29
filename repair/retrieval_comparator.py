@@ -21,9 +21,12 @@ from repair.models import (
 
 @dataclass
 class RetrievalGatePolicy:
-    """Configurable deterministic policy thresholds for retrieval gate."""
+    """Configurable deterministic policy thresholds for retrieval gate.
+
+    A benchmark that CURRENT finds and CANDIDATE misses (hit -> miss) is always a hard
+    failure; there is no hit-rate tolerance.
+    """
     max_rank_drop_tolerance: int = 2
-    max_hit_rate_drop_tolerance: float = 0.0
     min_improvements_for_ready: int = 1
     allow_embedding_model_mismatch: bool = False
 

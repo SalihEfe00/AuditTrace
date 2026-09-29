@@ -249,10 +249,8 @@ class WebSourceHarvester:
                 if candidate.get("kind")=="html":
                     # Re-fetching HTML here defeats the purpose, so use a
                     # second lightweight result lookup from the same batch.
-                    _,raw_candidate,_=results[idx-1]
-                    # raw_candidate's private links were stripped above;
-                    # retrieve from the original result object by re-reading
-                    # current tuple source.
+                    # "_links" was stripped only from the stored copy above;
+                    # read the links from the original result tuple.
                     original_candidate=results[idx-1][1]
                     if original_candidate and "_links" in original_candidate and allowed[idx-1][1] < max_depth:
                         for link in original_candidate["_links"]:
