@@ -1,0 +1,11 @@
+# Müfettiş AI — kaynaktan çalıştırma (`streamlit run app.py`) için Streamlit ayarları.
+# Paket başlatıcısı (packaging/launcher.py) aynı ayarları kendisi verir. tests/test_streamlit_config.py korur.
+
+[server]
+# Yalnızca bu bilgisayar: belgeler yerel ağdaki başka makinelerden açılamaz.
+address = "127.0.0.1"
+
+[browser]
+serverAddress = "127.0.0.1"
+# Kullanım istatistiği gönderilmez (uygulama internetsiz ve yerel çalışır).
+gatherUsageStats = false
