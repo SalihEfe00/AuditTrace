@@ -1,8 +1,5 @@
-from .client import (
-    OLLAMA_SYSTEM_PROMPT,
-    ollama_health,
-    ollama_generate,
-    build_ai_report_prompt,
-    prepare_report_findings,
-    report_mevzuat_preflight,
-)
+# -*- coding: utf-8 -*-
+"""İsteğe bağlı yerel dil modeli (Ollama) istemcisi.
+
+Alt modüller doğrudan içe aktarılır (ör. `from mufettis.llm.<modül> import ...`); paket düzeyinde yeniden dışa aktarım yok.
+"""

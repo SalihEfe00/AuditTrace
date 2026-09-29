@@ -1,2 +1,5 @@
-from .bulk_importer import BulkRegulationImporter, scan_regulation_folder
-from .bootstrapper import RegulationBootstrapper, should_offer_bootstrap
+# -*- coding: utf-8 -*-
+"""Toplu mevzuat içe aktarma ve ilk kurulum.
+
+Alt modüller doğrudan içe aktarılır (ör. `from mufettis.importers.<modül> import ...`); paket düzeyinde yeniden dışa aktarım yok.
+"""
