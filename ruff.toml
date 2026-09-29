@@ -1,0 +1,6 @@
+# Ölü kod denetimi (M1). tests/test_dead_code.py bu ayarla çalıştırır.
+# Yalnızca kesin hatalar seçili: kullanılmayan içe aktarım / değişken, gölgelenen tanım, tanımsız ad.
+extend-exclude = ["archive", "data", "mevzuat_deposu"]
+
+[lint]
+select = ["F401", "F811", "F821", "F841"]
