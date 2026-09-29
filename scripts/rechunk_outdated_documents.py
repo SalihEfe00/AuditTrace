@@ -29,6 +29,7 @@ from typing import Any, Dict, List
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from mufettis.config import DATA_DIR, SOURCE_CACHE_DIR
+from mufettis.common.backups import new_backup_dir, prune_backups
 
 INACTIVE_STATUSES = {"quarantined", "superseded"}
 
@@ -108,8 +109,7 @@ def plan(rag, index, only: frozenset = frozenset()) -> Dict[str, Any]:
 
 
 def backup(stamp: str) -> Path:
-    target = DATA_DIR / "backups" / f"rechunk_{stamp}"
-    target.mkdir(parents=True, exist_ok=False)
+    target = new_backup_dir("rechunk", stamp)
     from mufettis.rag.index import IngestIndex
 
     IngestIndex().backup(target / "ingest_index.sqlite3")  # tutarlı SQLite yedeği
@@ -165,6 +165,9 @@ def main() -> int:
                                                          ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     ok = not rejected and not remaining
+    if ok:
+        for old in prune_backups():  # saklama politikası: mufettis/common/backups.py
+            print(f"Eski yedek silindi (manifest korundu): {old.name}")
     print(f"\nUYGULANDI. Doğrulama: {'BAŞARILI' if ok else 'KONTROL GEREKİYOR'}. Yedek: {backup_dir}")
     return 0 if ok else 1
 

@@ -33,6 +33,7 @@ from typing import Any, Dict, List
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from mufettis.config import CHROMA_UPSERT_BATCH_SIZE, DATA_DIR, SOURCE_CACHE_DIR
+from mufettis.common.backups import new_backup_dir, prune_backups
 from mufettis.corpus import CANONICAL_SCHEMA, with_canonical
 from mufettis.corpus.canonical import DERIVATION_INPUTS
 from mufettis.corpus.identity import content_fingerprint
@@ -146,8 +147,7 @@ def _chunk_target(meta: Dict[str, Any], record: Dict[str, Any] | None) -> Dict[s
 
 
 def backup(stamp: str) -> Path:
-    target = DATA_DIR / "backups" / f"canonical_backfill_{stamp}"
-    target.mkdir(parents=True, exist_ok=False)
+    target = new_backup_dir("canonical_backfill", stamp)
     from mufettis.rag.index import IngestIndex
 
     IngestIndex().backup(target / "ingest_index.sqlite3")  # tutarlı SQLite yedeği
@@ -229,6 +229,9 @@ def main() -> int:
     ok = (v["chunks_without_canonical"] == 0 and not v["index_without_canonical"]
           and not v["chunk_index_identity_mismatch"] and v["fingerprints_match_cache"]
           and v["remaining_updates"] == 0)
+    if ok:
+        for old in prune_backups():  # saklama politikası: mufettis/common/backups.py
+            print(f"Eski yedek silindi (manifest korundu): {old.name}")
     print(f"\nUYGULANDI. Doğrulama: {'BAŞARILI' if ok else 'KONTROL GEREKİYOR'}. Yedek: {backup_dir}")
     return 0 if ok else 1
 

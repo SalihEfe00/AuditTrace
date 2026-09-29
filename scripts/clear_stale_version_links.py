@@ -24,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from mufettis.config import DATA_DIR
+from mufettis.common.backups import new_backup_dir, prune_backups
 
 CLEARED = {"status": "active", "superseded_by": "", "valid_to": ""}
 
@@ -56,8 +57,7 @@ def plan(index, rag) -> Dict[str, Any]:
 
 def backup(stamp: str) -> Path:
 
-    target = DATA_DIR / "backups" / f"version_links_{stamp}"
-    target.mkdir(parents=True, exist_ok=False)
+    target = new_backup_dir("version_links", stamp)
     from mufettis.rag.index import IngestIndex
 
     IngestIndex().backup(target / "ingest_index.sqlite3")  # tutarlı SQLite yedeği
@@ -105,6 +105,9 @@ def main() -> int:
     (backup_dir / "manifest.json").write_text(json.dumps({"plan": the_plan, "report": report},
                                                          ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
+    if not remaining:
+        for old in prune_backups():  # saklama politikası: mufettis/common/backups.py
+            print(f"Eski yedek silindi (manifest korundu): {old.name}")
     print(f"\nUYGULANDI. Doğrulama: {'BAŞARILI' if not remaining else 'KONTROL GEREKİYOR'}. Yedek: {backup_dir}")
     return 0 if not remaining else 1
 

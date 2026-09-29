@@ -37,6 +37,7 @@ from typing import Any, Dict, Iterable, List, Tuple
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from mufettis.config import BASE_DIR, DATA_DIR, SOURCE_CACHE_DIR
+from mufettis.common.backups import new_backup_dir, prune_backups
 
 DEPOSIT_DIR = BASE_DIR / "mevzuat_deposu"
 INVALID_CHARS = ("￾", "￿", "\x00")
@@ -184,8 +185,7 @@ def plan(rag, index) -> Dict[str, Any]:
 
 
 def backup(stamp: str) -> Path:
-    target = DATA_DIR / "backups" / f"e8_corpus_repair_{stamp}"
-    target.mkdir(parents=True, exist_ok=False)
+    target = new_backup_dir("e8_corpus_repair", stamp)
     from mufettis.rag.index import IngestIndex
 
     IngestIndex().backup(target / "ingest_index.sqlite3")  # tutarlı SQLite yedeği
@@ -321,6 +321,9 @@ def main() -> int:
     v = report["verify"]
     ok = (v["invalid_unicode_chunks"] == 0 and not v["glued_docs"] and not v["duplicate_active_keys"]
           and not v["quarantined"] and all(c["found"] for c in v["queries"]))
+    if ok:
+        for old in prune_backups():  # saklama politikası: mufettis/common/backups.py
+            print(f"Eski yedek silindi (manifest korundu): {old.name}")
     print(f"\nUYGULANDI. Doğrulama: {'BAŞARILI' if ok else 'KONTROL GEREKİYOR'}. Yedek: {backup_dir}")
     return 0 if ok else 1
 

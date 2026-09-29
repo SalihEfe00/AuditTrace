@@ -36,6 +36,7 @@ from typing import Any, Dict, List, Tuple
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from mufettis.config import BASE_DIR, CHUNK_SCHEMA_VERSION, DATA_DIR, SOURCE_CACHE_DIR
+from mufettis.common.backups import new_backup_dir, prune_backups
 
 DEPOSIT_DIR = BASE_DIR / "mevzuat_deposu"
 VERIFY_QUERIES = [
@@ -96,8 +97,7 @@ def plan(rag, index) -> Dict[str, Any]:
 
 
 def backup(stamp: str) -> Path:
-    target = DATA_DIR / "backups" / f"e7_legacy_recovery_{stamp}"
-    target.mkdir(parents=True)
+    target = new_backup_dir("e7_legacy_recovery", stamp)
     from mufettis.rag.index import IngestIndex
 
     IngestIndex().backup(target / "ingest_index.sqlite3")  # tutarlı SQLite yedeği
@@ -244,6 +244,9 @@ def main() -> int:
     (backup_dir / "manifest.json").write_text(json.dumps({"plan": the_plan, "report": report}, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     ok = report["verify"]["legacy_chunks_remaining"] == 0 and all(c["found"] for c in report["verify"]["queries"])
+    if ok:
+        for old in prune_backups():  # saklama politikası: mufettis/common/backups.py
+            print(f"Eski yedek silindi (manifest korundu): {old.name}")
     print(f"\nUYGULANDI. Doğrulama: {'BAŞARILI' if ok else 'KONTROL GEREKİYOR'}. Yedek: {backup_dir}")
     return 0 if ok else 1
 

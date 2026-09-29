@@ -19,6 +19,10 @@ DB_PATH = DATA_DIR / "mevzuat_db"
 VECTOR_STORE = os.environ.get("MUFETTIS_VECTOR_STORE", "auto").strip().lower()
 CORPUS_STORE_PATH = DATA_DIR / "corpus_store"
 AUDIT_LOG_DIR = DATA_DIR / "audit_logs"
+# Bakım betiklerinin işlem öncesi yedekleri (<tür>_<YYYYMMDD_HHMMSS>/). En yeni BACKUP_KEEP yedek tam
+# tutulur; eskilerinin yalnızca manifest.json kaydı kalır (mufettis/common/backups.py).
+BACKUP_DIR = DATA_DIR / "backups"
+BACKUP_KEEP = 2
 EXPORT_DIR = DATA_DIR / "exports"
 INGEST_INDEX_FILE = DATA_DIR / "ingest_index.json"
 REVIEW_FILE = DATA_DIR / "review_registry.json"
@@ -134,6 +138,8 @@ __all__ = [
     "VECTOR_STORE",
     "CORPUS_STORE_PATH",
     "AUDIT_LOG_DIR",
+    "BACKUP_DIR",
+    "BACKUP_KEEP",
     "EXPORT_DIR",
     "INGEST_INDEX_FILE",
     "REVIEW_FILE",
