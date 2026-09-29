@@ -16,7 +16,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VULTURE_PATHS = ["mufettis", "repair", "app.py", "scripts", "conftest.py", "tests"]
+VULTURE_PATHS = ["mufettis", "repair", "app.py", "scripts", "packaging", "conftest.py", "tests"]
 VULTURE_MIN_CONFIDENCE = "60"
 # Test dosyalarındaki bulgular denetlenmez (sahte nesne imzaları, kullanılmayan kurulum değişkenleri).
 TEST_FILE = re.compile(r"^(tests[\\/]|mufettis[\\/]tests[\\/]test_)")

@@ -112,3 +112,44 @@ modelleri üretir), `eval_with_onnx.py` (benchmark), `measure_memory.py` (torch'
 
 Açık kalanlar (uygulama adımında): gömme ve sıralayıcı için ONNX arka ucu (`tokenizers` ile, transformers'sız) ve
 torch arka ucuyla sonuç eşitliği testi; dönüştürülmüş modellerin özetleri `reranker.MODELS` benzeri bir kayıtta.
+
+## M3.2 Deneme paketleri (2026-09-30)
+
+`packaging/launcher.py` + `packaging/mufettis_trial.spec` (PyInstaller 6.22.3, onedir, bugünkü torch yığını).
+Derleme: `python -m PyInstaller packaging/mufettis_trial.spec --noconfirm` (ilk derleme ~6 dk, sonrakiler ~3 dk).
+Veri, modeller ve gömme modelinin HF önbelleği paketin yanına `data/`, `models/`, `hf/` olarak konur; başlatıcı
+bunları ortam değişkenleriyle gösterir ve `HF_HUB_OFFLINE=1` ile çalışır.
+
+| Kalem | Boyut |
+|---|---|
+| Uygulama + kütüphaneler (`MufettisAI.exe` + `_internal`) | 782 MB |
+| Sıralayıcı modeli (`models/`) | 466 MB |
+| Gömme modeli (`hf/`) | 458 MB |
+| Veri (deneme kopyası; 98 MB yedek dahil) | 263 MB |
+| Toplam klasör | ~2,0 GB |
+
+Kipler (aynı paket): tarayıcı (Streamlit + varsayılan tarayıcı), `--window` (sunucu alt süreçte, arayüz pywebview /
+Edge WebView2 penceresinde), `--serve PORT` (yalnızca sunucu).
+
+| Ölçüm (geliştirme makinesi, ılık disk) | Sonuç |
+|---|---|
+| Sunucunun hazır olması | 1,0–1,4 sn (ilk açılışta 5,6 sn) |
+| Pencere kipinde pencerenin görünmesi | 2,1 sn |
+| İlk analiz (uygulama modülleri ve modeller bu sırada yüklenir) | 11,4 sn — kaynaktaki 6,0 + 5,5 sn ile aynı |
+| Sonraki analiz | 2,6 sn (kaynakla aynı) |
+| Sunucu belleği, analiz sonrası | 1,3 GB çalışma kümesi, 2,1 GB özel (kaynakla aynı) |
+| Pencere kipi ek yükü | WebView2 süreç ağacı ~300 MB özel (515 MB çalışma kümesi) + başlatıcı 71 MB |
+| Sonuç | Örnek şikâyette sınıflandırma, iddialar ve 97 kanıt parçası kaynakla aynı |
+
+Paketlemede bulunan ve çözülen sorunlar (tam paketlemede M17 de aynılarını gerektirir):
+1. **transformers 5 arşivde çalışmıyor**: içe aktarma yapısını kendi `.py` dosyalarını diskte tarayarak kurar;
+   PyInstaller arşivindeyken ilk analiz sonsuza dek bekler (hata yok, işlemci boşta). Çözüm:
+   `module_collection_mode={"transformers": "py"}`. Teşhis `MUFETTIS_TRACE_AFTER=<sn>` (faulthandler yığın dökümü).
+2. **Streamlit ayarları**: `bootstrap.run`'dan önce `bootstrap.load_config_options` bayrak biçimli anahtarlarla
+   (`server_port` vb.) çağrılmalı; yoksa port / adres / geliştirici kipi ayarları uygulanmaz.
+3. **Yerel ağa açık sunucu ve kullanım istatistiği**: M3.6'da kapatıldı (paket ve kaynak).
+4. **Konsolsuz pakette `sys.stdout` / `sys.stderr` yok**: çıktı paket yanındaki `launcher_output.log`'a yönlendirilir.
+
+M17'ye notlar: başlatıcı ana süreci zorla sonlandırılırsa sunucu alt süreci öksüz kalır (pencere normal
+kapatıldığında sonlanır) — iş nesnesi (Job Object) ile bağlanmalı; soğuk diskte ve Windows Defender taramasıyla ilk
+açılış M3.3'te ölçülür.
