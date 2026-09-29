@@ -10,3 +10,5 @@ mevzuat_deposu/
 *.pem 
 .streamlit/secrets.toml 
 *.bak 
+launcher.log
+launcher_output.log
