@@ -107,7 +107,8 @@ Uygulama kodu torch, transformers, sentence-transformers, sklearn, scipy, sympy,
 paketten çıkar (~0,85 GB). Kaba paket tahmini: kütüphaneler ~0,4 GB + modeller 0,35 GB + veri 0,14 GB ≈ **0,9 GB**
 (bugünkü yığınla ~2,3 GB).
 
+Tarif repoda: `scripts/onnx_models/export.py` (dışa aktarma, birleşim, nicemleme; aynı girdiden bayt bayt aynı
+modelleri üretir), `eval_with_onnx.py` (benchmark), `measure_memory.py` (torch'suz bellek / hız).
+
 Açık kalanlar (uygulama adımında): gömme ve sıralayıcı için ONNX arka ucu (`tokenizers` ile, transformers'sız) ve
-torch arka ucuyla sonuç eşitliği testi; dönüştürme tarifinin repoya betik olarak alınması (bugün oturum çalışma
-alanında `m35_export.py`, `m35_eval.py`, `m35_mem.py`); dönüştürülmüş modellerin özetleri `reranker.MODELS`
-benzeri bir kayıtta.
+torch arka ucuyla sonuç eşitliği testi; dönüştürülmüş modellerin özetleri `reranker.MODELS` benzeri bir kayıtta.

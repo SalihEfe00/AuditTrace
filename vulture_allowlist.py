@@ -113,3 +113,12 @@ _main
 
 # Depo tanılama API'si: sıkıştırma (839d80f0) sonrası bilinçli korunan genel yöntem (mufettis/rag/store.py).
 _.vector_rows
+
+# ONNX Runtime oturum ayarları: atanarak kullanılır (scripts/onnx_models/).
+_.intra_op_num_threads
+_.inter_op_num_threads
+_.graph_optimization_level
+# torch.nn.Module.forward: torch çağırır (dışa aktarma sarmalayıcıları, scripts/onnx_models/export.py).
+_.forward
+# SentenceTransformer.encode / CrossEncoder.predict ile aynı imza (ONNX yerine geçenler, scripts/onnx_models/).
+show_progress_bar
