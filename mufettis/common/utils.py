@@ -10,14 +10,13 @@ import re
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
 
 from mufettis.config import (
-    BASE_DIR,
     DATA_DIR,
     SOURCE_ALIASES,
     SOURCE_DEFINITIONS,

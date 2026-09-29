@@ -29,20 +29,16 @@ Strict principles:
 from __future__ import annotations
 
 import binascii
-import json
 import logging
 import os
 import sqlite3
 import threading
-import time
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
-from mufettis.common.utils import now_iso, safe_json
+from mufettis.common.utils import now_iso
 from mufettis.config import (
     CHROMA_COLLECTION,
-    CHUNK_SCHEMA_VERSION,
     DATA_DIR,
     DB_PATH,
     INGEST_INDEX_FILE,
@@ -57,22 +53,15 @@ from repair.committer import CommitPolicy, acquire_commit_lock, commit_candidate
 from repair.comparator import build_snapshot, compare_quality
 from repair.extractor import extract_candidate
 from repair.models import (
-    ApprovalRecord,
     AuditEvent,
     AuditEventType,
-    ClassificationResult,
     ClassificationType,
-    CommitResult,
     CommitStatus,
     ComparisonStatus,
-    DocumentScanResult,
     ExtractionCandidate,
-    FinalGateDecision,
     IssueCode,
     RetrievalComparisonResult,
-    RollbackResult,
     RollbackStatus,
-    VerificationResult,
     VerificationStatus,
     WaveConfig,
     WaveDocumentResult,

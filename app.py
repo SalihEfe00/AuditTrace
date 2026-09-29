@@ -237,8 +237,7 @@ if __name__ == "__main__":
             print(json.dumps(safe_json(summary.to_dict()), ensure_ascii=False, indent=2))
             raise SystemExit(0 if summary.status in ("SUCCESS", "PARTIAL") else 1)
     if args.repair_wave:
-        from repair.wave import WaveOrchestrator, WaveConfig, WaveScope, check_production_corpus
-        from repair.models import WaveStatus
+        from repair.wave import WaveOrchestrator, WaveConfig, check_production_corpus
         print("=" * 60)
         print("MÜFETTİŞ AI — FAZ 17: CONTROLLED PRODUCTION REPAIR WAVES")
         print(f"SCOPE      : {args.repair_wave_scope.upper()}")

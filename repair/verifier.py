@@ -27,7 +27,6 @@ from mufettis.legal.parser import _chunk_is_retrievable
 from repair.models import (
     CheckResult,
     CommitResult,
-    ExtractionCandidate,
     VerificationResult,
     VerificationStatus,
 )

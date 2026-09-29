@@ -30,14 +30,9 @@ from mufettis.analysis.engine import (
     retrieval_error_warnings,
 )
 from mufettis.analysis.models import (
-    AnalysisPlan,
     AnalysisResult,
     CitedRegulation,
-    DocumentClassification,
-    DocumentUnderstanding,
     Evidence,
-    Finding,
-    RetrievalPlan,
 )
 from mufettis.analysis.planner import AnalysisPlannerService
 from mufettis.analysis.retrieval_planner import RetrievalPlannerService

@@ -2,14 +2,11 @@
 from __future__ import annotations
 
 import hashlib
-import os
 import re
-import shutil
 import sqlite3
-import uuid
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 
@@ -33,7 +30,7 @@ from mufettis.config import (
     EMBEDDING_MODEL,
     MAX_RAG_RESULTS,
 )
-from mufettis.common.utils import canonical_source_id, now_iso, safe_json, mask_sensitive
+from mufettis.common.utils import now_iso, mask_sensitive
 from mufettis.corpus import NOT_IN_FORCE_STATUSES, EligibilityPolicy, refresh_canonical, with_canonical
 from mufettis.corpus.model import CANONICAL_SCHEMA
 from mufettis.extraction.text_repair import normalize_extracted_text, repair_extracted_spacing
@@ -41,19 +38,14 @@ from mufettis.legal.parser import (
     _chunk_is_retrievable,
     _chunk_matches_account_ref,
     _chunk_matches_document_ref,
-    _legal_rerank,
     _resolve_query_document_reference_from_collection,
     clean_evidence_text,
-    detect_doc_type,
-    extract_first,
     extract_legal_identifier,
-    extract_legal_metadata,
     extract_query_account_code,
     extract_query_document_reference,
     prefer_official_matches,
     split_legal_chunks,
 )
-from mufettis.rag.index import IngestIndex
 from mufettis.rag.fusion import LEXICAL_WEIGHT, SEMANTIC_WEIGHT, reciprocal_rank_fusion
 from mufettis.rag.lexical import LEXICAL_INDEX_VERSION, DiskLexicalIndex, LexicalIndex, query_terms
 from mufettis.rag.paging import iter_pages

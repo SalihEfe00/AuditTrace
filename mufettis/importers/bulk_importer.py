@@ -5,10 +5,9 @@ import datetime as dt
 import io
 import json
 import re
-import time
 import uuid
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 try:
     from bs4 import BeautifulSoup

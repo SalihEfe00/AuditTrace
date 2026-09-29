@@ -10,7 +10,6 @@ dates, subjects, claims, and events into a structured DocumentUnderstanding cont
 from __future__ import annotations
 
 import re
-import uuid
 from typing import Any, Dict, List, Optional
 
 from mufettis.analysis.models import (

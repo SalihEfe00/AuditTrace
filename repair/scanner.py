@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional
 
 from mufettis.config import CHUNK_SCHEMA_VERSION
 from mufettis.extraction.pdf import _pdf_generic_quality_metrics
-from mufettis.legal.parser import _chunk_is_retrievable, _metadata_bool
+from mufettis.legal.parser import _chunk_is_retrievable
 from mufettis.rag.maintenance import load_source_cache
 from repair.models import (
     DocumentScanResult,

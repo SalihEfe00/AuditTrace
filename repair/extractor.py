@@ -11,16 +11,13 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 from bs4 import BeautifulSoup
 
 from mufettis.common.utils import sha256_bytes
 from mufettis.config import CHUNK_SCHEMA_VERSION
-from mufettis.extraction.pdf import (
-    _pdf_generic_quality_metrics,
-    normalize_extracted_text,
-)
-from mufettis.extraction.text_repair import repair_extracted_spacing
+from mufettis.extraction.pdf import _pdf_generic_quality_metrics
+from mufettis.extraction.text_repair import normalize_extracted_text, repair_extracted_spacing
 from mufettis.harvesting.resmi_gazete import ResmiGazeteScraper
 from mufettis.legal.parser import extract_legal_metadata, split_legal_chunks
 from repair.models import (

@@ -14,12 +14,11 @@ Zero direct write to Chroma is permitted from this module.
 """
 from __future__ import annotations
 
-import hashlib
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from mufettis.config import DATA_DIR, QUARANTINE_CACHE_DIR, QUARANTINE_MAX_PAYLOAD_MB
+from mufettis.config import QUARANTINE_CACHE_DIR, QUARANTINE_MAX_PAYLOAD_MB
 from mufettis.common.utils import now_iso, sha256_bytes
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.engine import LocalRAG

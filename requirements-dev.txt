@@ -1,0 +1,4 @@
+# Geliştirme araçları (uygulamaya dahil değildir). Kurulum: pip install -r requirements-dev.txt
+# ruff: kullanılmayan içe aktarım / değişken denetimi; vulture: kullanılmayan kod denetimi (tests/test_dead_code.py).
+ruff==0.16.9
+vulture==2.16

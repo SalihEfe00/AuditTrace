@@ -30,7 +30,6 @@ from mufettis.extraction.text_repair import normalize_extracted_text, repair_ext
 from mufettis.harvesting.resmi_gazete import ResmiGazeteScraper
 from mufettis.legal.parser import (
     extract_legal_metadata,
-    split_legal_chunks,
     _chunk_is_retrievable,
 )
 from mufettis.rag.engine import LocalRAG

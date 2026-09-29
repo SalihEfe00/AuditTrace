@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
@@ -13,8 +12,7 @@ except Exception:
     requests = None
 
 from mufettis.config import DEFAULT_LLM, OLLAMA_URL
-from mufettis.common.utils import mask_sensitive, now_iso, safe_json
-from mufettis.audit.service import append_audit, apply_reviews
+from mufettis.common.utils import mask_sensitive
 from mufettis.extraction.text_repair import clean_evidence_text
 from mufettis.analysis.risk_engine import attach_regulation_matches
 

@@ -51,8 +51,6 @@ from mufettis.analysis.models import (
     Citation,
     DocumentClassification,
     DocumentUnderstanding,
-    Evidence,
-    Finding,
 )
 from mufettis.exports.analysis_report import create_analysis_docx
 from mufettis.extraction.files import extract_file_text

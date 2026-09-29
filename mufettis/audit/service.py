@@ -3,8 +3,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 import pandas as pd
 

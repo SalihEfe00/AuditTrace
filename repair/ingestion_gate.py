@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from mufettis.audit.service import append_audit
-from mufettis.common.utils import now_iso, safe_json
+from mufettis.common.utils import now_iso
 from mufettis.config import CHROMA_UPSERT_BATCH_SIZE, CHUNK_SCHEMA_VERSION
 from mufettis.extraction.pdf import _is_true_glued_token, _pdf_generic_quality_metrics
 from mufettis.extraction.text_repair import (

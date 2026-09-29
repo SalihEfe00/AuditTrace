@@ -22,34 +22,28 @@ Strictly adheres to:
 from __future__ import annotations
 
 import binascii
-import hashlib
 import json
 import logging
 import os
 import threading
 import time
-from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from mufettis.common.utils import now_iso, safe_json
 from mufettis.config import (
-    CHROMA_COLLECTION,
-    CHUNK_SCHEMA_VERSION,
     DATA_DIR,
-    DB_PATH,
-    INGEST_INDEX_FILE,
     SOURCE_CACHE_DIR,
 )
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex
 
-from repair.audit import RepairAuditLogger, get_audit_logger, REPAIR_AUDIT_LOG_FILE
+from repair.audit import RepairAuditLogger
 from repair.classifier import classify_document
 from repair.committer import CommitPolicy, acquire_commit_lock, commit_candidate
-from repair.comparator import QualityGatePolicy, build_snapshot, compare_quality
-from repair.extractor import create_repair_plan, extract_candidate, validate_source
+from repair.comparator import build_snapshot, compare_quality
+from repair.extractor import extract_candidate
 from repair.models import (
     ApprovalRecord,
     AuditEvent,
@@ -60,28 +54,17 @@ from repair.models import (
     AutomationPolicy,
     AutomationStatus,
     CandidateAutomationResult,
-    ClassificationResult,
     ClassificationType,
-    CommitResult,
     CommitStatus,
     ComparisonStatus,
     DocumentScanResult,
     ExtractionCandidate,
     FinalGateDecision,
-    IssueCode,
-    IssueSeverity,
-    QualitySnapshot,
     RetrievalComparisonResult,
-    RollbackResult,
     RollbackStatus,
-    SourceValidationResult,
-    SourceValidationStatus,
-    VerificationResult,
     VerificationStatus,
 )
 from repair.retrieval_comparator import (
-    RetrievalGatePolicy,
-    compare_retrieval,
     evaluate_final_gate,
 )
 from repair.rollback import rollback_commit

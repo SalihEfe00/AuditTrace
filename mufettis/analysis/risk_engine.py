@@ -16,7 +16,6 @@ from mufettis.config import MAX_FINDINGS_FOR_MATCH
 from mufettis.common.utils import mask_sensitive, now_iso, safe_json
 from mufettis.audit.service import append_audit, apply_reviews
 from mufettis.extraction.text_repair import clean_evidence_text
-from mufettis.legal.parser import split_legal_chunks
 from mufettis.rag.engine import LocalRAG
 
 DATE_COL_PATTERNS = ["tarih", "date", "yıl", "ay"]

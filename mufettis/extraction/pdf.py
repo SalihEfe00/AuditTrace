@@ -5,11 +5,9 @@ import io
 import math
 import re
 import statistics
-import threading
-from collections import Counter, defaultdict
+from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple
 
-from pypdf import PdfReader
 
 try:
     import pypdfium2 as pdfium
@@ -23,13 +21,7 @@ except Exception:
 
 from mufettis.config import PDFIUM_LOCK
 from mufettis.extraction.text_repair import (
-    clean_evidence_text,
-    extract_legal_identifier,
-    normalize_extracted_text,
-    normalize_legal_whitespace,
-    repair_account_code_spacing,
     repair_extracted_spacing,
-    repair_mojibake,
 )
 
 def classify_legal_structure(*args, **kwargs):

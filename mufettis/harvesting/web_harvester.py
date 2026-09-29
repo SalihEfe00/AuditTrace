@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import hashlib
-import html
-import io
-import json
 import re
-import threading
 import time
 import urllib.robotparser
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Dict, Iterator, List, Optional, Tuple
 from urllib.parse import urljoin, urlparse
 
 import requests
@@ -31,20 +26,16 @@ from mufettis.config import (
     BROWSER_DOCUMENT_TIMEOUT_MS,
     BROWSER_MAX_PAGES,
     BROWSER_TIMEOUT_MS,
-    DATA_DIR,
     SCRAPER_MIN_DELAY,
     SOURCE_DEFINITIONS,
     SOURCE_REQUEST_TIMEOUT,
     WEB_FAST_REQUEST_DELAY,
     WEB_FAST_WORKERS,
-    WEB_HTTP_CACHE_DIR,
     WEB_SOURCE_MAX_DEPTH,
     WEB_SOURCE_MAX_PAGES,
 )
 from mufettis.common.http import SystemTrustAdapter
 from mufettis.common.utils import (
-    atomic_write_json,
-    canonical_source_id,
     enrich_source_meta,
     load_web_cache_meta,
     now_iso,
@@ -52,16 +43,8 @@ from mufettis.common.utils import (
     sha256_bytes,
     source_is_allowed,
     source_profile,
-    web_cache_key,
 )
-from mufettis.extraction.pdf import (
-    _extract_pdfium_pages,
-    _join_pdf_pages,
-    _normalize_pdf_candidate_pages,
-    _pdf_quality_gate,
-)
-from mufettis.extraction.text_repair import normalize_extracted_text, repair_mojibake
-from mufettis.legal.parser import detect_doc_type, extract_legal_metadata
+from mufettis.legal.parser import extract_legal_metadata
 
 class WebSourceHarvester:
     """Kaynak profilinden web sayfalarını/PDF bağlantılarını kontrollü biçimde toplar."""

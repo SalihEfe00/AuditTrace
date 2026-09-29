@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import datetime as dt
 import html
-import io
 import json
-import time
 import unittest
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 import pandas as pd
 

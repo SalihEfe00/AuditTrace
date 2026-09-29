@@ -13,15 +13,13 @@ import threading
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 from mufettis.config import (
     CHROMA_COLLECTION,
     CHROMA_UPSERT_BATCH_SIZE,
     CHUNK_SCHEMA_VERSION,
     DATA_DIR,
-    DB_PATH,
-    EMBEDDING_MODEL,
     INGEST_INDEX_FILE,
     SOURCE_CACHE_DIR,
 )
@@ -29,7 +27,6 @@ from mufettis.common.utils import mask_sensitive, now_iso, safe_json, source_pro
 from mufettis.corpus import with_canonical
 from mufettis.corpus.identity import content_fingerprint
 from mufettis.extraction.text_repair import repair_extracted_spacing
-from mufettis.legal.parser import clean_evidence_text
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex, store_path
 from repair.models import (
@@ -37,8 +34,6 @@ from repair.models import (
     CommitResult,
     CommitStatus,
     ComparisonStatus,
-    ExtractionCandidate,
-    FinalGateDecision,
     StagingManifest,
 )
 

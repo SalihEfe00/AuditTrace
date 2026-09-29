@@ -3,12 +3,10 @@ from __future__ import annotations
 
 import datetime as dt
 import io
-import json
 import re
-import threading
 import time
 import urllib.robotparser
-from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urljoin
 
 import requests
@@ -18,20 +16,15 @@ from pypdf import PdfReader
 
 from mufettis.rag.engine import LocalRAG
 from mufettis.config import (
-    DATA_DIR,
     SCRAPER_MIN_DELAY,
-    SOURCE_DEFINITIONS,
     WEB_SOURCE_MAX_DEPTH,
     WEB_SOURCE_MAX_PAGES,
 )
 from mufettis.common.http import SystemTrustAdapter
 from mufettis.common.utils import (
-    canonical_source_id,
     enrich_source_meta,
-    load_json,
     now_iso,
     sha256_bytes,
-    source_profile,
 )
 from mufettis.extraction.pdf import (
     _extract_pdf_with_pdfplumber_pages,
@@ -42,12 +35,6 @@ from mufettis.extraction.pdf import (
     _pdf_quality_gate,
     _select_pdf_engine_b3,
 )
-from mufettis.extraction.text_repair import (
-    normalize_extracted_text,
-    repair_extracted_spacing,
-    repair_mojibake,
-)
-from mufettis.legal.parser import detect_doc_type, extract_legal_metadata
 from mufettis.rag.index import IngestIndex
 
 class ResmiGazeteScraper:

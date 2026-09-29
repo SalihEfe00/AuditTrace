@@ -2,10 +2,9 @@
 from __future__ import annotations
 
 import io
-import re
 import zipfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import pandas as pd
 

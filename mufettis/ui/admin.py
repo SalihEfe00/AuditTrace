@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import html
-import json
-import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import pandas as pd
 

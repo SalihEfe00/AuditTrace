@@ -2,10 +2,8 @@
 from __future__ import annotations
 
 import difflib
-import math
 import re
-from collections import Counter
-from typing import Any, Dict, Iterable, List, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
 
@@ -13,9 +11,8 @@ from mufettis.rag.index import IngestIndex
 
 from mufettis.config import (
     CHUNK_SCHEMA_VERSION,
-    SOURCE_DEFINITIONS,
 )
-from mufettis.common.utils import canonical_source_id, normalize_title, source_profile
+from mufettis.common.utils import normalize_title
 from mufettis.corpus import (
     NOT_IN_FORCE_STATUSES,
     authority_prior,

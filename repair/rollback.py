@@ -23,26 +23,21 @@ import binascii
 import hashlib
 import json
 import os
-import shutil
 import threading
 from contextlib import contextmanager
-from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from mufettis.config import (
-    CHROMA_COLLECTION,
     CHROMA_UPSERT_BATCH_SIZE,
-    CHUNK_SCHEMA_VERSION,
     DATA_DIR,
     INGEST_INDEX_FILE,
     SOURCE_CACHE_DIR,
 )
-from mufettis.common.utils import now_iso, safe_json
+from mufettis.common.utils import now_iso
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex
 from repair.models import (
-    BeforeSnapshot,
     RollbackResult,
     RollbackStatus,
     VerificationResult,

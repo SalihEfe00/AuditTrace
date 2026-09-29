@@ -13,7 +13,7 @@ import re
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from mufettis.analysis.models import Citation, Evidence, Finding
+from mufettis.analysis.models import Evidence, Finding
 from mufettis.analysis.turkish_text import turkish_lower
 from mufettis.extraction.text_repair import normalize_legal_whitespace, repair_mojibake
 
