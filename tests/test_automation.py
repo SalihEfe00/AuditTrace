@@ -927,7 +927,11 @@ class TestFaz16IsolatedRagLabAutomation(unittest.TestCase):
             approvals_file=cls.sb_approvals,
         )
 
-        cls.prod_size_before = (DB_PATH / "chroma.sqlite3").stat().st_size if (DB_PATH / "chroma.sqlite3").exists() else 0
+        from mufettis.rag.store import active_store_file
+
+        # Üretimin etkin parça deposu (SQLite ya da taşınmamış Chroma).
+        cls.prod_store_file = active_store_file(DB_PATH)
+        cls.prod_size_before = cls.prod_store_file.stat().st_size if cls.prod_store_file.exists() else 0
         # Sabit dosya sayısı yerine başlangıç anındaki önbellek içeriğiyle karşılaştırılır.
         cls.prod_cache_before = sorted(p.name for p in SOURCE_CACHE_DIR.glob("*.txt"))
 
@@ -942,9 +946,8 @@ class TestFaz16IsolatedRagLabAutomation(unittest.TestCase):
 
     def test_sandbox_02_production_zero_mutation(self):
         """Ensures production database and cache remain completely untouched."""
-        prod_sqlite = DB_PATH / "chroma.sqlite3"
-        self.assertTrue(prod_sqlite.exists())
-        self.assertEqual(prod_sqlite.stat().st_size, self.prod_size_before)
+        self.assertTrue(self.prod_store_file.exists())
+        self.assertEqual(self.prod_store_file.stat().st_size, self.prod_size_before)
         self.assertEqual(sorted(p.name for p in SOURCE_CACHE_DIR.glob("*.txt")), self.prod_cache_before)
 
     def test_sandbox_03_run_cycle_scan_only_no_changes(self):

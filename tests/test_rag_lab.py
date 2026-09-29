@@ -41,8 +41,10 @@ class TestFaz11BRagLabCorpus(unittest.TestCase):
         self.assertEqual(Path(self.rag.db_path).resolve(), RAG_LAB_CHROMA.resolve())
         self.assertTrue(Path(self.rag.db_path).as_posix().endswith("rag_lab/chroma"))
         self.assertNotEqual(Path(RAG_LAB_SOURCE_CACHE).resolve(), SOURCE_CACHE_DIR.resolve())
-        # Ensure production files exist and are not overwritten
-        self.assertTrue((DB_PATH / "chroma.sqlite3").exists())
+        # Üretimin etkin parça deposu (SQLite ya da taşınmamış Chroma) yerinde olmalı.
+        from mufettis.rag.store import active_store_file
+
+        self.assertTrue(active_store_file(DB_PATH).exists())
 
     def test_03_metadata_environment_tagging(self):
         """Verifies that all chunks carry environment='rag_lab'."""

@@ -101,6 +101,17 @@ Sıralama ilkeleri:
 | M0.5 | Ürüne alma ya da rafa kaldırma | Kabulse: model sürüm adıyla kurulur, eşik ve özet reranker.py'de, baseline.json yeniden yazılır; retse mevcut model kalır ve sonuç kaydedilir (✓ `reranker.MODELS` kaydı, çok modelli kurulum betiği, taban 32 / 1 / 0; testler geçiyor) | M0.4 |
 | M0.6 | Ürüne giren modelin tekrar üretilebilirliği (M0.5'te çıkan alt adım) | Eğitim verisi, grup kurma, eğitim ve eşik seçme betikleri repoda (`scripts/reranker_finetune/`, `benchmarks/reranker_finetune/`); tarif `claim_matching.md`'de; eşik aracı iki pilotun eşiğini aynen üretiyor (✓) | M0.5 |
 | M1 | **Ölü kod temizliği** | Kullanılmayan fonksiyon, içe aktarım, ayar ve dizinler kaldırılmış; statik denetim (vulture/ruff) temiz; testler geçiyor | — |
+| M1.1 | Denetim araçları | ruff ve vulture geliştirme bağımlılığı olarak sabit sürümle (`requirements-dev.txt`); kullanıcı indirme onayı | kullanıcı onayı |
+| M1.2 | Kullanılmayan içe aktarım ve değişkenler | ruff F401/F811/F841 temiz; yıldızlı / yeniden dışa aktarım (`__all__`) korunuyor | M1.1 |
+| M1.3 | Kullanılmayan fonksiyon, sınıf, sabit | vulture adaylarının her biri depo genelinde aranarak teyit edilmiş; Streamlit geri çağrıları, betikler, testler ve dinamik kullanım ayrı listede (izin listesi) | M1.1 |
+| M1.4 | Kullanılmayan ayarlar ve dizinler | config'te hiçbir yerde okunmayan ayar kalmamış; kullanılmayan dizin oluşturulmuyor | — |
+| M1.5 | Ölü dosyalar ve betikler | Depodaki kullanılmayan betik, arşiv ve artık dosyaların envanteri; silinenler git geçmişinde, gerekçe commit mesajında | — |
+| M1.6 | Kalıcı koruma | ruff ayarı ve test: ruff + vulture (izin listesiyle) temiz değilse test başarısız; yeni ölü kod birikmez | M1.2, M1.3 |
+| M1.7 | Doğrulama | Tüm testler; benchmark tabanı değişmemiş (`--check-baseline`); uygulama veri kopyasında açılıp bir analiz yapıyor | M1.1–M1.6 |
+| M1.8 | Üretim izolasyon testleri etkin depoyu denetliyor (M1.7'de çıkan alt adım) | SQLite'a geçişten sonra 4 test dosyası hâlâ `chroma.sqlite3`'ü izliyordu (ikisi başarısız, ikisi sessizce hiçbir şeyi denetlemiyordu); `store.active_store_file` ile etkin depo izleniyor | — |
+
+**M1 güvenlik kuralı (kullanıcı, 2026-09-30: "ihtiyacımız olan bir şeyi asla silme").** Bir şey ancak (1) tüm depoda — kod, test, betik, doküman, ayar — hem adıyla hem metin olarak (getattr, Streamlit anahtarı, ortam değişkeni, dosya adı) aranıp kullanımı bulunmadıysa, (2) şüphe yoksa silinir; şüpheli olan "kullanıcı kararı" listesine gider. Silmeler küçük, gerekçeli ve ayrı commit'lerle yapılır; her gruptan sonra testler + benchmark tabanı + uygulama açılışı doğrulanır. `data/` altına dokunulmaz.
+
 | M2 | **Eski yedeklerin temizliği** | Kullanıcı onayıyla data/backups eski kopyaları ve bayat data/mevzuat_db silinmiş; saklama politikası (kaç yedek, nerede) kodda. Tam mevzuat için disk açar | kullanıcı onayı |
 | M3 | **Paketleme ve arayüz teknolojisi kararı** | Bugünkü uygulama (Streamlit) ile ve bir masaüstü alternatifiyle deneme paketi; temiz Windows'ta boyut, açılış süresi, RAM, internetsiz çalışma ölçülmüş; karar yazılı | — |
 | M4 | **Ölçüm altyapısı** (eksik 11) | Belge türü bazlı vaka biçimi; "doğru uygunluk kararı", alan çıkarımı ve belge türü metrikleri; sentetik örnekleri (benchmarks/synthetic) içeri alan dönüştürücü; mühürlü model çıktıları ayrı; tabana yazılıp testle korunuyor | — |

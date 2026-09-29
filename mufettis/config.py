@@ -20,12 +20,10 @@ DB_PATH = DATA_DIR / "mevzuat_db"
 # scripts/migrate_chroma_to_sqlite.py çalıştırılana kadar hiçbir şey değişmez, sonra geçiş kendiliğinden olur.
 VECTOR_STORE = os.environ.get("MUFETTIS_VECTOR_STORE", "auto").strip().lower()
 CORPUS_STORE_PATH = DATA_DIR / "corpus_store"
-LOG_DIR = DATA_DIR / "llm_logs"
 AUDIT_LOG_DIR = DATA_DIR / "audit_logs"
 EXPORT_DIR = DATA_DIR / "exports"
 INGEST_INDEX_FILE = DATA_DIR / "ingest_index.json"
 REVIEW_FILE = DATA_DIR / "review_registry.json"
-SCRAPE_STATE_FILE = DATA_DIR / "scrape_state.json"
 OLLAMA_URL = "http://127.0.0.1:11434"
 # İsteğe bağlı yerel dil modeli (Ollama). Kurulu olmalıdır (ollama_health denetler); başka bir model
 # MUFETTIS_LLM_MODEL ile seçilir. Varsayılan küçüktür: düşük donanımlı makineler hedeftedir.
@@ -56,7 +54,6 @@ BOOTSTRAP_MAX_BDDK_PAGES = 500
 BOOTSTRAP_BDDK_DEPTH = 3
 BOOTSTRAP_RESMI_DAYS = 7
 BOOTSTRAP_RESMI_MAX_DOCS_PER_DAY = 120
-BOOTSTRAP_SECONDARY_DEFAULT = False
 BULK_ERROR_FILE = DATA_DIR / "bulk_ingest_errors.jsonl"
 SOURCE_REGISTRY_FILE = DATA_DIR / "source_registry.json"
 SOURCE_CACHE_DIR = DATA_DIR / "source_cache"
@@ -126,7 +123,7 @@ SOURCE_HOST_ALIASES = {
 SOURCE_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 WEB_HTTP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-for _d in [DATA_DIR, DB_PATH, LOG_DIR, AUDIT_LOG_DIR, EXPORT_DIR]:
+for _d in [DATA_DIR, DB_PATH, AUDIT_LOG_DIR, EXPORT_DIR]:
     _d.mkdir(parents=True, exist_ok=True)
 
 
@@ -138,12 +135,10 @@ __all__ = [
     "DB_PATH",
     "VECTOR_STORE",
     "CORPUS_STORE_PATH",
-    "LOG_DIR",
     "AUDIT_LOG_DIR",
     "EXPORT_DIR",
     "INGEST_INDEX_FILE",
     "REVIEW_FILE",
-    "SCRAPE_STATE_FILE",
     "OLLAMA_URL",
     "DEFAULT_LLM",
     "EMBEDDING_MODEL",
@@ -168,7 +163,6 @@ __all__ = [
     "BOOTSTRAP_BDDK_DEPTH",
     "BOOTSTRAP_RESMI_DAYS",
     "BOOTSTRAP_RESMI_MAX_DOCS_PER_DAY",
-    "BOOTSTRAP_SECONDARY_DEFAULT",
     "BULK_ERROR_FILE",
     "SOURCE_REGISTRY_FILE",
     "SOURCE_CACHE_DIR",

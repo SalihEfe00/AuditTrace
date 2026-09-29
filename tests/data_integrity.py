@@ -32,15 +32,18 @@ def data_integrity_problems() -> List[str]:
         except ValueError as exc:
             problems.append(f"ingest_index.json okunamadı: {exc}")
 
-    chroma_sqlite = DB_PATH / "chroma.sqlite3"
-    if chroma_sqlite.exists():
-        conn = sqlite3.connect(f"file:{chroma_sqlite.as_posix()}?mode=ro", uri=True)
+    from mufettis.rag.store import active_store_file
+
+    # Etkin parça deposu (SQLite deposu ya da taşınmamış Chroma); ikisi de SQLite dosyasıdır.
+    store_file = active_store_file(DB_PATH)
+    if store_file.exists():
+        conn = sqlite3.connect(f"file:{store_file.as_posix()}?mode=ro", uri=True)
         try:
             result = conn.execute("PRAGMA integrity_check").fetchone()[0]
         finally:
             conn.close()
         if result != "ok":
-            problems.append(f"Chroma SQLite bütünlük kontrolü başarısız: {result}")
+            problems.append(f"{store_file.name} bütünlük kontrolü başarısız: {result}")
 
     if REPAIR_AUDIT_LOG_FILE.exists():
         chain_valid, chain_errors = verify_audit_integrity(REPAIR_AUDIT_LOG_FILE)

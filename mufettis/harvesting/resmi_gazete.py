@@ -20,7 +20,6 @@ from mufettis.rag.engine import LocalRAG
 from mufettis.config import (
     DATA_DIR,
     SCRAPER_MIN_DELAY,
-    SCRAPE_STATE_FILE,
     SOURCE_DEFINITIONS,
     WEB_SOURCE_MAX_DEPTH,
     WEB_SOURCE_MAX_PAGES,

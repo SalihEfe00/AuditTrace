@@ -736,6 +736,14 @@ def resolve_store_kind(requested: Optional[str], db_path: Path) -> str:
     return kind
 
 
+def active_store_file(db_path: Path = DB_PATH) -> Path:
+    """Bir veritabanı yolunda ETKİN parça deposunun dosyası (resolve_store_kind "auto" kuralı): SQLite deposu
+    ya da taşınmamış Chroma'nın sqlite dosyası. Üretim verisinin değişmediğini denetleyen testler bunu izler."""
+    if resolve_store_kind(None, db_path) == "sqlite":
+        return store_file_for(db_path)
+    return Path(db_path) / CHROMA_DB_FILE
+
+
 def backup_corpus_store(target: Path, db_path: Path = DB_PATH) -> Optional[Path]:
     """Veritabanı yolunun SQLite parça deposunu (varsa) `target/corpus_store` altına yedekler.
     Veri onaran betikler Chroma dizinini yedeklerken bunu da çağırır: hangi depo etkin olursa olsun

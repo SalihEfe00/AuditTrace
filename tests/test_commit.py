@@ -515,7 +515,10 @@ class TestFaz12IsolatedRagLabCommitHarness(unittest.TestCase):
         self.real_cache_files_before = {
             p.name: p.stat().st_size for p in self.real_cache_dir.glob("*.txt")
         }
-        self.prod_chroma_file = DB_PATH / "chroma.sqlite3"
+        from mufettis.rag.store import active_store_file
+
+        # Üretimin etkin parça deposu (SQLite ya da taşınmamış Chroma).
+        self.prod_chroma_file = active_store_file(DB_PATH)
         self.prod_size_before = (
             self.prod_chroma_file.stat().st_size
             if self.prod_chroma_file.exists()
