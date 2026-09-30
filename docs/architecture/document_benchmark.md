@@ -87,3 +87,27 @@ Görülenler (M5'in girdisi):
 - **Tutar ifadesi satır sonunu aşıyor:** "Fark: 0" satırının sonundaki 0, alt satırdaki "EUR" ile birleşip "0 EUR" tutarı olarak okunuyor.
 - **Banknot kupürleri:** "200 TL x 1.240 adet" ifadesindeki kupür tutar olarak alınıyor.
 - **Tarihler:** Satır başına yalnızca ilk tarih alınıyor.
+
+## M5 sonrası (2026-09-30)
+
+Alan çıkarıcısı (`mufettis/analysis/field_extraction.py`, `DocumentUnderstanding.fields`) ve şube belge türü
+sınıflandırıcısı (`mufettis/analysis/branch_classifier.py`, `DocumentClassification.branch_type`) eklendi.
+Cevap anahtarına hesap numarası, oran ve "Ad Soyad - rol" biçiminde kişi alanı eklendi (M5.1); başlangıç
+anahtarları "belgede geçen tüm tutarlar" kuralına göre tamamlandı (bakiye, kupür).
+
+| Seviye | Tür | Alanlar | Karar |
+|---|---|---|---|
+| understanding | 17 / 17 | tutar 90 / 90, tarih 56 / 56, TCKN 12 / 12, VKN 4 / 4, IBAN 10 / 10, oran 5 / 5, kişi 38 / 38; fazla 0 | — |
+| decision | aynı | aynı | 4 / 13 (değişmedi; karar M9'da şart kataloğundan gelecek) |
+
+Bu sonuç, sistemi geliştiren modelin yazdığı örneklerde alınmıştır ve iyimserdir. Asıl ölçüm, kullanıcının
+başka modellerle ürettiği örnekler geldiğinde yapılır; aradaki fark M5'e alt adım olarak eklenir.
+
+- **Kimlik numaraları:** TCKN etiketle ya da denetim hanesiyle bulunur. VKN yalnızca etiketle bulunur, çünkü rastgele 10 haneli sayıların yaklaşık %10'u denetim hanesini tesadüfen tutar. Telefon, IBAN ve hesap numarasının içindeki rakamlar kimlik sayılmaz.
+- **Para birimsiz tutar:** Yalnızca tutar adlı bir tablo sütununda (CSV, noktalı virgüllü, Markdown) ya da "Toplam: 9.280,43" gibi bir etiketin yanında tutar sayılır. Oran ve adet etiketlerinin yanındaki sayılar tutar sayılmaz.
+- **Kişiler:** Rol etiketinden, unvan + addan, ad + rolden ya da kimlik numarasıyla anılan addan bulunur. Kurum ve birim adları ayıklanır. Not: metin düzeltici "A.Ş."yi "A. Ş." biçimine çeviriyor; şirket ayıklaması bu yazımı da tanır.
+- **Belge türü:** İşaret tablosu `document_taxonomy.SIGNALS`'dadır.
+  - Başlık ifadeleri yalnızca ilk satırlardaki başlık gibi görünen satırlarda aranır, çünkü kısa bir dilekçenin cümleleri de ilk satırlardadır.
+  - Eski şikâyet / iç yazışma kararı tek başına bir türü taşır; başka türün belirgin işareti varsa o tür kazanır.
+  - Puan düşükse ya da ilk iki aday arasındaki fark azsa tür "bilinmiyor" olur.
+- **Gerileme:** Tutar ve IBAN varlıkları artık alan çıkarıcısından geliyor. Gerçek korpus tabanı 32 / 1 / 0 korunuyor.
