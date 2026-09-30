@@ -12,6 +12,10 @@ Bu klasör, v1 ölçümü (docs/product/domain_scope.md, M2/M3/M4/M5/M8/M9) içi
 3. Her modelden her görev için birkaç örnek yeter; çeşitlilik (model × tür) sayıdan önemlidir.
 4. **Bir iki modelin tüm çıktısını hiç açmadan `sealed/<model-adı>/` altına koy**: son doğrulama bunlarla yapılır
    (sistem o modellerin üslubunu hiç görmemiş olur).
+5. Örnekleri ölçüme almak için: `python scripts/import_synthetic.py` (reddedilen dosyaları sebebiyle listeler;
+   düzeltip tekrar çalıştır), ardından `python scripts/eval_documents.py --write-baseline "<not>"` ile belge
+   tabanı bilinçli olarak yeniden yazılır (ayrıntı: `docs/architecture/document_benchmark.md`). Mühürlü örnekler
+   yalnızca son doğrulamada `--sealed` ile çevrilir ve ölçülür.
 
 Cevap anahtarı modelin kendi beyanıdır; yanlış hukuki atıf içerebilir. Kusur tanımları (ne eksik / ne çelişkili)
 esas alınır; mevzuat atıfları gözden geçirmede düzeltilir.
