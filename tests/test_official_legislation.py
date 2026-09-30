@@ -74,7 +74,8 @@ class TestFetcher(unittest.TestCase):
             fetcher, session, sleeps = _fetcher(tmp, routes, [KANUN_PAGE])
             result = fetcher.fetch(KANUN)
             self.assertEqual(result.status, "downloaded", result.reason)
-            self.assertTrue(Path(result.path).exists())
+            self.assertEqual(result.path, "1.5.5549.pdf")  # klasöre göreli
+            self.assertTrue((Path(tmp) / result.path).exists())
             self.assertEqual(sleeps and sleeps[0] > 0, True)  # robots ile PDF arasında bekleme
             self.assertTrue(all(h["User-Agent"] == USER_AGENT for _, h in session.calls))
             record = json.loads((Path(tmp) / "downloads.json").read_text(encoding="utf-8"))

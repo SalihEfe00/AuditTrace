@@ -175,12 +175,12 @@ def catalog_from_index(items: Dict[str, Dict[str, Any]],
                        display_title: Callable[[Dict[str, Any]], str]) -> List[CatalogEntry]:
     """Yürürlükteki/aktif index kayıtlarından katalog. Ad olarak belgenin beyan ettiği ad ve dosya
     başlığı birlikte kullanılır (biri eksik olabilir)."""
-    from mufettis.corpus import InstrumentType, canonical_view
+    from mufettis.corpus import INACTIVE_STATUSES, InstrumentType, canonical_view
 
     out: List[CatalogEntry] = []
     for rec in items.values():
         rec = rec or {}
-        if str(rec.get("status", "")) in ("superseded", "quarantined"):
+        if str(rec.get("status", "")) in INACTIVE_STATUSES:
             continue
         names = " ".join(dict.fromkeys(filter(None, (
             str(rec.get("declared_title") or ""), str(rec.get("title") or ""), display_title(rec)))))

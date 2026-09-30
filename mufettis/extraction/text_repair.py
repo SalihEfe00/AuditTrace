@@ -552,6 +552,16 @@ def extract_legal_identifier(query: str) -> Optional[str]:
     return None
 
 
+# Seri belgelerin sıra numarası: "Genel Tebliği (Sıra No: 5)", "sıra no 12", "SIRA NO_ 531" (dosya adı).
+_SERIES_NUMBER_RE = re.compile(r"\bs[ıi]ra\s*n[oO]\s*[:._]?\s*(\d{1,4})\b", re.I)
+
+
+def extract_series_number(text: str) -> Optional[str]:
+    """Seri belgenin (MASAK / VUK genel tebliği) sıra numarası; yoksa None."""
+    m = _SERIES_NUMBER_RE.search(str(text or ""))
+    return m.group(1) if m else None
+
+
 def extract_legal_identifiers(text: str) -> List[str]:
     """Metnin atıf yaptığı tüm kanun numaraları; metindeki sırayla ve tekil."""
     t = str(text or "")
@@ -569,4 +579,5 @@ __all__ = [
     "clean_evidence_text",
     "extract_legal_identifier",
     "extract_legal_identifiers",
+    "extract_series_number",
 ]

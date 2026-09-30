@@ -25,6 +25,7 @@ from typing import Any, Callable, Dict, FrozenSet, Iterable, Optional
 from mufettis.analysis.turkish_text import PRIVATIVE_SUFFIX_RE, MIN_PREFIX_MATCH, STEM_LENGTH, STOP_WORDS, is_weak_term, stem, tokenize
 from mufettis.common.utils import now_iso
 from mufettis.config import CHUNK_SCHEMA_VERSION, DATA_DIR
+from mufettis.corpus import INACTIVE_STATUSES
 from mufettis.rag.paging import iter_pages
 
 logger = logging.getLogger(__name__)
@@ -35,7 +36,6 @@ TERM_STATS_VERSION = 3
 WEAK_DOC_RATIO = 0.50
 # Bundan az belgeyle oranlar anlamsızdır; sabit listeye düşülür.
 MIN_STATS_DOCS = 20
-INACTIVE_STATUSES = {"superseded", "quarantined"}
 
 
 def term_key(token: str) -> str:

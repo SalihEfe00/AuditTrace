@@ -31,7 +31,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from mufettis.config import DATA_DIR, SOURCE_CACHE_DIR
 from mufettis.common.backups import new_backup_dir, prune_backups
 
-INACTIVE_STATUSES = {"quarantined", "superseded"}
+from mufettis.corpus import INACTIVE_STATUSES  # noqa: E402
 
 
 def _cache_text(file_hash: str) -> str:

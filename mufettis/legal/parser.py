@@ -14,6 +14,8 @@ from mufettis.config import (
 )
 from mufettis.common.utils import normalize_title
 from mufettis.corpus import (
+    EXCLUDED_STATUSES,
+    INACTIVE_STATUSES,
     NOT_IN_FORCE_STATUSES,
     authority_prior,
     canonical_view,
@@ -23,6 +25,7 @@ from mufettis.corpus import (
 from mufettis.extraction.text_repair import (
     clean_evidence_text,
     extract_legal_identifier,
+    extract_series_number,
     normalize_extracted_text,
     normalize_legal_whitespace,
     repair_account_code_spacing,
@@ -492,8 +495,8 @@ def _law_title(before: str) -> str:
 
 
 # Kaynak sistemin verdiği durumlar metinden yeniden hesaplanarak ezilmez (yeniden parçalama
-# önceden "superseded" belgeleri tekrar "active" yapıyordu).
-PRESERVED_STATUSES = {"superseded", "quarantined"}
+# önceden "superseded" belgeleri tekrar "active" yapıyordu). Ayıklanan (mevzuat olmayan) kayıt da öyle kalır.
+PRESERVED_STATUSES = INACTIVE_STATUSES
 # Madde notları hep iki noktalıdır ("(Mülga: …)"); başlıktaki "(Mülga)" gerçek durum bilgisidir.
 _STATUS_NOISE = re.compile(r"mülga\s+düzenlemeler|\(\s*mülga\s*:[^)]*\)|mülga\s*:", re.I)
 
@@ -524,6 +527,10 @@ def declared_names(text: str) -> Tuple[str, str]:
     return extract_declared_title(head), extract_declared_subject(head)
 
 
+# Mevzuat listesinden gelen kimlik alanları (meta'da "listed_" önekiyle; bkz. extract_legal_metadata).
+LISTED_IDENTITY_FIELDS = ("document_type", "law_number", "document_number", "document_key")
+
+
 def extract_legal_metadata(
     title: str,
     text: str,
@@ -532,7 +539,13 @@ def extract_legal_metadata(
     """Belge kimliği + hukuki yapı + parse kalitesi metadata'sı."""
     head=legal_head(text)
     source_id=str(base_meta.get("source_id","") or "")
-    doc_type=detect_doc_type(title,head,source_id)
+    # Mevzuat listesinden (mufettis/corpus/legislation_sources.json) gelen belgenin kimliği bilinir; başlık
+    # ve metinden tahmin edilen kimliğin önüne geçer (M6.4). Listede boş bırakılan alan boş kalır: bir
+    # yönetmeliğin kanun numarası yoktur, gövdedeki atıftan tahmin edilmez. Alanlar düz (listed_*) tutulur:
+    # kayıtta ve parça meta verisinde saklanır, yeniden parçalamada kimlik yine listeden gelir.
+    listed=({k: str(base_meta.get(f"listed_{k}") or "") for k in LISTED_IDENTITY_FIELDS}
+            if base_meta.get("listed_document_key") else {})
+    doc_type=listed.get("document_type") or detect_doc_type(title,head,source_id)
     combined=f"{title}\n{head[:40000]}"
 
     # Belgenin kendi beyanı ("Kanun Numarası : 6361") metindeki atıflardan ("765 sayılı
@@ -556,10 +569,15 @@ def extract_legal_metadata(
         ) if doc_type == "Kanun" else ""
     ) or ""
 
-    number=extract_first(
+    if listed:
+        law_number=str(listed.get("law_number") or "")
+
+    # "Sayı" kelime olarak aranır ("sayılı" değil) ve numara en az bir rakam içerir; aksi halde
+    # "5411 sayılı" ifadesinden "lı" belge numarası oluyordu.
+    number=str(listed.get("document_number") or "") if listed else extract_first(
         combined,
         [
-            r"\b(?:Karar\s+Sayısı|Sayı)\s*[:№.-]?\s*([A-Z0-9./-]{2,40})",
+            r"\b(?:Karar\s+Sayısı|Sayı)\b\s*[:№.-]?\s*([A-Z0-9./-]*\d[A-Z0-9./-]*)",
             r"\b(\d{2,8})\s+sayılı\s+(?:Yönetmelik|Tebliğ|Kanun)\b",
         ],
     ) or ""
@@ -599,7 +617,7 @@ def extract_legal_metadata(
     # Sürüm eşleştirme anahtarı: kaynağın kalıcı belge kimliği (BDDK DokumanGetir/<id>),
     # sonra kanun numarası, sonra başlık. "Sayı: 6827" (Resmî Gazete sayısı) gibi numaralar
     # farklı belgelerde ortak olduğundan anahtar olarak kullanılmaz.
-    document_key=str(source_document_id or law_number or normalized_title)
+    document_key=str(listed.get("document_key") or source_document_id or law_number or normalized_title)
     structure=classify_legal_structure(title,head,doc_type)
 
     legal_meta = {
@@ -741,6 +759,8 @@ def _legal_rerank(
     """
     terms = _query_terms(query)
     legal_id = extract_legal_identifier(query)
+    # Seri belgenin sıra numarası da kimliktir: aynı adlı MASAK / VUK genel tebliğleri yalnızca bununla ayrışır.
+    series_no = extract_series_number(query)
     if resolved_refs is not None:
         document_ref, account_ref = resolved_refs
     else:
@@ -807,6 +827,11 @@ def _legal_rerank(
         exact_bonus = 0.70 if exact_identifier else 0.0
         exact_miss_penalty = 0.55 if legal_id and not exact_identifier else 0.0
 
+        # Sıra numarası: belge numarası ya da başlıktaki "Sıra No" ile; kanun numarasıyla aynı ağırlık.
+        series_match = bool(series_no) and series_no in (doc_number, extract_series_number(title))
+        series_bonus = 0.70 if series_match else 0.0
+        series_miss_penalty = 0.55 if series_no and not series_match else 0.0
+
         exact_document_match = bool(
             document_ref and source_document_id == document_ref
         )
@@ -824,9 +849,11 @@ def _legal_rerank(
             + title_bonus
             + source_bonus
             + exact_bonus
+            + series_bonus
             + document_bonus
             + account_bonus
             - exact_miss_penalty
+            - series_miss_penalty
             - document_miss_penalty
             - account_miss_penalty
         )
@@ -842,6 +869,7 @@ def _legal_rerank(
         enriched["_expression_id"] = canonical.expression_id
         enriched["_exact_legal_id"] = legal_id or ""
         enriched["_exact_identifier_match"] = exact_identifier
+        enriched["_series_match"] = series_match
         enriched["_exact_document_match"] = exact_document_match
         enriched["_exact_account_match"] = exact_account_match
         scored.append(enriched)
@@ -916,7 +944,7 @@ def _chunk_is_retrievable(meta: Dict[str, Any], document: Any = "") -> bool:
     if str(meta.get("chunk_schema_version", "")) != str(CHUNK_SCHEMA_VERSION):
         return False
     status = str(meta.get("status", "")).strip().lower()
-    if status in NOT_IN_FORCE_STATUSES:
+    if status in NOT_IN_FORCE_STATUSES or status in EXCLUDED_STATUSES:
         return False
 
     if _metadata_bool(meta.get("document_indexable"), False):

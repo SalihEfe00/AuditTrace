@@ -14,6 +14,10 @@ from typing import Any, Dict, Optional
 from mufettis.corpus.model import Validity
 
 NOT_IN_FORCE_STATUSES = frozenset({"superseded", "mülga", "mulga", "repealed", "repealed_or_changed"})
+# Mevzuat olmadığı için korpustan ayıklanan kayıt (M6.5): silinmez, aramaya ve istatistiklere girmez; geri alınabilir.
+EXCLUDED_STATUSES = frozenset({"excluded"})
+# Etkin korpusa sayılmayan kayıtlar (terim istatistiği, yeniden parçalama, atıf çözümü).
+INACTIVE_STATUSES = frozenset({"superseded", "quarantined"}) | EXCLUDED_STATUSES
 
 # Sıralama katmanı: küçük önce gelir. Yürürlükte / durumu bilinmeyen > henüz yürürlüğe
 # girmemiş > yürürlükten kalkmış.
@@ -63,6 +67,8 @@ def validity_tier(meta: Dict[str, Any], as_of: Optional[dt.date] = None) -> int:
 
 __all__ = [
     "NOT_IN_FORCE_STATUSES",
+    "EXCLUDED_STATUSES",
+    "INACTIVE_STATUSES",
     "VALIDITY_TIER",
     "parse_date",
     "validity",

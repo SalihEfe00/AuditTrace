@@ -86,6 +86,17 @@ SOURCE_DEFINITIONS = {
         "notes": "BDDK resmi mevzuat sayfaları; mümkün olduğunda dinamik DOM/Playwright ile taranır.",
         "keywords": ["kanun", "yönetmelik", "tebliğ", "genelge", "kurul kararı", "bankacılık", "kredi", "mevduat", "sermaye", "likidite", "risk"],
     },
+    "mevzuat_gov": {
+        "name": "Mevzuat Bilgi Sistemi",
+        "base_url": "https://www.mevzuat.gov.tr",
+        "seed_urls": [],
+        "source_type": "official",
+        "publisher_kind": "primary_official",
+        "authority_rank": 100,
+        "preferred": True,
+        "notes": ("Cumhurbaşkanlığı resmî mevzuat sistemi; yalnızca mevzuat listesindeki belgeler "
+                  "(mufettis/corpus/legislation_sources.json) indirilir, tarama yapılmaz."),
+    },
     "mevzuat_org": {
         "name": "mevzuat.org",
         "base_url": "https://www.mevzuat.org",

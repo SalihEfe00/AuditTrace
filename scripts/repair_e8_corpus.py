@@ -50,7 +50,7 @@ VERIFY_QUERIES = [
     ("193", "193 sayılı Gelir Vergisi Kanunu gelirin unsurları"),
     ("5411", "5411 sayılı Bankacılık Kanunu kredi sınırları"),
 ]
-INACTIVE_STATUSES = {"quarantined", "superseded"}
+from mufettis.corpus import INACTIVE_STATUSES  # noqa: E402
 
 
 def invalid_count(text: str) -> int:

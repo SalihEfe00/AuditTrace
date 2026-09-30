@@ -82,7 +82,7 @@ def _default_pages(pdf_bytes: bytes) -> List[str]:
 class FetchResult:
     key: str
     status: str            # downloaded | cached | failed | rejected | robots_blocked
-    path: str = ""
+    path: str = ""         # indirme klasörüne göre dosya adı (veri dizini kopyalanınca da geçerli)
     sha256: str = ""
     size: int = 0
     pages: int = 0
@@ -159,7 +159,7 @@ class OfficialLegislationFetcher:
         url = source.download_url
         path = self._file_for(source)
         previous = self.records.get(source.key)
-        kept = Path(previous.get("path", "")) if previous and previous.get("path") else None
+        kept = self.out_dir / Path(previous["path"]).name if previous and previous.get("path") else None
         if (not force and previous and previous.get("status") in ("downloaded", "cached") and kept and kept.exists()
                 and sha256_bytes(kept.read_bytes()) == previous.get("sha256")):
             return FetchResult(**{**previous, "status": "cached"})
@@ -195,7 +195,7 @@ class OfficialLegislationFetcher:
                                 started)
         path = path.with_suffix(suffix)
         path.write_bytes(data)
-        return self._finish(FetchResult(source.key, "downloaded", path=str(path), sha256=sha256_bytes(data),
+        return self._finish(FetchResult(source.key, "downloaded", path=path.name, sha256=sha256_bytes(data),
                                         size=len(data), pages=len(pages)), started)
 
     def _finish(self, result: FetchResult, started: float) -> FetchResult:

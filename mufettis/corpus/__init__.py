@@ -21,7 +21,13 @@ from mufettis.corpus.model import (
     Validity,
     Verification,
 )
-from mufettis.corpus.validity import NOT_IN_FORCE_STATUSES, validity, validity_tier
+from mufettis.corpus.validity import (
+    EXCLUDED_STATUSES,
+    INACTIVE_STATUSES,
+    NOT_IN_FORCE_STATUSES,
+    validity,
+    validity_tier,
+)
 
 __all__ = [
     "AUTHORITY_PRIOR_MAX",
@@ -31,6 +37,8 @@ __all__ = [
     "IdentityBasis",
     "InstrumentType",
     "NOT_IN_FORCE_STATUSES",
+    "EXCLUDED_STATUSES",
+    "INACTIVE_STATUSES",
     "NormativeRole",
     "PublisherKind",
     "Validity",

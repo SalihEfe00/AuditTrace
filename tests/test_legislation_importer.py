@@ -1,0 +1,96 @@
+# -*- coding: utf-8 -*-
+"""Mevzuat listesinin yüklenmesi (M6.4): liste kimliği başlık sezgisinin önünde; belge belge, hatada devam."""
+from __future__ import annotations
+
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+from mufettis.common.utils import sha256_bytes
+from mufettis.corpus.legislation_sources import LegislationSource
+from mufettis.importers.legislation_importer import (
+    document_type_for,
+    import_downloads,
+    listed_meta,
+    process_memory_mb,
+)
+from mufettis.legal.parser import extract_legal_metadata
+
+YONETMELIK = LegislationSource(code="7.5.19864", title="BANKALARIN İÇ SİSTEMLERİ VE İÇSEL SERMAYE YETERLİLİĞİ "
+                               "DEĞERLENDİRME SÜRECİ HAKKINDA YÖNETMELİK", instrument="yönetmelik", number="",
+                               issuer="BDDK", priority=1, group="bddk", reason="test")
+KARAR = LegislationSource(code="20.5.11205", title="KAYNAK KULLANIMINI DESTEKLEME FONU KESİNTİSİ HAKKINDA KARAR",
+                          instrument="karar", number="11205", issuer="Cumhurbaşkanı", priority=2, group="vergi",
+                          reason="test")
+YONETMELIK_TEXT = ("BANKALARIN İÇ SİSTEMLERİ VE İÇSEL SERMAYE YETERLİLİĞİ DEĞERLENDİRME SÜRECİ HAKKINDA YÖNETMELİK\n"
+                   "Dayanak\nMADDE 3 – (1) Bu Yönetmelik, 19/10/2005 tarihli ve 5411 sayılı Bankacılık Kanununun "
+                   "29 uncu maddesine dayanılarak hazırlanmıştır.\n")
+
+
+class TestListedIdentity(unittest.TestCase):
+    def test_listed_identity_overrides_title_guess(self):
+        path = Path("7.5.19864.html")
+        raw = b"<html>...</html>"
+        meta = extract_legal_metadata(YONETMELIK.title, YONETMELIK_TEXT, listed_meta(YONETMELIK, path, raw, 0, False))
+        self.assertEqual(meta["document_type"], "Yönetmelik")
+        self.assertEqual(meta["law_number"], "")          # gövdedeki 5411 atfı kimlik değil
+        self.assertEqual(meta["document_number"], "")     # "sayılı" → "lı" oluşmuyor
+        self.assertEqual(meta["document_key"], "mevzuat:7.5.19864")
+        self.assertEqual(meta["source_id"], "mevzuat_gov")
+        self.assertIn("MevzuatFihristDetayIframe", meta["url"])
+        # Yeniden çıkarma (yeniden parçalama) aynı kimliği verir.
+        again = extract_legal_metadata(meta["title"], YONETMELIK_TEXT, dict(meta))
+        self.assertEqual((again["document_key"], again["document_type"]), ("mevzuat:7.5.19864", "Yönetmelik"))
+
+    def test_decision_types(self):
+        self.assertEqual(document_type_for(KARAR), "Cumhurbaşkanı Kararı")
+
+    def test_number_pattern_does_not_read_sayili(self):
+        meta = extract_legal_metadata("Bir Genelge", "5411 sayılı Kanun uyarınca ...\nSayı: E-12345\n",
+                                      {"source_id": "local_file"})
+        self.assertEqual(meta["document_number"], "E-12345")
+        meta = extract_legal_metadata("Bir Genelge", "5411 sayılı Kanun uyarınca bankalar ...",
+                                      {"source_id": "local_file"})
+        self.assertNotEqual(meta["document_number"], "lı")
+
+
+class TestImportDownloads(unittest.TestCase):
+    @unittest.skipUnless(sys.platform == "win32", "Windows bellek sayaçları")
+    def test_process_memory_is_measured(self):
+        memory = process_memory_mb()
+        self.assertGreater(memory.get("working_set_mb", 0), 0)
+        self.assertGreaterEqual(memory["peak_working_set_mb"], memory["working_set_mb"])
+
+    def test_imports_each_document_and_continues_after_errors(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            good = Path(tmp) / "7.5.19864.html"
+            good.write_bytes(f"<html><p>{YONETMELIK_TEXT}</p></html>".encode("utf-8"))
+            bad = Path(tmp) / "20.5.11205.html"
+            bad.write_bytes(b"<html>degisti</html>")
+            records = {YONETMELIK.key: {"status": "downloaded", "path": str(good),
+                                        "sha256": sha256_bytes(good.read_bytes())},
+                       KARAR.key: {"status": "cached", "path": str(bad), "sha256": "baska"}}
+            calls = []
+
+            def ingest(rag, index, text, meta, raw_bytes=None, source_path=None):
+                calls.append((text, meta))
+                return {"status": "indexed", "count": 3}
+
+            missing = LegislationSource(code="1.5.1", title="X KANUNU", instrument="kanun", number="1",
+                                        issuer="TBMM", priority=2, group="vergi", reason="test")
+            rows = import_downloads(None, None, [YONETMELIK, KARAR, missing], records, Path(tmp), ingest=ingest)
+            self.assertEqual([r["status"] for r in rows], ["indexed", "error", "not_downloaded"])
+            self.assertIn("uyuşmuyor", rows[1]["reason"])
+            text, meta = calls[0]
+            self.assertEqual(meta["listed_document_key"], "mevzuat:7.5.19864")
+            self.assertIn("MADDE 3", text)
+            self.assertNotIn("<p>", text)
+            log = [json.loads(line) for line in (Path(tmp) / "import_runs.jsonl").read_text(encoding="utf-8").splitlines()]
+            self.assertEqual(len(log), 3)
+            self.assertEqual(log[0]["chunks"], 3)
+
+
+if __name__ == "__main__":
+    unittest.main()
