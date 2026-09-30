@@ -49,6 +49,19 @@ class TestNormalization(unittest.TestCase):
         self.assertEqual(db.find_tckns(text), ["12345678901"], "0 ile başlayan telefon TCKN değildir")
         self.assertEqual(db.find_vkns(text), ["1234567890"])
 
+    def test_rates_accounts_persons(self):
+        self.assertEqual(db.find_rates("Faiz yıllık %54,00 (aylık %4,50), BSMV % 5, KKDF 15 %, yüzde 2"),
+                         ["54.00", "4.50", "5.00", "15.00", "2.00"])
+        self.assertEqual(db.key_rates("faiz: 1,79"), ["1.79"])
+        self.assertEqual(db.key_accounts("Vadesiz TL: 0418-60221874-351"), ["041860221874351"])
+        self.assertEqual(db.key_accounts("TR330006100519786457841326"), [], "IBAN hesap no sayılmaz")
+        self.assertEqual(db.key_accounts("Hesap: 123"), [], "çok kısa")
+        self.assertEqual(db.key_person("Ahmet Yılmaz - kefil"), "ahmet yılmaz")
+        self.assertEqual(db.key_person("Av. Ayşe KAYA (vekil)"), "ayşe kaya")
+        self.assertEqual(db.key_person({"ad": "İsmail Işık", "rol": "müdür"}), "ismail ışık")
+        self.assertIsNone(db.key_person("Kaan Dış Ticaret A.Ş. - alıcı"))
+        self.assertIsNone(db.key_person("Kefil"))
+
     def test_answer_key_fields(self):
         fields = db.ExpectedFields.from_answer_key({
             "tutarlar": ["Kredi limiti: 5.000.000 TL", {"kefalet": "250.000,00"}, "Vade: 36 ay"],
@@ -56,6 +69,7 @@ class TestNormalization(unittest.TestCase):
             "kisiler_ve_rolleri": ["Ahmet Yılmaz - kefil"],
             "imza_onay": ["Şube müdürü imzası"],
             "kimlik_numaralari": ["TCKN: 12345678901", {"vkn": "1234567890"}],
+            "hesap_numaralari": ["Vadesiz: 60221874-5001"], "oranlar": ["Faiz %3,25"],
             "diger": {"hesap": "TR330006100519786457841326", "telefon": "05321234567"},
         })
         self.assertEqual(fields.amounts, ["5000000.00 TRY", "250000.00 TRY"])
@@ -63,7 +77,10 @@ class TestNormalization(unittest.TestCase):
         self.assertEqual(fields.tckn, ["12345678901"])
         self.assertEqual(fields.vkn, ["1234567890"])
         self.assertEqual(fields.iban, ["TR330006100519786457841326"])
-        self.assertEqual(fields.persons, ["Ahmet Yılmaz - kefil"])
+        self.assertEqual(fields.persons, ["ahmet yılmaz"])
+        self.assertEqual(fields.roles, ["Ahmet Yılmaz - kefil"])
+        self.assertEqual(fields.accounts, ["602218745001"])
+        self.assertEqual(fields.rates, ["3.25"])
         self.assertEqual(fields.other["telefon"], "05321234567")
 
     def test_locate_quote(self):

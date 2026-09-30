@@ -1,8 +1,8 @@
 {
  "levels": {
   "understanding": {
-   "note": "M4.6 başlangıç seti (claude-opus-5-5, 13 örnek); motor 3 tür tanıyor, TCKN/VKN çıkarmıyor — M5 öncesi taban",
-   "cases_fingerprint": "2c2573e6300b7f74",
+   "note": "M5.1: cevap anahtarına hesap no, oran, kişi adı eklendi (M5 öncesi motor)",
+   "cases_fingerprint": "a2aefc895f8e7d1b",
    "splits": {
     "dev": {
      "type_correct": 1,
@@ -11,11 +11,17 @@
      "fields.tckn.tp": 0,
      "fields.vkn.tp": 0,
      "fields.iban.tp": 8,
+     "fields.accounts.tp": 0,
+     "fields.rates.tp": 0,
+     "fields.persons.tp": 0,
      "fields.amounts.fp": 0,
      "fields.dates.fp": 0,
      "fields.tckn.fp": 0,
      "fields.vkn.fp": 0,
-     "fields.iban.fp": 0
+     "fields.iban.fp": 0,
+     "fields.accounts.fp": 0,
+     "fields.rates.fp": 0,
+     "fields.persons.fp": 0
     },
     "holdout": {
      "type_correct": 0,
@@ -24,11 +30,17 @@
      "fields.tckn.tp": 0,
      "fields.vkn.tp": 0,
      "fields.iban.tp": 2,
+     "fields.accounts.tp": 0,
+     "fields.rates.tp": 0,
+     "fields.persons.tp": 0,
      "fields.amounts.fp": 6,
      "fields.dates.fp": 0,
      "fields.tckn.fp": 0,
      "fields.vkn.fp": 0,
-     "fields.iban.fp": 0
+     "fields.iban.fp": 0,
+     "fields.accounts.fp": 0,
+     "fields.rates.fp": 0,
+     "fields.persons.fp": 0
     },
     "all": {
      "type_correct": 1,
@@ -37,11 +49,17 @@
      "fields.tckn.tp": 0,
      "fields.vkn.tp": 0,
      "fields.iban.tp": 10,
+     "fields.accounts.tp": 0,
+     "fields.rates.tp": 0,
+     "fields.persons.tp": 0,
      "fields.amounts.fp": 6,
      "fields.dates.fp": 0,
      "fields.tckn.fp": 0,
      "fields.vkn.fp": 0,
-     "fields.iban.fp": 0
+     "fields.iban.fp": 0,
+     "fields.accounts.fp": 0,
+     "fields.rates.fp": 0,
+     "fields.persons.fp": 0
     }
    }
   },

@@ -53,7 +53,14 @@
     "iban": [
      "TR920006700000000582917364"
     ],
+    "accounts": [],
+    "rates": [],
     "persons": [
+     "hüseyin toprak",
+     "can yazıcı",
+     "melis oğuz"
+    ],
+    "roles": [
      "Hüseyin Toprak - yönetim kurulu başkanı, kefil, talimat veren",
      "Can Yazıcı - şube müdürü",
      "Melis Oğuz - müdür yardımcısı"
@@ -152,7 +159,21 @@
      "3810472956"
     ],
     "iban": [],
+    "accounts": [],
+    "rates": [
+     "60.00",
+     "40.00",
+     "54.00",
+     "4.50"
+    ],
     "persons": [
+     "hakan ertuğrul",
+     "selin ertuğrul",
+     "burak soylu",
+     "derya kılınç",
+     "murat aksoy"
+    ],
+    "roles": [
      "Hakan Ertuğrul - ortak, kefil",
      "Selin Ertuğrul - ortak, kefil",
      "Burak Soylu - pazarlama yetkilisi, hazırlayan",
@@ -213,7 +234,15 @@
      "2940183376"
     ],
     "iban": [],
+    "accounts": [],
+    "rates": [],
     "persons": [
+     "kemal özdemir",
+     "nurten özdemir",
+     "ayşe yavuz",
+     "cem aras"
+    ],
+    "roles": [
      "Kemal Özdemir - kefil",
      "Nurten Özdemir - kefilin eşi",
      "Ayşe Yavuz - kredi operasyon yetkilisi",
@@ -271,7 +300,14 @@
     "iban": [
      "TR610004600418888000047219"
     ],
+    "accounts": [],
+    "rates": [],
     "persons": [
+     "mustafa yıldız",
+     "elif tunç",
+     "serkan oral"
+    ],
+    "roles": [
      "Mustafa Yıldız - şirket müdürü, kefil, talimat veren",
      "Elif Tunç - operasyon yetkilisi",
      "Serkan Oral - şube müdürü"
@@ -337,7 +373,14 @@
      "TR420020600174000071349001",
      "TR150020600174000071349002"
     ],
+    "accounts": [],
+    "rates": [],
     "persons": [
+     "levent karaca",
+     "gizem ateş",
+     "tolga sezer"
+    ],
+    "roles": [
      "Levent Karaca - müşteri",
      "Gizem Ateş - müşteri temsilcisi, kimlik tespiti",
      "Tolga Sezer - şube operasyon yönetmeni, onay"
@@ -390,7 +433,14 @@
     "tckn": [],
     "vkn": [],
     "iban": [],
+    "accounts": [],
+    "rates": [],
     "persons": [
+     "onur balcı",
+     "sibel demirtaş",
+     "hülya kaplan"
+    ],
+    "roles": [
      "Onur Balcı - veznedar, sayımı yapan",
      "Sibel Demirtaş - operasyon yetkilisi, nezaret eden",
      "Hülya Kaplan - şube operasyon yönetmeni, onaylayan"
@@ -451,7 +501,14 @@
     "iban": [
      "TR730006200041700006298311"
     ],
+    "accounts": [],
+    "rates": [],
     "persons": [
+     "oğuz tuna",
+     "fatma güler",
+     "cengiz yurt"
+    ],
+    "roles": [
      "Oğuz Tuna - yatıran",
      "Fatma Güler - veznedar",
      "Cengiz Yurt - veznedar"
@@ -509,7 +566,12 @@
     "iban": [
      "TR280011100000000047302915"
     ],
+    "accounts": [],
+    "rates": [],
     "persons": [
+     "zeynep arslan"
+    ],
+    "roles": [
      "Zeynep Arslan - şikâyetçi müşteri"
     ],
     "signatures": [
@@ -573,7 +635,16 @@
     "iban": [
      "TR890012300000030491867001"
     ],
+    "accounts": [],
+    "rates": [
+     "0.50"
+    ],
     "persons": [
+     "barış çelik",
+     "seda akın",
+     "ilker duman"
+    ],
+    "roles": [
      "Barış Çelik - müşteri",
      "Seda Akın - operasyon yetkilisi",
      "İlker Duman - şube operasyon yönetmeni"
@@ -622,7 +693,15 @@
     "iban": [
      "TR560007700000000334819257"
     ],
+    "accounts": [],
+    "rates": [],
     "persons": [
+     "emre tokgöz",
+     "ahmet can başaran",
+     "pınar ışık",
+     "volkan er"
+    ],
+    "roles": [
      "Emre Tokgöz - borçlu",
      "Ahmet Can Başaran - icra müdürü",
      "Pınar Işık - operasyon yönetmeni",
@@ -668,7 +747,14 @@
     "tckn": [],
     "vkn": [],
     "iban": [],
+    "accounts": [],
+    "rates": [],
     "persons": [
+     "gökhan uysal",
+     "nazlı erdem",
+     "tuncay kurt"
+    ],
+    "roles": [
      "Gökhan Uysal - şube müdürü, yetki devreden",
      "Nazlı Erdem - şube müdür yardımcısı, yetki devralan",
      "Tuncay Kurt - operasyon yönetmeni"
@@ -725,7 +811,13 @@
     "tckn": [],
     "vkn": [],
     "iban": [],
+    "accounts": [],
+    "rates": [],
     "persons": [
+     "oya kurtuluş",
+     "recep aydoğan"
+    ],
+    "roles": [
      "Oya Kurtuluş - şube müdür yardımcısı, aksiyon sorumlusu",
      "Recep Aydoğan - şube müdürü, kapatan"
     ],
@@ -796,7 +888,12 @@
      "TR170001000123000025730481",
      "TR640006400000112345678901"
     ],
+    "accounts": [],
+    "rates": [],
     "persons": [
+     "serdar kılıç"
+    ],
+    "roles": [
      "Serdar Kılıç - hesap sahibi",
      "Kaan Dış Ticaret A.Ş. - alıcı karşı taraf"
     ],

@@ -25,8 +25,8 @@ from mufettis.analysis.turkish_text import turkish_lower
 CASES_DIR = Path(__file__).resolve().parents[2] / "benchmarks" / "documents"
 SPLITS = ("dev", "holdout", "sealed")
 SEVERITIES = ("yüksek", "orta", "düşük", "")
-FIELD_KINDS = ("amounts", "dates", "tckn", "vkn", "iban")   # ölçülen alanlar
-RAW_FIELD_KINDS = ("persons", "signatures")                 # M5'e kadar yalnızca saklanan alanlar
+FIELD_KINDS = ("amounts", "dates", "tckn", "vkn", "iban", "accounts", "rates", "persons")   # ölçülen alanlar
+RAW_FIELD_KINDS = ("roles", "signatures")   # yalnızca saklanan (M9 kontrollerinin girdisi)
 
 
 # --- Normalleştirme ---------------------------------------------------------------------------------------
@@ -148,6 +148,71 @@ def find_vkns(text: str) -> List[str]:
     return _VKN_RE.findall(_IBAN_RE.sub(" ", text or ""))
 
 
+_RATE_RE = re.compile(r"%\s?(\d+(?:[.,]\d+)?)|(?<![\d.,])(\d+(?:[.,]\d+)?)\s?%|yüzde\s+(\d+(?:[.,]\d+)?)",
+                      re.IGNORECASE)
+
+
+def format_rate(value: Decimal) -> str:
+    return str(value.quantize(Decimal("0.01")))
+
+
+def find_rates(text: str) -> List[str]:
+    """Yüzde oranlar ("%54,00", "4,5 %", "yüzde 2") → "54.00"."""
+    out = []
+    for m in _RATE_RE.finditer(text or ""):
+        value = parse_number(next(g for g in m.groups() if g))
+        if value is not None:
+            out.append(format_rate(value))
+    return out
+
+
+_ACCOUNT_RE = re.compile(r"(?<![\w])\d[\d\s\-/]{4,30}\d(?![\w])")
+ACCOUNT_DIGITS = (6, 20)
+
+
+def normalize_account(text: str) -> Optional[str]:
+    digits = re.sub(r"[\s\-/]", "", text or "")
+    return digits if digits.isdigit() and ACCOUNT_DIGITS[0] <= len(digits) <= ACCOUNT_DIGITS[1] else None
+
+
+def key_rates(entry: str) -> List[str]:
+    """"oranlar" kaydı yüzde işaretsiz yazılmışsa ("faiz: 54,00") değer tek başına oran sayılır."""
+    value = parse_number(entry.rsplit(":", 1)[-1].strip())
+    return [format_rate(value)] if value is not None else []
+
+
+def key_accounts(entry: str) -> List[str]:
+    """Cevap anahtarının "hesap_numaralari" kaydı → yalnızca rakam (IBAN ayrıca ölçülür, burada sayılmaz)."""
+    value = _IBAN_RE.sub(" ", entry.rsplit(":", 1)[-1])
+    return [a for a in (normalize_account(m.group(0)) for m in _ACCOUNT_RE.finditer(value)) if a]
+
+
+_COMPANY_RE = re.compile(r"\b(?:a\.?ş\.?|ltd|şti|anonim|limited|bankası|holding|kooperatif)\b|\ba\.s\.")
+_PERSON_TITLE_RE = re.compile(r"^(?:sayın|av\.|dr\.|sn\.|bay|bayan)\s+")
+_PERSON_SPLIT_RE = re.compile(r"\s[-–—]\s|\s*[:(,/]\s*|\s[-–—]$")
+
+
+def normalize_person(name: str) -> Optional[str]:
+    """Kişi adı → küçük harf, noktalama yok, en az iki kelime; şirket ve boş değer None."""
+    text = turkish_lower(name or "").strip()
+    if not text or _COMPANY_RE.search(text):
+        return None
+    text = _PERSON_TITLE_RE.sub("", text)
+    text = re.sub(r"[^a-zçğıöşüâîû\s]", " ", text)
+    words = text.split()
+    return " ".join(words) if 2 <= len(words) <= 4 else None
+
+
+def key_person(entry: Any) -> Optional[str]:
+    """Cevap anahtarının "kisiler_ve_rolleri" kaydı ("Ad Soyad - rol" ya da {"ad": ..., "rol": ...}) → ad."""
+    if isinstance(entry, dict):
+        for key in ("ad_soyad", "adi_soyadi", "ad", "isim", "kisi", "name"):
+            if entry.get(key):
+                return normalize_person(str(entry[key]))
+        return None
+    return normalize_person(_PERSON_SPLIT_RE.split(str(entry), 1)[0])
+
+
 def flatten_text(value: Any) -> Iterator[str]:
     """Cevap anahtarındaki iç içe liste / sözlükten metin parçaları (sözlük anahtarları dahil)."""
     if value is None:
@@ -176,7 +241,10 @@ class ExpectedFields:
     tckn: List[str] = field(default_factory=list)
     vkn: List[str] = field(default_factory=list)
     iban: List[str] = field(default_factory=list)
-    persons: List[str] = field(default_factory=list)
+    accounts: List[str] = field(default_factory=list)
+    rates: List[str] = field(default_factory=list)
+    persons: List[str] = field(default_factory=list)     # normalleştirilmiş ad ("ahmet yılmaz")
+    roles: List[str] = field(default_factory=list)       # ham "Ad Soyad - rol" kayıtları
     signatures: List[str] = field(default_factory=list)
     other: Dict[str, Any] = field(default_factory=dict)
 
@@ -187,13 +255,18 @@ class ExpectedFields:
         alanlar = alanlar or {}
         amounts = [a for t in flatten_text(alanlar.get("tutarlar")) for a in key_amounts(t)]
         ids = list(flatten_text(alanlar.get("kimlik_numaralari")))
+        people = alanlar.get("kisiler_ve_rolleri") or []
+        people = people if isinstance(people, list) else [people]
         return cls(
             amounts=_unique(amounts),
             dates=_unique(d for t in flatten_text(alanlar.get("tarihler")) for d in find_dates(t)),
             tckn=_unique(n for t in ids for n in find_tckns(t)),
             vkn=_unique(n for t in ids for n in find_vkns(t)),
             iban=_unique(i for t in flatten_text(alanlar) for i in find_ibans(t)),
-            persons=_unique(flatten_text(alanlar.get("kisiler_ve_rolleri"))),
+            accounts=_unique(a for t in flatten_text(alanlar.get("hesap_numaralari")) for a in key_accounts(t)),
+            rates=_unique(r for t in flatten_text(alanlar.get("oranlar")) for r in find_rates(t) or key_rates(t)),
+            persons=_unique(n for n in map(key_person, people) if n),
+            roles=_unique(flatten_text(people)),
             signatures=_unique(flatten_text(alanlar.get("imza_onay"))),
             other=alanlar.get("diger") if isinstance(alanlar.get("diger"), dict) else {},
         )
@@ -291,6 +364,9 @@ _FIELD_FORMAT = {
     "tckn": re.compile(r"[1-9]\d{10}"),
     "vkn": re.compile(r"\d{10}"),
     "iban": re.compile(r"TR\d{24}"),
+    "accounts": re.compile(r"\d{6,20}"),
+    "rates": re.compile(r"\d+\.\d{2}"),
+    "persons": re.compile(r"[a-zçğıöşüâîû]+(?: [a-zçğıöşüâîû]+){1,3}"),
 }
 
 
@@ -588,7 +664,8 @@ def baseline_level_entry(summary: Dict[str, Dict[str, Any]], level: str, fingerp
 
 __all__ = [
     "CASES_DIR", "SPLITS", "SEVERITIES", "FIELD_KINDS", "RAW_FIELD_KINDS",
-    "parse_number", "format_amount", "find_amounts", "key_amounts", "find_dates", "find_ibans", "find_tckns", "find_vkns",
+    "parse_number", "format_amount", "find_amounts", "key_amounts", "find_rates", "key_rates", "key_accounts",
+    "normalize_account", "normalize_person", "key_person", "find_dates", "find_ibans", "find_tckns", "find_vkns",
     "flatten_text", "ExpectedFields", "Defect", "SubDocument", "DocumentCase", "locate_quote",
     "load_cases", "load_case_dir", "write_cases",
     "DECISION_CORRECT", "MISSED_DEFECT", "FALSE_ALARM", "DocumentPrediction", "predicted_fields",

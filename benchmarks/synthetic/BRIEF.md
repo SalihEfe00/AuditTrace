@@ -42,8 +42,10 @@ Kurallar:
    "kusursuz": true/false,
    "kusurlar": [{"aciklama": "...", "belgedeki_yer": "belgeden kısa alıntı", "ilgili_mevzuat": "bildiğin kadarıyla",
                  "onem": "yüksek/orta/düşük"}],
-   "alanlar": {"tutarlar": [...], "tarihler": [...], "kisiler_ve_rolleri": [...], "imza_onay": [...],
-               "kimlik_numaralari": [...], "diger": {...}}}
+   "alanlar": {"tutarlar": [...], "tarihler": [...], "kisiler_ve_rolleri": ["Ad Soyad - rol", ...], "imza_onay": [...],
+               "kimlik_numaralari": [...], "hesap_numaralari": [...], "oranlar": [...], "diger": {...}}}
+  "alanlar" içinde belgede geçen TÜM tutarları, tarihleri, kişileri, kimlik numaralarını (TCKN / VKN), IBAN dışındaki
+  hesap numaralarını ve yüzde oranlarını belgede yazıldığı gibi listele.
 ```
 
 ## Görevler
