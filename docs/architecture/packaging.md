@@ -227,3 +227,27 @@ Temiz Windows'ta bulunan ve paket kusuru olan sorunlar (hepsi yalnızca temiz ma
    kalmıştı); `--clean` zorunlu, spec başlığında yazılı.
 
 Çözülen: 1, 2, 6 (paket ve kod); 3 ve 4 karar girdisi (M3.4: Edge `--app` penceresi); 5 M17'ye.
+
+## M6.9 Tam mevzuatla bellek ve süre (2026-09-30)
+
+Aynı ölçüm betiği (`m31_measure.py`), aynı makine, `OMP_NUM_THREADS=2`, GPU'suz, torch arka ucu (geliştirme
+ortamı). İki veri kopyası karşılaştırıldı: eski korpus (`datacopy3`) ve M6 tam seti (`datacopy_m6`: ayıklama +
+listedeki 59 belge).
+
+| | Eski korpus | Tam mevzuat |
+|---|---|---|
+| Etkin parça | 26 234 | 45 928 (+%75) |
+| Parça deposu / sözcüksel dizin / kaynak önbelleği | 95 / 38 / 5,8 MB | 129 / 72 / 11 MB |
+| İndirilen resmî dosyalar | — | 20 MB (M6.10'da silinip silinmeyeceği değerlendirilecek) |
+| Analiz 1 (soğuk) | 6,3 sn, özel 2 083 MB | 7,0 sn, özel 2 093 MB |
+| Analiz 2 (ılık) | 2,7 sn | 3,8 sn |
+| Analiz 3 (iç denetim notu) | 3,5 sn, özel 2 165 MB, en yüksek çalışma kümesi 1 444 MB | 4,3 sn, özel 2 199 MB, en yüksek 1 391 MB |
+| Yükleme (belge belge) | — | 613 sn, en yüksek süreç belleği 1,49 GB |
+
+**Değerlendirme (8 GB, GPU'suz hedef):**
+
+- Korpus büyümesi belleği neredeyse değiştirmiyor (+34 MB özel bellek). Sözcüksel dizin diskte, parçalar
+  sayfalı okunuyor; bellek yükü modellerden geliyor.
+- Analiz yaklaşık 1 sn (%25–40) uzuyor.
+- Paketlenecek ONNX arka ucuyla beklenen toplam aynı kalır: sunucu yaklaşık 1,2 GB + Edge penceresi 0,3–0,5 GB.
+  8 GB bütçesinin çok altında. Küçültme alt adımı gerekmiyor.
