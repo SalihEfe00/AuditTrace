@@ -129,3 +129,15 @@ Kurumların kendi sitelerinden, listede `url` alanıyla. Kaynak kimliği alan ad
 
 Ayrı bir TCMB "finansal tüketici şikâyetleri" düzenlemesi ne mevzuat.gov.tr'de ne TCMB mevzuat sayfalarında
 bulundu. Şikâyet belgelerinin ölçütü 6502 sayılı Kanun ve TCMB ücret tebliği ile kalır.
+
+## Sıralayıcı eşiği korpusa özgüdür (M6.1)
+
+Aynı sıralayıcı modelinin puan dağılımı korpusla değişir. Dev bölümünden seçilen eşik eski korpusta -4,48, tam
+mevzuatta -2,95. Eski korpusa -2,95 uygulanırsa sonuç 32 / 1 / 0'dan 29 / 1 / 0'a düşer. Bu yüzden eşik
+kodda değil, korpusun yanında durur: `DATA_DIR/reranker_calibration.json` (model adı → `min_score`). Dosya yoksa
+modelin koddaki varsayılanı (`mufettis/rag/reranker.py`) kullanılır.
+
+Tam mevzuat üretime geçerken (M6.10) bu dosya da yazılır.
+
+Aday havuzu derinliği (`CLAIM_CANDIDATES`) 30, 45 ve 60 için ölçüldü. Havuz isabeti üçünde de 0,885; derinlik 30
+kalır. Havuzdan düşen hükümler sıralamanın çok gerisinde, bu yüzden derinlik artışı onları geri getirmiyor.

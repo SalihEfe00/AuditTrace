@@ -13,6 +13,7 @@ Kullanım:
     python scripts/eval_accuracy.py --split all --write-baseline "not"   # tabanı bilinçli olarak güncelle
     python scripts/eval_accuracy.py --verifier                 # yerel dil modeli doğrulayıcısıyla (Ollama)
     python scripts/eval_accuracy.py --min-score none --out r.json   # eşiksiz (yeni modelin eşiğini seçmek için)
+    python scripts/eval_accuracy.py --min-score none --claim-candidates 45 --out r.json   # havuz derinliği seçimi
 """
 from __future__ import annotations
 
@@ -44,6 +45,8 @@ def main() -> int:
                         help="isteğe bağlı yerel dil modeli doğrulayıcısını aç (Ollama; taban onsuz ölçülür)")
     parser.add_argument("--min-score", metavar="PUAN",
                         help="yeniden sıralayıcı eşiğini geçersiz kıl ('none': eşiksiz; eşik seçimi için)")
+    parser.add_argument("--claim-candidates", type=int, metavar="N",
+                        help="iddia başına aday havuzu derinliğini geçersiz kıl (havuz derinliği seçimi için, M6.1)")
     parser.add_argument("--check-baseline", action="store_true", help=f"sonucu {BASELINE_FILE.name} ile karşılaştır")
     parser.add_argument("--write-baseline", metavar="NOT", help="sonucu yeni taban olarak yaz (yalnızca --split all, --only olmadan)")
     args = parser.parse_args()
@@ -60,6 +63,10 @@ def main() -> int:
     reranker_name = getattr(reranker, "name", "") or "yok"
     if args.min_score is not None and reranker is not None:
         reranker.min_score = None if args.min_score.lower() == "none" else float(args.min_score)
+    if args.claim_candidates:
+        import mufettis.analysis.engine as analysis_engine
+
+        analysis_engine.CLAIM_CANDIDATES = args.claim_candidates
     if args.verifier:
         problem = presenter.configure_llm_verification(True)
         if problem:

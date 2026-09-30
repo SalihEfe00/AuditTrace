@@ -170,6 +170,28 @@ def default_model_dir() -> Optional[Path]:
     return None
 
 
+# Korpusa özgü eşik (M6.1): puanların dağılımı korpusla değişir (tam mevzuatta aynı model -2.95 ister, eski
+# korpusta -4.48). Eşik o korpusun yanında, veri dizininde tutulur; korpus üretime geçerken eşik de onunla gelir.
+CALIBRATION_FILE = "reranker_calibration.json"
+
+
+def corpus_min_score(model_name: str, default: Optional[float]) -> Optional[float]:
+    """Veri dizinindeki kalibrasyon dosyası bu model için eşik veriyorsa o, yoksa modelin varsayılanı."""
+    import json
+
+    from mufettis.config import DATA_DIR
+
+    path = Path(DATA_DIR) / CALIBRATION_FILE
+    try:
+        entry = json.loads(path.read_text(encoding="utf-8")).get(model_name) or {}
+        return float(entry["min_score"]) if "min_score" in entry else default
+    except FileNotFoundError:
+        return default
+    except (ValueError, TypeError, AttributeError) as exc:
+        logger.warning("Kalibrasyon dosyası okunamadı (%s): %s; modelin varsayılan eşiği kullanılıyor.", path, exc)
+        return default
+
+
 def load_reranker(model_dir: Optional[Path] = None) -> Optional[CrossEncoderReranker]:
     """Model klasörü kuruluysa (paylaşılan) yeniden sıralayıcı, değilse None. Model ilk puanlamada yüklenir."""
     global _DEFAULT
@@ -183,7 +205,7 @@ def load_reranker(model_dir: Optional[Path] = None) -> Optional[CrossEncoderRera
         return None
     with _DEFAULT_LOCK:
         if _DEFAULT is None or _DEFAULT.model_dir != path:
-            min_score = MIN_SCORES.get(path.name)
+            min_score = corpus_min_score(path.name, MIN_SCORES.get(path.name))
             if min_score is None:
                 logger.warning("Yeniden sıralayıcı %s için ayarlı eşik yok; puan eşiği uygulanmayacak.", path.name)
             _DEFAULT = CrossEncoderReranker(path, min_score, CONFIDENT_SCORES.get(path.name))
@@ -192,6 +214,7 @@ def load_reranker(model_dir: Optional[Path] = None) -> Optional[CrossEncoderRera
 
 __all__ = [
     "CrossEncoderReranker", "RerankerModel", "MODELS", "BASE_MODEL", "FINETUNED_MODEL", "default_model_dir",
-    "load_reranker", "verify_model_dir", "MAX_PASSAGE_CHARS", "MIN_SCORES", "CONFIDENT_SCORES",
+    "load_reranker", "verify_model_dir", "corpus_min_score", "CALIBRATION_FILE", "MAX_PASSAGE_CHARS", "MIN_SCORES",
+    "CONFIDENT_SCORES",
     "MODEL_REPO", "MODEL_REVISION", "MODEL_FILES", "MODEL_WEIGHTS_SHA256", "MISSING_MODEL_WARNING",
 ]
