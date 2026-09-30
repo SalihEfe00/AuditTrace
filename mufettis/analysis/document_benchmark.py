@@ -432,7 +432,7 @@ def understand(text: str, doc_service: Any = None, classifier: Any = None) -> Tu
 
     doc = (doc_service or DocumentUnderstandingService()).analyze(text)
     classification = (classifier or DocumentClassifierService()).classify(doc)
-    return tax.from_engine(classification.document_type), predicted_fields(doc)
+    return classification.branch_type, predicted_fields(doc)
 
 
 def predict_understanding(case: DocumentCase, doc_service: Any = None, classifier: Any = None) -> DocumentPrediction:
@@ -450,7 +450,7 @@ def predict_decision(case: DocumentCase, execution: Any, doc_service: Any = None
         raise RuntimeError(f"{case.case_id}: analiz başarısız: {execution.error_message}")
     result = execution.result
     types = ([understand(d.text, doc_service, classifier)[0] for d in case.documents] if case.documents
-             else [tax.from_engine(result.classification.document_type)])
+             else [result.classification.branch_type])
     return DocumentPrediction(
         document_types=types, fields=predicted_fields(result.document), defective=bool(result.findings),
         findings=[f.regulation_reference for f in result.findings],

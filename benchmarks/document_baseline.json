@@ -1,11 +1,11 @@
 {
  "levels": {
   "understanding": {
-   "note": "M5.2-M5.5: alan çıkarıcısı (tutar, tarih, oran, IBAN, TCKN, VKN, hesap no, kişi-rol, imza/onay, teminat, limit)",
+   "note": "M5.6: şube belge türü sınıflandırıcısı + alan çıkarıcısı",
    "cases_fingerprint": "15d5504c57301ccc",
    "splits": {
     "dev": {
-     "type_correct": 1,
+     "type_correct": 15,
      "fields.amounts.tp": 53,
      "fields.dates.tp": 43,
      "fields.tckn.tp": 11,
@@ -24,7 +24,7 @@
      "fields.persons.fp": 0
     },
     "holdout": {
-     "type_correct": 0,
+     "type_correct": 2,
      "fields.amounts.tp": 37,
      "fields.dates.tp": 13,
      "fields.tckn.tp": 1,
@@ -43,7 +43,7 @@
      "fields.persons.fp": 0
     },
     "all": {
-     "type_correct": 1,
+     "type_correct": 17,
      "fields.amounts.tp": 90,
      "fields.dates.tp": 56,
      "fields.tckn.tp": 12,

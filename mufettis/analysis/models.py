@@ -92,6 +92,17 @@ class DocumentClassification(BaseModel):
     confidence: float = Field(..., ge=0.0, le=1.0, description="Heuristic confidence score (not calibrated probability)")
     reasons: List[str] = Field(default_factory=list, description="Explanations for the classification decision")
     signals: List[str] = Field(default_factory=list, description="Detected concrete cues or markers")
+    branch_type: str = Field(default="bilinmiyor", description="Şube belge türü (analysis/document_taxonomy kodu)")
+    branch_signals: List[str] = Field(default_factory=list, description="Şube belge türü kararının işaretleri")
+
+    @field_validator("branch_type")
+    @classmethod
+    def validate_branch_type(cls, v: str) -> str:
+        from mufettis.analysis.document_taxonomy import CODES
+
+        if v not in CODES:
+            raise ValueError(f"Invalid branch_type '{v}'")
+        return v
 
     @field_validator("document_type")
     @classmethod

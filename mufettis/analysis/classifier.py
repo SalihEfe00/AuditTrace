@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 from typing import List, Tuple
 
+from mufettis.analysis.branch_classifier import classify_branch_type
 from mufettis.analysis.turkish_text import turkish_lower
 from mufettis.analysis.models import (
     DocumentClassification,
@@ -80,7 +81,15 @@ class DocumentClassifierService:
     ]
 
     def classify(self, doc: DocumentUnderstanding) -> DocumentClassification:
-        """Classifies the given DocumentUnderstanding into a structured DocumentClassification."""
+        """Yönlendirme türü (complaint / internal_correspondence / unknown; planlayıcı bunu kullanır) ve şube belge
+        türü (document_taxonomy kodu, M5.6)."""
+        routing = self._classify_routing(doc)
+        branch = classify_branch_type(doc.normalized_text, routing.document_type)
+        signals = branch.signals + [f"puan:{branch.score:g}",
+                                    f"ikinci aday:{branch.runner_up} ({branch.runner_up_score:g})"]
+        return routing.model_copy(update={"branch_type": branch.code, "branch_signals": signals})
+
+    def _classify_routing(self, doc: DocumentUnderstanding) -> DocumentClassification:
         text = doc.normalized_text
         if not text or not text.strip():
             return DocumentClassification(

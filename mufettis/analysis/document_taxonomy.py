@@ -70,6 +70,97 @@ LABELS: Tuple[DocumentTypeLabel, ...] = (
                       ("görevlendirme", "rotasyon", "disiplin", "izin")),
 )
 
+# Belge türü sınıflandırıcısının işaretleri (M5.6; analysis/branch_classifier.py). Genel banka şubesi dilinden
+# derlenmiştir, tek bir örneğe özgü ifade içermez; küçük harf, kelime başında aranır. "title": belgenin ilk
+# satırlarındaki başlık ifadeleri (güçlü işaret), "body": form alanları ve tipik ifadeler (zayıf işaret).
+SIGNALS: Dict[str, Dict[str, Tuple[str, ...]]] = {
+    "kredi_teklif_onay": {
+        "title": ("kredi teklif", "teklif ve onay", "kredi tahsis", "kredi onay formu", "kredi talep ve değerlendirme",
+                  "limit teklif", "kredi komitesi kararı", "tahsis talebi"),
+        "body": ("talep edilen limit", "teklif edilen limit", "limit", "vade", "faiz oranı", "kredi komitesi",
+                 "bölge kredi komitesi", "genel müdürlük kredi", "yetki seviyesi", "istihbarat", "şube görüşü",
+                 "teminat", "mali analiz", "risk durumu", "kredi türü", "kullanım amacı"),
+    },
+    "teminat": {
+        "title": ("kefalet sözleşmesi", "kefaletname", "ipotek", "rehin sözleşmesi", "rehin belgesi",
+                  "teminat mektubu", "araç rehni", "ticari işletme rehni", "alacağın temliki", "temlikname"),
+        "body": ("kefil", "müteselsil kefil", "eş rızası", "azami sorumluluk", "kefalet tutarı", "kefalet tarihi",
+                 "el yazısı", "rehin veren", "ipotek veren", "derece", "tapu", "ada", "parsel", "dain-i mürtehin",
+                 "asıl borçlu", "medeni hali"),
+    },
+    "kredi_kullandirim": {
+        "title": ("kullandırım", "kredi kullandırım", "kullandırım talimatı", "kullandırım dosyası",
+                  "kredi açılış"),
+        "body": ("kullandırım tarihi", "kullandırılan tutar", "kullandırım hesabı", "teminat tesis", "tescil tarihi",
+                 "sözleşme tarihi", "dosya masrafı", "ödeme planı", "taksit", "alacaklandırılan hesap"),
+    },
+    "mali_tablo": {
+        "title": ("mali tablo", "bilanço", "gelir tablosu", "mizan", "mali durum", "finansal tablo"),
+        "body": ("net satışlar", "net satış", "net kâr", "net kar", "özkaynak", "aktif toplamı", "dönen varlıklar",
+                 "duran varlıklar", "kısa vadeli yabancı kaynak", "uzun vadeli yabancı kaynak", "brüt kâr", "favök",
+                 "banka kredileri", "ciro"),
+    },
+    "kkb_istihbarat": {
+        "title": ("kkb", "findeks", "istihbarat raporu", "risk raporu", "kredi raporu", "memzuç", "piyasa istihbaratı"),
+        "body": ("kredi notu", "sorgu tarihi", "gecikmedeki risk", "toplam nakdi risk", "limit artışı",
+                 "karşılıksız çek", "protestolu senet", "takipteki", "risk merkezi", "istihbarat"),
+    },
+    "hesap_acilis_kyc": {
+        "title": ("hesap açılış", "müşteri bilgi formu", "müşteri tanıma", "imza sirküleri", "vekaletname",
+                  "gerçek kişi müşteri", "tüzel kişi müşteri", "hesap açma"),
+        "body": ("kimlik tespiti", "kimlik doğrulama", "kps", "adres teyit", "yerleşim yeri", "kendi adına",
+                 "siyasi nüfuz", "gerçek faydalanıcı", "meslek", "gelir bilgisi", "hesap açılış amacı",
+                 "beklenen işlem hacmi", "ticaret sicil", "kimlik belgesi", "uyruk", "müşteri no"),
+    },
+    "kasa_sayim": {
+        "title": ("sayım tutanağı", "kasa sayım", "atm dolum", "kıymetli evrak sayım", "kasa tutanağı",
+                  "gün sonu sayım"),
+        "body": ("sayılan toplam", "sistem bakiyesi", "kasa mevcudu", "banknot", "madeni para", "fark",
+                 "kasa anahtarı", "çift anahtar", "sayımı yapan", "nezaret", "kupür", "boş çek karnesi"),
+    },
+    "islem_dekontu": {
+        "title": ("dekont", "havale talimatı", "eft talimatı", "döviz alım", "döviz satım", "nakit yatırma",
+                  "nakit çekme", "virman", "para transferi"),
+        "body": ("dekont no", "işlem tarihi", "gişe", "yatıran", "yatırılan tutar", "alıcı hesap", "gönderen",
+                 "işlemi yapan", "kendisi adına", "başkası adına", "kur", "açıklama", "işlem saati"),
+    },
+    "islem_listesi": {
+        "title": ("hesap hareketleri", "hesap ekstresi", "işlem listesi", "hesap dökümü", "hareket dökümü"),
+        "body": ("bakiye", "karşı taraf", "kanal", "yön", "gelen", "giden", "atm", "fast", "eft", "havale"),
+    },
+    "musteri_sikayeti": {
+        "title": ("şikayet", "şikâyet", "itiraz", "başvurunuz", "dilekçe"),
+        "body": ("talep ediyorum", "iadesini", "mağdur", "bilgim dışında", "şikayetçiyim", "başvurunuz incelenmiştir",
+                 "müşteri ilişkileri", "tüketici hakem", "iade talebi"),
+    },
+    "ucret_tahsilat": {
+        "title": ("ücret", "komisyon", "masraf dökümü", "tahsilat dökümü", "ücret tarifesi"),
+        "body": ("tarife", "bsmv", "yıllık üyelik", "hesap işletim", "tahsis ücreti", "ekspertiz ücreti",
+                 "dosya masrafı", "komisyon", "sözleşme öncesi bilgi formu", "ücret"),
+    },
+    "resmi_yazi": {
+        "title": ("icra dairesi", "haciz ihbarnamesi", "haciz yazısı", "mahkemesi", "masak", "bddk",
+                  "vergi dairesi", "cumhuriyet başsavcılığı", "bilgi talebi", "müzekkere", "t.c."),
+        "body": ("esas", "dosya no", "iik", "haciz", "ihbarname", "tebliğ", "müdürlüğü'ne", "müdürlüğüne",
+                 "arz ederiz", "bloke", "takip tutarı", "borçlu", "alacaklı", "icra müdürü", "uyap"),
+    },
+    "ic_yazisma": {
+        "title": ("iç yazışma", "talimat", "genelge", "yetki devri", "duyuru", "bilgi notu", "iç yazı"),
+        "body": ("kimden", "kime", "konu", "bilgi", "yetki devri", "devredilmiştir", "genel müdürlük",
+                 "bölge müdürlüğü", "iyi çalışmalar", "bilgilerinize", "ekte", "izin", "talimat"),
+    },
+    "denetim_raporu": {
+        "title": ("teftiş", "iç kontrol", "denetim raporu", "bulgu takip", "teftiş raporu", "iç denetim"),
+        "body": ("bulgu", "bulgu no", "risk derecesi", "öneri", "aksiyon", "aksiyon tarihi", "kapanış",
+                 "kapatıldı", "sorumlu", "şube cevabı", "teftiş dönemi", "müfettiş"),
+    },
+    "personel": {
+        "title": ("görevlendirme", "personel", "izin formu", "rotasyon", "disiplin", "atama"),
+        "body": ("sicil no", "görev yeri", "unvan", "izin başlangıç", "izin bitiş", "disiplin kurulu",
+                 "savunma", "görevlendirilmiştir", "rotasyon", "insan kaynakları"),
+    },
+}
+
 BY_CODE: Dict[str, DocumentTypeLabel] = {label.code: label for label in LABELS}
 BY_TASK: Dict[str, DocumentTypeLabel] = {label.brief_task: label for label in LABELS if label.brief_task}
 CODES = frozenset(BY_CODE) | {UNKNOWN}
@@ -118,6 +209,6 @@ def from_free_text(name: str) -> Optional[str]:
 
 
 __all__ = [
-    "GROUPS", "UNKNOWN", "DocumentTypeLabel", "LABELS", "BY_CODE", "BY_TASK", "CODES", "ENGINE_TYPE_MAP",
+    "GROUPS", "UNKNOWN", "DocumentTypeLabel", "LABELS", "SIGNALS", "BY_CODE", "BY_TASK", "CODES", "ENGINE_TYPE_MAP",
     "from_engine", "from_task", "from_free_text",
 ]

@@ -18,6 +18,7 @@ _.exitstatus
 # pydantic: model ayarı ve doğrulayıcılar (dekoratörle kaydedilir), şema alanları (mufettis/analysis/models.py).
 model_config
 _.validate_type
+_.validate_branch_type
 _.validate_analysis_type
 _.validate_plan_type
 _.validate_non_empty_queries
