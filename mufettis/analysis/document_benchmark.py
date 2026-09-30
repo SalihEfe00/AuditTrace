@@ -17,7 +17,7 @@ import re
 from dataclasses import asdict, dataclass, field
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Optional
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence
 
 from mufettis.analysis import document_taxonomy as tax
 from mufettis.analysis.turkish_text import turkish_lower
@@ -339,9 +339,162 @@ def write_cases(path: Path, cases: Iterable[DocumentCase], note: str = "") -> No
     Path(path).write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
 
+# --- Tahmin ve metrikler (M4.4) ---------------------------------------------------------------------------
+
+# Uygunluk kararı sonuçları
+DECISION_CORRECT = "correct"          # kusurlu belgeye bulgu ya da kusursuz belgeye bulgu yok
+MISSED_DEFECT = "missed_defect"       # kusurlu belge kusursuz sanıldı (bulgu yok)
+FALSE_ALARM = "false_alarm"           # kusursuz belgeye bulgu üretildi
+
+
+@dataclass
+class DocumentPrediction:
+    """Motorun bir vaka için söyledikleri. document_types: tek belgede bir öğe, dosya paketinde belge sırasıyla.
+    defective None ise karar ölçülmedi (understanding seviyesi)."""
+    document_types: List[str]
+    fields: Dict[str, List[str]]
+    defective: Optional[bool] = None
+    findings: List[str] = field(default_factory=list)
+
+
+def predicted_fields(doc: Any) -> Dict[str, List[str]]:
+    """DocumentUnderstanding → ölçülen alanlar. Yalnızca motorun çıkardığı değerler normalleştirilir; belge
+    metni burada yeniden taranmaz (yoksa motor değil benchmark'ın ayrıştırıcısı ölçülürdü)."""
+    by_type: Dict[str, List[str]] = {}
+    for entity in doc.entities:
+        by_type.setdefault(entity.entity_type, []).append(entity.text)
+    dates = [doc.date] + [event.date for event in doc.events]
+    return {
+        "amounts": _unique(a for t in by_type.get("amount", []) for a in find_amounts(t)),
+        "dates": _unique(d for t in dates if t for d in find_dates(t)),
+        "tckn": _unique(n for t in by_type.get("tckn", []) for n in find_tckns(t)),
+        "vkn": _unique(n for t in by_type.get("vkn", []) for n in find_vkns(t)),
+        "iban": _unique(i for t in by_type.get("iban", []) for i in find_ibans(t)),
+    }
+
+
+@dataclass
+class DocumentCaseResult:
+    case_id: str
+    split: str
+    expected_types: List[str]
+    predicted_types: List[str]
+    field_counts: Dict[str, Dict[str, int]]          # alan türü → {tp, fp, fn}
+    decision: Optional[str] = None
+    compliant: bool = True
+    missing_fields: Dict[str, List[str]] = field(default_factory=dict)
+    extra_fields: Dict[str, List[str]] = field(default_factory=dict)
+    findings: List[str] = field(default_factory=list)
+    seconds: float = 0.0
+
+
+def evaluate_document_case(case: DocumentCase, prediction: DocumentPrediction,
+                           seconds: float = 0.0) -> DocumentCaseResult:
+    expected_types = [d.document_type for d in case.documents] if case.documents else [case.document_type]
+    if len(prediction.document_types) != len(expected_types):
+        raise ValueError(f"{case.case_id}: {len(expected_types)} belge türü beklenirken "
+                         f"{len(prediction.document_types)} tahmin")
+    counts, missing, extra = {}, {}, {}
+    for kind in FIELD_KINDS:
+        want, got = set(getattr(case.fields, kind)), set(prediction.fields.get(kind, []))
+        counts[kind] = {"tp": len(want & got), "fp": len(got - want), "fn": len(want - got)}
+        if want - got:
+            missing[kind] = sorted(want - got)
+        if got - want:
+            extra[kind] = sorted(got - want)
+    decision = None
+    if prediction.defective is not None:
+        if prediction.defective == (not case.compliant):
+            decision = DECISION_CORRECT
+        else:
+            decision = MISSED_DEFECT if not case.compliant else FALSE_ALARM
+    return DocumentCaseResult(
+        case_id=case.case_id, split=case.split, expected_types=expected_types,
+        predicted_types=list(prediction.document_types), field_counts=counts, decision=decision,
+        compliant=case.compliant, missing_fields=missing, extra_fields=extra, findings=list(prediction.findings),
+        seconds=round(seconds, 2),
+    )
+
+
+def _ratio(a: int, b: int) -> Optional[float]:
+    return round(a / b, 3) if b else None
+
+
+def summarize_documents(results: Sequence[DocumentCaseResult]) -> Dict[str, Dict[str, Any]]:
+    """Bölüm başına (ve "all"): tür doğruluğu + karışıklık, alan türü başına kesinlik / duyarlılık,
+    uygunluk kararı; tür başına kırılım."""
+    out: Dict[str, Dict[str, Any]] = {}
+    for split in sorted({r.split for r in results}) + ["all"]:
+        rs = [r for r in results if split in ("all", r.split)]
+        pairs = [(e, p) for r in rs for e, p in zip(r.expected_types, r.predicted_types)]
+        confusion: Dict[str, Dict[str, int]] = {}
+        by_type: Dict[str, Dict[str, int]] = {}
+        for expected, predicted in pairs:
+            row = confusion.setdefault(expected, {})
+            row[predicted] = row.get(predicted, 0) + 1
+            counts = by_type.setdefault(expected, {"documents": 0, "type_correct": 0, "decided": 0,
+                                                   "decision_correct": 0})
+            counts["documents"] += 1
+            counts["type_correct"] += int(expected == predicted)
+        fields_summary = {}
+        for kind in FIELD_KINDS:
+            tp, fp, fn = (sum(r.field_counts[kind][k] for r in rs) for k in ("tp", "fp", "fn"))
+            fields_summary[kind] = {"tp": tp, "fp": fp, "fn": fn,
+                                    "precision": _ratio(tp, tp + fp), "recall": _ratio(tp, tp + fn)}
+        decided = [r for r in rs if r.decision is not None]
+        for r in decided:
+            if len(r.expected_types) == 1:            # dosya paketinin kararı tek bir türe yazılmaz
+                by_type[r.expected_types[0]]["decided"] += 1
+                by_type[r.expected_types[0]]["decision_correct"] += int(r.decision == DECISION_CORRECT)
+        type_correct = sum(1 for e, p in pairs if e == p)
+        out[split] = {
+            "cases": len(rs),
+            "documents": len(pairs),
+            "type_correct": type_correct,
+            "type_accuracy": _ratio(type_correct, len(pairs)),
+            "confusion": confusion,
+            "fields": fields_summary,
+            "decided": len(decided),
+            "decision_correct": sum(1 for r in decided if r.decision == DECISION_CORRECT),
+            "missed_defects": sum(1 for r in decided if r.decision == MISSED_DEFECT),
+            "false_alarms": sum(1 for r in decided if r.decision == FALSE_ALARM),
+            "by_type": by_type,
+        }
+    return out
+
+
+def compare_document_results(previous: Sequence[Dict[str, Any]],
+                             current: Sequence[DocumentCaseResult]) -> List[str]:
+    """Önceki koşuya göre türü, kararı ya da alan eşleşmesi değişen vakalar."""
+    before = {r["case_id"]: r for r in previous}
+    lines = []
+    for r in current:
+        old = before.get(r.case_id)
+        if not old:
+            continue
+        changes = []
+        if old["predicted_types"] != r.predicted_types:
+            changes.append(f"tür {old['predicted_types']} -> {r.predicted_types}")
+        if old.get("decision") != r.decision:
+            changes.append(f"karar {old.get('decision')} -> {r.decision}")
+        changed_fields = [k for k in FIELD_KINDS if old["field_counts"].get(k) != r.field_counts[k]]
+        if changed_fields:
+            changes.append("alan " + ", ".join(changed_fields))
+        if changes:
+            lines.append(f"{r.case_id}: " + "; ".join(changes))
+    return lines
+
+
+def document_results_to_json(results: Sequence[DocumentCaseResult]) -> List[Dict[str, Any]]:
+    return [asdict(r) for r in results]
+
+
 __all__ = [
     "CASES_DIR", "SPLITS", "SEVERITIES", "FIELD_KINDS", "RAW_FIELD_KINDS",
     "parse_number", "format_amount", "find_amounts", "key_amounts", "find_dates", "find_ibans", "find_tckns", "find_vkns",
     "flatten_text", "ExpectedFields", "Defect", "SubDocument", "DocumentCase", "locate_quote",
     "load_cases", "load_case_dir", "write_cases",
+    "DECISION_CORRECT", "MISSED_DEFECT", "FALSE_ALARM", "DocumentPrediction", "predicted_fields",
+    "DocumentCaseResult", "evaluate_document_case", "summarize_documents", "compare_document_results",
+    "document_results_to_json",
 ]
