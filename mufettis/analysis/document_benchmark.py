@@ -1,0 +1,347 @@
+# -*- coding: utf-8 -*-
+"""Belge türü benchmark'ı: vaka biçimi, alan normalleştirme (M4.2).
+
+benchmark.py "hangi hüküm dayanak oldu" sorusunu ölçer; burada ise belgenin kendisi ölçülür: türü doğru mu,
+alanları (tutar, tarih, kimlik numarası, IBAN) çıkarıldı mı, uygunluk kararı (kusurlu / kusursuz) doğru mu.
+Vakalar benchmarks/documents/*.json dosyalarındadır; sentetik örnekler scripts/import_synthetic.py ile gelir.
+
+Alan değerleri karşılaştırılabilir tek biçime çevrilir: tutar "1250000.00 TRY", tarih "2023-04-05",
+TCKN / VKN yalnızca rakam, IBAN boşluksuz büyük harf. Cevap anahtarı serbest yazılabildiği için ("Limit:
+5.000.000 TL", {"tutar": "250.000,00 TL"}) değerler metin içinde aranır.
+"""
+from __future__ import annotations
+
+import datetime as _dt
+import json
+import re
+from dataclasses import asdict, dataclass, field
+from decimal import Decimal, InvalidOperation
+from pathlib import Path
+from typing import Any, Dict, Iterable, Iterator, List, Optional
+
+from mufettis.analysis import document_taxonomy as tax
+from mufettis.analysis.turkish_text import turkish_lower
+
+CASES_DIR = Path(__file__).resolve().parents[2] / "benchmarks" / "documents"
+SPLITS = ("dev", "holdout", "sealed")
+SEVERITIES = ("yüksek", "orta", "düşük", "")
+FIELD_KINDS = ("amounts", "dates", "tckn", "vkn", "iban")   # ölçülen alanlar
+RAW_FIELD_KINDS = ("persons", "signatures")                 # M5'e kadar yalnızca saklanan alanlar
+
+
+# --- Normalleştirme ---------------------------------------------------------------------------------------
+
+_CURRENCIES = (
+    ("TRY", r"TL|TRY|₺|Türk\s+Lirası|Türk\s+lirası|TRL"),
+    ("USD", r"USD|US\$|\$|ABD\s+Doları|Dolar"),
+    ("EUR", r"EUR|€|Avro|Euro"),
+    ("GBP", r"GBP|£|Sterlin"),
+)
+_CURRENCY_RE = "|".join(f"(?:{pattern})" for _, pattern in _CURRENCIES)
+_MULTIPLIERS = {"bin": Decimal(1000), "milyon": Decimal(10) ** 6, "milyar": Decimal(10) ** 9}
+_NUMBER = r"\d{1,3}(?:[.,\s]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?"
+_AMOUNT_RE = re.compile(
+    rf"(?<![\w.,%])(?:(?P<pre>{_CURRENCY_RE})\s*)?(?P<num>{_NUMBER})(?:\s*(?P<mult>bin|milyon|milyar))?"
+    rf"(?:\s*(?P<post>{_CURRENCY_RE}))?(?![\w%])",
+    re.IGNORECASE,
+)
+
+
+def _currency_code(token: str) -> str:
+    for code, pattern in _CURRENCIES:
+        if re.fullmatch(pattern, token.strip(), re.IGNORECASE):
+            return code
+    return ""
+
+
+def parse_number(text: str) -> Optional[Decimal]:
+    """Türkçe ya da İngilizce biçimli sayı: "1.250.000,50", "1,250,000.50", "250.000", "2,5", "1 250 000"."""
+    s = re.sub(r"\s", "", text or "")
+    if not s or not re.fullmatch(r"[\d.,]+", s) or not s[0].isdigit():
+        return None
+    if "." in s and "," in s:
+        decimal_sep = "," if s.rfind(",") > s.rfind(".") else "."
+        thousands = "." if decimal_sep == "," else ","
+        s = s.replace(thousands, "").replace(decimal_sep, ".")
+    elif s.count(".") + s.count(",") > 1:          # tek tür ayırıcı birden çok kez: binlik
+        s = s.replace(".", "").replace(",", "")
+    elif "." in s:                                   # "250.000" binlik, "12.5" ondalık
+        s = s.replace(".", "") if re.fullmatch(r"\d{1,3}\.\d{3}", s) else s
+    elif "," in s:                                   # Türkçe ondalık
+        s = s.replace(",", ".")
+    try:
+        return Decimal(s)
+    except InvalidOperation:
+        return None
+
+
+def format_amount(value: Decimal, currency: str) -> str:
+    return f"{value.quantize(Decimal('0.01'))} {currency}"
+
+
+def find_amounts(text: str) -> List[str]:
+    """Metindeki para tutarları ("1250000.00 TRY"). Para birimi yazılmamış sayı tutar sayılmaz (vade, adet,
+    oran olabilir); cevap anahtarındaki çıplak tutar için bkz. key_amounts."""
+    out: List[str] = []
+    for m in _AMOUNT_RE.finditer(text or ""):
+        currency = _currency_code(m.group("pre") or m.group("post") or "")
+        if not currency:
+            continue
+        value = parse_number(m.group("num"))
+        if value is None:
+            continue
+        if m.group("mult"):
+            value *= _MULTIPLIERS[m.group("mult").lower()]
+        out.append(format_amount(value, currency))
+    return out
+
+
+def key_amounts(entry: str) -> List[str]:
+    """Cevap anahtarının "tutarlar" listesindeki bir kayıt. Para birimli tutarlar alınır; kayıt (ya da
+    "ad: değer" kaydının değeri) yalnızca bir sayıysa TRY sayılır ("250.000,00", "kredi_limiti: 5000000")."""
+    found = find_amounts(entry)
+    if found:
+        return found
+    value = parse_number(entry.rsplit(":", 1)[-1].strip())
+    return [format_amount(value, "TRY")] if value is not None else []
+
+
+_MONTHS = {name: i for i, name in enumerate(
+    ("ocak", "şubat", "mart", "nisan", "mayıs", "haziran", "temmuz", "ağustos", "eylül", "ekim", "kasım", "aralık"),
+    start=1)}
+_DATE_RES = (
+    (re.compile(r"(?<!\d)(\d{4})[-./](\d{1,2})[-./](\d{1,2})(?!\d)"), ("y", "m", "d")),
+    (re.compile(r"(?<!\d)(\d{1,2})[-./](\d{1,2})[-./](\d{4})(?!\d)"), ("d", "m", "y")),
+    (re.compile(r"(?<!\d)(\d{1,2})\s+(" + "|".join(_MONTHS) + r")\s+(\d{4})(?!\d)"), ("d", "mon", "y")),
+)
+
+
+def find_dates(text: str) -> List[str]:
+    """Metindeki geçerli takvim tarihleri, ISO biçiminde ("2023-04-05"), metindeki sırayla."""
+    lowered = turkish_lower(text or "")
+    found = []
+    for pattern, order in _DATE_RES:
+        for m in pattern.finditer(lowered):
+            parts = dict(zip(order, m.groups()))
+            month = _MONTHS[parts["mon"]] if "mon" in parts else int(parts["m"])
+            try:
+                found.append((m.start(), _dt.date(int(parts["y"]), month, int(parts["d"])).isoformat()))
+            except ValueError:
+                continue
+    return [iso for _, iso in sorted(found)]
+
+
+_IBAN_RE = re.compile(r"(?<![A-Za-z0-9])TR\s?\d{2}(?:\s?\d){22}(?!\d)", re.IGNORECASE)
+_TCKN_RE = re.compile(r"(?<!\d)[1-9]\d{10}(?!\d)")
+_VKN_RE = re.compile(r"(?<!\d)\d{10}(?!\d)")
+
+
+def find_ibans(text: str) -> List[str]:
+    return [re.sub(r"\s", "", m.group(0)).upper() for m in _IBAN_RE.finditer(text or "")]
+
+
+def find_tckns(text: str) -> List[str]:
+    return _TCKN_RE.findall(_IBAN_RE.sub(" ", text or ""))
+
+
+def find_vkns(text: str) -> List[str]:
+    return _VKN_RE.findall(_IBAN_RE.sub(" ", text or ""))
+
+
+def flatten_text(value: Any) -> Iterator[str]:
+    """Cevap anahtarındaki iç içe liste / sözlükten metin parçaları (sözlük anahtarları dahil)."""
+    if value is None:
+        return
+    if isinstance(value, dict):
+        for key, item in value.items():
+            for text in flatten_text(item):
+                yield f"{key}: {text}"
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            yield from flatten_text(item)
+    else:
+        yield str(value)
+
+
+def _unique(values: Iterable[str]) -> List[str]:
+    return list(dict.fromkeys(v for v in values if v))
+
+
+# --- Vaka biçimi ------------------------------------------------------------------------------------------
+
+@dataclass
+class ExpectedFields:
+    amounts: List[str] = field(default_factory=list)
+    dates: List[str] = field(default_factory=list)
+    tckn: List[str] = field(default_factory=list)
+    vkn: List[str] = field(default_factory=list)
+    iban: List[str] = field(default_factory=list)
+    persons: List[str] = field(default_factory=list)
+    signatures: List[str] = field(default_factory=list)
+    other: Dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def from_answer_key(cls, alanlar: Dict[str, Any]) -> "ExpectedFields":
+        """BRIEF cevap anahtarının "alanlar" nesnesi → normalleştirilmiş alanlar. Kimlik numaraları yalnızca
+        "kimlik_numaralari"ndan alınır (başka yerdeki 10-11 haneli sayılar telefon olabilir); IBAN her yerden."""
+        alanlar = alanlar or {}
+        amounts = [a for t in flatten_text(alanlar.get("tutarlar")) for a in key_amounts(t)]
+        ids = list(flatten_text(alanlar.get("kimlik_numaralari")))
+        return cls(
+            amounts=_unique(amounts),
+            dates=_unique(d for t in flatten_text(alanlar.get("tarihler")) for d in find_dates(t)),
+            tckn=_unique(n for t in ids for n in find_tckns(t)),
+            vkn=_unique(n for t in ids for n in find_vkns(t)),
+            iban=_unique(i for t in flatten_text(alanlar) for i in find_ibans(t)),
+            persons=_unique(flatten_text(alanlar.get("kisiler_ve_rolleri"))),
+            signatures=_unique(flatten_text(alanlar.get("imza_onay"))),
+            other=alanlar.get("diger") if isinstance(alanlar.get("diger"), dict) else {},
+        )
+
+
+@dataclass
+class Defect:
+    description: str
+    quote: str = ""          # belgedeki yer; metinde bulunamazsa boş (bkz. locate_quote)
+    regulation: str = ""
+    severity: str = ""
+    scope: str = "belge"     # "belge" ya da "dosya" (D01: belgeler arası kusur)
+
+
+@dataclass
+class SubDocument:
+    document_type: str
+    title: str
+    text: str
+
+
+@dataclass
+class DocumentCase:
+    case_id: str
+    split: str
+    document_type: str       # tek belgede kanonik kod; dosya paketinde "" (türler documents içinde)
+    text: str
+    compliant: bool
+    defects: List[Defect] = field(default_factory=list)
+    fields: ExpectedFields = field(default_factory=ExpectedFields)
+    documents: List[SubDocument] = field(default_factory=list)
+    issue_date: str = ""
+    event_date: str = ""
+    source: Dict[str, str] = field(default_factory=dict)   # model, task, file
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "DocumentCase":
+        case = cls(
+            case_id=data["id"], split=data.get("split", "dev"), document_type=data.get("document_type", ""),
+            text=data.get("text", ""), compliant=bool(data["compliant"]),
+            defects=[Defect(**d) for d in data.get("defects", [])],
+            fields=ExpectedFields(**data.get("fields", {})),
+            documents=[SubDocument(**d) for d in data.get("documents", [])],
+            issue_date=data.get("issue_date", ""), event_date=data.get("event_date", ""),
+            source=dict(data.get("source", {})),
+        )
+        problems = case.problems()
+        if problems:
+            raise ValueError(f"{case.case_id}: " + "; ".join(problems))
+        return case
+
+    def to_dict(self) -> Dict[str, Any]:
+        data = asdict(self)
+        data["id"] = data.pop("case_id")
+        return data
+
+    def problems(self) -> List[str]:
+        """Vakayı ölçüme uygunsuz kılan kusurlar (boşsa geçerli)."""
+        out = []
+        if self.split not in SPLITS:
+            out.append(f"bilinmeyen bölüm '{self.split}'")
+        if not self.text.strip():
+            out.append("metin boş")
+        if self.documents:
+            if self.document_type:
+                out.append("dosya paketinde tür belgelerde yazılır")
+            for doc in self.documents:
+                if doc.document_type not in tax.CODES:
+                    out.append(f"bilinmeyen belge türü '{doc.document_type}' ({doc.title})")
+        elif self.document_type not in tax.CODES:
+            out.append(f"bilinmeyen belge türü '{self.document_type}'")
+        if self.compliant and self.defects:
+            out.append("kusursuz denmiş ama kusur listelenmiş")
+        if not self.compliant and not self.defects:
+            out.append("kusurlu denmiş ama kusur yok")
+        for name in ("issue_date", "event_date"):
+            value = getattr(self, name)
+            if value and find_dates(value) != [value]:
+                out.append(f"{name} ISO tarih değil: '{value}'")
+        for defect in self.defects:
+            if defect.severity not in SEVERITIES:
+                out.append(f"bilinmeyen önem '{defect.severity}'")
+            if defect.scope not in ("belge", "dosya"):
+                out.append(f"bilinmeyen kusur kapsamı '{defect.scope}'")
+        for kind in FIELD_KINDS:
+            for value in getattr(self.fields, kind):
+                if not _FIELD_FORMAT[kind].fullmatch(value):
+                    out.append(f"{kind} normalleştirilmemiş: '{value}'")
+        return out
+
+
+_FIELD_FORMAT = {
+    "amounts": re.compile(r"\d+\.\d{2} [A-Z]{3}"),
+    "dates": re.compile(r"\d{4}-\d{2}-\d{2}"),
+    "tckn": re.compile(r"[1-9]\d{10}"),
+    "vkn": re.compile(r"\d{10}"),
+    "iban": re.compile(r"TR\d{24}"),
+}
+
+
+def _quote_key(text: str) -> str:
+    text = turkish_lower(text or "")
+    text = re.sub(r"[\"'“”‘’«»]", "", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def locate_quote(quote: str, text: str) -> bool:
+    """Kusur alıntısı belgede var mı? Büyük / küçük harf, tırnak ve boşluk farkı sayılmaz; "..." ile
+    kısaltılmış alıntının her parçası sırayla aranır."""
+    haystack = _quote_key(text)
+    position = 0
+    parts = [p for p in (_quote_key(part) for part in re.split(r"\.\.\.|…|\[\.\.\.\]", quote or "")) if p]
+    if not parts:
+        return False
+    for part in parts:
+        found = haystack.find(part, position)
+        if found < 0:
+            return False
+        position = found + len(part)
+    return True
+
+
+def load_cases(path: Path) -> List[DocumentCase]:
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    return [DocumentCase.from_dict(c) for c in data["cases"]]
+
+
+def load_case_dir(directory: Path = CASES_DIR, include_sealed: bool = False) -> List[DocumentCase]:
+    """Dizindeki tüm vaka dosyaları; mühürlü bölüm yalnızca açıkça istenince (son doğrulama)."""
+    cases: List[DocumentCase] = []
+    for path in sorted(Path(directory).glob("*.json")):
+        cases += [c for c in load_cases(path) if include_sealed or c.split != "sealed"]
+    ids = [c.case_id for c in cases]
+    duplicates = sorted({i for i in ids if ids.count(i) > 1})
+    if duplicates:
+        raise ValueError(f"yinelenen vaka kimlikleri: {duplicates}")
+    return cases
+
+
+def write_cases(path: Path, cases: Iterable[DocumentCase], note: str = "") -> None:
+    payload = {"note": note, "cases": [c.to_dict() for c in cases]}
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    Path(path).write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+
+
+__all__ = [
+    "CASES_DIR", "SPLITS", "SEVERITIES", "FIELD_KINDS", "RAW_FIELD_KINDS",
+    "parse_number", "format_amount", "find_amounts", "key_amounts", "find_dates", "find_ibans", "find_tckns", "find_vkns",
+    "flatten_text", "ExpectedFields", "Defect", "SubDocument", "DocumentCase", "locate_quote",
+    "load_cases", "load_case_dir", "write_cases",
+]
