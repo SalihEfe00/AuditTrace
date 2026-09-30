@@ -16,6 +16,9 @@ from urllib.parse import urlparse
 
 SOURCES_FILE = Path(__file__).with_name("legislation_sources.json")
 MEVZUAT_TEXT_URL = "https://www.mevzuat.gov.tr/MevzuatMetin/{code}.pdf"
+# Yönetmelik / tebliğ / kararların PDF'i yok; güncel (değişiklikler işlenmiş) resmî metin bu sayfada HTML olarak.
+MEVZUAT_HTML_URL = ("https://www.mevzuat.gov.tr/anasayfa/MevzuatFihristDetayIframe"
+                    "?MevzuatTur={tur}&MevzuatNo={no}&MevzuatTertip={tertip}")
 OFFICIAL_HOSTS = frozenset({
     "www.mevzuat.gov.tr", "mevzuat.gov.tr",
     "www.bddk.org.tr", "bddk.org.tr", "www.bddk.gov.tr", "bddk.gov.tr",
@@ -50,6 +53,14 @@ class LegislationSource:
     @property
     def download_url(self) -> str:
         return self.url or MEVZUAT_TEXT_URL.format(code=self.code)
+
+    @property
+    def html_url(self) -> str:
+        """mevzuat.gov.tr metin sayfası (PDF yoksa); kodsuz kayıtta boş."""
+        if not self.code:
+            return ""
+        tur, tertip, no = self.code.split(".")
+        return MEVZUAT_HTML_URL.format(tur=tur, no=no, tertip=tertip)
 
     def problems(self) -> List[str]:
         out: List[str] = []
