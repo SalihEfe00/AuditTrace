@@ -46,12 +46,12 @@ class TestLegislationSources(unittest.TestCase):
         base = self.sources[0]
         bad = [dataclasses.replace(base, code="", url="https://www.mevzuat.org/x.pdf"),
                dataclasses.replace(base, instrument="kanun", number=""),
-               dataclasses.replace(base, priority=3),
+               dataclasses.replace(base, priority=4),
                base, base]
         problems = [p for _, p in validate_sources(bad)]
         self.assertIn("resmî olmayan alan adı: https://www.mevzuat.org/x.pdf", problems)
         self.assertIn("kanun numarası yok", problems)
-        self.assertIn("geçersiz öncelik: 3", problems)
+        self.assertIn("geçersiz öncelik: 4", problems)
         self.assertIn("tekrarlanan kayıt", problems)
 
     def test_selection_skips_documents_already_in_corpus(self):

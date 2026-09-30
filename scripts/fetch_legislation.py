@@ -24,7 +24,7 @@ from mufettis.corpus.legislation_sources import load_sources, select_sources, va
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--priority", type=int, default=1, choices=(1, 2), help="bu önceliğe kadar olan kayıtlar")
+    ap.add_argument("--priority", type=int, default=1, choices=(1, 2, 3), help="bu önceliğe kadar olan kayıtlar")
     ap.add_argument("--include-in-corpus", action="store_true", help="korpusta zaten olanları da indir")
     ap.add_argument("--only", nargs="*", default=None, help="yalnızca bu kodlar")
     ap.add_argument("--force", action="store_true", help="doğrulanmış kopya olsa da yeniden indir")

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Yüklenen dosyadan metin çıkarma (PDF, DOCX, HTML, TXT).
+"""Yüklenen dosyadan metin çıkarma (PDF, DOCX, DOC, HTML, TXT).
 
 Mevzuat içe aktarma (rag.maintenance.ingest_local_regulation_file) ve analiz ekranındaki belge
 yükleme aynı çıkarma hattını kullanır: PDF'ler için pypdfium2 hızlı geçiş + kalite kapısı + koşullu
@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 # Arayüzün kabul ettiği türler. Listede olmayan uzantılar düz metin olarak çözülür.
-SUPPORTED_EXTENSIONS = (".pdf", ".docx", ".txt", ".html", ".htm")
+SUPPORTED_EXTENSIONS = (".pdf", ".docx", ".doc", ".txt", ".html", ".htm")
 
 
 @dataclass
@@ -51,6 +51,10 @@ def extract_file_text(name: str, data: bytes, index: Optional[Any] = None) -> Ex
             for row in table.rows:
                 parts.append(" | ".join(c.text.strip() for c in row.cells))
         return ExtractedFile(text="\n".join(parts).strip(), extension=extension)
+    if extension == ".doc":
+        from mufettis.extraction.word97 import word97_text
+
+        return ExtractedFile(text=word97_text(data), extension=extension)
     if extension in {".html", ".htm"}:
         from bs4 import BeautifulSoup
 

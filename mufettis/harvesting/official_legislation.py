@@ -28,7 +28,15 @@ REQUEST_TIMEOUT = 60
 MAX_BYTES = 60 * 1024 * 1024
 VERIFY_PAGES = 3
 MIN_TITLE_COVERAGE = 0.8
+# Kurumun kendi kataloğundaki bağlantı (kodsuz kayıt): adres, belgeyi yayımlayan kurumdan geldiği için güçlü kanıttır;
+# katalog etiketi ise resmî addan farklı yazılabilir ("Hk.", tarih-sayı öneki). Eşik daha düşük, ama boş / menü
+# sayfası kabul edilmesin diye en az bir metin uzunluğu aranır (M6.15).
+MIN_TITLE_COVERAGE_LINKED = 0.5
+MIN_TEXT_CHARS_LINKED = 300
 RECORD_FILE = "downloads.json"
+MAX_NAME_CHARS = 100
+# İlk sayfalarda bundan az metin varsa belge taranmış sayılır (üstte yalnızca kısa bir metin başlığı olan görüntü PDF)
+MIN_TEXT_CHARS_FOR_OCR = 200
 
 _FOLD = str.maketrans({"â": "a", "î": "i", "û": "u"})
 
@@ -52,8 +60,10 @@ def verify_document(source: LegislationSource, pages: List[str]) -> Optional[str
     head = "\n".join(pages[:VERIFY_PAGES])
     if not head.strip():
         return "metin çıkarılamadı"
+    if not source.code and len(head.strip()) < MIN_TEXT_CHARS_LINKED:
+        return f"metin çok kısa ({len(head.strip())} karakter)"
     coverage = title_coverage(source.title, head)
-    if coverage < MIN_TITLE_COVERAGE:
+    if coverage < (MIN_TITLE_COVERAGE if source.code else MIN_TITLE_COVERAGE_LINKED):
         return f"resmî ad ilk sayfalarda bulunamadı (kapsam {coverage:.2f})"
     if source.instrument == "kanun" and source.number not in re.findall(r"\d+", head):
         return f"kanun numarası {source.number} ilk sayfalarda yok"
@@ -63,20 +73,87 @@ def verify_document(source: LegislationSource, pages: List[str]) -> Optional[str
 HTML_VERIFY_CHARS = 6000
 
 
-def html_text(raw: bytes) -> str:
-    """Resmî metin sayfasının düz metni (toplu yükleyicinin HTML okumasıyla aynı kural)."""
+MAIN_CONTENT_SHARE = 0.8
+
+
+def _block_text_score(el) -> int:
+    """Paragraf / tablo metni ve bağlantı dışı liste metni: menü bağlantıları puan getirmez."""
+    score = 0
+    for block in el.find_all(["p", "td", "li", "h1", "h2", "h3", "h4"]):
+        if block.find_parent(["p", "td", "li"]) is not None:
+            continue
+        text = block.get_text(" ", strip=True)
+        links = sum(len(a.get_text(" ", strip=True)) for a in block.find_all("a"))
+        score += max(0, len(text) - links)
+    return score
+
+
+def _main_content(soup):
+    """Sayfanın asıl metin bölümü: paragraf metninin en az %80'ini kapsayan en derin kap (menü, alt bilgi,
+    "son duyurular" gibi kenar bölümler dışarıda kalır). <main> / <article> varsa ve yeterli metni taşıyorsa o."""
+    body = soup.body or soup
+    total = _block_text_score(body)
+    if total == 0:
+        return body
+    best = body
+    for el in body.find_all(["main", "article", "section", "div"]):
+        if _block_text_score(el) >= MAIN_CONTENT_SHARE * total:
+            best = el  # find_all belge sırasıyla iner: sonraki eşleşen daha derin kaptır
+    return best
+
+
+def html_text(raw: bytes, main_content: bool = False) -> str:
+    """Resmî metin sayfasının düz metni (toplu yükleyicinin HTML okumasıyla aynı kural). main_content: kurumun kendi
+    sayfasında (KVKK Kurul kararı, TKBB düzenlemesi) yalnızca asıl metin bölümü; mevzuat.gov.tr metin sayfası
+    zaten yalnızca metindir ve özet karşılaştırması (M6.8) değişmesin diye tam alınır."""
     from bs4 import BeautifulSoup
 
     soup = BeautifulSoup(raw.decode("utf-8", errors="replace"), "html.parser")
     for el in soup(["script", "style", "header", "footer", "nav"]):
         el.extract()
-    return re.sub(r"\n\s*\n", "\n", soup.get_text(separator="\n")).strip()
+    root = _main_content(soup) if main_content else soup
+    return re.sub(r"\n\s*\n", "\n", root.get_text(separator="\n")).strip()
+
+
+def non_pdf_text(data: bytes, suffix: str, main_content: bool = False) -> str:
+    """HTML ya da Word belgesinin düz metni (yükleyicinin okumasıyla aynı kural)."""
+    if suffix in (".doc", ".docx"):
+        from mufettis.extraction.files import extract_file_text
+
+        return extract_file_text("x" + suffix, data).text
+    return html_text(data, main_content=main_content)
+
+
+def content_suffix(data: bytes, content_type: str = "") -> str:
+    """İçeriğe göre dosya türü: PDF imzası → .pdf; Word (.doc / .docx); HTML (başlık ya da ilk bayt) → .html;
+    bilinmiyorsa .pdf (PDF denetimi reddeder). Kurumların kendi sayfalarındaki metinler (KVKK Kurul kararı, TBB duyurusu) HTML'dir (M6.15)."""
+    if data.startswith(b"%PDF"):
+        return ".pdf"
+    from mufettis.extraction.word97 import is_word97
+
+    if is_word97(data):
+        return ".doc"  # Word 97-2003 (TBB tebliğleri, TMSF yönetmelikleri)
+    if data.startswith(b"PK") and b"word/" in data[:4096]:
+        return ".docx"
+    head = data[:512].lstrip().lower()
+    if "html" in (content_type or "").lower() or head.startswith((b"<!doctype html", b"<html")):
+        return ".html"
+    return ".pdf"
 
 
 def _default_pages(pdf_bytes: bytes) -> List[str]:
+    """PDF metni; ilk sayfalarda (neredeyse) metin yoksa (taranmış belge) doğrulanacak sayfalar OCR ile okunur."""
     from mufettis.extraction.pdf import _extract_pdfium_pages
 
-    return _extract_pdfium_pages(pdf_bytes)
+    pages = _extract_pdfium_pages(pdf_bytes)
+    head = len("".join(pages[:VERIFY_PAGES]).strip())
+    if head < MIN_TEXT_CHARS_FOR_OCR:
+        from mufettis.extraction.ocr import ocr_pdf_pages
+
+        ocr = ocr_pdf_pages(pdf_bytes, max_pages=VERIFY_PAGES)
+        if len("".join(ocr).strip()) > head:
+            return ocr + pages[len(ocr):]
+    return pages
 
 
 @dataclass
@@ -150,7 +227,11 @@ class OfficialLegislationFetcher:
         return True if parser is None else parser.can_fetch(USER_AGENT, url)
 
     def _file_for(self, source: LegislationSource) -> Path:
-        return self.out_dir / (re.sub(r"[^0-9A-Za-z._-]", "_", source.key.split("//")[-1]) + ".pdf")  # uzantı sonra
+        name = re.sub(r"[^0-9A-Za-z._-]", "_", source.key.split("//")[-1])
+        if len(name) > MAX_NAME_CHARS:
+            # Uzun adres (TCMB içerik yolları) Windows yol sınırını aşar: kısalt + anahtarın özeti (tekil kalır).
+            name = name[:MAX_NAME_CHARS - 13] + "_" + sha256_bytes(source.key.encode("utf-8"))[:12]
+        return self.out_dir / (name + ".pdf")  # uzantı sonra
 
     def _save_record(self, result: FetchResult) -> None:
         self.records[result.key] = asdict(result)
@@ -175,7 +256,11 @@ class OfficialLegislationFetcher:
             return self._finish(FetchResult(source.key, "failed", reason=f"istek hatası: {exc}"), started)
         if response.status_code != 200:
             return self._finish(FetchResult(source.key, "failed", reason=f"HTTP {response.status_code}"), started)
-        data, suffix = response.content or b"", ".pdf"
+        data = response.content or b""
+        # mevzuat.gov.tr kodlu kayıtta PDF adresi yalnızca PDF verir; metin sayfası ayrı adrestedir (aşağıda). Başka
+        # kurumun adresi ise kendi metnini HTML olarak da sunabilir.
+        suffix = ".pdf" if source.code else content_suffix(
+            data, response.headers.get("Content-Type", "") if hasattr(response, "headers") else "")
         pages, problem = self._check(source, data, suffix)
         if problem and source.html_url:
             # PDF yok (yönetmelik, tebliğ) ya da PDF'in metni doğrulanamıyor (ör. kararın yalnızca imza sayfası
@@ -200,7 +285,7 @@ class OfficialLegislationFetcher:
                                 started)
         path = path.with_suffix(suffix)
         path.write_bytes(data)
-        text = "\n".join(pages) if suffix == ".pdf" else html_text(data)
+        text = "\n".join(pages) if suffix == ".pdf" else non_pdf_text(data, suffix, main_content=not source.code)
         return self._finish(FetchResult(source.key, "downloaded", path=path.name, sha256=sha256_bytes(data),
                                         text_sha256=sha256_bytes(re.sub(r"\s+", " ", text).strip().encode("utf-8")),
                                         size=len(data), pages=len(pages)), started)
@@ -226,7 +311,10 @@ class OfficialLegislationFetcher:
                 return [], "PDF değil"
             pages = self.page_extractor(data)
         else:
-            pages = [html_text(data)[:HTML_VERIFY_CHARS]]
+            try:
+                pages = [non_pdf_text(data, suffix, main_content=not source.code)[:HTML_VERIFY_CHARS]]
+            except Exception as exc:  # bozuk Word dosyası
+                return [], f"metin çıkarılamadı ({type(exc).__name__})"
         return pages, verify_document(source, pages)
 
     def _finish(self, result: FetchResult, started: float) -> FetchResult:
@@ -246,4 +334,6 @@ class OfficialLegislationFetcher:
         return results
 
 
-__all__ = ["OfficialLegislationFetcher", "FetchResult", "verify_document", "title_coverage", "html_text", "USER_AGENT"]
+__all__ = ["OfficialLegislationFetcher", "FetchResult", "verify_document", "title_coverage", "html_text", "content_suffix",
+           "non_pdf_text",
+           "USER_AGENT"]

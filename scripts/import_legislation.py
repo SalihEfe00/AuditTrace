@@ -25,7 +25,7 @@ from mufettis.corpus.legislation_sources import load_sources, select_sources  # 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--priority", type=int, default=1, choices=(1, 2))
+    ap.add_argument("--priority", type=int, default=1, choices=(1, 2, 3))
     ap.add_argument("--include-in-corpus", action="store_true")
     ap.add_argument("--only", nargs="*", default=None)
     ap.add_argument("--production", action="store_true", help="üretim data/ dizinine yaz (kullanıcı onayıyla)")

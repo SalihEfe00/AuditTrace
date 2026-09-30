@@ -18,20 +18,32 @@ from typing import Any, Callable, Dict, List, Optional
 
 from mufettis.common.utils import enrich_source_meta, now_iso, sha256_bytes
 from mufettis.corpus.legislation_sources import LegislationSource
-from mufettis.harvesting.official_legislation import html_text
+from mufettis.harvesting.official_legislation import non_pdf_text
 
 SOURCE_ID = "mevzuat_gov"
 # mevzuat.gov.tr dışındaki resmî adresler kendi kurumunun kaynağıyla kaydedilir (kaynak doğrulaması adrese bakar).
 SOURCE_BY_HOST = {"www.tcmb.gov.tr": "tcmb_official", "tcmb.gov.tr": "tcmb_official",
-                  "ms.hmb.gov.tr": "masak_official", "masak.hmb.gov.tr": "masak_official"}
+                  "ms.hmb.gov.tr": "masak_official", "masak.hmb.gov.tr": "masak_official",
+                  "www.bddk.org.tr": "bddk_official", "bddk.org.tr": "bddk_official",
+                  "www.bddk.gov.tr": "bddk_official", "bddk.gov.tr": "bddk_official",
+                  "www.kvkk.gov.tr": "kvkk_official", "kvkk.gov.tr": "kvkk_official",
+                  "www.tmsf.org.tr": "tmsf_official", "tmsf.org.tr": "tmsf_official",
+                  "www.seddk.gov.tr": "seddk_official", "seddk.gov.tr": "seddk_official",
+                  "www.tbb.org.tr": "tbb_official", "tbb.org.tr": "tbb_official",
+                  "www.tkbb.org.tr": "tkbb_official", "tkbb.org.tr": "tkbb_official",
+                  "www.resmigazete.gov.tr": "resmi_gazete", "resmigazete.gov.tr": "resmi_gazete"}
 RUN_LOG = "import_runs.jsonl"
-DOCUMENT_TYPES = {"kanun": "Kanun", "yönetmelik": "Yönetmelik", "tebliğ": "Tebliğ", "genelge": "Genelge",
-                  "rehber": "Rehber"}
+DOCUMENT_TYPES = {"kanun": "Kanun", "kararname": "Kararname", "tüzük": "Tüzük", "yönetmelik": "Yönetmelik",
+                  "tebliğ": "Tebliğ", "genelge": "Genelge", "rehber": "Rehber", "kurul kararı": "Kurul Kararı",
+                  "talimat": "Talimat", "standart": "Standart", "tip sözleşme": "Tip Sözleşme", "duyuru": "Duyuru"}
 
 
 # Liste türü → kanonik tür (corpus.model.InstrumentType); `declared_instrument_type` olarak taşınır (en güçlü dayanak).
-INSTRUMENT_TYPES = {"kanun": "kanun", "yönetmelik": "yonetmelik", "tebliğ": "teblig", "genelge": "genelge",
-                    "rehber": "rehber"}
+# Tüzük kanunun uygulanmasını gösteren yürütme düzenlemesidir; hiyerarşide yönetmelik düzeyinde ele alınır. Talimat
+# ve tip sözleşme uygulama usulü, standart ve duyuru yol gösterici metindir.
+INSTRUMENT_TYPES = {"kanun": "kanun", "kararname": "cbk", "tüzük": "yonetmelik", "yönetmelik": "yonetmelik",
+                    "tebliğ": "teblig", "genelge": "genelge", "rehber": "rehber", "kurul kararı": "kurul_karari",
+                    "talimat": "usul_esas", "tip sözleşme": "usul_esas", "standart": "rehber", "duyuru": "diger"}
 
 
 def instrument_type_for(source: LegislationSource) -> str:
@@ -76,13 +88,13 @@ def process_memory_mb() -> Dict[str, float]:
         return {}
 
 
-def document_text(path: Path, raw: bytes) -> tuple:
+def document_text(path: Path, raw: bytes, main_content: bool = False) -> tuple:
     """(metin, sayfa sayısı, OCR kullanıldı mı)."""
     if path.suffix.lower() == ".pdf":
         from mufettis.harvesting.resmi_gazete import ResmiGazeteScraper
 
         return ResmiGazeteScraper(local_only=True)._extract_pdf_text(raw)
-    return html_text(raw), 0, False
+    return non_pdf_text(raw, path.suffix.lower(), main_content=main_content), 0, False
 
 
 def listed_meta(source: LegislationSource, path: Path, raw: bytes, pages: int, ocr_used: bool) -> Dict[str, Any]:
@@ -138,7 +150,7 @@ def import_downloads(rag, index, sources: List[LegislationSource], records: Dict
                 raw = path.read_bytes()
                 if sha256_bytes(raw) != record.get("sha256"):
                     raise ValueError("dosya indirme kaydıyla uyuşmuyor")
-                text, pages, ocr_used = document_text(path, raw)
+                text, pages, ocr_used = document_text(path, raw, main_content=not source.code)
                 meta = listed_meta(source, path, raw, pages, ocr_used)
                 result = ingest(rag, index, text, meta, raw_bytes=raw, source_path=str(path))
                 row.update(status=result.get("status", ""), chunks=int(result.get("count", 0) or 0),

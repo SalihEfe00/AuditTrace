@@ -119,6 +119,64 @@ SOURCE_DEFINITIONS = {
         "preferred": True,
         "notes": "MASAK rehberleri; dosyalar Bakanlığın dosya sunucusunda (ms.hmb.gov.tr). Tarama yapılmaz.",
     },
+    # M6.15: kanunla düzenleme yetkisi verilmiş diğer kurumların kendi yayınları (listedeki adresler; tarama yok).
+    "kvkk_official": {
+        "name": "KVKK",
+        "base_url": "https://www.kvkk.gov.tr",
+        "seed_urls": [],
+        "source_type": "official",
+        "publisher_kind": "issuing_authority",
+        "issuer": "KVKK",
+        "authority_rank": 100,
+        "preferred": True,
+        "notes": "Kişisel Verileri Koruma Kurumu: ilke kararları, Kurul karar özetleri, rehberler.",
+    },
+    "tmsf_official": {
+        "name": "TMSF",
+        "base_url": "https://www.tmsf.org.tr",
+        "seed_urls": [],
+        "source_type": "official",
+        "publisher_kind": "issuing_authority",
+        "issuer": "TMSF",
+        "authority_rank": 100,
+        "preferred": True,
+        "notes": "Tasarruf Mevduatı Sigorta Fonu: sigortalı mevduat, zamanaşımı, kayyım / tasfiye düzenlemeleri.",
+    },
+    "seddk_official": {
+        "name": "SEDDK",
+        "base_url": "https://www.seddk.gov.tr",
+        "seed_urls": [],
+        "source_type": "official",
+        "publisher_kind": "issuing_authority",
+        "issuer": "SEDDK",
+        "authority_rank": 100,
+        "preferred": True,
+        "notes": "Sigortacılık ve Özel Emeklilik Düzenleme ve Denetleme Kurumu: bankasürans, BES, genel şartlar.",
+    },
+    "tbb_official": {
+        "name": "TBB",
+        "base_url": "https://www.tbb.org.tr",
+        "seed_urls": [],
+        "source_type": "official",
+        "publisher_kind": "issuing_authority",
+        "issuer": "TBB",
+        "authority_rank": 90,
+        "preferred": True,
+        "notes": ("Türkiye Bankalar Birliği (5411 md. 79-80, kamu kurumu niteliğinde meslek kuruluşu): tebliğler, "
+                  "mesleki tanzim kararları, hakem heyeti, etik ilkeler."),
+    },
+    "tkbb_official": {
+        "name": "TKBB",
+        "base_url": "https://tkbb.org.tr",
+        "seed_urls": [],
+        "source_type": "official",
+        "publisher_kind": "issuing_authority",
+        "issuer": "TKBB",
+        "authority_rank": 90,
+        "preferred": True,
+        "notes": ("Türkiye Katılım Bankaları Birliği (5411 md. 79-80): mesleki düzenlemeler, Merkezi Danışma "
+                  "Komitesi standartları."),
+    },
     "mevzuat_org": {
         "name": "mevzuat.org",
         "base_url": "https://www.mevzuat.org",
@@ -155,6 +213,12 @@ SOURCE_HOST_ALIASES = {
     # MASAK sayfaları masak.hmb.gov.tr'de, yayımladığı dosyalar Bakanlığın dosya sunucusunda.
     "masak_official": {"masak.hmb.gov.tr", "ms.hmb.gov.tr"},
     "tcmb_official": {"www.tcmb.gov.tr", "tcmb.gov.tr"},
+    "kvkk_official": {"www.kvkk.gov.tr", "kvkk.gov.tr"},
+    "tmsf_official": {"www.tmsf.org.tr", "tmsf.org.tr"},
+    "seddk_official": {"www.seddk.gov.tr", "seddk.gov.tr"},
+    "tbb_official": {"www.tbb.org.tr", "tbb.org.tr"},
+    "tkbb_official": {"tkbb.org.tr", "www.tkbb.org.tr"},
+    "resmi_gazete": {"www.resmigazete.gov.tr", "resmigazete.gov.tr"},
 }
 
 # Gerekli temel dizinlerin oluşturulması

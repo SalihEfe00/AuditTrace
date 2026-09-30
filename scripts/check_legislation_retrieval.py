@@ -62,7 +62,7 @@ def distinctive_sentence(text: str) -> str:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--priority", type=int, default=1, choices=(1, 2))
+    ap.add_argument("--priority", type=int, default=1, choices=(1, 2, 3))
     args = ap.parse_args(argv)
     if not os.environ.get("MUFETTIS_DATA_DIR"):
         print("MUFETTIS_DATA_DIR bir veri kopyasını göstermeli.")

@@ -168,15 +168,9 @@ class ResmiGazeteScraper:
             return []
 
     def _ocr_pdf(self, pdf_bytes: bytes) -> str:
-        try:
-            import pytesseract
-            from pdf2image import convert_from_bytes
-            pages = convert_from_bytes(pdf_bytes, dpi=200)
-            text_pages = [pytesseract.image_to_string(page, lang="tur") for page in pages]
-            return "\n".join(text_pages).strip()
-        except Exception as exc:
-            print(f"[OCR] Çalıştırılamadı: {exc}")
-            return ""
+        from mufettis.extraction.ocr import ocr_pdf_pages
+
+        return "\n".join(ocr_pdf_pages(pdf_bytes)).strip()
 
     def _extract_pdf_text(self, pdf_bytes: bytes) -> Tuple[str, int, bool]:
         """pypdfium2 Fast Pass + page Quality Gate + conditional fallback."""

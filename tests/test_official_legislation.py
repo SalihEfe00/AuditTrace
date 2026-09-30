@@ -151,6 +151,70 @@ class TestFetcher(unittest.TestCase):
                                       number="1", issuer="-", priority=2, group="vergi", reason="-")
             self.assertEqual(fetcher.fetch(other).status, "rejected")
 
+    def test_institution_html_page_is_accepted_for_url_sources(self):
+        # M6.15: kurumun kendi sayfasındaki metin (KVKK Kurul kararı) HTML; içerikten tanınır, adla doğrulanır.
+        url = "https://www.kvkk.gov.tr/Icerik/7111/2021-79"
+        source = LegislationSource(code="", url=url, title="Veri sorumlusu banka tarafından ilgili kişinin verilerinin "
+                                   "yakınları ile paylaşılması", instrument="kurul kararı", number="2021/79",
+                                   issuer="KVKK", priority=2, group="kvkk_sir", reason="test")
+        page = ("<!DOCTYPE html><html><body><h1>Veri sorumlusu banka tarafından ilgili kişinin verilerinin yakınları "
+                "ile paylaşılması hakkında</h1><p>Kurul Kararı</p><p>" + "İlgili kişinin başvurusu incelenmiştir. " * 10
+                + "</p></body></html>").encode("utf-8")
+        with tempfile.TemporaryDirectory() as tmp:
+            routes = {"https://www.kvkk.gov.tr/robots.txt": _Response(404), url: _Response(content=page)}
+            fetcher, _, _ = _fetcher(tmp, routes, [])
+            result = fetcher.fetch(source)
+            self.assertEqual(result.status, "downloaded", result.reason)
+            self.assertTrue(result.path.endswith(".html"))
+            routes[url] = _Response(content=b"<html><p>Duyurular</p></html>")
+            fetcher, _, _ = _fetcher(tmp, routes, [])
+            self.assertEqual(fetcher.fetch(source, force=True).status, "rejected")
+
+    def test_linked_sources_use_lower_title_threshold_but_need_text(self):
+        linked = LegislationSource(code="", url="https://www.bddk.org.tr/Mevzuat/DokumanGetir/1", title="(05.01.2023 - "
+                                   "10479) Tüketici Kredilerine İlişkin Vade Sınırları Hk. Kurul Kararı",
+                                   instrument="kurul kararı", number="10479", issuer="BDDK", priority=2, group="bddk",
+                                   reason="test")
+        body = "TÜKETİCİ KREDİLERİNE İLİŞKİN VADE SINIRLARI HAKKINDA KARAR 10479 " + "madde metni " * 40
+        self.assertIsNone(verify_document(linked, [body]))
+        self.assertIn("metin çok kısa", verify_document(linked, ["TÜKETİCİ KREDİLERİNE İLİŞKİN VADE SINIRLARI"]))
+        coded = LegislationSource(**{**linked.__dict__, "code": "9.5.1", "url": ""})
+        self.assertIn("resmî ad", verify_document(coded, [body]))  # mevzuat.gov.tr kodunda eşik katı kalır
+
+    def test_long_urls_get_short_unique_file_names(self):
+        base = "https://www.tcmb.gov.tr/wps/wcm/connect/" + "x" * 200
+        a = LegislationSource(code="", url=base + "/a.pdf", title="A", instrument="talimat", number="", issuer="TCMB",
+                              priority=2, group="odeme", reason="-")
+        b = LegislationSource(**{**a.__dict__, "url": base + "/b.pdf"})
+        with tempfile.TemporaryDirectory() as tmp:
+            fetcher, _, _ = _fetcher(tmp, {}, [])
+            fa, fb = fetcher._file_for(a), fetcher._file_for(b)
+        self.assertLessEqual(len(fa.name), 104)
+        self.assertNotEqual(fa.name, fb.name)
+        self.assertEqual(fetcher._file_for(KANUN).name, "1.5.5549.pdf")
+
+    def test_main_content_drops_site_menus(self):
+        from mufettis.harvesting.official_legislation import html_text
+
+        menu = "".join(f"<li><a href='/x{i}'>Menü bağlantısı {i}</a></li>" for i in range(40))
+        page = (f"<html><body><div id='site'><ul>{menu}</ul><div class='icerik'><h2>Karar Özeti</h2>"
+                + "<p>Kurul, veri sorumlusu banka hakkında idari para cezası uygulanmasına karar vermiştir.</p>" * 5
+                + "</div><div class='son'><ul><li><a href='/d'>Son duyurular</a></li></ul></div></div></body></html>")
+        raw = page.encode("utf-8")
+        full, main = html_text(raw), html_text(raw, main_content=True)
+        self.assertIn("Menü bağlantısı 7", full)  # mevzuat.gov.tr sayfaları için davranış değişmedi
+        self.assertNotIn("Menü bağlantısı", main)
+        self.assertNotIn("Son duyurular", main)
+        self.assertIn("idari para cezası", main)
+
+    def test_content_suffix(self):
+        from mufettis.harvesting.official_legislation import content_suffix
+
+        self.assertEqual(content_suffix(b"%PDF-1.7"), ".pdf")
+        self.assertEqual(content_suffix(b"  <!DOCTYPE html><html>"), ".html")
+        self.assertEqual(content_suffix(b"x", "text/html; charset=utf-8"), ".html")
+        self.assertEqual(content_suffix(b"PK\x03\x04"), ".pdf")  # bilinmeyen: PDF denetimi reddeder
+
     def test_network_error_is_reported(self):
         with tempfile.TemporaryDirectory() as tmp:
             fetcher, _, _ = _fetcher(tmp, {ROBOTS_URL: _Response(404), PDF_URL: OSError("zaman aşımı")}, [])

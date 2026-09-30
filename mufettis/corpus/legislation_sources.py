@@ -25,9 +25,22 @@ OFFICIAL_HOSTS = frozenset({
     "www.tcmb.gov.tr", "tcmb.gov.tr",
     "masak.hmb.gov.tr", "ms.hmb.gov.tr",  # MASAK sayfaları ve Bakanlığın dosya sunucusu
     "www.resmigazete.gov.tr", "resmigazete.gov.tr",
+    # M6.15: düzenlemeyi kendisi çıkaran diğer kurumlar (kanunla verilen düzenleme yetkisi)
+    "www.kvkk.gov.tr", "kvkk.gov.tr",
+    "www.tmsf.org.tr", "tmsf.org.tr",
+    "www.seddk.gov.tr", "seddk.gov.tr",
+    "www.tbb.org.tr", "tbb.org.tr",      # 5411 md. 79-80: kamu kurumu niteliğinde meslek kuruluşu
+    "tkbb.org.tr", "www.tkbb.org.tr",    # 5411 md. 79-80: Katılım Bankaları Birliği
 })
-INSTRUMENTS = ("kanun", "yönetmelik", "tebliğ", "karar", "genelge", "rehber")
-GROUPS = ("masak", "borclar_medeni", "bddk", "tuketici", "odeme", "cek_ticaret_icra", "kambiyo", "kvkk_sir", "vergi")
+# M6.15: kurumların kendi düzenleme türleri eklendi (talimat, standart, Kurul kararı, duyuru, tip sözleşme);
+# tüzük ve kararname (KHK / CBK) mevzuat.gov.tr türleridir.
+INSTRUMENTS = ("kanun", "kararname", "tüzük", "yönetmelik", "tebliğ", "karar", "kurul kararı", "genelge", "talimat",
+               "rehber", "standart", "tip sözleşme", "duyuru")
+GROUPS = ("masak", "borclar_medeni", "bddk", "tuketici", "odeme", "cek_ticaret_icra", "kambiyo", "kvkk_sir", "vergi",
+          "sigorta_emeklilik", "sermaye_piyasasi", "katilim", "mevduat_sigortasi", "meslek_birligi", "sosyal_guvenlik",
+          "genel")
+# 1 = öncelikli set, 2 = tam set (M6), 3 = kapsamlı envanterin geniş katmanı (M6.15: içerikte banka hükmü geçenler)
+PRIORITIES = (1, 2, 3)
 _CODE_RE = re.compile(r"^\d{1,2}\.\d\.\d+$")
 _DATE_RE = re.compile(r"^\d{2}\.\d{2}\.\d{4}$")
 
@@ -39,7 +52,7 @@ class LegislationSource:
     instrument: str      # INSTRUMENTS
     number: str          # kanun no, tebliğ sıra no, karar sayısı; yönetmeliklerde çoğunlukla boş
     issuer: str
-    priority: int        # 1 = öncelikli set, 2 = tam set
+    priority: int        # PRIORITIES
     group: str           # GROUPS
     reason: str
     in_corpus: bool = False
@@ -78,7 +91,7 @@ class LegislationSource:
             out.append(f"bilinmeyen tür: {self.instrument}")
         if self.instrument == "kanun" and not self.number:
             out.append("kanun numarası yok")
-        if self.priority not in (1, 2):
+        if self.priority not in PRIORITIES:
             out.append(f"geçersiz öncelik: {self.priority}")
         if self.group not in GROUPS:
             out.append(f"bilinmeyen grup: {self.group}")
@@ -111,4 +124,4 @@ def select_sources(sources: List[LegislationSource], max_priority: int = 2,
 
 
 __all__ = ["LegislationSource", "load_sources", "validate_sources", "select_sources", "SOURCES_FILE",
-           "OFFICIAL_HOSTS", "INSTRUMENTS", "GROUPS"]
+           "OFFICIAL_HOSTS", "INSTRUMENTS", "GROUPS", "PRIORITIES"]
