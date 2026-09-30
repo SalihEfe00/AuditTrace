@@ -36,7 +36,7 @@ from mufettis.config import (
 from mufettis.common.utils import now_iso, mask_sensitive
 from mufettis.corpus import NOT_IN_FORCE_STATUSES, EligibilityPolicy, refresh_canonical, with_canonical
 from mufettis.corpus.model import CANONICAL_SCHEMA
-from mufettis.extraction.text_repair import normalize_extracted_text, repair_extracted_spacing
+from mufettis.extraction.text_repair import extract_series_number, normalize_extracted_text, repair_extracted_spacing
 from mufettis.legal.parser import (
     _chunk_is_retrievable,
     _chunk_matches_account_ref,
@@ -56,6 +56,8 @@ from mufettis.rag.paging import iter_pages
 # Serbest aramada vektör adaylarına eklenen sözcüksel (BM25) aday sayısı: max(alt sınır, k * çarpan).
 LEXICAL_CANDIDATES_MIN = 10
 LEXICAL_CANDIDATES_PER_K = 2
+# Sorguda seri numarası varken havuza eklenen, o seri üyesinden en çok parça sayısı.
+SERIES_CANDIDATES = 20
 # İddia adaylarında (claim_candidates) her kaynaktan (BM25, vektör) okunan aday sayısı.
 CLAIM_SOURCE_DEPTH = 100
 
@@ -349,6 +351,41 @@ class LocalRAG:
     # AnalysisEngine.retrieve_evidence bu yeteneği kontrol ederek uygunluk politikası gönderir.
     supports_eligibility_policy = True
 
+    def named_law_number(self, query: str) -> Optional[str]:
+        """Sorguda adıyla anılan kanunun numarası ("İcra ve İflas Kanunu 89 uncu madde" → 2004); korpustaki
+        kanun kataloğuna karşı atıf çözücüsüyle (analysis.cited_references) çözülür. Numarasıyla anılan
+        kanun extract_legal_identifier'ın işidir; burada yalnızca adla anılanlar."""
+        from mufettis.analysis.cited_references import IN_CORPUS, extract_citations, resolve
+
+        citations = [c for c in extract_citations(query)
+                     if not c["law_number"] and not c["internal"] and re.search(r"(?i)kanun\w*$", c["label"])]
+        if not citations:
+            return None
+        catalog = self._law_catalog()
+        for citation in citations:
+            ref = resolve(citation, catalog)
+            if ref.status == IN_CORPUS and ref.law_number.isdigit():
+                return ref.law_number
+        return None
+
+    def _law_catalog(self):
+        """Etkin kanunların kataloğu; dizin dosyası değişene kadar önbellekte."""
+        from mufettis.analysis.cited_references import catalog_from_index
+        from mufettis.rag.index import IngestIndex
+
+        index = IngestIndex()
+        try:
+            stamp = index.path.stat().st_mtime_ns
+        except OSError:
+            stamp = 0
+        cached = getattr(self, "_law_catalog_cache", None)
+        if cached is None or cached[0] != stamp:
+            items = {h: r for h, r in index.iter_records() if str(r.get("law_number") or "").isdigit()}
+            entries = [e for e in catalog_from_index(items, lambda r: str(r.get("declared_title") or r.get("title") or ""))
+                       if e.is_law]
+            self._law_catalog_cache = cached = (stamp, entries)
+        return cached[1]
+
     def _identity_matches(self, document_ref: Optional[str], account_ref: Optional[str]) -> List[Dict[str, Any]]:
         """Belge kimliği (source_document_id) / hesap kodu (account_code) meta veride birebir eşleşen,
         erişilebilir güncel parçalar."""
@@ -389,7 +426,7 @@ class LocalRAG:
     def _query(self, query: str, k: int, eligibility: Optional[EligibilityPolicy]) -> List[Dict[str,Any]]:
 
         embedding=self.embed([query])[0]
-        explicit_law=extract_legal_identifier(query)
+        explicit_law=extract_legal_identifier(query) or self.named_law_number(query)
         document_ref=extract_query_document_reference(query)
         account_ref=extract_query_account_code(query)
         document_ref, account_ref = _resolve_query_document_reference_from_collection(
@@ -469,7 +506,31 @@ class LocalRAG:
         seen={r["id"] for r in out if r["id"] is not None}
         lexical_n=max(LEXICAL_CANDIDATES_MIN, k*LEXICAL_CANDIDATES_PER_K)
         out.extend(r for r in self._lexical_candidates(query, embedding, lexical_n, eligibility) if r["id"] not in seen)
+        # Seri numarası verilmişse ("Sıra No: 5", "Tebliğ No: 2008-32/34") o seri üyesinin parçaları da aday olur:
+        # aynı adlı kardeşler anlamsal ve sözcüksel adayları doldurunca aranan üye havuza hiç girmiyordu.
+        series_no=extract_series_number(query)
+        if series_no:
+            seen={r["id"] for r in out if r["id"] is not None}
+            out.extend(r for r in self._series_candidates(series_no, eligibility) if r["id"] not in seen)
         return prefer_official_matches(out, limit=max(1,min(k,MAX_RAG_RESULTS)), query=query)
+
+    def _series_candidates(self, series_no: str, eligibility: Optional[EligibilityPolicy]) -> List[Dict[str, Any]]:
+        """Başlığındaki seri işareti bu numarayı taşıyan belgelerin parçaları (belge numarası meta verisiyle)."""
+        try:
+            got = self.collection.get(
+                where={"$and": [{"chunk_schema_version": CHUNK_SCHEMA_VERSION}, {"document_number": str(series_no)}]},
+                limit=SERIES_CANDIDATES, include=["documents", "metadatas"])
+        except Exception:
+            return []
+        out = []
+        for cid, doc, meta in zip(got.get("ids") or [], got.get("documents") or [], got.get("metadatas") or []):
+            meta = meta or {}
+            if not _chunk_is_retrievable(meta, doc) or extract_series_number(meta.get("title")) != str(series_no):
+                continue
+            if eligibility and not eligibility.admits(meta):
+                continue
+            out.append({"id": cid, "document": clean_evidence_text(doc, 12000), "metadata": meta, "distance": None})
+        return out
 
     # AnalysisEngine iddia başına aday ister (bkz. AnalysisEngine.retrieve_claim_candidates).
     supports_claim_candidates = True

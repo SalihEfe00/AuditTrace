@@ -31,8 +31,16 @@ class TestLegislationSources(unittest.TestCase):
             self.assertIn(phrase, titles)
 
     def test_download_urls_are_official(self):
+        from urllib.parse import urlparse
+
+        from mufettis.corpus.legislation_sources import OFFICIAL_HOSTS
+
         for s in self.sources:
-            self.assertTrue(s.download_url.startswith("https://www.mevzuat.gov.tr/MevzuatMetin/"), s.key)
+            url = urlparse(s.download_url)
+            self.assertEqual(url.scheme, "https", s.key)
+            self.assertIn(url.hostname, OFFICIAL_HOSTS, s.key)
+            if s.code:
+                self.assertTrue(s.download_url.startswith("https://www.mevzuat.gov.tr/MevzuatMetin/"), s.key)
 
     def test_invalid_entries_are_reported(self):
         base = self.sources[0]

@@ -1,9 +1,9 @@
 {
   "description": "Gerçek korpus uçtan uca doğruluk vakaları. Şema ve anlam: mufettis/analysis/benchmark.py. 'holdout' vakalarına geliştirme sırasında bakılmaz; yalnızca doğrulamada koşulur.",
   "cases": [
-    {"id": "dev-ui-internal", "split": "dev", "note": "Arayüz örnek iç denetim notu (kredi tahsis yetki aşımı)",
+    {"id": "dev-ui-internal", "split": "dev", "note": "M6.12 (tam set): uygulama yönetmeliği eşdeğeri eklendi — Kredi İşlemleri Yönetmeliği md. 4 (kredi açma yetkisi ve devri; 5411 md. 51'in uygulama hükmü). Sistem çıktısı görüldükten sonra eklendi, madde metniyle doğrulandı; kullanıcının hukuki gözden geçirmesi bekliyor. Önceki not: Arayüz örnek iç denetim notu (kredi tahsis yetki aşımı)",
      "text": "Teftiş Kurulu Başkanlığı - İç Denetim Notu\nTarih: 15.02.2024\nKonu: Levent Şubesi Kredi Tahsis Yetki Aşımı İncelemesi\n\nYapılan denetim sonucunda, Levent Şubesi kredi tahsis komitesinin 5411 sayılı Bankacılık Kanunu kredi sınırları ve bankamız Kredi Tahsis Yönetmeliği Madde 12 hükmünde belirtilen 5.000.000 TL şube onay limitini aşarak, Genel Müdürlük onayı almaksızın 7.500.000 TL tutarında ticari kredi kullandırdığı tespit edilmiştir.\n\nİlgili yetki aşımının risk ve uyum açısından incelenmesi gerekmektedir.",
-     "expect": [{"law_number": "5411", "article": "51"}, {"title_contains": "Kredi Yönetimine"}, {"title_contains": "Kredi Tahsis"}]},
+     "expect": [{"law_number": "5411", "article": "51"}, {"title_contains": "Kredi Yönetimine"}, {"title_contains": "Kredi Tahsis"}, {"title_contains": "Kredi İşlemlerine İlişkin Yönetmelik", "article": "4"}]},
     {"id": "dev-card-fee", "split": "dev",
      "text": "Bankanız kredi kartım için bana önceden bildirmeden yıllık aidat ücreti tahsil etmiştir. Sözleşmede böyle bir ücret yazmıyor.",
      "expect": [{"law_number": "5464", "article": "24"}, {"law_number": "5464", "article": "25"}]},
@@ -96,8 +96,9 @@
      "text": "Sayı: 2026/TK-12\nKonu: Karar Defteri\nTeftiş Kurulu Başkanlığına\nKredi komitesi kararlarının deftere satır aralarında boşluk bırakılarak yazıldığı ve sonradan eklemeler yapıldığı tespit edilmiştir.\nBilgilerinize arz ederim.",
      "expect": [{"law_number": "5411", "article": "28"}]},
     {"id": "ho-document-retention", "split": "holdout",
+     "note": "M6.12 (tam set): uygulama yönetmeliği eşdeğeri eklendi — Belge Saklama Yönetmeliği md. 17 (faaliyet belgelerinin asılları 10 yıl saklanır). Sistem çıktısı görüldükten sonra eklendi, madde metniyle doğrulandı; kullanıcının hukuki gözden geçirmesi bekliyor",
      "text": "Sayı: 2026/TK-12\nKonu: Belge Saklama\nTeftiş Kurulu Başkanlığına\nŞubenin müşteri işlemlerine ait belgelerin asıllarını saklamadığı ve belgeleri süresi dolmadan imha ettiği tespit edilmiştir.\nBilgilerinize arz ederim.",
-     "expect": [{"law_number": "5411", "article": "42"}]},
+     "expect": [{"law_number": "5411", "article": "42"}, {"title_contains": "Belgelerin Saklanmasına", "article": "17"}]},
     {"id": "ho-audit-committee", "split": "holdout",
      "text": "Sayı: 2026/TK-12\nKonu: Denetim Komitesi\nTeftiş Kurulu Başkanlığına\nBankada yönetim kurulunun denetim ve gözetim faaliyetlerine yardımcı olacak bir denetim komitesi oluşturulmadığı tespit edilmiştir.\nBilgilerinize arz ederim.",
      "expect": [{"law_number": "5411", "article": "24"}]},

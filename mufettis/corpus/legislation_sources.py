@@ -23,10 +23,10 @@ OFFICIAL_HOSTS = frozenset({
     "www.mevzuat.gov.tr", "mevzuat.gov.tr",
     "www.bddk.org.tr", "bddk.org.tr", "www.bddk.gov.tr", "bddk.gov.tr",
     "www.tcmb.gov.tr", "tcmb.gov.tr",
-    "masak.hmb.gov.tr",
+    "masak.hmb.gov.tr", "ms.hmb.gov.tr",  # MASAK sayfaları ve Bakanlığın dosya sunucusu
     "www.resmigazete.gov.tr", "resmigazete.gov.tr",
 })
-INSTRUMENTS = ("kanun", "yönetmelik", "tebliğ", "karar", "genelge")
+INSTRUMENTS = ("kanun", "yönetmelik", "tebliğ", "karar", "genelge", "rehber")
 GROUPS = ("masak", "borclar_medeni", "bddk", "tuketici", "odeme", "cek_ticaret_icra", "kambiyo", "kvkk_sir", "vergi")
 _CODE_RE = re.compile(r"^\d{1,2}\.\d\.\d+$")
 _DATE_RE = re.compile(r"^\d{2}\.\d{2}\.\d{4}$")

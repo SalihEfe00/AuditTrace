@@ -90,10 +90,13 @@ class TestFetcher(unittest.TestCase):
             routes = {ROBOTS_URL: _Response(404), PDF_URL: _Response(content=b"<html>hata</html>")}
             fetcher, _, _ = _fetcher(tmp, routes, [KANUN_PAGE])
             # PDF değil ve metin sayfası da yok (404).
-            self.assertEqual(fetcher.fetch(KANUN).reason, "HTTP 404")
+            self.assertEqual(fetcher.fetch(KANUN).reason, "PDF: PDF değil; metin sayfası: HTTP 404")
+            # Yanlış belge: PDF reddedilir, metin sayfası da yoksa iki sebep birlikte raporlanır.
             routes[PDF_URL] = _Response(content=b"%PDF-1.7")
             fetcher, _, _ = _fetcher(tmp, routes, ["TÜRK BORÇLAR KANUNU 6098"])
-            self.assertEqual(fetcher.fetch(KANUN).status, "rejected")
+            result = fetcher.fetch(KANUN)
+            self.assertEqual(result.status, "failed")
+            self.assertIn("resmî ad", result.reason)
             routes[PDF_URL] = _Response(status=503)
             fetcher, _, _ = _fetcher(tmp, routes, [KANUN_PAGE])
             self.assertEqual(fetcher.fetch(KANUN).reason, "HTTP 503")
@@ -118,6 +121,24 @@ class TestFetcher(unittest.TestCase):
             routes[html_url] = _Response(content=b"<html><p>PATATES YONETMELIGI</p></html>")
             fetcher, _, _ = _fetcher(tmp, routes, [])
             self.assertEqual(fetcher.fetch(TEBLIG, force=True).status, "rejected")
+
+    def test_footnote_mark_glued_to_title_still_verifies(self):
+        self.assertIsNone(verify_document(KANUN, [KANUN_PAGE.replace("HAKKINDA KANUN\n", "HAKKINDA KANUN1\n")]))
+
+    def test_unverifiable_pdf_falls_back_to_text_page(self):
+        # Kararın PDF'inde yalnızca imza sayfası metin; asıl metin resmî metin sayfasında.
+        with tempfile.TemporaryDirectory() as tmp:
+            page = f"<html><p>{KANUN_PAGE}</p></html>".encode("utf-8")
+            routes = {ROBOTS_URL: _Response(404), PDF_URL: _Response(content=b"%PDF-1.7"),
+                      KANUN.html_url: _Response(content=page)}
+            fetcher, _, _ = _fetcher(tmp, routes, ["CUMHURBAŞKANI KARARI\nKarar Sayısı: 11205"])
+            result = fetcher.fetch(KANUN)
+            self.assertEqual((result.status, result.path), ("downloaded", "1.5.5549.html"), result.reason)
+            routes[KANUN.html_url] = _Response(content=b"<html>bos</html>")
+            fetcher, _, _ = _fetcher(tmp, routes, ["CUMHURBAŞKANI KARARI"])
+            result = fetcher.fetch(KANUN, force=True)
+            self.assertEqual(result.status, "rejected")
+            self.assertIn("metin sayfası", result.reason)
 
     def test_robots_disallow_and_unofficial_host(self):
         with tempfile.TemporaryDirectory() as tmp:

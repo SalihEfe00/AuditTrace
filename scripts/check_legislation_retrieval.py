@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """Listedeki yüklenmiş her belgenin aramada bulunabildiğini ölçer (M6.6 / M6.7 ölçütü).
 
-Belge başına iki sorgu: (1) resmî adı, (2) belgeye özgü bir madde cümlesi (metinden; bkz.
-distinctive_sentence). Belge ilk k sonuç içinde (parçanın `legislation_code` alanıyla) çıkmalı. Salt okur; veri dizinine yazmaz.
+Belge başına iki sorgu: (1) resmî adı, kullanıcının yazacağı biçimde (display_title); (2) belgeye özgü bir
+madde cümlesi (metinden; distinctive_sentence). Belge ilk k sonuç içinde (parçanın `legislation_code` alanıyla)
+çıkmalı. Salt okur; veri dizinine yazmaz.
 
 Kullanım:
     MUFETTIS_DATA_DIR=<kopya> python scripts/check_legislation_retrieval.py --priority 1
@@ -24,6 +25,20 @@ from mufettis.corpus.legislation_sources import load_sources, select_sources  # 
 TOP_K = 10
 
 
+_CONNECTORS = {"ve", "ile", "veya", "hakkında", "ilişkin", "dair", "için", "olan", "olmak", "üzere"}
+
+
+def display_title(title: str) -> str:
+    """Resmî büyük harfli adı kullanıcının yazacağı biçime çevirir: "İCRA VE İFLAS KANUNU" → "İcra ve İflas Kanunu"."""
+    words = []
+    for word in title.split():
+        lead = re.match(r"^\W*", word).group(0)
+        body = word[len(lead):]
+        lower = turkish_lower(body)
+        words.append(lead + (lower if lower in _CONNECTORS or not body else body[0] + lower[1:]))
+    return " ".join(words)
+
+
 def distinctive_sentence(text: str) -> str:
     """Belgeye özgü bir madde cümlesi: tanımlar ve dayanak sonrası (MADDE 4+) ilk uzun cümle; başka mevzuata
     atıf ("N sayılı") ya da değişiklik notu içermez. Atıflı cümle motoru atıf yapılan kanuna yönlendirir;
@@ -35,7 +50,12 @@ def distinctive_sentence(text: str) -> str:
     for body in ordered:
         for sentence in re.split(r"(?<=[.;:])\s+", body):
             sentence = re.sub(r"^\(\d+\)\s*", "", sentence.strip())
-            if 80 <= len(sentence) <= 400 and not re.search(r"(?i)sayılı|değişik|mülga|ek:|\(\d+\)", sentence):
+            # Başka mevzuata atıf, değişiklik notu, belgenin kendine göndermesi ("bu Yönetmelik"), başka fıkraya
+            # bağlılık ve tanım listesi parçası belgeye özgü değildir.
+            # Tam cümle: büyük harfle başlar, noktayla biter (sayfa artığı, liste parçası değil).
+            if (80 <= len(sentence) <= 400 and re.match(r"[A-ZÇĞİÖŞÜ]", sentence) and sentence.endswith(".")
+                    and not re.search(r"(?i)sayılı|değişik|mülga|ek:|\(\d+\)|\bbu\s+(?:yönetmeli|tebli|kanun|genelge)"
+                                      r"|\b(?:birinci|ikinci|üçüncü|dördüncü)\s+fıkra|^[a-zçğıöşü]\)", sentence)):
                 return sentence
     return ""
 
@@ -66,7 +86,7 @@ def main(argv=None) -> int:
             missing.append(s.key)
             print(f"YÜKLÜ DEĞİL  {s.key}")
             continue
-        probes = {"title": turkish_lower(s.title), "content": distinctive_sentence(load_source_cache(file_hash))}
+        probes = {"title": display_title(s.title), "content": distinctive_sentence(load_source_cache(file_hash))}
         marks = []
         for name, query in probes.items():
             results = rag.query(query, k=TOP_K) if query else []

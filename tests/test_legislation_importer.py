@@ -2,6 +2,7 @@
 """Mevzuat listesinin yüklenmesi (M6.4): liste kimliği başlık sezgisinin önünde; belge belge, hatada devam."""
 from __future__ import annotations
 
+import dataclasses
 import json
 import sys
 import tempfile
@@ -43,6 +44,23 @@ class TestListedIdentity(unittest.TestCase):
         # Yeniden çıkarma (yeniden parçalama) aynı kimliği verir.
         again = extract_legal_metadata(meta["title"], YONETMELIK_TEXT, dict(meta))
         self.assertEqual((again["document_key"], again["document_type"]), ("mevzuat:7.5.19864", "Yönetmelik"))
+
+    def test_long_titles_differing_only_at_the_end_keep_separate_identities(self):
+        from mufettis.corpus import canonical_view
+
+        title = "TÜRK PARASI KIYMETİNİ KORUMA HAKKINDA 32 SAYILI KARARA İLİŞKİN TEBLİĞ (TEBLİĞ NO: {})"
+        works = set()
+        for code, no in (("9.5.11990", "2008-32/34"), ("9.5.24798", "2018-32/48")):
+            src = LegislationSource(code=code, title=title.format(no), instrument="tebliğ", number=no,
+                                    issuer="Hazine", priority=2, group="kambiyo", reason="test")
+            meta = extract_legal_metadata(src.title, "MADDE 1 – metin", listed_meta(src, Path("x.html"), b"x", 0, False))
+            works.add(canonical_view(meta).work_id)
+        self.assertEqual(len(works), 2)
+        law = extract_legal_metadata("SUÇ GELİRLERİNİN AKLANMASININ ÖNLENMESİ HAKKINDA KANUN", "Kanun Numarası : 5549",
+                                     listed_meta(dataclasses.replace(YONETMELIK, code="1.5.5549", instrument="kanun", number="5549",
+                                                                     title="SUÇ GELİRLERİNİN AKLANMASININ ÖNLENMESİ HAKKINDA KANUN"),
+                                                 Path("x.pdf"), b"x", 0, False))
+        self.assertEqual(canonical_view(law).work_id, "tr/kanun/5549")
 
     def test_decision_types(self):
         self.assertEqual(document_type_for(KARAR), "Cumhurbaşkanı Kararı")

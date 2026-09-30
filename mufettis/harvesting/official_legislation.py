@@ -34,7 +34,8 @@ _FOLD = str.maketrans({"â": "a", "î": "i", "û": "u"})
 
 
 def _words(text: str) -> List[str]:
-    return re.findall(r"[0-9a-zçğıöşü]+", turkish_lower(text or "").translate(_FOLD))
+    # Harf ve rakam ayrı kelimedir: başlığa bitişik dipnot işareti ("KANUNU1") kelimeyi bozmasın.
+    return re.findall(r"[a-zçğıöşü]+|[0-9]+", turkish_lower(text or "").translate(_FOLD))
 
 
 def title_coverage(title: str, text: str) -> float:
@@ -84,6 +85,7 @@ class FetchResult:
     status: str            # downloaded | cached | failed | rejected | robots_blocked
     path: str = ""         # indirme klasörüne göre dosya adı (veri dizini kopyalanınca da geçerli)
     sha256: str = ""
+    text_sha256: str = ""  # çıkarılan metnin özeti: güncellik denetimi baytla değil metinle (M6.8)
     size: int = 0
     pages: int = 0
     reason: str = ""
@@ -173,30 +175,47 @@ class OfficialLegislationFetcher:
             return self._finish(FetchResult(source.key, "failed", reason=f"istek hatası: {exc}"), started)
         if response.status_code != 200:
             return self._finish(FetchResult(source.key, "failed", reason=f"HTTP {response.status_code}"), started)
-        data = response.content or b""
-        suffix = ".pdf"
-        if not data.startswith(b"%PDF") and source.html_url:
-            # PDF'i olmayan tür: aynı sitenin resmî metin sayfası.
+        data, suffix = response.content or b"", ".pdf"
+        pages, problem = self._check(source, data, suffix)
+        if problem and source.html_url:
+            # PDF yok (yönetmelik, tebliğ) ya da PDF'in metni doğrulanamıyor (ör. kararın yalnızca imza sayfası
+            # metin, eki görüntü): aynı sitenin resmî metin sayfası denenir.
             try:
                 response = self._get(source.html_url)
             except Exception as exc:
-                return self._finish(FetchResult(source.key, "failed", reason=f"istek hatası: {exc}"), started)
+                return self._finish(FetchResult(source.key, "failed",
+                                                reason=f"PDF: {problem}; metin sayfası: istek hatası: {exc}"), started)
             if response.status_code != 200:
-                return self._finish(FetchResult(source.key, "failed", reason=f"HTTP {response.status_code}"), started)
-            data, suffix = response.content or b"", ".html"
-        if len(data) > MAX_BYTES:
-            return self._finish(FetchResult(source.key, "rejected", reason=f"dosya çok büyük ({len(data)} bayt)"), started)
-        if suffix == ".pdf" and not data.startswith(b"%PDF"):
-            return self._finish(FetchResult(source.key, "rejected", reason="PDF değil"), started)
-        pages = self.page_extractor(data) if suffix == ".pdf" else [html_text(data)[:HTML_VERIFY_CHARS]]
-        problem = verify_document(source, pages)
+                return self._finish(FetchResult(source.key, "failed",
+                                                reason=f"PDF: {problem}; metin sayfası: HTTP {response.status_code}"),
+                                    started)
+            html_data = response.content or b""
+            html_pages, html_problem = self._check(source, html_data, ".html")
+            if html_problem:
+                problem = f"PDF: {problem}; metin sayfası: {html_problem}"
+            else:
+                data, suffix, pages, problem = html_data, ".html", html_pages, None
         if problem:
             return self._finish(FetchResult(source.key, "rejected", size=len(data), pages=len(pages), reason=problem),
                                 started)
         path = path.with_suffix(suffix)
         path.write_bytes(data)
+        text = "\n".join(pages) if suffix == ".pdf" else html_text(data)
         return self._finish(FetchResult(source.key, "downloaded", path=path.name, sha256=sha256_bytes(data),
+                                        text_sha256=sha256_bytes(re.sub(r"\s+", " ", text).strip().encode("utf-8")),
                                         size=len(data), pages=len(pages)), started)
+
+    def _check(self, source: LegislationSource, data: bytes, suffix: str):
+        """(sayfalar, sorun); sorun yoksa None."""
+        if len(data) > MAX_BYTES:
+            return [], f"dosya çok büyük ({len(data)} bayt)"
+        if suffix == ".pdf":
+            if not data.startswith(b"%PDF"):
+                return [], "PDF değil"
+            pages = self.page_extractor(data)
+        else:
+            pages = [html_text(data)[:HTML_VERIFY_CHARS]]
+        return pages, verify_document(source, pages)
 
     def _finish(self, result: FetchResult, started: float) -> FetchResult:
         result.fetched_at = now_iso()

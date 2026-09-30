@@ -97,6 +97,28 @@ SOURCE_DEFINITIONS = {
         "notes": ("Cumhurbaşkanlığı resmî mevzuat sistemi; yalnızca mevzuat listesindeki belgeler "
                   "(mufettis/corpus/legislation_sources.json) indirilir, tarama yapılmaz."),
     },
+    "tcmb_official": {
+        "name": "TCMB",
+        "base_url": "https://www.tcmb.gov.tr",
+        "seed_urls": [],
+        "source_type": "official",
+        "publisher_kind": "issuing_authority",
+        "issuer": "TCMB",
+        "authority_rank": 100,
+        "preferred": True,
+        "notes": "TCMB'nin kendi yayımladığı genelgeler (mevzuat listesindeki adresler; tarama yapılmaz).",
+    },
+    "masak_official": {
+        "name": "MASAK",
+        "base_url": "https://masak.hmb.gov.tr",
+        "seed_urls": [],
+        "source_type": "official",
+        "publisher_kind": "issuing_authority",
+        "issuer": "MASAK",
+        "authority_rank": 100,
+        "preferred": True,
+        "notes": "MASAK rehberleri; dosyalar Bakanlığın dosya sunucusunda (ms.hmb.gov.tr). Tarama yapılmaz.",
+    },
     "mevzuat_org": {
         "name": "mevzuat.org",
         "base_url": "https://www.mevzuat.org",
@@ -130,6 +152,9 @@ SOURCE_HOST_ALIASES = {
     # yönlenebildiği için yalnızca bu iki resmi host kontrollü olarak eşdeğer
     # kabul edilir. Diğer alan adları hiçbir şekilde otomatik kabul edilmez.
     "bddk_official": {"www.bddk.gov.tr", "bddk.gov.tr", "www.bddk.org.tr", "bddk.org.tr"},
+    # MASAK sayfaları masak.hmb.gov.tr'de, yayımladığı dosyalar Bakanlığın dosya sunucusunda.
+    "masak_official": {"masak.hmb.gov.tr", "ms.hmb.gov.tr"},
+    "tcmb_official": {"www.tcmb.gov.tr", "tcmb.gov.tr"},
 }
 
 # Gerekli temel dizinlerin oluşturulması

@@ -552,14 +552,21 @@ def extract_legal_identifier(query: str) -> Optional[str]:
     return None
 
 
-# Seri belgelerin sıra numarası: "Genel Tebliği (Sıra No: 5)", "sıra no 12", "SIRA NO_ 531" (dosya adı).
-_SERIES_NUMBER_RE = re.compile(r"\bs[ıi]ra\s*n[oO]\s*[:._]?\s*(\d{1,4})\b", re.I)
+# Seri belgelerin numarası: "Genel Tebliği (Sıra No: 5)", "sıra no 12", "SIRA NO_ 531" (dosya adı) ve kambiyo
+# tebliğlerinin "Tebliğ No: 2008-32/34" numarası.
+_SERIES_NUMBER_RES = (
+    re.compile(r"\bs[ıi]ra\s*n[oO]\s*[:._]?\s*(\d{1,4})\b", re.I),
+    re.compile(r"\btebli[ğg]\s*n[oO]\s*[:._]?\s*(\d{4}-\d{1,3}/\d{1,3})", re.I),
+)
 
 
 def extract_series_number(text: str) -> Optional[str]:
-    """Seri belgenin (MASAK / VUK genel tebliği) sıra numarası; yoksa None."""
-    m = _SERIES_NUMBER_RE.search(str(text or ""))
-    return m.group(1) if m else None
+    """Seri belgenin (MASAK / VUK genel tebliği, 32 sayılı Karara ilişkin tebliğ) numarası; yoksa None."""
+    for pattern in _SERIES_NUMBER_RES:
+        m = pattern.search(str(text or ""))
+        if m:
+            return m.group(1)
+    return None
 
 
 def extract_legal_identifiers(text: str) -> List[str]:

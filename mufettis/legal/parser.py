@@ -391,7 +391,8 @@ def _title_block(lines: List[str]) -> str:
         if not line or not _is_title_line(line) or len(block) >= DECLARED_TITLE_MAX_LINES:
             break
         block.append(line)
-    title = " ".join(block)
+    # Ada bitişik dipnot işareti ("İCRA VE İFLAS KANUNU12") adın parçası değildir.
+    title = re.sub(r"(?<=[A-ZÇĞİÖŞÜÂÎÛa-zçğıöşü])\d{1,3}$", "", " ".join(block))
     words = re.findall(r"[A-ZÇĞİÖŞÜÂÎÛ]+", title)
     if not title or len(title) > DECLARED_TITLE_MAX_CHARS or not set(words) - _GENERIC_TITLE_WORDS:
         return ""
@@ -652,8 +653,10 @@ def extract_query_account_code(query: str) -> Optional[str]:
     q = str(query or "")
     doc_ref = extract_query_document_reference(q)
     law_ref = extract_legal_identifier(q)  # "193 sayılı Gelir Vergisi Kanunu" hesap 193 değildir
+    # "Tebliğ No: 2008-32/34" seri numarasıdır; içindeki 2008 hesap kodu değildir.
+    series_parts = set(re.findall(r"\d+", extract_series_number(q) or ""))
     for token in re.findall(r"(?<!\d)(\d{3,6})(?!\d)", q):
-        if token in (doc_ref, law_ref):
+        if token in (doc_ref, law_ref) or token in series_parts:
             continue
         # 3 haneli kökler ve 4-6 haneli hesap kodları kabul edilir.
         if len(token) >= 3:
@@ -827,8 +830,9 @@ def _legal_rerank(
         exact_bonus = 0.70 if exact_identifier else 0.0
         exact_miss_penalty = 0.55 if legal_id and not exact_identifier else 0.0
 
-        # Sıra numarası: belge numarası ya da başlıktaki "Sıra No" ile; kanun numarasıyla aynı ağırlık.
-        series_match = bool(series_no) and series_no in (doc_number, extract_series_number(title))
+        # Seri numarası başlıktaki seri işaretiyle ("Sıra No: 5", "Tebliğ No: 2008-32/34") eşleşir; yalnızca belge
+        # numarası "5" olan ilgisiz bir belge öne geçmesin. Kanun numarasıyla aynı ağırlık.
+        series_match = bool(series_no) and extract_series_number(title) == series_no
         series_bonus = 0.70 if series_match else 0.0
         series_miss_penalty = 0.55 if series_no and not series_match else 0.0
 

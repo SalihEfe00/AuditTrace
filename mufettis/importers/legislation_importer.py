@@ -13,6 +13,7 @@ import json
 import sys
 import time
 from pathlib import Path
+from urllib.parse import urlparse
 from typing import Any, Callable, Dict, List, Optional
 
 from mufettis.common.utils import enrich_source_meta, now_iso, sha256_bytes
@@ -20,8 +21,23 @@ from mufettis.corpus.legislation_sources import LegislationSource
 from mufettis.harvesting.official_legislation import html_text
 
 SOURCE_ID = "mevzuat_gov"
+# mevzuat.gov.tr dışındaki resmî adresler kendi kurumunun kaynağıyla kaydedilir (kaynak doğrulaması adrese bakar).
+SOURCE_BY_HOST = {"www.tcmb.gov.tr": "tcmb_official", "tcmb.gov.tr": "tcmb_official",
+                  "ms.hmb.gov.tr": "masak_official", "masak.hmb.gov.tr": "masak_official"}
 RUN_LOG = "import_runs.jsonl"
-DOCUMENT_TYPES = {"kanun": "Kanun", "yönetmelik": "Yönetmelik", "tebliğ": "Tebliğ", "genelge": "Genelge"}
+DOCUMENT_TYPES = {"kanun": "Kanun", "yönetmelik": "Yönetmelik", "tebliğ": "Tebliğ", "genelge": "Genelge",
+                  "rehber": "Rehber"}
+
+
+# Liste türü → kanonik tür (corpus.model.InstrumentType); `declared_instrument_type` olarak taşınır (en güçlü dayanak).
+INSTRUMENT_TYPES = {"kanun": "kanun", "yönetmelik": "yonetmelik", "tebliğ": "teblig", "genelge": "genelge",
+                    "rehber": "rehber"}
+
+
+def instrument_type_for(source: LegislationSource) -> str:
+    if source.instrument == "karar":
+        return "cb_karari" if source.issuer.startswith("Cumhurbaşkan") else "karar"
+    return INSTRUMENT_TYPES[source.instrument]
 
 
 def document_type_for(source: LegislationSource) -> str:
@@ -91,7 +107,13 @@ def listed_meta(source: LegislationSource, path: Path, raw: bytes, pages: int, o
         "listed_law_number": source.number if source.instrument == "kanun" else "",
         "listed_document_number": "" if source.instrument == "kanun" else source.number,
         "listed_document_key": f"mevzuat:{source.key}",
-    }, SOURCE_ID)
+        "declared_instrument_type": instrument_type_for(source),
+    }, SOURCE_BY_HOST.get(urlparse(url).hostname or "", SOURCE_ID))
+    if source.instrument != "kanun":
+        # Kalıcı kimlik listeden (mevzuat.gov.tr kodu ya da resmî adres). Başlık kimliği 80 karakterde kesildiği
+        # için adı uzun ve yalnızca sonunda ayrışan belgeler (32 sayılı Karara ilişkin tebliğler) birbirinin
+        # sürümü sayılıyordu. Kanunlar resmî numarayla (tr/kanun/N) kaynaktan bağımsız kimliği korur.
+        meta["declared_work_id"] = meta["listed_document_key"]
     return meta
 
 

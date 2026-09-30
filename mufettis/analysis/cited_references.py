@@ -55,11 +55,6 @@ _KIND_RE = re.compile(r"(kanun|yönetmeli|tebli|genelge|karar|rehber|usul\s+ve\s
 # "bankamız Kredi Tahsis Yönetmeliği", "kurum içi yönerge": mevzuat değil, kurumun kendi kuralı.
 _INTERNAL_MARKER_RE = re.compile(
     r"(?:bankamız|bankamızın|şirketimiz|şirketimizin|kurumumuz|kurumumuzun|kurum\s+içi|banka\s+içi|iç)\s*$", re.I)
-_GENERIC_NAME_STEMS = frozenset(stem(w) for w in (
-    "kanun", "kanunu", "yönetmelik", "yönetmeliği", "tebliğ", "tebliği", "genelge", "genelgesi", "karar",
-    "kararı", "rehber", "rehberi", "usul", "esaslar", "yönerge", "talimat", "hakkında", "ilişkin", "dair",
-    "sayılı", "bazı", "değişiklik", "yapılmasına",
-))
 # Katalogdaki adın atıftaki ad köklerinin en az bu kadarını içermesi gerekir.
 MIN_NAME_COVERAGE = 0.75
 CONTEXT_CHARS = 40
@@ -84,8 +79,17 @@ class CitedReference:
     matched_title: str = ""
 
 
+# Genel sözcük tam sözcük başıyla tanınır, kökle değil: 5 harflik kök "tebligat"ı "tebliğ" ile aynı sayıp
+# "Tebligat Kanunu"nu adsız bırakıyordu. Çekimli biçimler ("tebliğine", "yönetmeliğin") önekle yakalanır.
+_GENERIC_NAME_PREFIXES = (
+    "kanun", "yönetmeli", "tebliğ", "genelge", "karar", "rehber", "usul", "esaslar", "yönerge", "talimat",
+    "hakkında", "ilişkin", "dair", "sayılı", "bazı", "değişiklik", "yapılmasına",
+)
+
+
 def _name_stems(text: str) -> frozenset:
-    return frozenset(stem(t) for t in tokenize(turkish_lower(text)) if not t.isdigit()) - _GENERIC_NAME_STEMS
+    return frozenset(stem(t) for t in tokenize(turkish_lower(text))
+                     if not t.isdigit() and not t.startswith(_GENERIC_NAME_PREFIXES))
 
 
 def _article_after(text: str, end: int) -> str:
@@ -162,6 +166,9 @@ def resolve(citation: Dict[str, str], catalog: Optional[Iterable[CatalogEntry]])
         if score > best_score:
             best, best_score = entry, score
     if best is not None and best_score[0] >= MIN_NAME_COVERAGE:
+        # Adla anılan kanunun numarası katalogdan gelir: "İcra ve İflas Kanunu" → 2004 (arama bunu kullanır).
+        if best.is_law and best.law_number:
+            base["law_number"] = best.law_number
         return CitedReference(status=IN_CORPUS, matched_title=best.title, **base)
     return CitedReference(status=NOT_IN_CORPUS, **base)
 

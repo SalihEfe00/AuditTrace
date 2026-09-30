@@ -603,18 +603,6 @@
    "rg_date": "17.07.1964"
   },
   {
-   "code": "20.5.11205",
-   "title": "KAYNAK KULLANIMINI DESTEKLEME FONU KESİNTİSİ HAKKINDA KARAR (KARAR SAYISI: 11205)",
-   "instrument": "karar",
-   "number": "11205",
-   "issuer": "Cumhurbaşkanı",
-   "priority": 2,
-   "group": "vergi",
-   "reason": "KKDF oranları (güncel karar)",
-   "in_corpus": false,
-   "rg_date": "25.04.2026"
-  },
-  {
    "code": "1.4.213",
    "title": "VERGİ USUL KANUNU",
    "instrument": "kanun",
@@ -709,6 +697,71 @@
    "reason": "Değişken faizli konut kredisi bilgilendirmesi",
    "in_corpus": false,
    "rg_date": "31.05.2007"
+  },
+  {
+   "code": "",
+   "title": "Bankalar ve Bankacılık Faaliyeti ile Sınırlı Olmak Üzere PTT Şüpheli İşlem Bildirim Rehberi",
+   "instrument": "rehber",
+   "number": "",
+   "issuer": "MASAK",
+   "priority": 2,
+   "group": "masak",
+   "reason": "Bankalara özgü şüphe göstergeleri ve tipolojiler (sürüm 2.0, 08.05.2024); M12 tipoloji uyarılarının dayanağı",
+   "in_corpus": false,
+   "rg_date": "",
+   "url": "https://ms.hmb.gov.tr/uploads/sites/12/2024/05/MSK-RHB-SIB-001-2.pdf"
+  },
+  {
+   "code": "",
+   "title": "Şüphe Kategorileri Referans Tablosu",
+   "instrument": "rehber",
+   "number": "",
+   "issuer": "MASAK",
+   "priority": 2,
+   "group": "masak",
+   "reason": "Şüpheli işlem kategorileri ve ilgili yasal düzenlemeler (21.08.2026)",
+   "in_corpus": false,
+   "rg_date": "",
+   "url": "https://ms.hmb.gov.tr/uploads/sites/12/2026/08/SK-KODLAR-21082026-3dcdc4482c3cd056.pdf"
+  },
+  {
+   "code": "",
+   "title": "Hawala ve Benzeri Alternatif Değer Transfer Sistemlerinin Tespiti ve Şüpheli İşlem Bildirimi Rehberi",
+   "instrument": "rehber",
+   "number": "",
+   "issuer": "MASAK",
+   "priority": 2,
+   "group": "masak",
+   "reason": "Kayıt dışı para transferi tipolojileri (2026)",
+   "in_corpus": false,
+   "rg_date": "",
+   "url": "https://ms.hmb.gov.tr/uploads/sites/12/2026/09/HAWALA-VE-BENZERI-ALTERNATIF-DEGER-TRANSFER-SISTEMLERININ-TESPITI-VE-SUPHELI-ISLEM-BILDIRIMI-REHBERI-2e2ecb667a992fd9.pdf"
+  },
+  {
+   "code": "",
+   "title": "Sermaye Hareketleri Genelgesi",
+   "instrument": "genelge",
+   "number": "",
+   "issuer": "TCMB",
+   "priority": 2,
+   "group": "kambiyo",
+   "reason": "Döviz kredisi, sermaye ve menkul kıymet transferleri (2 Mayıs 2018, Temmuz 2026 güncel metin)",
+   "in_corpus": false,
+   "rg_date": "",
+   "url": "https://www.tcmb.gov.tr/wps/wcm/connect/d58bd2eb-b966-4765-a0cc-626c507449d8/Sermaye+Hareketleri+Genelgesi_Temmuz_2026.pdf?MOD=AJPERES"
+  },
+  {
+   "code": "",
+   "title": "Görünmeyen İşlemler Genelgesi",
+   "instrument": "genelge",
+   "number": "",
+   "issuer": "TCMB",
+   "priority": 2,
+   "group": "kambiyo",
+   "reason": "Yurt dışına transfer ve ödemelerde bankaların uyacağı usul (18 Mayıs 2026)",
+   "in_corpus": false,
+   "rg_date": "",
+   "url": "https://www.tcmb.gov.tr/wps/wcm/connect/189a732e-ea1d-4ef9-b136-7ff4db4e6c4a/G%C3%B6r%C3%BCnmeyen+%C4%B0%C5%9Flemler+Genelgesi+-+18.05.2026.pdf?MOD=AJPERES"
   }
  ]
 }

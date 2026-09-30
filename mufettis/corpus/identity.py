@@ -39,9 +39,11 @@ _TITLE_INSTRUMENT_PATTERNS: Tuple[Tuple[str, str], ...] = (
     (InstrumentType.CONSTITUTION, r"\banayasa(?:sı)?\b"),
     (InstrumentType.PRESIDENTIAL_DECREE, r"cumhurbaşkanlığı\s+kararnamesi\w*|kanun\s+hükmünde\s+kararname\w*|\bkhk\b"),
     (InstrumentType.PRESIDENTIAL_DECISION, r"cumhurbaşkan(?:ı|lığı)\s+kararı\w*|bakanlar\s+kurulu\s+kararı\w*"),
-    (InstrumentType.LAW, r"\bkanun(?:u|nu)?\b"),
+    # Sona bitişik dipnot işareti ("KANUNU1") türü gizlemesin: sınırda rakam da kabul edilir.
+    (InstrumentType.LAW, r"\bkanun(?:u|nu)?(?![a-zçğıöşü])"),
     (InstrumentType.REGULATION, r"\byönetmeli[kğ]\w*"),
-    (InstrumentType.COMMUNIQUE, r"\btebli[ğg]\w*"),
+    # "tebligi" (Türkçe karaktersiz yazım) tebliğdir; "Tebligat Kanunu" değildir.
+    (InstrumentType.COMMUNIQUE, r"\btebli[ğg](?!at)\w*"),
     (InstrumentType.PROCEDURE, r"\busul\s+ve\s+esas\w*"),
     (InstrumentType.BOARD_DECISION, r"\bkurulu?\s+kararı\w*"),  # "... Denetleme Kurulu Kararı"
     (InstrumentType.CIRCULAR, r"\bgenelge\w*"),

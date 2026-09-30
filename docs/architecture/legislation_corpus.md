@@ -39,6 +39,27 @@ Betikler üretim `data/` dizinine yalnızca `--production` ile yazar. Bu bayrak 
 
 Kaynak: `mevzuat_gov` (Mevzuat Bilgi Sistemi), `publisher_kind = primary_official`.
 
+Diğer kimlik kuralları (M6.13):
+
+- **Kalıcı kimlik (`declared_work_id`):** Kanun dışındaki liste belgeleri `mevzuat:<kod>` kimliğini
+  taşır. Başlık kimliği 80 karakterde kesildiği için adı yalnızca sonunda ayrışan belgeler (32 sayılı Karara
+  ilişkin tebliğler) birbirinin sürümü sayılıyordu. Kanunlar resmî numarayla (`tr/kanun/N`) kaynaktan
+  bağımsız kimliği korur.
+- **Tür:** Liste türü `declared_instrument_type` olarak taşınır.
+- **Tür desenleri:** "Tebligat" tebliğ değildir. Başlığa bitişik dipnot işareti ("KANUNU1") ne türü ne de
+  beyan edilen adı bozar.
+
+## Adla ve seri numarasıyla arama
+
+- **Seri numarası (M6.11, M6.13):** Sorgudaki "Sıra No: N" ya da "Tebliğ No: 2008-32/34" belge
+  kimliğidir. Numarası tutan seri üyesi kanun numarası eşleşmesi gibi öne geçer.
+- **Kanun adı (M6.13):** Sorguda adıyla anılan kanun ("İcra ve İflas Kanunu …") atıf çözücüsüyle
+  (`analysis.cited_references`) korpustaki kanun kataloğuna karşı numaraya çözülür
+  (`LocalRAG.named_law_number`). Sonra numaralı sorguyla aynı yoldan gider.
+- **Bilinen eksik:** Madde numarasıyla doğrudan erişim ("5411 sayılı Kanun 54 üncü madde" → madde 54) yok.
+  Sorgu doğru kanuna gider ama madde anlamsal benzerlikle seçilir. Bu M6'nın getirdiği bir gerileme değil,
+  hiç olmayan bir özellik; kullanıcı kararına sunuldu.
+
 ## Mevzuat olmayan kayıtlar (M6.5)
 
 Kural: resmî olmayan bir yayıncıdan gelen ve hiç madde yapısı olmayan kayıt.
@@ -61,9 +82,50 @@ Ayıklama silme değildir:
 - **Ayıklanan (3):** mevzuat.org ana sayfası, e-Beyan giriş paneli, hesaplama kütüphanesi (29 parça).
 - **İncelemeye düşen (1):** `mufettis_ai_test_temiz` (yerel test dosyası).
 
-## Liste dışı resmî kaynaklar
+## Güncel tutma (M6.8)
 
-Aşağıdakiler mevzuat.gov.tr'de yok. Kurumların kendi sitelerinden tam sete (M6.7) eklenir:
+`mufettis/corpus/legislation_updates.py`, `scripts/update_legislation.py` iki sinyal kullanır:
 
-- MASAK tipoloji ve şüpheli işlem rehberleri (masak.hmb.gov.tr)
-- TCMB finansal tüketici şikâyet düzenlemesi ve Sermaye Hareketleri Genelgesi (tcmb.gov.tr)
+1. **Resmî Gazete fihristi** (varsayılan, son N gün): Listedeki bir belgenin adını anan yayım o belgeyi
+   denetime alır. Örnek: "… Yönetmelikte Değişiklik Yapılmasına Dair Yönetmelik". Eşleşme için belge
+   adının anlamlı kelimelerinin en az %80'i yayım başlığında geçmeli. Kelimeler Türkçe ekler için ilk 6
+   harfle karşılaştırılır; tür adları ve bağlaçlar sayılmaz.
+2. **Tam denetim** (`--all`): Torba kanunların başlığı değiştirdiği kanunları saymaz ("Bazı Kanunlarda
+   Değişiklik…"). Bu yüzden listedeki bütün belgeler dönem dönem yeniden indirilir.
+
+Değişiklik, çıkarılan metnin özetiyle (`text_sha256`) ölçülür. Aynı metnin yeniden üretilmiş dosyası yeni
+sürüm sayılmaz. Metni değişen belge yeniden yüklenir; sürüm anahtarı aynı olduğundan eski sürüm
+`superseded` olur.
+
+mevzuat.gov.tr dışındaki kaynaklarda (TCMB genelgeleri, MASAK rehberleri) güncel metin yeni bir dosya
+adıyla yayımlanır. Adres değişince listenin elle güncellenmesi gerekir.
+
+## Metin olarak alınamayanlar
+
+- **Hawala ve Benzeri Alternatif Değer Transfer Sistemleri ŞİB Rehberi (MASAK, 2026):**
+  - İndirildi ve doğrulandı, ama yükleme hattının metin kalite kapısı onu karantinaya aldı (puan 0,81,
+    otomatik onarım çözemedi). Tasarımı yoğun bir PDF; çıkarılan metin bozuk.
+  - Kapı işini doğru yaptığı için karantinada bırakıldı.
+  - Bankalara özgü asıl ŞİB rehberi sorunsuz yüklendi. M12 (tipoloji uyarıları) bu rehberi gerekli
+    görürse metni ayrıca ele alınır.
+
+- **KKDF kesintisi kararı (Cumhurbaşkanı Kararı 11205, 2026):** PDF'inde yalnızca imza sayfası metin olarak
+  var; oranları içeren ek görüntü olarak basılmış. mevzuat.gov.tr metin sayfası da boş. Doğrulama kaydı
+  reddetti ve kayıt listeden çıkarıldı (2026-09-30). Oranlar sık değiştiği için ileride OCR ile alınması
+  ayrıca değerlendirilir.
+
+## mevzuat.gov.tr dışındaki resmî kaynaklar (M6.7)
+
+Kurumların kendi sitelerinden, listede `url` alanıyla. Kaynak kimliği alan adından seçilir: `masak_official`
+(masak.hmb.gov.tr, dosyalar ms.hmb.gov.tr'de), `tcmb_official` (tcmb.gov.tr).
+
+- **MASAK:**
+  - Bankalar ve PTT Şüpheli İşlem Bildirim Rehberi (sürüm 2.0; M12 tipoloji uyarılarının dayanağı)
+  - Şüphe Kategorileri Referans Tablosu
+  - Hawala ve Benzeri Alternatif Değer Transfer Sistemleri ŞİB Rehberi
+- **TCMB:**
+  - Sermaye Hareketleri Genelgesi (Temmuz 2026 güncel metni)
+  - Görünmeyen İşlemler Genelgesi (18 Mayıs 2026)
+
+Ayrı bir TCMB "finansal tüketici şikâyetleri" düzenlemesi ne mevzuat.gov.tr'de ne TCMB mevzuat sayfalarında
+bulundu. Şikâyet belgelerinin ölçütü 6502 sayılı Kanun ve TCMB ücret tebliği ile kalır.
