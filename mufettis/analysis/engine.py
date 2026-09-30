@@ -131,6 +131,20 @@ def _display_name(meta: Dict[str, Any]) -> str:
     return title or str(meta.get("source") or "") or "Resmi Mevzuat Belgesi"
 
 
+def later_amendment_warning(meta: Dict[str, Any], event_date: Optional[str]) -> str:
+    """Olay tarihinden sonra değişmiş hüküm (M7.5): dayanak güncel metinse ve maddenin son değişiklik notu (M7.2) olay
+    tarihinden sonraysa, olay tarihindeki metin korpusta yok demektir (önceki metin olsaydı o seçilirdi, M7.4)."""
+    if not event_date or str(meta.get("status") or "") in HISTORICAL_STATUSES:
+        return ""
+    amended = str(meta.get("article_amended_on") or "")
+    if not amended or amended <= str(event_date):
+        return ""
+    notes = [n for n in str(meta.get("amendments") or "").split("; ") if n.split(" ")[1:2] and n.split(" ")[1] > event_date]
+    basis = f" ({'; '.join(notes)})" if notes else ""
+    return (f"Uyarı: Bu hüküm olay tarihinden ({event_date}) sonra değişti{basis}; olay tarihindeki metin "
+            f"korpusta yok, gösterilen güncel metindir. Olay tarihindeki metin ayrıca kontrol edilmelidir.")
+
+
 class RetrievalUnavailableError(RuntimeError):
     """Hiçbir mevzuat sorgusu çalıştırılamadı (veritabanı erişim hatası)."""
 
@@ -542,6 +556,7 @@ class AnalysisEngine:
                     f"Dayanak mevzuat metninde '{verbatim_span[:120]}...' hükmü yer almakta olup, "
                     f"işlemin anılan mevzuat şartları ve banka bilgilendirme yükümlülüğü çerçevesinde "
                     f"uygunluğu değerlendirilmelidir."
+                    + (f" {later}" if (later := later_amendment_warning(matched_ev.metadata, doc.event_date)) else "")
                 ),
                 inspector_action=(
                     (LOW_CONFIDENCE_ACTION if confidence == "düşük" else "")

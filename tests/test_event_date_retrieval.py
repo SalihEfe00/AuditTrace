@@ -121,5 +121,20 @@ class TestAnalysisPassesEventDate(unittest.TestCase):
         self.assertEqual(self._run(_Client(False), "2012-12-01"), [{}])
 
 
+
+class TestLaterAmendmentWarning(unittest.TestCase):
+    def test_current_text_changed_after_the_event_is_flagged(self):
+        from mufettis.analysis.engine import later_amendment_warning
+
+        meta = {"status": "active", "article_amended_on": "2020-12-25",
+                "amendments": "değişik 2009-06-24 kanun 5915; değişik 2020-12-25 RG 31345"}
+        warning = later_amendment_warning(meta, "2015-03-01")
+        self.assertIn("olay tarihinden (2015-03-01) sonra değişti (değişik 2020-12-25 RG 31345)", warning)
+        self.assertNotIn("5915", warning)
+        self.assertEqual(later_amendment_warning(meta, "2021-01-01"), "")   # olaydan önce değişmiş
+        self.assertEqual(later_amendment_warning(meta, None), "")           # olay tarihi bilinmiyor
+        self.assertEqual(later_amendment_warning({**meta, "status": "historical"}, "2015-03-01"), "")
+
+
 if __name__ == "__main__":
     unittest.main()
