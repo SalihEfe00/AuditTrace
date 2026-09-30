@@ -1,0 +1,821 @@
+{
+ "note": "scripts/import_synthetic.py ile benchmarks\\synthetic\\incoming klasöründen üretildi; elle düzenlemeyin",
+ "cases": [
+  {
+   "split": "dev",
+   "document_type": "",
+   "text": "=== Kredi Teklif ve Onay Formu ===\nGÜNEY ANADOLU BANKASI A.Ş. — MERSİN YENİŞEHİR ŞUBESİ\nTİCARİ KREDİ TEKLİF VE ONAY FORMU — Teklif No: YNŞ-2025-0266 — Tarih: 03.04.2025\n\nMüşteri: Akdeniz Soğuk Hava Deposu İşletmeciliği A.Ş. — VKN 0582917364\nKredi: Spot ticari kredi, 18 ay, limit 3.200.000,00 TL\nTeminat: Şirket yönetim kurulu başkanı Hüseyin Toprak'ın (TCKN 17640392851) müşterek borçlu müteselsil\nkefaleti, 3.200.000,00 TL; araç rehni (2 adet frigorifik kamyon, ekspertiz değeri 4.100.000,00 TL)\nŞube Kredi Komitesi yetkisi: 5.000.000,00 TL'ye kadar\nKarar: ONAYLANDI — Şube Kredi Komitesi, 04.04.2025\nİmzalar: Şube Müdürü Can Yazıcı (imzalı), Müdür Yardımcısı Melis Oğuz (imzalı)\n\n=== Kefalet Sözleşmesi ===\nKEFALET SÖZLEŞMESİ — Mersin, 14.04.2025\nKefil: Hüseyin Toprak — TCKN 17640392851 — Medeni hali: Bekar (nüfus kayıt örneği 10.04.2025)\nAsıl borçlu: Akdeniz Soğuk Hava Deposu İşletmeciliği A.Ş.\nKefilin el yazısı: \"Müteselsil kefil\" — \"Üç milyon iki yüz bin Türk Lirası (3.200.000 TL)\" — \"14.04.2025\"\nKefil imzası: (imzalı)\n\n=== Kredi Kullandırım Talimatı ve Dekontu ===\nKULLANDIRIM TALİMATI — Tarih: 09.04.2025\nTalimat veren: Hüseyin Toprak, yönetim kurulu başkanı (imza sirküleri: münferit yetkili)\nKullandırılan tutar: 3.200.000,00 TL — Kullandırım tarihi: 09.04.2025\nAlacaklandırılan hesap: IBAN TR920006700000000582917364\nDekont No: 2025040900914\nAraç rehni tescil tarihi (noter): 16.04.2025\n\n=== Mali Tablo Özeti ===\nMALİ TABLO ÖZETİ (2024 yılı, bağımsız denetimden geçmemiş, şirket beyanı)\nNet satışlar: 21.300.000,00 TL\nNet kâr: 1.150.000,00 TL\nKısa vadeli banka kredileri: 2.100.000,00 TL\nToplam banka kredileri: 2.600.000,00 TL\nÖzkaynaklar: 6.800.000,00 TL\n\n=== KKB Raporu Özeti ===\nKKB TİCARİ KREDİ RAPORU ÖZETİ — Sorgu Tarihi: 01.04.2025\nToplam nakdi risk (tüm bankalar): 7.850.000,00 TL\nGecikmedeki risk: 0,00 TL\nSon 12 ayda limit artışı: 3 banka\nKarşılıksız çek / protestolu senet: yok",
+   "compliant": false,
+   "defects": [
+    {
+     "description": "Kredi 09.04.2025'te kullandırılmış; kefalet sözleşmesi 14.04.2025'te, araç rehni 16.04.2025'te tesis edilmiş. Kullandırım teminatlar tesis edilmeden yapılmış.",
+     "quote": "Kullandırılan tutar: 3.200.000,00 TL — Kullandırım tarihi: 09.04.2025",
+     "regulation": "Bankaların Kredi İşlemlerine İlişkin Yönetmelik; bankanın kredi kullandırım talimatı",
+     "severity": "yüksek",
+     "scope": "dosya"
+    },
+    {
+     "description": "Mali tabloda toplam banka kredileri 2.600.000 TL beyan edilmiş; KKB'de tüm bankalardaki nakdi risk 7.850.000 TL. Mali tablo ile KKB arasındaki büyük fark kredi teklifinde değerlendirilmemiş.",
+     "quote": "Toplam banka kredileri: 2.600.000,00 TL",
+     "regulation": "Bankaların Kredi İşlemlerine İlişkin Yönetmelik (kredi değerliliğinin belirlenmesi)",
+     "severity": "orta",
+     "scope": "dosya"
+    }
+   ],
+   "fields": {
+    "amounts": [
+     "3200000.00 TRY",
+     "4100000.00 TRY",
+     "5000000.00 TRY",
+     "21300000.00 TRY",
+     "1150000.00 TRY",
+     "2100000.00 TRY",
+     "2600000.00 TRY",
+     "6800000.00 TRY",
+     "7850000.00 TRY",
+     "0.00 TRY"
+    ],
+    "dates": [
+     "2025-04-03",
+     "2025-04-04",
+     "2025-04-14",
+     "2025-04-10",
+     "2025-04-09",
+     "2025-04-16",
+     "2025-04-01"
+    ],
+    "tckn": [
+     "17640392851"
+    ],
+    "vkn": [
+     "0582917364"
+    ],
+    "iban": [
+     "TR920006700000000582917364"
+    ],
+    "persons": [
+     "Hüseyin Toprak - yönetim kurulu başkanı, kefil, talimat veren",
+     "Can Yazıcı - şube müdürü",
+     "Melis Oğuz - müdür yardımcısı"
+    ],
+    "signatures": [
+     "Şube kredi komitesi onayı",
+     "Kefil imzası",
+     "Talimat verenin imzası"
+    ],
+    "other": {
+     "iban": "TR920006700000000582917364",
+     "dekont_no": "2025040900914"
+    }
+   },
+   "documents": [
+    {
+     "document_type": "kredi_teklif_onay",
+     "title": "Kredi Teklif ve Onay Formu",
+     "text": "GÜNEY ANADOLU BANKASI A.Ş. — MERSİN YENİŞEHİR ŞUBESİ\nTİCARİ KREDİ TEKLİF VE ONAY FORMU — Teklif No: YNŞ-2025-0266 — Tarih: 03.04.2025\n\nMüşteri: Akdeniz Soğuk Hava Deposu İşletmeciliği A.Ş. — VKN 0582917364\nKredi: Spot ticari kredi, 18 ay, limit 3.200.000,00 TL\nTeminat: Şirket yönetim kurulu başkanı Hüseyin Toprak'ın (TCKN 17640392851) müşterek borçlu müteselsil\nkefaleti, 3.200.000,00 TL; araç rehni (2 adet frigorifik kamyon, ekspertiz değeri 4.100.000,00 TL)\nŞube Kredi Komitesi yetkisi: 5.000.000,00 TL'ye kadar\nKarar: ONAYLANDI — Şube Kredi Komitesi, 04.04.2025\nİmzalar: Şube Müdürü Can Yazıcı (imzalı), Müdür Yardımcısı Melis Oğuz (imzalı)"
+    },
+    {
+     "document_type": "teminat",
+     "title": "Kefalet Sözleşmesi",
+     "text": "KEFALET SÖZLEŞMESİ — Mersin, 14.04.2025\nKefil: Hüseyin Toprak — TCKN 17640392851 — Medeni hali: Bekar (nüfus kayıt örneği 10.04.2025)\nAsıl borçlu: Akdeniz Soğuk Hava Deposu İşletmeciliği A.Ş.\nKefilin el yazısı: \"Müteselsil kefil\" — \"Üç milyon iki yüz bin Türk Lirası (3.200.000 TL)\" — \"14.04.2025\"\nKefil imzası: (imzalı)"
+    },
+    {
+     "document_type": "kredi_kullandirim",
+     "title": "Kredi Kullandırım Talimatı ve Dekontu",
+     "text": "KULLANDIRIM TALİMATI — Tarih: 09.04.2025\nTalimat veren: Hüseyin Toprak, yönetim kurulu başkanı (imza sirküleri: münferit yetkili)\nKullandırılan tutar: 3.200.000,00 TL — Kullandırım tarihi: 09.04.2025\nAlacaklandırılan hesap: IBAN TR920006700000000582917364\nDekont No: 2025040900914\nAraç rehni tescil tarihi (noter): 16.04.2025"
+    },
+    {
+     "document_type": "mali_tablo",
+     "title": "Mali Tablo Özeti",
+     "text": "MALİ TABLO ÖZETİ (2024 yılı, bağımsız denetimden geçmemiş, şirket beyanı)\nNet satışlar: 21.300.000,00 TL\nNet kâr: 1.150.000,00 TL\nKısa vadeli banka kredileri: 2.100.000,00 TL\nToplam banka kredileri: 2.600.000,00 TL\nÖzkaynaklar: 6.800.000,00 TL"
+    },
+    {
+     "document_type": "kkb_istihbarat",
+     "title": "KKB Raporu Özeti",
+     "text": "KKB TİCARİ KREDİ RAPORU ÖZETİ — Sorgu Tarihi: 01.04.2025\nToplam nakdi risk (tüm bankalar): 7.850.000,00 TL\nGecikmedeki risk: 0,00 TL\nSon 12 ayda limit artışı: 3 banka\nKarşılıksız çek / protestolu senet: yok"
+    }
+   ],
+   "issue_date": "2025-04-03",
+   "event_date": "2025-04-09",
+   "source": {
+    "model": "claude-opus-5-5",
+    "task": "D01",
+    "file": "claude-opus-5-5/D01_001.md",
+    "declared_type": "Kredi dosyası paketi"
+   },
+   "id": "claude-opus-5-5-d01_001"
+  },
+  {
+   "split": "dev",
+   "document_type": "kredi_teklif_onay",
+   "text": "KARADENİZ TİCARET BANKASI A.Ş.\nBursa Nilüfer Şubesi (Şube Kodu: 0418)\n\nTİCARİ KREDİ TEKLİF VE ONAY FORMU\n\nTeklif No: NLF-2024-0187\nTeklif Tarihi: 14.03.2024\n\n1. MÜŞTERİ BİLGİLERİ\nUnvan: Ertuğrul Otomotiv Yedek Parça San. ve Tic. Ltd. Şti.\nVergi Dairesi / VKN: Nilüfer V.D. / 3810472956\nMüşteri No: 60221874\nFaaliyet Konusu: Otomotiv yedek parça toptan ticareti\nKuruluş Yılı: 2011\nOrtaklar: Hakan Ertuğrul (%60, TCKN 28471036592), Selin Ertuğrul (%40, TCKN 28471036418)\n\n2. TALEP EDİLEN KREDİ\nKredi Türü: Rotatif Kredi (TL)\nTalep Edilen Limit: 7.500.000,00 TL\nVade: 12 ay (limit vadesi)\nFaiz Oranı: Yıllık %54,00 (aylık %4,50), değişken değil\nKomisyon: Limit tahsis ücreti 18.750,00 TL\nKullanım Amacı: İşletme sermayesi, stok finansmanı\n\n3. MEVCUT RİSK DURUMU (14.03.2024 itibarıyla)\nBankamız nakdi risk: 2.150.000,00 TL\nBankamız gayrinakdi risk: 600.000,00 TL\nSektör toplam risk (KKB): 11.480.000,00 TL\n\n4. TEMİNATLAR\n- Hakan Ertuğrul müşterek borçlu müteselsil kefaleti: 7.500.000,00 TL\n- Selin Ertuğrul müşterek borçlu müteselsil kefaleti: 7.500.000,00 TL\n- Müşteri çeki temlik (keşideci çekleri, vade ortalaması 90 gün): 3.000.000,00 TL\n\n5. İSTİHBARAT ÖZETİ\nTarih: 02.02.2024. Piyasa istihbaratında olumsuz bilgi yoktur. Firmanın ödemelerini düzenli yaptığı,\nana tedarikçilerinden Özbay Oto A.Ş. ile 8 yıllık çalışma ilişkisi olduğu öğrenilmiştir.\nKKB kredi notu: 1.412 (orta risk). Karşılıksız çek ve protestolu senet kaydı yoktur.\n\n6. MALİ ANALİZ ÖZETİ (2023 Kurumlar Vergisi Beyannamesi esas alınmıştır)\nNet Satışlar: 48.600.000,00 TL\nNet Kâr: 2.940.000,00 TL\nÖzkaynak: 9.120.000,00 TL\nKısa Vadeli Borçlar / Özkaynak: 1,34\n\n7. ŞUBE GÖRÜŞÜ\nFirmanın satış hacmi ve ödeme performansı dikkate alınarak talebin olumlu değerlendirilmesi uygundur.\n\n8. ONAY\nKredi yetki seviyesi (Kredi Yetkileri Yönetmeliği, iç talimat KT-12): Şube Kredi Komitesi limiti\n5.000.000,00 TL; 5.000.000,00 TL üzeri Bölge Kredi Komitesi.\n\nHazırlayan: Pazarlama Yetkilisi Burak Soylu — İmza: (imzalı) — 14.03.2024\nKontrol Eden: Şube Operasyon Yönetmeni Derya Kılınç — İmza: (imzalı) — 15.03.2024\nŞube Kredi Komitesi Kararı: ONAYLANMIŞTIR — Şube Müdürü Murat Aksoy — İmza: (imzalı) — 15.03.2024\nBölge Kredi Komitesi: —",
+   "compliant": false,
+   "defects": [
+    {
+     "description": "7.500.000 TL limit şube kredi komitesinin 5.000.000 TL yetkisini aşıyor; bölge kredi komitesi onayı yok, kredi yetki dışında onaylanmış.",
+     "quote": "Bölge Kredi Komitesi: —",
+     "regulation": "Bankaların Kredi İşlemlerine İlişkin Yönetmelik (kredi yetkileri); bankanın iç kredi yetki talimatı",
+     "severity": "yüksek",
+     "scope": "belge"
+    },
+    {
+     "description": "İstihbarat 02.02.2024 tarihli; teklif formunda istihbarat tarihi ile teklif tarihi arasında makul süre var ama çek temliki teminatına ait çek listesi ve keşideci istihbaratı belgede yok.",
+     "quote": "Müşteri çeki temlik (keşideci çekleri, vade ortalaması 90 gün): 3.000.000,00 TL",
+     "regulation": "Bankaların Kredi İşlemlerine İlişkin Yönetmelik (kredi değerliliğinin belirlenmesi)",
+     "severity": "orta",
+     "scope": "belge"
+    }
+   ],
+   "fields": {
+    "amounts": [
+     "7500000.00 TRY",
+     "18750.00 TRY",
+     "2150000.00 TRY",
+     "600000.00 TRY",
+     "11480000.00 TRY",
+     "3000000.00 TRY",
+     "48600000.00 TRY",
+     "2940000.00 TRY",
+     "9120000.00 TRY",
+     "5000000.00 TRY"
+    ],
+    "dates": [
+     "2024-03-14",
+     "2024-03-15",
+     "2024-02-02"
+    ],
+    "tckn": [
+     "28471036592",
+     "28471036418"
+    ],
+    "vkn": [
+     "3810472956"
+    ],
+    "iban": [],
+    "persons": [
+     "Hakan Ertuğrul - ortak, kefil",
+     "Selin Ertuğrul - ortak, kefil",
+     "Burak Soylu - pazarlama yetkilisi, hazırlayan",
+     "Derya Kılınç - şube operasyon yönetmeni, kontrol eden",
+     "Murat Aksoy - şube müdürü, şube kredi komitesi"
+    ],
+    "signatures": [
+     "Hazırlayan imzası",
+     "Kontrol eden imzası",
+     "Şube kredi komitesi onayı",
+     "Bölge kredi komitesi onayı yok"
+    ],
+    "other": {
+     "musteri_no": "60221874",
+     "teklif_no": "NLF-2024-0187",
+     "faiz": "yıllık %54,00",
+     "vade": "12 ay"
+    }
+   },
+   "documents": [],
+   "issue_date": "2024-03-14",
+   "event_date": "2024-03-15",
+   "source": {
+    "model": "claude-opus-5-5",
+    "task": "T01",
+    "file": "claude-opus-5-5/T01_001.md",
+    "declared_type": "Ticari kredi teklif ve onay formu"
+   },
+   "id": "claude-opus-5-5-t01_001"
+  },
+  {
+   "split": "dev",
+   "document_type": "teminat",
+   "text": "KEFALET SÖZLEŞMESİ\n(Genel Kredi Sözleşmesine Ek)\n\nSözleşme No: GKS-2022-55310-K2\nDüzenleme Yeri ve Tarihi: İzmir, 21.06.2022\n\nAlacaklı (Banka): Ege Kalkınma ve Ticaret Bankası A.Ş. Karşıyaka Şubesi\nAsıl Borçlu: Deniz Tekstil Konfeksiyon San. Tic. A.Ş. (VKN 2940183376)\nAna Sözleşme: 21.06.2022 tarihli, 4.000.000,00 TL limitli Genel Kredi Sözleşmesi\n\nKEFİL BİLGİLERİ\nAdı Soyadı: Kemal Özdemir\nTCKN: 41027593816\nDoğum Tarihi: 04.09.1968\nAdres: Bostanlı Mah. 1812 Sok. No: 7/3 Karşıyaka / İzmir\nMedeni Hali: Evli\nEşinin Adı Soyadı: Nurten Özdemir (TCKN 41027593702)\n\nKEFALETİN TÜRÜ VE KAPSAMI\nKefil, asıl borçlunun yukarıda belirtilen sözleşmeden doğmuş ve doğacak borçlarından müteselsil kefil\nsıfatıyla sorumludur.\n\nKefilin el yazısı ile doldurulacak bölüm:\nKefalet türü: \"Müteselsil kefil\"\nAzami sorumluluk tutarı: \"Dört milyon Türk Lirası (4.000.000 TL)\"\nKefalet tarihi: \"21.06.2022\"\n\nKefil İmzası: (imzalı)\n\nEŞ RIZASI\nTürk Borçlar Kanunu m. 584 uyarınca eşin yazılı rızası:\nEş Adı Soyadı: ..................................\nRıza Tarihi: ..................................\nİmza: ..................................\n\nBANKA YETKİLİLERİ\nAyşe Yavuz — Kredi Operasyon Yetkilisi — (imzalı)\nCem Aras — Şube Müdür Yardımcısı — (imzalı)\n\nSözleşmenin bir nüshası kefile elden teslim edilmiştir. Teslim alan: Kemal Özdemir (imzalı) 21.06.2022",
+   "compliant": false,
+   "defects": [
+    {
+     "description": "Kefil evli olduğu halde eşin yazılı rızası alınmamış; eş rızası bölümü boş bırakılmış. Kefalet geçersiz olabilir.",
+     "quote": "Eş Adı Soyadı: ..................................",
+     "regulation": "6098 sayılı Türk Borçlar Kanunu m. 584",
+     "severity": "yüksek",
+     "scope": "belge"
+    }
+   ],
+   "fields": {
+    "amounts": [
+     "4000000.00 TRY"
+    ],
+    "dates": [
+     "2022-06-21",
+     "1968-09-04"
+    ],
+    "tckn": [
+     "41027593816",
+     "41027593702"
+    ],
+    "vkn": [
+     "2940183376"
+    ],
+    "iban": [],
+    "persons": [
+     "Kemal Özdemir - kefil",
+     "Nurten Özdemir - kefilin eşi",
+     "Ayşe Yavuz - kredi operasyon yetkilisi",
+     "Cem Aras - şube müdür yardımcısı"
+    ],
+    "signatures": [
+     "Kefil imzası var",
+     "Kefil el yazısı bölümü dolu",
+     "Eş rızası imzası yok",
+     "Banka yetkilileri imzası var"
+    ],
+    "other": {
+     "sozlesme_no": "GKS-2022-55310-K2"
+    }
+   },
+   "documents": [],
+   "issue_date": "2022-06-21",
+   "event_date": "2022-06-21",
+   "source": {
+    "model": "claude-opus-5-5",
+    "task": "T02",
+    "file": "claude-opus-5-5/T02_001.md",
+    "declared_type": "Kefalet sözleşmesi"
+   },
+   "id": "claude-opus-5-5-t02_001"
+  },
+  {
+   "split": "dev",
+   "document_type": "kredi_kullandirim",
+   "text": "ANADOLU YATIRIM VE TİCARET BANKASI A.Ş. — KONYA SELÇUKLU ŞUBESİ\nKREDİ KULLANDIRIM DOSYASI ÖZETİ\n\nDosya No: SLC-KK-2023-0412\nMüşteri: Yıldız Tarım Makineleri İmalat Ltd. Şti. — VKN 9471620385\nKredi Türü: Taksitli Ticari Kredi (TL), 24 ay, eşit taksitli\nOnaylanan Limit / Kullandırılan Tutar: 2.400.000,00 TL / 2.400.000,00 TL\nOnay Mercii ve Tarihi: Bölge Kredi Komitesi, 06.10.2023 (Karar No: BKK-2023/1187)\nGenel Kredi Sözleşmesi Tarihi: 09.10.2023\n\nTEMİNAT TESİS BİLGİLERİ\n1) İpotek: Selçuklu, Bosna Hersek Mah., 18452 ada 3 parsel üzerindeki fabrika binası, 1. derece,\n   ipotek tutarı 3.000.000,00 TL. Tapu tescil tarihi: 11.10.2023. Ekspertiz değeri: 5.250.000,00 TL\n   (Ekspertiz tarihi: 28.09.2023, SPK lisanslı değerleme şirketi).\n2) Müşterek borçlu müteselsil kefalet: Mustafa Yıldız (TCKN 36182047590), 2.400.000,00 TL,\n   kefalet tarihi 09.10.2023; kefil bekar (nüfus kayıt örneği dosyada).\n3) DASK ve yangın sigortası: Poliçe No 88-2023-771045, dain-i mürtehin banka, başlangıç 11.10.2023.\n\nKULLANDIRIM\nKullandırım Talimatı Tarihi: 12.10.2023 — Talimatı veren: Mustafa Yıldız (şirket müdürü, imza sirkülerinde\nmünferit yetkili, sirküler tarihi 15.02.2022)\nKullandırım Tarihi: 12.10.2023\nKullandırım Hesabı: TR610004600418888000047219\nDekont No: 2023101200573, tutar 2.400.000,00 TL, tahsil edilen dosya masrafı 3.600,00 TL, BSMV 180,00 TL\n\nKONTROL LİSTESİ\n[X] Onay yetki seviyesine uygun\n[X] Sözleşme kullandırımdan önce imzalanmış\n[X] İpotek tesisi kullandırımdan önce tamamlanmış\n[X] Kefalet sözleşmesi ve kefil medeni hal belgesi dosyada\n[X] Sigorta poliçesi dain-i mürtehin kaydıyla dosyada\n[X] Kredi sözleşme öncesi bilgi formu imzalı\n\nKontrol Eden: Operasyon Yetkilisi Elif Tunç (imzalı) — 12.10.2023\nOnaylayan: Şube Müdürü Serkan Oral (imzalı) — 12.10.2023",
+   "compliant": true,
+   "defects": [],
+   "fields": {
+    "amounts": [
+     "2400000.00 TRY",
+     "3000000.00 TRY",
+     "5250000.00 TRY",
+     "3600.00 TRY",
+     "180.00 TRY"
+    ],
+    "dates": [
+     "2023-10-06",
+     "2023-10-09",
+     "2023-10-11",
+     "2023-09-28",
+     "2023-10-12",
+     "2022-02-15"
+    ],
+    "tckn": [
+     "36182047590"
+    ],
+    "vkn": [
+     "9471620385"
+    ],
+    "iban": [
+     "TR610004600418888000047219"
+    ],
+    "persons": [
+     "Mustafa Yıldız - şirket müdürü, kefil, talimat veren",
+     "Elif Tunç - operasyon yetkilisi",
+     "Serkan Oral - şube müdürü"
+    ],
+    "signatures": [
+     "Bölge Kredi Komitesi onayı",
+     "Kontrol eden imzası",
+     "Şube müdürü onayı"
+    ],
+    "other": {
+     "iban": "TR610004600418888000047219",
+     "dekont_no": "2023101200573",
+     "karar_no": "BKK-2023/1187"
+    }
+   },
+   "documents": [],
+   "issue_date": "2023-10-12",
+   "event_date": "2023-10-12",
+   "source": {
+    "model": "claude-opus-5-5",
+    "task": "T03",
+    "file": "claude-opus-5-5/T03_001.md",
+    "declared_type": "Kredi kullandırım dosyası özeti"
+   },
+   "id": "claude-opus-5-5-t03_001"
+  },
+  {
+   "split": "dev",
+   "document_type": "hesap_acilis_kyc",
+   "text": "MARMARA KATILIM VE TİCARET BANKASI A.Ş.\nKADIKÖY ŞUBESİ\n\nGERÇEK KİŞİ MÜŞTERİ BİLGİ VE HESAP AÇILIŞ FORMU\n\nİşlem Tarihi: 08.11.2021          Müşteri No: 71349025\n\nKİMLİK BİLGİLERİ\nAdı Soyadı: Levent Karaca\nT.C. Kimlik No: 52930417684\nUyruk: T.C.\nDoğum Yeri / Tarihi: Trabzon / 17.01.1985\nKimlik Belgesi: T.C. Kimlik Kartı, Seri No A12K48305, son geçerlilik 03.06.2029\nKimlik doğrulama: KPS sorgusu yapılmıştır (08.11.2021 10:42) — uyumlu\n\nİLETİŞİM VE ADRES\nYerleşim Yeri Adresi: Caferağa Mah. Moda Cad. No: 114 D: 6 Kadıköy / İstanbul\nAdres Teyit Yöntemi: Müşteri beyanı\nCep Telefonu: 0500 000 00 01\nE-posta: l.karaca@ornekposta.com.tr\n\nMESLEK VE GELİR BİLGİLERİ\nMeslek: Serbest (ithalat danışmanlığı)\nİşyeri: —\nAylık Ortalama Gelir: 150.000 TL üzeri\nHesap Açılış Amacı: Ticari kazanç tahsilatı ve yurt dışı ödemeler\nBeklenen Aylık İşlem Hacmi: 2.000.000 TL\n\nAÇILAN HESAPLAR\n1) Vadesiz TL Hesabı — IBAN TR420020600174000071349001\n2) Vadesiz USD Hesabı — IBAN TR150020600174000071349002\n\nBEYANLAR\nKendi adıma ve hesabıma hareket ettiğimi beyan ederim. [X] Evet  [ ] Hayır\nSiyasi nüfuz sahibi kişi değilim. [X]\n\nMüşteri İmzası: (imzalı)\nKimlik tespitini yapan personel: Gizem Ateş, Müşteri Temsilcisi (imzalı)\nOnaylayan: Tolga Sezer, Şube Operasyon Yönetmeni (imzalı)",
+   "compliant": false,
+   "defects": [
+    {
+     "description": "Yerleşim yeri adresi yalnızca müşteri beyanıyla alınmış; adres teyidi için belge (yerleşim yeri belgesi, fatura) ya da adres kayıt sistemi sorgusu yapılmamış.",
+     "quote": "Adres Teyit Yöntemi: Müşteri beyanı",
+     "regulation": "Suç Gelirlerinin Aklanmasının ve Terörün Finansmanının Önlenmesine Dair Tedbirler Hakkında Yönetmelik m. 6",
+     "severity": "orta",
+     "scope": "belge"
+    },
+    {
+     "description": "İşyeri bilgisi yok, beyan edilen gelirle orantısız yüksek işlem hacmi ve yurt dışı ödeme amacı var; artırılmış tedbir değerlendirmesi ve iş ilişkisinin amacına dair ek bilgi alınmamış.",
+     "quote": "Beklenen Aylık İşlem Hacmi: 2.000.000 TL",
+     "regulation": "Suç Gelirlerinin Aklanmasının ve Terörün Finansmanının Önlenmesine Dair Tedbirler Hakkında Yönetmelik m. 26/A",
+     "severity": "orta",
+     "scope": "belge"
+    }
+   ],
+   "fields": {
+    "amounts": [
+     "150000.00 TRY",
+     "2000000.00 TRY"
+    ],
+    "dates": [
+     "2021-11-08",
+     "1985-01-17",
+     "2029-06-03"
+    ],
+    "tckn": [
+     "52930417684"
+    ],
+    "vkn": [],
+    "iban": [
+     "TR420020600174000071349001",
+     "TR150020600174000071349002"
+    ],
+    "persons": [
+     "Levent Karaca - müşteri",
+     "Gizem Ateş - müşteri temsilcisi, kimlik tespiti",
+     "Tolga Sezer - şube operasyon yönetmeni, onay"
+    ],
+    "signatures": [
+     "Müşteri imzası",
+     "Kimlik tespit eden personel imzası",
+     "Operasyon yönetmeni onayı"
+    ],
+    "other": {
+     "iban_tl": "TR420020600174000071349001",
+     "iban_usd": "TR150020600174000071349002",
+     "telefon": "0500 000 00 01",
+     "musteri_no": "71349025"
+    }
+   },
+   "documents": [],
+   "issue_date": "2021-11-08",
+   "event_date": "2021-11-08",
+   "source": {
+    "model": "claude-opus-5-5",
+    "task": "T04",
+    "file": "claude-opus-5-5/T04_001.md",
+    "declared_type": "Gerçek kişi hesap açılış ve müşteri tanıma formu"
+   },
+   "id": "claude-opus-5-5-t04_001"
+  },
+  {
+   "split": "holdout",
+   "document_type": "kasa_sayim",
+   "text": "DOĞU AKDENİZ BANKASI A.Ş. — ADANA SEYHAN ŞUBESİ\nŞUBE KASASI GÜN SONU SAYIM TUTANAĞI\n\nSayım Tarihi / Saati: 29.12.2025 / 17:45\nSayım Türü: Olağan gün sonu sayımı (çift anahtar usulü)\n\nKASA MEVCUDU (TL)\nBanknot 200 TL x 1.240 adet = 248.000,00 TL\nBanknot 100 TL x 2.115 adet = 211.500,00 TL\nBanknot 50 TL x 960 adet = 48.000,00 TL\nBanknot 20 TL x 830 adet = 16.600,00 TL\nBanknot 10 TL x 415 adet = 4.150,00 TL\nMadeni para toplamı = 1.236,50 TL\nSAYILAN TOPLAM (TL): 529.486,50 TL\nSİSTEM BAKİYESİ (TL): 529.486,50 TL\nFARK: 0,00 TL\n\nKASA MEVCUDU (DÖVİZ)\nUSD: 18.400,00 USD — Sistem: 18.400,00 USD — Fark: 0\nEUR: 9.750,00 EUR — Sistem: 9.750,00 EUR — Fark: 0\n\nKIYMETLİ EVRAK\nBoş çek karnesi: 42 adet — Sistem: 42 adet\nKredi kartı (teslim bekleyen): 17 adet — Sistem: 17 adet\n\nKasa anahtarı 1: Veznedar Onur Balcı\nKasa anahtarı 2 / şifre: Operasyon Yetkilisi Sibel Demirtaş\n\nYukarıdaki sayım birlikte yapılmış, kasa mevcudu sistem kayıtları ile uyumlu bulunmuştur.\n\nSayımı Yapan: Onur Balcı, Veznedar — (imzalı)\nSayıma Nezaret Eden: Sibel Demirtaş, Operasyon Yetkilisi — (imzalı)\nOnaylayan: Hülya Kaplan, Şube Operasyon Yönetmeni — (imzalı) — 29.12.2025",
+   "compliant": true,
+   "defects": [],
+   "fields": {
+    "amounts": [
+     "248000.00 TRY",
+     "211500.00 TRY",
+     "48000.00 TRY",
+     "16600.00 TRY",
+     "4150.00 TRY",
+     "1236.50 TRY",
+     "529486.50 TRY",
+     "0.00 TRY",
+     "18400.00 USD",
+     "9750.00 EUR"
+    ],
+    "dates": [
+     "2025-12-29"
+    ],
+    "tckn": [],
+    "vkn": [],
+    "iban": [],
+    "persons": [
+     "Onur Balcı - veznedar, sayımı yapan",
+     "Sibel Demirtaş - operasyon yetkilisi, nezaret eden",
+     "Hülya Kaplan - şube operasyon yönetmeni, onaylayan"
+    ],
+    "signatures": [
+     "Sayımı yapan imzası",
+     "Nezaret eden imzası",
+     "Onaylayan imzası"
+    ],
+    "other": {}
+   },
+   "documents": [],
+   "issue_date": "2025-12-29",
+   "event_date": "2025-12-29",
+   "source": {
+    "model": "claude-opus-5-5",
+    "task": "T05",
+    "file": "claude-opus-5-5/T05_001.md",
+    "declared_type": "Kasa sayım tutanağı"
+   },
+   "id": "claude-opus-5-5-t05_001"
+  },
+  {
+   "split": "dev",
+   "document_type": "islem_dekontu",
+   "text": "BOĞAZİÇİ TİCARET BANKASI A.Ş. — ANKARA KIZILAY ŞUBESİ\n\nNAKİT YATIRMA DEKONTU\nDekont No: 2020071400218          İşlem Tarihi / Saati: 14.07.2020 / 11:08\nAlıcı Hesap: Tuna İnşaat Malzemeleri Ltd. Şti. — IBAN TR730006200041700006298311\nYatırılan Tutar: 95.000,00 TL\nAçıklama: CARİ HESAP ÖDEMESİ\nİşlemi Yapan: Kendisi adına değil — Yatıran: Oğuz Tuna\nYatıranın Kimlik Bilgisi: TCKN 19384027566\nGişe: 03 — Veznedar: Fatma Güler\n\nNAKİT YATIRMA DEKONTU\nDekont No: 2020071400231          İşlem Tarihi / Saati: 14.07.2020 / 11:21\nAlıcı Hesap: Tuna İnşaat Malzemeleri Ltd. Şti. — IBAN TR730006200041700006298311\nYatırılan Tutar: 90.000,00 TL\nAçıklama: CARİ HESAP ÖDEMESİ\nİşlemi Yapan: Kendisi adına değil — Yatıran: Oğuz Tuna\nYatıranın Kimlik Bilgisi: —\nGişe: 01 — Veznedar: Cengiz Yurt\n\nNAKİT YATIRMA DEKONTU\nDekont No: 2020071400246          İşlem Tarihi / Saati: 14.07.2020 / 11:39\nAlıcı Hesap: Tuna İnşaat Malzemeleri Ltd. Şti. — IBAN TR730006200041700006298311\nYatırılan Tutar: 85.000,00 TL\nAçıklama: CARİ HESAP ÖDEMESİ\nİşlemi Yapan: Kendisi adına değil — Yatıran: Oğuz Tuna\nYatıranın Kimlik Bilgisi: —\nGişe: 02 — Veznedar: Fatma Güler\n\nGünlük toplam (aynı alıcı hesap, aynı yatıran): 270.000,00 TL",
+   "compliant": false,
+   "defects": [
+    {
+     "description": "Aynı gün aynı kişi tarafından aynı hesaba farklı gişelerden bölünerek yatırılan bağlantılı işlemlerin toplamı kimlik tespiti eşiğini aşıyor; ikinci ve üçüncü işlemde yatıranın kimliği alınmamış.",
+     "quote": "Yatıranın Kimlik Bilgisi: —",
+     "regulation": "Suç Gelirlerinin Aklanmasının ve Terörün Finansmanının Önlenmesine Dair Tedbirler Hakkında Yönetmelik m. 5 (bağlantılı işlemler)",
+     "severity": "yüksek",
+     "scope": "belge"
+    },
+    {
+     "description": "İşlemin eşiğin altında kalacak şekilde bölünmesi şüpheli işlem göstergesidir; şüpheli işlem değerlendirmesi yapıldığına dair kayıt yok.",
+     "quote": "Günlük toplam (aynı alıcı hesap, aynı yatıran): 270.000,00 TL",
+     "regulation": "5549 sayılı Kanun m. 4; MASAK Genel Tebliğleri (şüpheli işlem tipolojileri)",
+     "severity": "yüksek",
+     "scope": "belge"
+    }
+   ],
+   "fields": {
+    "amounts": [
+     "95000.00 TRY",
+     "90000.00 TRY",
+     "85000.00 TRY",
+     "270000.00 TRY"
+    ],
+    "dates": [
+     "2020-07-14"
+    ],
+    "tckn": [
+     "19384027566"
+    ],
+    "vkn": [],
+    "iban": [
+     "TR730006200041700006298311"
+    ],
+    "persons": [
+     "Oğuz Tuna - yatıran",
+     "Fatma Güler - veznedar",
+     "Cengiz Yurt - veznedar"
+    ],
+    "signatures": [],
+    "other": {
+     "alici_iban": "TR730006200041700006298311"
+    }
+   },
+   "documents": [],
+   "issue_date": "2020-07-14",
+   "event_date": "2020-07-14",
+   "source": {
+    "model": "claude-opus-5-5",
+    "task": "T06",
+    "file": "claude-opus-5-5/T06_001.md",
+    "declared_type": "Nakit yatırma dekontları"
+   },
+   "id": "claude-opus-5-5-t06_001"
+  },
+  {
+   "split": "dev",
+   "document_type": "musteri_sikayeti",
+   "text": "Ege Kalkınma ve Ticaret Bankası A.Ş.\nGenel Müdürlüğü'ne / Bornova Şubesi'ne\n\nKonu: Hesap işletim ücreti iadesi talebi\n\nBankanızın Bornova Şubesi'nde 2016 yılından beri vadesiz hesabım bulunmaktadır. 05.03.2024 tarihinde\nhesabımdan açıklaması \"HESAP İŞLETİM ÜCRETİ 2024/1\" olan 350,00 TL kesildiğini gördüm. Bu hesap maaş\nhesabım değildir ancak hesabımda son bir yılda yalnızca birkaç işlem yapılmıştır ve bana bu ücretle\nilgili önceden herhangi bir bilgilendirme yapılmamıştır. Ücretin iadesini talep ediyorum.\n\nTarih: 07.03.2024\nAdı Soyadı: Zeynep Arslan\nTCKN: 60318274950\nIBAN: TR280011100000000047302915\nTelefon: 0500 000 00 02\nİmza\n\n-------------------------------------------------------------\n\nEGE KALKINMA VE TİCARET BANKASI A.Ş.\nMüşteri İlişkileri Yönetimi\n\nSayı: MİY-2024/18842                                                        Tarih: 19.04.2024\nKonu: 07.03.2024 tarihli başvurunuz\n\nSayın Zeynep Arslan,\n\n07.03.2024 tarihli başvurunuz incelenmiştir. Hesap işletim ücreti, bankamız ücret tarifesinde yer alan\nve hesap sözleşmenizde kabul ettiğiniz bir ücrettir. Bu nedenle iade talebiniz karşılanamamaktadır.\n\nBilgilerinize sunarız.\n\nSaygılarımızla,\nEge Kalkınma ve Ticaret Bankası A.Ş.\nMüşteri İlişkileri Yönetimi",
+   "compliant": false,
+   "defects": [
+    {
+     "description": "Şikâyet 07.03.2024'te yapılmış, banka 19.04.2024'te cevap vermiş; yasal cevap süresi (20 gün) aşılmış.",
+     "quote": "Tarih: 19.04.2024",
+     "regulation": "Finansal tüketici şikâyetlerine ilişkin düzenlemeler (şikâyetin 20 gün içinde sonuçlandırılması)",
+     "severity": "orta",
+     "scope": "belge"
+    },
+    {
+     "description": "Cevapta ücretin tahsil dayanağı açıklanıyor ama müşterinin önceden bilgilendirilmediği iddiası (ücretin yeni ürün/hizmet kapsamında olup olmadığı, bildirim tarihi) cevaplanmamış.",
+     "quote": "Bu nedenle iade talebiniz karşılanamamaktadır.",
+     "regulation": "Finansal Tüketicilerden Alınacak Ücretlere İlişkin Usul ve Esaslar Hakkında Yönetmelik m. 12, m. 13",
+     "severity": "orta",
+     "scope": "belge"
+    }
+   ],
+   "fields": {
+    "amounts": [
+     "350.00 TRY"
+    ],
+    "dates": [
+     "2024-03-05",
+     "2024-03-07",
+     "2024-04-19"
+    ],
+    "tckn": [
+     "60318274950"
+    ],
+    "vkn": [],
+    "iban": [
+     "TR280011100000000047302915"
+    ],
+    "persons": [
+     "Zeynep Arslan - şikâyetçi müşteri"
+    ],
+    "signatures": [
+     "Müşteri imzası",
+     "Banka cevabında imza yetkilisi adı yok"
+    ],
+    "other": {
+     "iban": "TR280011100000000047302915",
+     "telefon": "0500 000 00 02",
+     "sayi": "MİY-2024/18842"
+    }
+   },
+   "documents": [],
+   "issue_date": "2024-03-07",
+   "event_date": "2024-03-05",
+   "source": {
+    "model": "claude-opus-5-5",
+    "task": "T07",
+    "file": "claude-opus-5-5/T07_001.md",
+    "declared_type": "Müşteri şikâyeti ve banka cevabı"
+   },
+   "id": "claude-opus-5-5-t07_001"
+  },
+  {
+   "split": "dev",
+   "document_type": "ucret_tahsilat",
+   "text": "TRAKYA TİCARET BANKASI A.Ş. — EDİRNE MERKEZ ŞUBESİ\nMÜŞTERİ ÜCRET VE KOMİSYON TAHSİLAT DÖKÜMÜ\n\nMüşteri: Barış Çelik — Müşteri No: 30491867 — TCKN 47102938564\nDönem: 01.01.2023 – 30.06.2023\nHesap: Vadesiz TL — IBAN TR890012300000030491867001\n\n| Tarih      | Ürün / Hizmet                        | Tarife Kalemi | Tutar       | BSMV     | Toplam      |\n|------------|--------------------------------------|---------------|-------------|----------|-------------|\n| 16.01.2023 | Kredi kartı yıllık üyelik ücreti     | KK-01         | 450,00 TL   | 22,50 TL | 472,50 TL   |\n| 03.03.2023 | EFT ücreti (şube, 10.000 TL üzeri)   | ÖD-04         | 38,50 TL    | 1,93 TL  | 40,43 TL    |\n| 21.04.2023 | Konut kredisi ekspertiz ücreti       | KR-09         | 2.100,00 TL | 105,00 TL| 2.205,00 TL |\n| 21.04.2023 | Konut kredisi tahsis ücreti (%0,5)   | KR-02         | 6.250,00 TL | 312,50 TL| 6.562,50 TL |\n\nDönem Toplamı: 9.280,43 TL\n\nSözleşme ve tarife bilgisi:\n- Kredi kartı sözleşmesi 10.01.2021; yıllık üyelik ücreti sözleşmede ve sözleşme öncesi bilgi formunda yer\n  alıyor, müşteri 2023 yılı için bildirimden sonra kartı kapatmamıştır.\n- Konut kredisi 1.250.000,00 TL; tahsis ücreti kredi tutarının binde beşini aşmıyor; ekspertiz ücreti\n  değerleme şirketi faturasıyla aynı tutardadır (fatura no DGR-2023-00481).\n- Tüm kalemler Bankanın TCMB'ye bildirdiği ve internet sitesinde yayımlanan ücret tarifesiyle uyumludur.\n\nHazırlayan: Operasyon Yetkilisi Seda Akın (imzalı) — 04.07.2023\nKontrol Eden: Şube Operasyon Yönetmeni İlker Duman (imzalı) — 04.07.2023",
+   "compliant": true,
+   "defects": [],
+   "fields": {
+    "amounts": [
+     "450.00 TRY",
+     "22.50 TRY",
+     "472.50 TRY",
+     "38.50 TRY",
+     "1.93 TRY",
+     "40.43 TRY",
+     "2100.00 TRY",
+     "105.00 TRY",
+     "2205.00 TRY",
+     "6250.00 TRY",
+     "312.50 TRY",
+     "6562.50 TRY",
+     "9280.43 TRY",
+     "1250000.00 TRY",
+     "10000.00 TRY"
+    ],
+    "dates": [
+     "2023-01-01",
+     "2023-06-30",
+     "2023-01-16",
+     "2023-03-03",
+     "2023-04-21",
+     "2021-01-10",
+     "2023-07-04"
+    ],
+    "tckn": [
+     "47102938564"
+    ],
+    "vkn": [],
+    "iban": [
+     "TR890012300000030491867001"
+    ],
+    "persons": [
+     "Barış Çelik - müşteri",
+     "Seda Akın - operasyon yetkilisi",
+     "İlker Duman - şube operasyon yönetmeni"
+    ],
+    "signatures": [
+     "Hazırlayan imzası",
+     "Kontrol eden imzası"
+    ],
+    "other": {
+     "iban": "TR890012300000030491867001",
+     "musteri_no": "30491867"
+    }
+   },
+   "documents": [],
+   "issue_date": "2023-07-04",
+   "event_date": "2023-04-21",
+   "source": {
+    "model": "claude-opus-5-5",
+    "task": "T08",
+    "file": "claude-opus-5-5/T08_001.md",
+    "declared_type": "Ücret / komisyon tahsilat dökümü"
+   },
+   "id": "claude-opus-5-5-t08_001"
+  },
+  {
+   "split": "dev",
+   "document_type": "resmi_yazi",
+   "text": "T.C.\nİSTANBUL 14. İCRA DAİRESİ\nDosya No: 2025/38417 Esas\n\nHACİZ İHBARNAMESİ (İİK m. 89/1)\n\nMuhatap: Kuzey Yıldızı Bankası A.Ş. Şişli Şubesi\nBorçlu: Emre Tokgöz — TCKN 33819045726\nAlacaklı: Mavi Deniz Gıda Pazarlama A.Ş.\nTakip Tutarı: 184.620,00 TL (asıl alacak, faiz ve masraflar dahil)\n\nBorçlunun bankanızdaki mevduat, alacak ve hakları üzerine haciz konulmuştur. İşbu ihbarnamenin tebliğinden\nitibaren 7 gün içinde borçluya ait hak ve alacakları dairemize bildirmeniz, bir itirazınız varsa aynı süre\niçinde dairemize yazılı olarak bildirmeniz gerekmektedir.\n\nTebliğ Tarihi: 10.09.2025 (UYAP e-tebligat)\nİcra Müdürü: Ahmet Can Başaran (e-imzalı)\n\n-------------------------------------------------------------\n\nKUZEY YILDIZI BANKASI A.Ş.\nŞişli Şubesi\n\nSayı: ŞŞL-HCZ-2025/2291                                                        Tarih: 15.09.2025\n\nİSTANBUL 14. İCRA DAİRESİ MÜDÜRLÜĞÜ'NE\n\nİlgi: 2025/38417 Esas sayılı dosyanız ve 10.09.2025 tarihinde tebliğ edilen haciz ihbarnameniz.\n\nBorçlu Emre Tokgöz (TCKN 33819045726) adına bankamızda bulunan hesaplara ilişkin bilgiler aşağıdadır:\n- Vadesiz TL hesabı, IBAN TR560007700000000334819257: bakiye 42.315,60 TL — haciz tutarı kadar bloke\n  konulmuştur.\n- Vadeli TL hesabı: bakiye 120.000,00 TL, vade sonu 30.09.2025 — vade sonunda bloke edilecektir.\n- Kiralık kasa: bulunmamaktadır.\nBloke edilen tutar dairenizce talep edildiğinde dosya hesabına gönderilecektir.\n\nBilgilerinize arz ederiz.\n\nKuzey Yıldızı Bankası A.Ş. Şişli Şubesi\nOperasyon Yönetmeni Pınar Işık (imzalı) — Şube Müdürü Volkan Er (imzalı)",
+   "compliant": true,
+   "defects": [],
+   "fields": {
+    "amounts": [
+     "184620.00 TRY",
+     "42315.60 TRY",
+     "120000.00 TRY"
+    ],
+    "dates": [
+     "2025-09-10",
+     "2025-09-15",
+     "2025-09-30"
+    ],
+    "tckn": [
+     "33819045726"
+    ],
+    "vkn": [],
+    "iban": [
+     "TR560007700000000334819257"
+    ],
+    "persons": [
+     "Emre Tokgöz - borçlu",
+     "Ahmet Can Başaran - icra müdürü",
+     "Pınar Işık - operasyon yönetmeni",
+     "Volkan Er - şube müdürü"
+    ],
+    "signatures": [
+     "İcra müdürü e-imzası",
+     "Banka cevabında iki yetkili imzası"
+    ],
+    "other": {
+     "dosya_no": "2025/38417 Esas",
+     "iban": "TR560007700000000334819257"
+    }
+   },
+   "documents": [],
+   "issue_date": "2025-09-15",
+   "event_date": "2025-09-10",
+   "source": {
+    "model": "claude-opus-5-5",
+    "task": "T09",
+    "file": "claude-opus-5-5/T09_001.md",
+    "declared_type": "İcra dairesi haciz ihbarnamesi ve banka cevabı"
+   },
+   "id": "claude-opus-5-5-t09_001"
+  },
+  {
+   "split": "dev",
+   "document_type": "ic_yazisma",
+   "text": "Kimden: Gökhan Uysal (Şube Müdürü, Eskişehir Odunpazarı Şubesi)\nKime: Nazlı Erdem (Şube Müdür Yardımcısı); Tuncay Kurt (Operasyon Yönetmeni)\nBilgi: Bölge Müdürlüğü — Kredi ve Operasyon Birimi\nTarih: 22.07.2019 09:14\nKonu: Yıllık izin süresince yetki devri\n\nMerhaba,\n\n26.07.2019 – 09.08.2019 tarihleri arasında yıllık izinde olacağım. Bu süre içinde, Yetki Devri Talimatı\n(OP-07) ve Bölge Müdürlüğü'nün 18.07.2019 tarihli onayı çerçevesinde:\n\n1) Şube kredi yetkilerim (bireysel krediler 250.000 TL'ye kadar) Nazlı Erdem'e devredilmiştir.\n2) Kasa ve kıymetli evrak ikinci anahtar sorumluluğu Tuncay Kurt'tadır; birinci anahtar veznedarda kalır,\n   iki anahtar aynı kişide birleştirilmeyecektir.\n3) Ticari kredi teklifleri bu dönemde Bölge Kredi Komitesi'ne doğrudan iletilecektir; şubede ticari kredi\n   onayı verilmeyecektir.\n4) Devrin bitişi 12.08.2019 sabahı sistemde kaldırılacak, yetki devri kayıtları İnsan Kaynakları\n   sistemine işlenmiştir (kayıt no: YD-2019-0733).\n\nBölge Müdürlüğü onay yazısı ekte yer almaktadır.\n\nİyi çalışmalar,\nGökhan Uysal\nŞube Müdürü\n\nEk: Bölge Müdürlüğü onay yazısı (18.07.2019, sayı BLG-OP-2019/412)",
+   "compliant": true,
+   "defects": [],
+   "fields": {
+    "amounts": [
+     "250000.00 TRY"
+    ],
+    "dates": [
+     "2019-07-22",
+     "2019-07-26",
+     "2019-08-09",
+     "2019-07-18",
+     "2019-08-12"
+    ],
+    "tckn": [],
+    "vkn": [],
+    "iban": [],
+    "persons": [
+     "Gökhan Uysal - şube müdürü, yetki devreden",
+     "Nazlı Erdem - şube müdür yardımcısı, yetki devralan",
+     "Tuncay Kurt - operasyon yönetmeni"
+    ],
+    "signatures": [
+     "Bölge Müdürlüğü onayı (ek)"
+    ],
+    "other": {
+     "kayit_no": "YD-2019-0733",
+     "onay_sayi": "BLG-OP-2019/412"
+    }
+   },
+   "documents": [],
+   "issue_date": "2019-07-22",
+   "event_date": "2019-07-26",
+   "source": {
+    "model": "claude-opus-5-5",
+    "task": "T10",
+    "file": "claude-opus-5-5/T10_001.md",
+    "declared_type": "Şube içi e-posta — yetki devri"
+   },
+   "id": "claude-opus-5-5-t10_001"
+  },
+  {
+   "split": "dev",
+   "document_type": "denetim_raporu",
+   "text": "TEFTİŞ KURULU BAŞKANLIĞI\n2024 Yılı Şube Teftiş Raporu — Gaziantep Şehitkamil Şubesi\nBulgu Takip Formu\n\nBulgu No: TK-2024-GŞK-07\nRapor Tarihi: 17.05.2024\nRisk Derecesi: Yüksek\n\nBULGU\nTeftiş döneminde incelenen 40 bireysel kredi dosyasından 6'sında gelir belgesi kredi kullandırım tarihinden\nsonra dosyaya eklenmiş, 2 dosyada gelir belgesi hiç bulunmamaktadır. Toplam kredi tutarı 1.840.000,00 TL.\n\nÖNERİ\nEksik gelir belgelerinin temin edilmesi, kullandırım öncesi belge kontrolünün sistem kontrolüne bağlanması.\n\nŞUBE CEVABI VE AKSİYON\nSorumlu: Şube Müdür Yardımcısı Oya Kurtuluş\nAksiyon Tarihi: 30.06.2024\nAlınan Aksiyon: 6 dosyadaki belgeler kontrol edilmiş, eksik 2 dosya için müşterilerle iletişime geçilmiştir.\n\nKAPANIŞ\nKapanış Durumu: KAPATILDI\nKapanış Tarihi: 01.07.2024\nKapatan: Şube Müdürü Recep Aydoğan (imzalı)\nKapanış Açıklaması: Aksiyon tamamlanmıştır.\n\nİç Kontrol Birimi görüşü: —",
+   "compliant": false,
+   "defects": [
+    {
+     "description": "Bulgu, eksik 2 dosyanın belgeleri temin edilmeden (yalnızca müşteriyle iletişime geçilerek) kapatılmış; sistem kontrolü önerisi hiç ele alınmamış. Aksiyon tamamlanmadan kapanış yapılmış.",
+     "quote": "eksik 2 dosya için müşterilerle iletişime geçilmiştir",
+     "regulation": "Bankaların İç Sistemleri ve İçsel Sermaye Yeterliliği Değerlendirme Süreci Hakkında Yönetmelik (bulguların takibi)",
+     "severity": "orta",
+     "scope": "belge"
+    },
+    {
+     "description": "Bulgu, bulgunun muhatabı olan şube müdürü tarafından kapatılmış; bağımsız birim (iç kontrol / teftiş) teyidi yok.",
+     "quote": "İç Kontrol Birimi görüşü: —",
+     "regulation": "Bankaların İç Sistemleri ve İçsel Sermaye Yeterliliği Değerlendirme Süreci Hakkında Yönetmelik",
+     "severity": "orta",
+     "scope": "belge"
+    }
+   ],
+   "fields": {
+    "amounts": [
+     "1840000.00 TRY"
+    ],
+    "dates": [
+     "2024-05-17",
+     "2024-06-30",
+     "2024-07-01"
+    ],
+    "tckn": [],
+    "vkn": [],
+    "iban": [],
+    "persons": [
+     "Oya Kurtuluş - şube müdür yardımcısı, aksiyon sorumlusu",
+     "Recep Aydoğan - şube müdürü, kapatan"
+    ],
+    "signatures": [
+     "Kapatan şube müdürü imzası",
+     "İç kontrol görüşü yok"
+    ],
+    "other": {
+     "bulgu_no": "TK-2024-GŞK-07"
+    }
+   },
+   "documents": [],
+   "issue_date": "2024-05-17",
+   "event_date": "2024-07-01",
+   "source": {
+    "model": "claude-opus-5-5",
+    "task": "T11",
+    "file": "claude-opus-5-5/T11_001.md",
+    "declared_type": "Teftiş raporu bulgu takip formu"
+   },
+   "id": "claude-opus-5-5-t11_001"
+  },
+  {
+   "split": "holdout",
+   "document_type": "islem_listesi",
+   "text": "tarih,saat,tutar,yon,karsi_taraf,kanal,aciklama,bakiye\n2026-01-05,09:12,\"42.500,00\",GELEN,ARDA LOJİSTİK LTD ŞTİ,EFT,OCAK MAAŞ,\"48.310,25\"\n2026-01-06,14:03,\"-3.250,00\",GİDEN,YILDIZ SİTESİ YÖNETİMİ,HAVALE,AİDAT,\"45.060,25\"\n2026-01-09,19:44,\"-1.180,40\",GİDEN,MİGROS,KART,ALIŞVERİŞ,\"43.879,85\"\n2026-01-14,10:21,\"49.000,00\",GELEN,NAKİT,ATM,NAKİT YATIRMA,\"92.879,85\"\n2026-01-14,10:26,\"49.000,00\",GELEN,NAKİT,ATM,NAKİT YATIRMA,\"141.879,85\"\n2026-01-14,16:48,\"48.500,00\",GELEN,NAKİT,ATM,NAKİT YATIRMA,\"190.379,85\"\n2026-01-15,08:05,\"-145.000,00\",GİDEN,KAAN DIŞ TİCARET A.Ş. TR640006400000112345678901,FAST,BORÇ ÖDEMESİ,\"45.379,85\"\n2026-01-21,11:30,\"49.500,00\",GELEN,NAKİT,ATM,NAKİT YATIRMA,\"94.879,85\"\n2026-01-21,11:34,\"49.500,00\",GELEN,NAKİT,ATM,NAKİT YATIRMA,\"144.379,85\"\n2026-01-22,08:02,\"-98.000,00\",GİDEN,KAAN DIŞ TİCARET A.Ş. TR640006400000112345678901,FAST,BORÇ ÖDEMESİ,\"46.379,85\"\n2026-02-05,09:10,\"42.500,00\",GELEN,ARDA LOJİSTİK LTD ŞTİ,EFT,ŞUBAT MAAŞ,\"88.879,85\"\n2026-02-06,13:55,\"-3.250,00\",GİDEN,YILDIZ SİTESİ YÖNETİMİ,HAVALE,AİDAT,\"85.629,85\"\n2026-02-11,20:15,\"-2.412,90\",GİDEN,TEKNOSA,KART,ALIŞVERİŞ,\"83.216,95\"\n```\n\nHesap sahibi: Serdar Kılıç (TCKN 25730481966) — Vadesiz TL, IBAN TR170001000123000025730481\nBeyan edilen meslek / gelir: Lojistik firmasında muhasebe personeli, aylık net 42.500 TL\nDönem: 01.01.2026 – 15.02.2026",
+   "compliant": false,
+   "defects": [
+    {
+     "description": "Beyan edilen maaş gelirinin çok üzerinde, 50.000 TL'nin hemen altında bölünerek ATM'den yatırılan nakitler ertesi sabah aynı karşı tarafa toplu olarak aktarılıyor; eşik altı bölme ve hesabın aracı olarak kullanılması şüpheli işlem göstergesi, değerlendirme kaydı yok.",
+     "quote": "2026-01-14,10:21,\"49.000,00\",GELEN,NAKİT,ATM,NAKİT YATIRMA",
+     "regulation": "5549 sayılı Kanun m. 4; Suç Gelirlerinin Aklanmasının ve Terörün Finansmanının Önlenmesine Dair Tedbirler Hakkında Yönetmelik m. 27",
+     "severity": "yüksek",
+     "scope": "belge"
+    }
+   ],
+   "fields": {
+    "amounts": [
+     "42500.00 TRY",
+     "3250.00 TRY",
+     "1180.40 TRY",
+     "49000.00 TRY",
+     "48500.00 TRY",
+     "145000.00 TRY",
+     "49500.00 TRY",
+     "98000.00 TRY",
+     "2412.90 TRY"
+    ],
+    "dates": [
+     "2026-01-05",
+     "2026-01-06",
+     "2026-01-09",
+     "2026-01-14",
+     "2026-01-15",
+     "2026-01-21",
+     "2026-01-22",
+     "2026-02-05",
+     "2026-02-06",
+     "2026-02-11",
+     "2026-01-01",
+     "2026-02-15"
+    ],
+    "tckn": [
+     "25730481966"
+    ],
+    "vkn": [],
+    "iban": [
+     "TR170001000123000025730481",
+     "TR640006400000112345678901"
+    ],
+    "persons": [
+     "Serdar Kılıç - hesap sahibi",
+     "Kaan Dış Ticaret A.Ş. - alıcı karşı taraf"
+    ],
+    "signatures": [],
+    "other": {
+     "hesap_iban": "TR170001000123000025730481",
+     "karsi_taraf_iban": "TR640006400000112345678901"
+    }
+   },
+   "documents": [],
+   "issue_date": "2026-02-15",
+   "event_date": "2026-01-14",
+   "source": {
+    "model": "claude-opus-5-5",
+    "task": "T12",
+    "file": "claude-opus-5-5/T12_001.md",
+    "declared_type": "Hesap hareketleri listesi (CSV)"
+   },
+   "id": "claude-opus-5-5-t12_001"
+  }
+ ]
+}

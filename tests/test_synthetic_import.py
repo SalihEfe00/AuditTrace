@@ -75,6 +75,10 @@ class TestConvertFile(unittest.TestCase):
         self.assertEqual(out.case.defects[0].quote, "")
         self.assertTrue(any("alıntı" in w for w in out.warnings))
 
+    def test_short_task_code_accepted(self):
+        out = si.convert_file(self.write("m/T2_011.md", sample()), self.root)
+        self.assertEqual((out.case.document_type, out.case.source["task"]), ("teminat", "T02"))
+
     def test_declared_type_mismatch_warns_task_wins(self):
         out = si.convert_file(self.write("m/T05_001.md", sample()), self.root)
         self.assertEqual(out.case.document_type, "kasa_sayim")

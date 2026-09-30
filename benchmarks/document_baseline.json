@@ -1,0 +1,104 @@
+{
+ "levels": {
+  "understanding": {
+   "note": "M4.6 başlangıç seti (claude-opus-5-5, 13 örnek); motor 3 tür tanıyor, TCKN/VKN çıkarmıyor — M5 öncesi taban",
+   "cases_fingerprint": "2c2573e6300b7f74",
+   "splits": {
+    "dev": {
+     "type_correct": 1,
+     "fields.amounts.tp": 53,
+     "fields.dates.tp": 29,
+     "fields.tckn.tp": 0,
+     "fields.vkn.tp": 0,
+     "fields.iban.tp": 8,
+     "fields.amounts.fp": 0,
+     "fields.dates.fp": 0,
+     "fields.tckn.fp": 0,
+     "fields.vkn.fp": 0,
+     "fields.iban.fp": 0
+    },
+    "holdout": {
+     "type_correct": 0,
+     "fields.amounts.tp": 11,
+     "fields.dates.tp": 4,
+     "fields.tckn.tp": 0,
+     "fields.vkn.tp": 0,
+     "fields.iban.tp": 2,
+     "fields.amounts.fp": 6,
+     "fields.dates.fp": 0,
+     "fields.tckn.fp": 0,
+     "fields.vkn.fp": 0,
+     "fields.iban.fp": 0
+    },
+    "all": {
+     "type_correct": 1,
+     "fields.amounts.tp": 64,
+     "fields.dates.tp": 33,
+     "fields.tckn.tp": 0,
+     "fields.vkn.tp": 0,
+     "fields.iban.tp": 10,
+     "fields.amounts.fp": 6,
+     "fields.dates.fp": 0,
+     "fields.tckn.fp": 0,
+     "fields.vkn.fp": 0,
+     "fields.iban.fp": 0
+    }
+   }
+  },
+  "decision": {
+   "note": "M4.6 başlangıç seti; karar = en az bir bulgu (M9 öncesi); datacopy3 (M2 sonrası korpus)",
+   "cases_fingerprint": "2c2573e6300b7f74",
+   "splits": {
+    "dev": {
+     "type_correct": 1,
+     "fields.amounts.tp": 53,
+     "fields.dates.tp": 29,
+     "fields.tckn.tp": 0,
+     "fields.vkn.tp": 0,
+     "fields.iban.tp": 8,
+     "fields.amounts.fp": 0,
+     "fields.dates.fp": 0,
+     "fields.tckn.fp": 0,
+     "fields.vkn.fp": 0,
+     "fields.iban.fp": 0,
+     "decision_correct": 3,
+     "missed_defects": 7,
+     "false_alarms": 1
+    },
+    "holdout": {
+     "type_correct": 0,
+     "fields.amounts.tp": 11,
+     "fields.dates.tp": 4,
+     "fields.tckn.tp": 0,
+     "fields.vkn.tp": 0,
+     "fields.iban.tp": 2,
+     "fields.amounts.fp": 6,
+     "fields.dates.fp": 0,
+     "fields.tckn.fp": 0,
+     "fields.vkn.fp": 0,
+     "fields.iban.fp": 0,
+     "decision_correct": 1,
+     "missed_defects": 1,
+     "false_alarms": 0
+    },
+    "all": {
+     "type_correct": 1,
+     "fields.amounts.tp": 64,
+     "fields.dates.tp": 33,
+     "fields.tckn.tp": 0,
+     "fields.vkn.tp": 0,
+     "fields.iban.tp": 10,
+     "fields.amounts.fp": 6,
+     "fields.dates.fp": 0,
+     "fields.tckn.fp": 0,
+     "fields.vkn.fp": 0,
+     "fields.iban.fp": 0,
+     "decision_correct": 4,
+     "missed_defects": 8,
+     "false_alarms": 1
+    }
+   },
+   "reranker": "mufettis-reranker-ft1"
+  }
+ }
+}

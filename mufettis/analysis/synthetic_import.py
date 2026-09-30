@@ -27,7 +27,7 @@ HOLDOUT_BUCKETS = 3   # dosyaların ~1/3'ü holdout
 PACKAGE_TASK = "D01"
 
 _MARKER_RE = re.compile(r"^[#*\s>_`]*===\s*(?P<name>[^=\n]+?)\s*===[*\s_`]*$", re.MULTILINE)
-_FILE_RE = re.compile(r"^(?P<task>[TD]\d{2})_(?P<n>\d+)$", re.IGNORECASE)
+_FILE_RE = re.compile(r"^(?P<letter>[TD])(?P<num>\d{1,2})_(?P<n>\d+)$", re.IGNORECASE)   # T01_001, T1_001
 
 
 @dataclass
@@ -153,7 +153,7 @@ def convert_file(path: Path, root: Path, split: Optional[str] = None) -> ImportO
     name = _FILE_RE.match(stem)
     if not name:
         return ImportOutcome(rejected="dosya adı <görev>_<n> değil (ör. T01_001)")
-    task = name.group("task").upper()
+    task = f"{name.group('letter').upper()}{int(name.group('num')):02d}"
     try:
         content = path.read_text(encoding="utf-8-sig")
     except UnicodeDecodeError:
