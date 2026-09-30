@@ -136,8 +136,9 @@ class ResmiGazeteScraper:
             res = self._get(url, timeout=15)
             if res is None or res.status_code != 200:
                 return []
-            res.encoding = "utf-8"
-            soup = BeautifulSoup(res.text, "html.parser")
+            # Fihrist sayfaları kodlamasını meta etiketinde beyan eder (windows-1254); bayt verilince
+            # BeautifulSoup bu beyana uyar. UTF-8'e zorlamak Türkçe harfleri bozuyordu ("Su�lar�").
+            soup = BeautifulSoup(res.content, "html.parser")
             docs: List[Dict[str, Any]] = []
             seen = set()
             for a in soup.find_all("a", href=True):

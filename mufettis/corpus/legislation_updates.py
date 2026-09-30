@@ -19,6 +19,7 @@ from typing import Dict, Iterable, List
 
 from mufettis.analysis.turkish_text import turkish_lower
 from mufettis.corpus.legislation_sources import LegislationSource
+from mufettis.extraction.text_repair import extract_series_number
 
 # Ad eşleşmesinde sayılmayan genel kelimeler (tür adları, bağlaçlar); kök başlarıyla karşılaştırılır.
 _GENERIC = {"hakkında", "ilişkin", "dair", "yönetmelik", "yönetmeliği", "kanun", "kanunu", "tebliğ", "tebliği",
@@ -37,6 +38,11 @@ def mentions(source: LegislationSource, gazette_title: str) -> bool:
     """Resmî Gazete başlığı listedeki belgeyi anıyor mu (adının anlamlı kelimelerinin çoğu geçiyor)."""
     wanted = set(_stems(source.title))
     if not wanted:
+        return False
+    # Seri üyesi numarasıyla ayrışır: "… Genel Tebliği (Sıra No: 5)'nde Değişiklik …" yalnızca Sıra No 5'i anar
+    # (başlıktaki ilk seri numarası değiştirilen belgenindir).
+    source_series, gazette_series = extract_series_number(source.title), extract_series_number(gazette_title)
+    if source_series and gazette_series and source_series != gazette_series:
         return False
     have = set(_stems(gazette_title))
     return len(wanted & have) / len(wanted) >= MIN_NAME_COVERAGE

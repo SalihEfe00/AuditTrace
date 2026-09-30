@@ -32,6 +32,14 @@ class TestGazetteMatching(unittest.TestCase):
         self.assertFalse(mentions(KREDI, "Kredi Garanti Fonu Hakkında Karar"))
         self.assertFalse(mentions(TUKETICI, "Bazı Kanunlarda Değişiklik Yapılmasına Dair Kanun"))
 
+    def test_series_member_is_matched_by_its_number(self):
+        masak5 = _source("9.5.12073", "MALİ SUÇLARI ARAŞTIRMA KURULU GENEL TEBLİĞİ (SIRA NO: 5)", "tebliğ", "5")
+        masak8 = _source("9.5.13073", "MALİ SUÇLARI ARAŞTIRMA KURULU GENEL TEBLİĞİ (SIRA NO: 8)", "tebliğ", "8")
+        title = ("Mali Suçları Araştırma Kurulu Genel Tebliği (Sıra No: 5)'nde Değişiklik Yapılmasına Dair Tebliğ "
+                 "(Sıra No: 35)")
+        self.assertTrue(mentions(masak5, title))
+        self.assertFalse(mentions(masak8, title))
+
     def test_amended_sources_groups_titles(self):
         items = [{"title": "Banka Kartları ve Kredi Kartları Hakkında Yönetmelikte Değişiklik Yapılmasına Dair Yönetmelik"},
                  {"title": "Atama Kararı"}]
