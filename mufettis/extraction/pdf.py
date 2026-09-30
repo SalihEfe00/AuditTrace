@@ -825,6 +825,15 @@ def _is_true_glued_token(token: str) -> bool:
 is_glued_token = _is_true_glued_token
 
 
+# Rakam ve noktalama dizileri ("4,5,24,25,26,27,33,…" madde listeleri, hesap kodu aralıkları) bozuk metin değildir.
+_NUMERIC_RUN = re.compile(r"^[\d.,;:/()\-–]+$")
+
+
+def _is_very_long_token(token: str) -> bool:
+    """Bozuk çıkarım belirtisi olan çok uzun öğe (≥ 40 karakter); yalnızca rakam / noktalama dizileri sayılmaz."""
+    return len(token) >= 40 and not _NUMERIC_RUN.match(token)
+
+
 def _pdf_generic_quality_metrics(value: str) -> Dict[str, Any]:
     """B1: Belge şemasından bağımsız genel metin bütünlüğü metrikleri."""
     text = str(value or "")
@@ -835,7 +844,7 @@ def _pdf_generic_quality_metrics(value: str) -> Dict[str, Any]:
     tokens = [token for token in re.split(r"\s+", text) if token]
     alpha_tokens = [token for token in tokens if re.search(r"[A-Za-zÇĞİÖŞÜçğıöşü]", token)]
     glued_tokens = [token for token in tokens if _is_true_glued_token(token)]
-    very_long_tokens = [token for token in tokens if len(token) >= 40]
+    very_long_tokens = [token for token in tokens if _is_very_long_token(token)]
     fragmented_lines = [line for line in nonempty_lines if len(re.sub(r"\W", "", line, flags=re.UNICODE)) <= 2]
     encoding = _pdf_encoding_anomaly_metrics(text)
     replacement_chars = encoding["replacement_char_count"]
@@ -893,7 +902,7 @@ def _pdf_page_quality(value: str) -> Dict[str, Any]:
     spaces = len(re.findall(r"\s", text))
     glued_runs = [run for run in re.findall(r"[A-Za-zÇĞİÖŞÜçğıöşü]{28,}", text) if _is_true_glued_token(run)]
     long_glued = sum(max(0, len(run) - 20) for run in glued_runs)
-    very_long_tokens = sum(1 for token in re.split(r"\s+", text) if len(token) >= 40)
+    very_long_tokens = sum(1 for token in re.split(r"\s+", text) if _is_very_long_token(token))
     encoding = _pdf_encoding_anomaly_metrics(text)
     encoding_anomalies = encoding["encoding_anomaly_count"]
     turkish_chars = sum(text.count(ch) for ch in "çğıöşüÇĞİÖŞÜ")

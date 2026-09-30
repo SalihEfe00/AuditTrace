@@ -334,3 +334,15 @@ class TestGluedTokenResolution(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestNumericRunsAreNotCorruption(unittest.TestCase):
+    def test_article_number_lists_do_not_lower_quality(self):
+        # "… 4,5,24,25,26,27,33,… maddeleri" (TTK önceki metni): madde listesi bozuk çıkarım değildir.
+        from mufettis.extraction.pdf import _is_very_long_token, _pdf_generic_quality_metrics
+
+        numbers = "4,5,24,25,26,27,33,35,38,39,51,64,65,84,88,138,139,145,147,"
+        self.assertFalse(_is_very_long_token(numbers))
+        self.assertTrue(_is_very_long_token("bankacılıkdüzenlemeveDenetlemeKurumunun" + "x" * 10))
+        text = ("MADDE 1 – Bu Kanunun uygulanmasında aşağıdaki maddeler " + numbers + " yürürlüğe girer. ") * 30
+        self.assertEqual(_pdf_generic_quality_metrics(text)["very_long_token_count"], 0)
