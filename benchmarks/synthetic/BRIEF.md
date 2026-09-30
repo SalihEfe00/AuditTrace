@@ -6,6 +6,8 @@ Bu klasör, v1 ölçümü (docs/product/domain_scope.md, M2/M3/M4/M5/M8/M9) içi
 ## Nasıl kullanılır
 
 1. Aşağıdaki **"Ortak talimat"** bölümünü ve **bir** belge türü görevini (T1–T12) kopyalayıp modele yapıştır.
+   Kopyalamaya hazır hâlleri `prompts/<görev>_*.txt` dosyalarındadır (`scripts/make_synthetic_prompts.py` üretir;
+   bunlar modele cevabın ilk satırına `KAYIT: <model adı> <görev>` yazdırır). Her görev için yeni bir sohbet aç.
    Modele bu proje hakkında bilgi verme (üslup ve beklenti sızmasın).
 2. Modelin cevabını `incoming/<model-adı>/<görev-kodu>_<sıra>.md` olarak kaydet
    (ör. `incoming/gpt-5/T01_001.md`, `incoming/gemini/T04_003.md`).

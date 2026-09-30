@@ -1,0 +1,22 @@
+﻿Türkiye'de bir ticari bankanın şubesinde düzenlenmiş ya da şubeye gelmiş gerçekçi bir belge üretmeni istiyorum.
+Kurallar:
+- Cevabının EN ÜSTÜNE, her şeyden önce tek satır olarak şunu yaz: KAYIT: <kendi model adın ve sürümün> T01
+  (ör. "KAYIT: GPT-4o T01" ya da "KAYIT: Gemini 2.5 Pro T01"). Bu satırı değiştirmeden ve başka açıklama eklemeden yaz.
+- Dil Türkçe; bankacılık pratiğindeki gerçek üslup, kısaltmalar, form düzeni ve alışılmış eksiklikler.
+- Tüm kişi, şirket, adres, TCKN, VKN, IBAN, hesap ve telefon numaraları HAYALİ olmalı ama doğru biçimde yazılmalı
+  (11 haneli TCKN, 10 haneli VKN, TR ile başlayan 26 karakterli IBAN).
+- Belge 2019–2026 arasında bir tarihte düzenlenmiş olsun; tarihleri belgede açıkça yaz.
+- Belgeyi ya tamamen usulüne uygun ya da gerçek hayatta görülebilecek 1–3 kusurla üret (karikatürize etme;
+  kusur ancak dikkatli bir denetçinin fark edebileceği kadar ince olsun). Hangisini yaptığını kendin seç;
+  örneklerin yaklaşık üçte biri kusursuz olsun.
+- Önce "=== BELGE ===" başlığı altında yalnızca belgenin kendisini yaz (form, tutanak, yazı, tablo — ne ise).
+- Sonra "=== CEVAP ANAHTARI ===" başlığı altında şu JSON'u ver:
+  {"belge_turu": "...", "duzenlenme_tarihi": "YYYY-AA-GG", "olay_tarihi": "YYYY-AA-GG",
+   "kusursuz": true/false,
+   "kusurlar": [{"aciklama": "...", "belgedeki_yer": "belgeden kısa alıntı", "ilgili_mevzuat": "bildiğin kadarıyla",
+                 "onem": "yüksek/orta/düşük"}],
+   "alanlar": {"tutarlar": [...], "tarihler": [...], "kisiler_ve_rolleri": [...], "imza_onay": [...],
+               "kimlik_numaralari": [...], "diger": {...}}}
+
+Görev: Kredi teklif ve onay belgesi — Şubenin ticari kredi teklifi, limit, vade, faiz, teminatlar, yetkili onayları
+(kredi komitesi / bölge / genel müdürlük yetki seviyesi), istihbarat özeti.

@@ -6,14 +6,21 @@ görmemesi. Kullanıcıyla her zaman Türkçe konuş.
 
 ## Görevin
 
-Kullanıcı sohbete bir ya da birden çok model cevabı yapıştırır. Her cevabın üstünde `<model> <görev> [sıra]`
-satırı bulunur, ör. `gpt-5 T04` ya da `gemini D01 2`. Her cevap için şunları yap:
+Kullanıcı sohbete bir ya da birden çok model cevabı yapıştırır. Model ve görev şuradan okunur:
+- Cevabın ilk satırı `KAYIT: <model adı> <görev>` olur (istemler bunu modele yazdırır,
+  `benchmarks/synthetic/prompts/`), ör. `KAYIT: GPT-4o T04`.
+- Kullanıcı cevabın üstüne kendisi `<model> <görev> [sıra]` yazdıysa (ör. `gemini D01 2`) o esas alınır.
+- İkisi de yoksa ya da çelişiyorsa (modelin kendi adını yanlış bildirmesi olabilir) kaydetmeden önce kullanıcıya sor.
+- Aynı model farklı adlarla gelirse (`GPT-4o`, `ChatGPT 4o`) kullanıcıya hangisinin kullanılacağını bir kez sor ve
+  sonra tutarlı kullan.
+
+Her cevap için şunları yap:
 
 1. **Adı belirle.**
    - Model adı küçük harfe çevrilir; boşluk ve özel karakterler `-` olur (`GPT 5` → `gpt-5`).
    - Görev kodu iki haneye tamamlanır (`T4` → `T04`).
    - Sıra verilmemişse o model ve görev için klasördeki bir sonraki numarayı ver (`001`, `002`, …).
-2. **Kaydet.** Cevabı **değiştirmeden**, olduğu gibi `benchmarks/synthetic/incoming/<model>/<görev>_<sıra>.md` dosyasına yaz. Başındaki model ve görev satırı dosyaya girmez. Var olan bir dosyanın üzerine asla yazma.
+2. **Kaydet.** Cevabı **değiştirmeden**, olduğu gibi `benchmarks/synthetic/incoming/<model>/<görev>_<sıra>.md` dosyasına yaz. Başındaki `KAYIT:` satırı ve kullanıcının eklediği model / görev satırı dosyaya girmez. Var olan bir dosyanın üzerine asla yazma.
 3. **Dönüştür.** Tüm yapıştırılanlar kaydedilince `.venv/Scripts/python scripts/import_synthetic.py` çalıştır.
    - `RED` satırlarını sebebiyle kullanıcıya bildir. Reddedilen dosya kalır; kullanıcı modelden düzeltilmiş cevap isteyip yeniden yapıştırabilir. O zaman eski dosyanın yerine yenisini kaydet.
    - `UYARI` satırlarını kısaca özetle (ör. "3 örnekte kusur alıntısı belgede bulunamadı").
