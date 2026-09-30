@@ -15,6 +15,7 @@ from mufettis.config import (
 from mufettis.common.utils import normalize_title
 from mufettis.corpus import (
     EXCLUDED_STATUSES,
+    HISTORICAL_STATUSES,
     INACTIVE_STATUSES,
     NOT_IN_FORCE_STATUSES,
     authority_prior,
@@ -948,8 +949,8 @@ def _chunk_is_retrievable(meta: Dict[str, Any], document: Any = "") -> bool:
     if str(meta.get("chunk_schema_version", "")) != str(CHUNK_SCHEMA_VERSION):
         return False
     status = str(meta.get("status", "")).strip().lower()
-    if status in NOT_IN_FORCE_STATUSES or status in EXCLUDED_STATUSES:
-        return False
+    if status in NOT_IN_FORCE_STATUSES or status in EXCLUDED_STATUSES or status in HISTORICAL_STATUSES:
+        return False  # önceki metin yalnızca olay tarihine göre arandığında aday olur (M7.4)
 
     if _metadata_bool(meta.get("document_indexable"), False):
         return True

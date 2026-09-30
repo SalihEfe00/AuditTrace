@@ -22,6 +22,7 @@ except Exception:
 from mufettis.audit.service import append_audit
 from mufettis.common.utils import canonical_source_id, now_iso, sha256_bytes, source_profile
 from mufettis.config import CHROMA_COLLECTION, CHUNK_SCHEMA_VERSION, SOURCE_CACHE_DIR
+from mufettis.corpus import HISTORICAL_STATUSES
 from mufettis.extraction.pdf import (
     _extract_pdf_with_pdfplumber,
     _pdf_generic_quality_metrics,
@@ -679,6 +680,8 @@ def find_previous_version(index: IngestIndex, meta: Dict[str, Any], exclude_hash
     for h, item in index.data.get("indexed_items", {}).items():
         if exclude_hash and h == exclude_hash:
             continue
+        if str(item.get("status") or "") in HISTORICAL_STATUSES:
+            continue  # tarih aralıklı önceki metin sürüm zincirinin parçası değildir (M7.3)
         if source_id and item.get("source_id") and item.get("source_id") != source_id:
             continue
         old_work = str(item.get("work_id") or "")
@@ -901,8 +904,12 @@ def versioned_ingest_text(
     auto_heal: bool = True,
     raw_bytes: Optional[bytes] = None,
     source_path: Optional[str] = None,
+    link_versions: bool = True,
 ) -> Dict[str, Any]:
-    """Belgeyi metadata ile zenginleştirir; Auto-Healing Ingestion Gate ile denetler ve indeksler."""
+    """Belgeyi metadata ile zenginleştirir; Auto-Healing Ingestion Gate ile denetler ve indeksler.
+
+    link_versions=False: belge aynı eserin önceki sürümü sayılıp güncel sürümün yerini almaz (kanunların tarih
+    aralıklı önceki metinleri, M7.3)."""
     file_hash = meta["file_hash"]
 
     try:
@@ -938,7 +945,7 @@ def versioned_ingest_text(
         merged = {**existing, **meta, "status": existing.get("status", "active")}
         return {"status": "skipped", "count": existing.get("chunk_count", 0), "meta": merged}
 
-    previous = find_previous_version(index, meta, exclude_hash=file_hash)
+    previous = find_previous_version(index, meta, exclude_hash=file_hash) if link_versions else None
     previous_hash = previous.get("file_hash", "") if previous else ""
     old_text = load_source_cache(previous_hash) if previous_hash else ""
     diff_info = (

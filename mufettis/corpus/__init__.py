@@ -23,6 +23,7 @@ from mufettis.corpus.model import (
 )
 from mufettis.corpus.validity import (
     EXCLUDED_STATUSES,
+    HISTORICAL_STATUSES,
     INACTIVE_STATUSES,
     NOT_IN_FORCE_STATUSES,
     validity,
@@ -38,6 +39,7 @@ __all__ = [
     "InstrumentType",
     "NOT_IN_FORCE_STATUSES",
     "EXCLUDED_STATUSES",
+    "HISTORICAL_STATUSES",
     "INACTIVE_STATUSES",
     "NormativeRole",
     "PublisherKind",

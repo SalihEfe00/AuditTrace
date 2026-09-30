@@ -16,8 +16,11 @@ from mufettis.corpus.model import Validity
 NOT_IN_FORCE_STATUSES = frozenset({"superseded", "mülga", "mulga", "repealed", "repealed_or_changed"})
 # Mevzuat olmadığı için korpustan ayıklanan kayıt (M6.5): silinmez, aramaya ve istatistiklere girmez; geri alınabilir.
 EXCLUDED_STATUSES = frozenset({"excluded"})
+# Kanunun önceki (tarih aralıklı) metni (M7.3): bugünkü aramaya girmez; olay tarihi aralığına düşen analizde
+# (M7.4) dayanak olabilir. Güncel sürümün yerini almaz (superseded değildir).
+HISTORICAL_STATUSES = frozenset({"historical"})
 # Etkin korpusa sayılmayan kayıtlar (terim istatistiği, yeniden parçalama, atıf çözümü).
-INACTIVE_STATUSES = frozenset({"superseded", "quarantined"}) | EXCLUDED_STATUSES
+INACTIVE_STATUSES = frozenset({"superseded", "quarantined"}) | EXCLUDED_STATUSES | HISTORICAL_STATUSES
 
 # Sıralama katmanı: küçük önce gelir. Yürürlükte / durumu bilinmeyen > henüz yürürlüğe
 # girmemiş > yürürlükten kalkmış.
@@ -55,9 +58,12 @@ def validity(meta: Dict[str, Any], as_of: Optional[dt.date] = None) -> str:
     end = parse_date(meta.get("effective_to") or meta.get("valid_to"))
     if end and end <= as_of:
         return Validity.NOT_IN_FORCE
-    start = parse_date(meta.get("effective_from") or meta.get("effective_date"))
+    start = parse_date(meta.get("effective_from") or meta.get("valid_from") or meta.get("effective_date"))
     if start and start > as_of:
         return Validity.NOT_YET_IN_FORCE
+    if status in HISTORICAL_STATUSES:
+        # Önceki metin yalnızca geçerlilik aralığı içindeki tarihte yürürlüktedir; aralık bilinmiyorsa değil.
+        return Validity.IN_FORCE if start and end else Validity.NOT_IN_FORCE
     return Validity.IN_FORCE if status == "active" else Validity.UNKNOWN
 
 
@@ -68,6 +74,7 @@ def validity_tier(meta: Dict[str, Any], as_of: Optional[dt.date] = None) -> int:
 __all__ = [
     "NOT_IN_FORCE_STATUSES",
     "EXCLUDED_STATUSES",
+    "HISTORICAL_STATUSES",
     "INACTIVE_STATUSES",
     "VALIDITY_TIER",
     "parse_date",
