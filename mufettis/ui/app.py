@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import html
 import json
+import logging
 import unittest
 from typing import Optional
 
@@ -56,7 +57,7 @@ from mufettis.llm.client import (
     prepare_report_findings,
     report_mevzuat_preflight,
 )
-from mufettis.rag.engine import LocalRAG, SentenceTransformer, chromadb
+from mufettis.rag.engine import SENTENCE_TRANSFORMERS_ERROR, LocalRAG, SentenceTransformer, chromadb
 from mufettis.rag.maintenance import (
     _diagnostic_focus_text,
     run_rag_diagnostic,
@@ -65,6 +66,8 @@ from mufettis.rag.maintenance import (
 from mufettis.scheduler.scheduler import BackgroundUpdateScheduler
 from mufettis.ui.admin import render_mevzuat_admin
 from mufettis.ui.analysis_view import render_analysis_page
+
+logger = logging.getLogger(__name__)
 def run_self_tests(*args, **kwargs):
     from mufettis.tests.runner import run_self_tests as _fn
     return _fn(*args, **kwargs)
@@ -87,19 +90,29 @@ def _get_rag(
         # Geriye dönük uyumluluk: eski çağrı adı da kabul edilir.
         allow_download = bool(allow_embedding_download)
     if SentenceTransformer is None:
-        return None
+        return _rag_unavailable(f"sentence-transformers yüklenemedi: {SENTENCE_TRANSFORMERS_ERROR}")
     if chromadb is None:
         from mufettis.config import DB_PATH
         from mufettis.rag.store import resolve_store_kind
 
         if resolve_store_kind(None, DB_PATH) == "chroma":
-            return None
+            return _rag_unavailable("Eski Chroma veritabanı seçili ama chromadb kurulu değil.")
     try:
-        return _create_rag_cached(bool(allow_download))
+        rag = _create_rag_cached(bool(allow_download))
     except Exception as exc:
-        if st is not None:
-            st.session_state["rag_error"] = str(exc)
-        return None
+        return _rag_unavailable(str(exc))
+    if st is not None:
+        st.session_state.pop("rag_error", None)
+    return rag
+
+
+def _rag_unavailable(reason: str) -> None:
+    """RAG kurulamadı: sebep günlüğe yazılır ve arayüzde "RAG hazır değil" mesajıyla gösterilir (admin.rag_not_ready)."""
+    logger.warning("RAG hazır değil: %s", reason)
+    if st is not None:
+        st.session_state["rag_error"] = reason
+    return None
+
 def render_self_test_result(result: unittest.result.TestResult) -> None:
     """Self-test sonucunu UI'da test isimleri ve hata özetiyle gösterir."""
     passed = result.testsRun - len(result.failures) - len(result.errors)

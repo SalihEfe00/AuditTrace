@@ -3,6 +3,43 @@
 Hedef makine: Windows 10/11, 8 GB RAM, GPU'suz i5, internetsiz ilk açılış. Karar M3.4'te bu belgeye yazılır;
 aşağıdaki ölçümler kararın girdisidir.
 
+## Karar (M3.4, 2026-09-30)
+
+**Arayüz: Streamlit kalır; kullanıcıya Edge'in `--app` penceresinde (sekmesiz, adres çubuksuz, ayrı profil)
+gösterilir.** Sunucu yalnızca 127.0.0.1'i dinler (M3.6). Edge bulunamazsa varsayılan tarayıcıya düşülür.
+
+**Paketleme: PyInstaller, onedir** (tek dosya kipi 2 GB'ı her açılışta geçici klasöre açar — elenir), üzerine
+kurulum programı M17'de.
+
+**Model çalışma zamanı: ONNX Runtime, "eager + birleşim + yalnızca kelime tablosu int8"** (M3.5); torch,
+transformers, sentence-transformers, sklearn ve scipy pakete girmez.
+
+Gerekçe (ölçümler aşağıdaki bölümlerde):
+
+| Seçenek | Sonuç |
+|---|---|
+| Streamlit + varsayılan tarayıcı | ✗ varsayılan kip değil: temiz Windows'ta `http` ilişkilendirmesi yok (M3.3); kullanıcının tarayıcısı ve ayarları belirsiz |
+| Streamlit + pywebview (WebView2) | ✗ temiz Windows'ta WebView2 yok, pencere boş kalıyor (M3.3); WebView2 sabit sürümünü paketlemek yüzlerce MB ekler ve Edge penceresine göre kazanç yok |
+| **Streamlit + Edge `--app`** | ✓ Windows 10/11'de Edge hazır gelir; temiz, internetsiz Sandbox'ta sekmesiz açıldı ve 26 234 parçayı gördü (M3.3); pencere kapanınca sunucu kapanır |
+| Arayüzü masaüstü araç takımıyla (Qt vb.) yeniden yazmak | ✗ denenmedi: Streamlit arayüzü ölçütleri karşılıyor; tüm ekranları yeniden yazmak M15'i büyütür, getirisi yok. Risk: Streamlit görsel serbestliği sınırlı — M15 tema ve CSS ile çalışır |
+| torch çalışma zamanı | ✗ paket ~2 GB, model belleği ~2,0 GB, kurulumdan sonraki ilk açılış ~82 sn (Defender yeni DLL'leri tarıyor; ikinci açılış 10 sn) |
+| **ONNX (gather8)** | ✓ benchmark tabanı aynen (dev eşiği −4,50); modeller 946 → 347 MB, model belleği 2,0 → 0,94 GB, kütüphaneler ~0,85 GB azalır, içe aktarma 5,3 → 0,2 sn; puanlama %20 yavaş |
+
+Hedef makinede (8 GB, GPU'suz) beklenen toplam: sunucu ~1,2 GB (ONNX) + Edge penceresi ~0,3–0,5 GB.
+
+**Sonraki taşlara etkiler** (plan satırlarına işlendi):
+
+- **M6** (tam mevzuat): korpus vektörleri bugünkü gömme modeliyle üretilir; gather8 sorguları bu vektörlerle
+  ölçüldü (taban aynen). Model değişirse vektörler yeniden üretilir.
+- **M14** (eğitim turları): her yeni sıralayıcı `scripts/onnx_models/export.py` ile dönüştürülüp
+  `eval_with_onnx.py` ile ölçülür; eşik ONNX puanlarından seçilir; kabul, gönderilecek (ONNX) modelle verilir.
+- **M15** (arayüz): Streamlit üzerinde; Edge `--app` penceresi boyutunda ve düşük çözünürlükte denenir.
+- **M17** (paketleme): ONNX arka ucu (`tokenizers` ile, transformers'sız) ve torch ile sonuç eşitliği testi;
+  Edge `--app` varsayılan kip; `vcruntime140_threads.dll` gibi çalışma zamanı DLL'leri ve pakette eksik DLL
+  taraması testi; günlükler ve yazılabilir veri `%LOCALAPPDATA%`; derleme her zaman `--clean`; kurulum sırasında
+  bir kez ısıtma (Defender taraması kullanıcının ilk açılışına kalmasın); sunucu alt süreci iş nesnesine
+  (Job Object) bağlı; Streamlit dosya izleyicisi kapalı; chromadb pakette yok.
+
 ## M3.1 Mevcut yükün ölçümü (2026-09-30)
 
 Ortam: geliştirme makinesi, `.venv` (CPython 3.12), GPU kullanılmadan, `OMP_NUM_THREADS=2`, veri kopyası
@@ -153,3 +190,40 @@ Paketlemede bulunan ve çözülen sorunlar (tam paketlemede M17 de aynılarını
 M17'ye notlar: başlatıcı ana süreci zorla sonlandırılırsa sunucu alt süreci öksüz kalır (pencere normal
 kapatıldığında sonlanır) — iş nesnesi (Job Object) ile bağlanmalı; soğuk diskte ve Windows Defender taramasıyla ilk
 açılış M3.3'te ölçülür.
+
+## M3.3 Temiz ortamda deneme (2026-09-30)
+
+Windows Sandbox (Windows 11 10.0.26100, internet kapalı, GPU kapalı, 6 GB bellek sınırı), paket klasörü salt okunur
+eşlenip Sandbox masaüstüne kopyalanarak. Yapılandırmalar: `MufettisAI_deneme.wsb` (elle deneme),
+`MufettisAI_olcum.wsb` (kopyalar ve `MufettisAI.exe --measure` çalıştırır, sonucu eşlenen yazılabilir klasöre yazar).
+
+Ölçüm (`--measure`, ilk açılış; Windows Defender Sandbox'ta etkin; aynı anda elle açılmış bir uygulama da
+çalıştığından süreler üst sınırdır):
+
+| Aşama | Sandbox | Geliştirme makinesi |
+|---|---|---|
+| Sunucunun hazır olması | 1,0 sn | 1,0 sn |
+| Uygulama içe aktarma (torch zinciri) | 16,5 sn | 6,0 sn |
+| İlk analiz (modeller yüklenir) | 12,2 sn | 9,7 sn |
+| Sonraki analizler | 5,2 / 6,7 sn | 3,0 / 4,6 sn |
+| Bellek (analiz sonrası) | 2,1 GB özel, en yüksek çalışma kümesi 1,43 GB | aynı |
+| Sonuç | 3 analizin 3'ü başarılı; arayüz 26 234 parçayı görüyor | aynı |
+
+Temiz Windows'ta bulunan ve paket kusuru olan sorunlar (hepsi yalnızca temiz makinede görünür):
+
+1. **Eksik Visual C++ DLL'i**: `torch_cpu.dll` Visual C++ 2022 çalışma zamanının `vcruntime140_threads.dll`'ine
+   bağlı; geliştirme makinesinde `System32`'de, temiz Windows'ta yok; PyInstaller `System32`'yi toplamaz. torch
+   yüklenemeyince arayüz yalnızca "RAG hazır değil" diyordu. Çözüm: spec'te `binaries`; tüm paket tarandı
+   (`pefile`), eksik başka çalışma zamanı DLL'i yok.
+2. **Hata sebebi yutuluyordu**: `engine.py` içe aktarma hatasını, `ui/app._get_rag` sebebi saklamadan `None`
+   dönüyordu. Artık sebep saklanır, günlüğe yazılır ve "RAG hazır değil. Sebep: …" olarak gösterilir
+   (`tests/test_rag_unavailable_reason.py`).
+3. **Varsayılan tarayıcı atanmamış**: temiz Windows'ta `http` için ilişkilendirilmiş uygulama yok ("Bu 'http'
+   bağlantısını açamıyoruz"); tarayıcı kipi kullanıcının varsayılan tarayıcı ayarına bağımlı.
+4. **WebView2 yok**: pywebview eski MSHTML motoruna düşüyor, Streamlit boş sayfa kalıyor (`webview2` sürümü boş).
+5. **Salt okunur kurulum klasörü**: başlatıcı günlüğü exe'nin yanına yazmaya çalışınca çöküyor. Gerçek kurulumda
+   (`Program Files`, yönetici olmayan kullanıcı) aynısı olur; günlükler ve yazılabilir veri `%LOCALAPPDATA%`'ya.
+6. **PyInstaller önbelleği**: değişen uygulama modülleri pakete girmemişti (`admin`, `app`, `engine` ilk derlemeden
+   kalmıştı); `--clean` zorunlu, spec başlığında yazılı.
+
+Çözülen: 1, 2, 6 (paket ve kod); 3 ve 4 karar girdisi (M3.4: Edge `--app` penceresi); 5 M17'ye.

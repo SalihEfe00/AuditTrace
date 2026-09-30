@@ -60,6 +60,12 @@ def _get_rag(**kwargs):
     return _fn(**kwargs)
 
 
+def rag_not_ready() -> str:
+    """"RAG hazır değil" mesajı; kurulamama sebebi (ui.app._rag_unavailable) varsa eklenir."""
+    reason = st.session_state.get("rag_error") if st is not None else None
+    return f"RAG hazır değil. Sebep: {reason}" if reason else "RAG hazır değil."
+
+
 def normalize_display_boolean(val: Any) -> bool:
     """Normalizes mixed bool/str/None representations to clean boolean for Arrow/UI display."""
     if val is None or (isinstance(val, float) and pd.isna(val)):
@@ -84,7 +90,10 @@ def render_mevzuat_admin(
     st.subheader("Mevzuat kaynak yönetimi")
     if rag is None:
         rag = _get_rag(allow_download=allow_embedding_download)
-    st.write(f"Parça (kayıt) sayısı: {rag.count() if rag else 0}")
+    if rag is None:
+        st.error(rag_not_ready())
+    else:
+        st.write(f"Parça (kayıt) sayısı: {rag.count()}")
 
     st.markdown("### RAG Envanteri")
     st.caption(
@@ -273,7 +282,7 @@ def render_mevzuat_admin(
         use_browser_bootstrap = st.checkbox("BDDK için Playwright kullan", value=True, key="bootstrap_browser")
         if st.button("İLK MEVZUAT KURULUMUNU BAŞLAT", type="primary", disabled=local_only):
             if rag is None:
-                st.error("RAG hazır değil. Embedding modeli ve Chroma bağlantısını kontrol et.")
+                st.error(rag_not_ready())
             else:
                 progress = st.progress(0.0, text="Başlatılıyor...")
                 box = st.empty()
@@ -326,7 +335,7 @@ def render_mevzuat_admin(
         st.json(st.session_state["bulk_scan_info"])
     if bc2.button("TOPLU İÇE AKTARIMI BAŞLAT", type="primary"):
         if rag is None:
-            st.error("RAG bağımlılıkları hazır değil. Embedding modeli/Chroma kontrol et.")
+            st.error(rag_not_ready())
         else:
             progress = st.progress(0.0, text="Hazırlanıyor...")
             status_box = st.empty()
@@ -353,7 +362,7 @@ def render_mevzuat_admin(
     force_ingest = col_a.checkbox("Tekil dosya için force re-ingest", value=False)
     if local_file and col_b.button("Yerel mevzuata ekle"):
         if rag is None:
-            st.error("RAG bağımlılıkları hazır değil.")
+            st.error(rag_not_ready())
         else:
             temp = DATA_DIR / f"upload_{uuid.uuid4().hex}_{Path(local_file.name).name}"
             temp.write_bytes(local_file.getvalue())
@@ -403,7 +412,7 @@ def render_mevzuat_admin(
         if local_only:
             st.warning("Tam yerel mod açık: web kaynak senkronizasyonu kapalı.")
         elif rag is None:
-            st.error("RAG hazır değil.")
+            st.error(rag_not_ready())
         elif not selected_sources:
             st.info("En az bir kaynak seç.")
         else:
@@ -776,7 +785,7 @@ def render_quarantine_admin_panel(
         )
         if st.button("Yeniden Dene (Retry Ingestion)", type="primary", key=f"btn_retry_{selected_hash}"):
             if rag is None:
-                st.error("RAG hazır değil. Embedding modeli ve Chroma bağlantısını kontrol edin.")
+                st.error(rag_not_ready())
             else:
                 with st.spinner("Belge yeniden işleniyor (Self-healing & verification gate)..."):
                     try:

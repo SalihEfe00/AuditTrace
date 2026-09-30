@@ -17,8 +17,11 @@ except Exception:
 
 try:
     from sentence_transformers import SentenceTransformer
-except Exception:
+    SENTENCE_TRANSFORMERS_ERROR = ""
+except Exception as _exc:
+    # Sebep saklanır ve kullanıcıya gösterilir (ör. temiz makinede eksik bir DLL torch'u yükletmez).
     SentenceTransformer = None
+    SENTENCE_TRANSFORMERS_ERROR = f"{type(_exc).__name__}: {_exc}"
 
 from mufettis.config import (
     CHROMA_COLLECTION,
@@ -66,7 +69,7 @@ class LocalRAG:
         if self.store_kind == "chroma" and chromadb is None:
             raise RuntimeError("chromadb kurulu değil. `pip install chromadb`")
         if SentenceTransformer is None:
-            raise RuntimeError("sentence-transformers kurulu değil. `pip install sentence-transformers`")
+            raise RuntimeError(f"sentence-transformers yüklenemedi: {SENTENCE_TRANSFORMERS_ERROR}")
         self.db_path = Path(db_path)
         self.db_path.mkdir(parents=True, exist_ok=True)
         self.model_name = model_name
