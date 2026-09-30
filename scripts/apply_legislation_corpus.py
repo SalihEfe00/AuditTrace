@@ -10,6 +10,7 @@ betik aynı adımları tek seferde ve M2 yedekleme politikasıyla yapar:
 3. İndirme: listedeki belgeler (öncelik 1 + 2), doğrulamayla.
 4. Yükleme: belge belge; yüklenmiş olan atlanır (yarıda kalırsa yeniden çalıştırılabilir).
    4b. Madde değişiklik notları önceden yüklenmiş belgelerin parçalarına da eklenir (M7.2).
+   4c. Kanunların önceki metinleri tarih aralığıyla, "historical" durumunda yüklenir (M7.3).
 5. Eşik: tam korpus için dev'den seçilen sıralayıcı eşiği `DATA_DIR/reranker_calibration.json` dosyasına (M6.1).
 
 Üretim `data/` dizininde yalnızca --production ile, kullanıcı onayından sonra çalışır. Sonrasında taban dosyaları
@@ -120,6 +121,19 @@ def main(argv=None) -> int:
     written = apply_backfill(rag, plan_backfill(rag))
     manifest["steps"].append({"step": "amendment_backfill", "chunks": written})
     print(f"4b. değişiklik notları: {written} parça")
+
+    # 4c. Kanunların önceki metinleri (M7.3): "historical", tarih aralıklı; güncel metnin yerini almaz.
+    from mufettis.importers.historical_laws import fetch_and_import
+
+    historical_dir = download_dir / "historical"
+    historical_dir.mkdir(parents=True, exist_ok=True)
+    historical = fetch_and_import(rag, index, select_sources(load_sources(), 2, include_in_corpus=True),
+                                  historical_dir, log=lambda m: print(f"   {m}", flush=True))
+    counts = {}
+    for row in historical:
+        counts[row["status"]] = counts.get(row["status"], 0) + 1
+    manifest["steps"].append({"step": "historical_laws", "counts": counts})
+    print(f"4c. önceki kanun metinleri: {counts}")
 
     # 5. Eşik
     calibration = Path(DATA_DIR) / CALIBRATION_FILE

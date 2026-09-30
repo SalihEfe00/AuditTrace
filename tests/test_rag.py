@@ -134,10 +134,15 @@ class TestRAGReranking(unittest.TestCase):
 
 class TestV1313RAGIsolation(unittest.TestCase):
     def test_query_source_has_current_schema_filter(self):
+        from mufettis.rag.engine import current_where
+
         source = inspect.getsource(LocalRAG._query)
-        self.assertIn("chunk_schema_version", source)
-        self.assertIn("CHUNK_SCHEMA_VERSION", source)
-        self.assertIn('where={"chunk_schema_version":CHUNK_SCHEMA_VERSION}', source)
+        self.assertIn("current_where(", source)
+        clauses = current_where({"law_number": "5411"})["$and"]
+        # Güncel şema + önceki kanun metinleri (M7.3) dışarıda + ek koşul.
+        self.assertIn({"chunk_schema_version": CHUNK_SCHEMA_VERSION}, clauses)
+        self.assertIn({"status": {"$nin": ["historical"]}}, clauses)
+        self.assertIn({"law_number": "5411"}, clauses)
 
 
 class TestV1316ExactLawRecovery(unittest.TestCase):

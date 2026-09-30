@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from mufettis.audit.service import append_audit
 from mufettis.common.utils import now_iso
 from mufettis.config import CHROMA_UPSERT_BATCH_SIZE, CHUNK_SCHEMA_VERSION
+from mufettis.corpus.validity import preserved_status
 from mufettis.extraction.pdf import _is_true_glued_token, _pdf_generic_quality_metrics
 from mufettis.extraction.text_repair import (
     _repair_glued_turkish_words,
@@ -660,7 +661,7 @@ class AutoHealingIngestionGate:
         meta["chunk_schema_version"] = CHUNK_SCHEMA_VERSION
         meta["chunk_metadata_valid"] = bool(chunk_count)
         meta["ingest_status"] = "indexed" if chunk_count else "indexed_zero_chunks"
-        meta["status"] = "active"
+        meta["status"] = preserved_status(meta)
         meta["healed"] = was_healed
         if was_healed:
             meta["healed_at"] = now_iso()

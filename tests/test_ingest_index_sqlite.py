@@ -39,6 +39,32 @@ class TestIngestIndexSqlite(unittest.TestCase):
         os.utime(self.json_path, ns=(time.time_ns(), time.time_ns() + 10**9))
         self.assertEqual(list(IngestIndex(path=self.json_path).data["indexed_items"]), ["z"])
 
+    def test_copied_data_dir_keeps_newer_sqlite_records(self):
+        # Veri dizini kopyalanınca JSON'un zamanı değişir, içeriği değişmez: SQLite'taki yeni kayıtlar korunur.
+        _write_json(self.json_path, {"a": {"title": "A"}})
+        IngestIndex(path=self.json_path).upsert("b", {"title": "B"})
+        os.utime(self.json_path, ns=(time.time_ns(), time.time_ns() + 10**9))
+        self.assertEqual(list(IngestIndex(path=self.json_path).data["indexed_items"]), ["a", "b"])
+
+    def test_old_time_based_signature_is_upgraded_without_reimport(self):
+        import sqlite3
+
+        _write_json(self.json_path, {"a": {"title": "A"}})
+        IngestIndex(path=self.json_path).upsert("b", {"title": "B"})
+        con = sqlite3.connect(str(store_path(self.json_path)))
+        with con:
+            con.execute("UPDATE meta SET value = ? WHERE key = 'legacy_json_signature'",
+                        (f"{self.json_path.stat().st_size}:123",))
+        con.close()
+        index = IngestIndex(path=self.json_path)
+        self.assertEqual(list(index.data["indexed_items"]), ["a", "b"])
+        con = sqlite3.connect(str(index.path))
+        try:
+            value = con.execute("SELECT value FROM meta WHERE key = 'legacy_json_signature'").fetchone()[0]
+        finally:
+            con.close()
+        self.assertTrue(value.startswith("sha256:"))
+
     def test_corrupt_legacy_json_is_an_error_not_an_empty_index(self):
         self.json_path.write_text("{bozuk", encoding="utf-8")
         with self.assertRaises(ValueError):

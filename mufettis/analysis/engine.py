@@ -41,7 +41,7 @@ from mufettis.analysis.turkish_text import (
 )
 from mufettis.common.utils import article_label, canonical_source_id
 from mufettis.config import MAX_RAG_RESULTS
-from mufettis.corpus import EligibilityPolicy, InstrumentType, canonical_view
+from mufettis.corpus import HISTORICAL_STATUSES, EligibilityPolicy, InstrumentType, canonical_view
 from mufettis.extraction.text_repair import clean_evidence_text, normalize_legal_whitespace
 
 # Bir kanıtın bir iddiayla ilişkilendirilmesi için gereken en az farklı içerik terimi
@@ -102,7 +102,20 @@ def evidence_display_title(meta: Dict[str, Any]) -> str:
     """Kanıtın atıflarda görünen adı. Belge kendi adını beyan ediyorsa (kanun numarası beyanının
     üstündeki ad) o kullanılır: dosya adları ("55555") ve tarayıcı sayfa başlıkları ("Mevzuat Bilgi
     Sistemi") belgenin adı değildir. Ad yoksa ve başlık yalnızca bir numaraysa ("1296") belgenin
-    beyan ettiği konu, o da yoksa "7440 sayılı Kanun" gösterilir. Kayıt değişmez."""
+    beyan ettiği konu, o da yoksa "7440 sayılı Kanun" gösterilir. Kayıt değişmez.
+
+    Kanunun önceki metni (M7.3, olay tarihine göre seçilmiş, M7.4) adıyla birlikte etiketlenir: "… — olay tarihindeki
+    metin: 6327 sayılı Kanun ile değişik hali (2012-06-29 – 2013-03-28)"."""
+    name = _display_name(meta)
+    if str(meta.get("status") or "") in HISTORICAL_STATUSES:
+        amended_by = str(meta.get("amended_by") or "").strip()
+        version = f"{amended_by} ile değişik hali" if amended_by and amended_by != "ilk metin" else "ilk metin"
+        window = " – ".join(str(meta.get(k) or "?") for k in ("valid_from", "valid_to"))
+        return f"{name} — olay tarihindeki metin: {version} ({window})"
+    return name
+
+
+def _display_name(meta: Dict[str, Any]) -> str:
     declared = str(meta.get("declared_title") or "").strip()
     law_number = str(meta.get("law_number") or "").strip()
     if declared:
@@ -313,10 +326,13 @@ class AnalysisEngine:
             return {}
         scope = {canonical_source_id(s) for s in (retrieval_plan.source_scope or [])}
         policy = EligibilityPolicy.from_filters(retrieval_plan.filters)
+        # Olay tarihi (M7.1) biliniyorsa dayanak o tarihte yürürlükte olan metinden aranır (M7.4).
+        dated = {"as_of": doc.event_date} if doc.event_date and getattr(rag_client, "supports_event_date", False) is True \
+            else {}
         out: Dict[str, List[Evidence]] = {}
         for claim in self.claims_for_matching(doc):
             try:
-                results = rag_client.claim_candidates(claim.statement, CLAIM_CANDIDATES, eligibility=policy)
+                results = rag_client.claim_candidates(claim.statement, CLAIM_CANDIDATES, eligibility=policy, **dated)
             except Exception as exc:
                 if errors is not None:
                     errors.append(f"{claim.statement[:60]}: {type(exc).__name__}: {exc}")

@@ -67,6 +67,13 @@ def validity(meta: Dict[str, Any], as_of: Optional[dt.date] = None) -> str:
     return Validity.IN_FORCE if status == "active" else Validity.UNKNOWN
 
 
+def preserved_status(meta: Dict[str, Any]) -> str:
+    """Yeniden yükleme / onarım sonrası kaydın durumu: ayıklanmış ve önceki metin olduğu gibi kalır (bir onarım
+    bunları aramaya açmamalı), diğerleri etkin olur."""
+    status = str((meta or {}).get("status", "") or "").strip().lower()
+    return status if status in EXCLUDED_STATUSES | HISTORICAL_STATUSES else "active"
+
+
 def validity_tier(meta: Dict[str, Any], as_of: Optional[dt.date] = None) -> int:
     return VALIDITY_TIER[validity(meta, as_of)]
 
@@ -78,6 +85,7 @@ __all__ = [
     "INACTIVE_STATUSES",
     "VALIDITY_TIER",
     "parse_date",
+    "preserved_status",
     "validity",
     "validity_tier",
 ]

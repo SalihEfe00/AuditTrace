@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import datetime as dt
 import difflib
 import re
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple
@@ -23,6 +24,8 @@ from mufettis.corpus import (
     validity_tier,
     with_canonical,
 )
+from mufettis.corpus.model import Validity
+from mufettis.corpus.validity import validity
 from mufettis.extraction.text_repair import (
     clean_evidence_text,
     extract_legal_identifier,
@@ -937,8 +940,10 @@ def _metadata_bool(value: Any, default: bool = False) -> bool:
     if text in {"false", "0", "no", "n", "hayır", "hayir", "h", "off", ""}:
         return False
     return default
-def _chunk_is_retrievable(meta: Dict[str, Any], document: Any = "") -> bool:
+def _chunk_is_retrievable(meta: Dict[str, Any], document: Any = "", as_of: Optional[dt.date] = None) -> bool:
     """Gerçek Chroma chunk'ının retrieval'a girip giremeyeceğini belirler.
+
+    as_of: olay tarihi (M7.4). Kanunun önceki metni (M7.3) yalnızca bu tarih geçerlilik aralığındaysa aday olur.
 
     v0.13.35'te document_indexable birincil indekslenebilirlik sinyalidir.
     Eski Chroma kayıtlarında bu metadata yanlış/eksik kalmışsa, mevcut gerçek
@@ -949,8 +954,10 @@ def _chunk_is_retrievable(meta: Dict[str, Any], document: Any = "") -> bool:
     if str(meta.get("chunk_schema_version", "")) != str(CHUNK_SCHEMA_VERSION):
         return False
     status = str(meta.get("status", "")).strip().lower()
-    if status in NOT_IN_FORCE_STATUSES or status in EXCLUDED_STATUSES or status in HISTORICAL_STATUSES:
-        return False  # önceki metin yalnızca olay tarihine göre arandığında aday olur (M7.4)
+    if status in NOT_IN_FORCE_STATUSES or status in EXCLUDED_STATUSES:
+        return False
+    if status in HISTORICAL_STATUSES and (as_of is None or validity(meta, as_of) != Validity.IN_FORCE):
+        return False  # önceki metin yalnızca olay tarihi aralığındaysa aday olur (M7.4)
 
     if _metadata_bool(meta.get("document_indexable"), False):
         return True

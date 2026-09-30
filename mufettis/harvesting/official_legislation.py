@@ -15,7 +15,7 @@ import time
 import urllib.robotparser
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 from urllib.parse import urlparse
 
 from mufettis.analysis.turkish_text import turkish_lower
@@ -204,6 +204,18 @@ class OfficialLegislationFetcher:
         return self._finish(FetchResult(source.key, "downloaded", path=path.name, sha256=sha256_bytes(data),
                                         text_sha256=sha256_bytes(re.sub(r"\s+", " ", text).strip().encode("utf-8")),
                                         size=len(data), pages=len(pages)), started)
+
+    def fetch_json(self, url: str) -> Any:
+        """Resmî alandaki JSON uç noktası (ör. kanunun önceki metinlerinin listesi, M7.3); aynı bekleme ve
+        robots.txt kuralıyla. Alınamazsa ValueError."""
+        if urlparse(url).hostname not in OFFICIAL_HOSTS:
+            raise ValueError(f"resmî olmayan alan adı: {url}")
+        if not self.robots_allows(url):
+            raise ValueError("robots.txt izin vermiyor")
+        response = self._get(url)
+        if response.status_code != 200:
+            raise ValueError(f"HTTP {response.status_code}")
+        return response.json()
 
     def _check(self, source: LegislationSource, data: bytes, suffix: str):
         """(sayfalar, sorun); sorun yoksa None."""

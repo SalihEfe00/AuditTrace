@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import datetime as dt
 import hashlib
+import json
 import re
 import sqlite3
 from collections import Counter
@@ -34,8 +36,15 @@ from mufettis.config import (
     MAX_RAG_RESULTS,
 )
 from mufettis.common.utils import now_iso, mask_sensitive
-from mufettis.corpus import NOT_IN_FORCE_STATUSES, EligibilityPolicy, refresh_canonical, with_canonical
-from mufettis.corpus.model import CANONICAL_SCHEMA
+from mufettis.corpus import (
+    HISTORICAL_STATUSES,
+    NOT_IN_FORCE_STATUSES,
+    EligibilityPolicy,
+    refresh_canonical,
+    with_canonical,
+)
+from mufettis.corpus.model import CANONICAL_SCHEMA, Validity
+from mufettis.corpus.validity import parse_date, validity
 from mufettis.extraction.text_repair import (
     extract_query_article,
     extract_series_number,
@@ -64,6 +73,16 @@ LEXICAL_CANDIDATES_MIN = 10
 LEXICAL_CANDIDATES_PER_K = 2
 # Sorguda seri numarası varken havuza eklenen, o seri üyesinden en çok parça sayısı.
 SERIES_CANDIDATES = 20
+# Güncel korpus: kanunların önceki (tarih aralıklı) metinleri (M7.3) varsayılan sorgulara ve BM25 istatistiklerine
+# girmez. Bir kanunun 14 sürümü neredeyse aynı metindir; girselerdi anlamsal sorgunun ilk sıralarını doldurur, terim
+# sıklıklarını değiştirir, bugünkü sonuçları bozardı. Olay tarihli sorguda ayrıca eklenirler (M7.4).
+CURRENT_CORPUS_CLAUSES = ({"chunk_schema_version": CHUNK_SCHEMA_VERSION},
+                          {"status": {"$nin": sorted(HISTORICAL_STATUSES)}})
+
+
+def current_where(*clauses: Dict[str, Any]) -> Dict[str, Any]:
+    """Güncel korpus süzgeci (+ ek koşullar)."""
+    return {"$and": [*CURRENT_CORPUS_CLAUSES, *clauses]}
 # İddia adaylarında (claim_candidates) her kaynaktan (BM25, vektör) okunan aday sayısı.
 CLAIM_SOURCE_DEPTH = 100
 
@@ -326,7 +345,7 @@ class LocalRAG:
         return exact
 
     def _iter_current_chunks(self):
-        for _ids,docs,metas in iter_pages(self.collection, where={"chunk_schema_version":CHUNK_SCHEMA_VERSION}):
+        for _ids,docs,metas in iter_pages(self.collection, where=current_where()):
             yield from zip(docs,metas)
 
     @staticmethod
@@ -398,7 +417,7 @@ class LocalRAG:
     def _identity_matches(self, document_ref: Optional[str], account_ref: Optional[str]) -> List[Dict[str, Any]]:
         """Belge kimliği (source_document_id) / hesap kodu (account_code) meta veride birebir eşleşen,
         erişilebilir güncel parçalar."""
-        clauses: List[Dict[str, Any]] = [{"chunk_schema_version": CHUNK_SCHEMA_VERSION}]
+        clauses: List[Dict[str, Any]] = list(CURRENT_CORPUS_CLAUSES)
         if document_ref:
             clauses.append({"source_document_id": str(document_ref)})
         if account_ref:
@@ -444,7 +463,7 @@ class LocalRAG:
 
         if explicit_law:
             exact=[]
-            exact_where={"$and":[{"chunk_schema_version":CHUNK_SCHEMA_VERSION},{"law_number":str(explicit_law)}]}
+            exact_where=current_where({"law_number":str(explicit_law)})
             try:
                 result=self.collection.query(query_embeddings=[embedding], n_results=min(max(k*10,30),MAX_RAG_RESULTS), where=exact_where)
                 docs=result.get("documents",[[]])[0]
@@ -484,7 +503,7 @@ class LocalRAG:
             out=[]
             try:
                 # Sayfalı tarama: yalnızca eşleşen parçalar bellekte tutulur.
-                for _ids,docs,metas in iter_pages(self.collection, where={"chunk_schema_version":CHUNK_SCHEMA_VERSION}):
+                for _ids,docs,metas in iter_pages(self.collection, where=current_where()):
                     for doc,meta in zip(docs,metas):
                         if not _chunk_is_retrievable(meta, doc):
                             continue
@@ -500,10 +519,8 @@ class LocalRAG:
             return []
 
         # Serbest sorgular semantic retrieval kullanır.
-        semantic_where: Dict[str, Any] = {"chunk_schema_version":CHUNK_SCHEMA_VERSION}
         policy_clauses = eligibility.chroma_clauses() if eligibility else []
-        if policy_clauses:
-            semantic_where = {"$and":[semantic_where, *policy_clauses]}
+        semantic_where = current_where(*policy_clauses)
         result=self.collection.query(
             query_embeddings=[embedding],
             n_results=min(max(k*20,50),MAX_RAG_RESULTS),
@@ -538,8 +555,8 @@ class LocalRAG:
         prefix, number = article
         try:
             got = self.collection.get(
-                where={"$and": [{"chunk_schema_version": CHUNK_SCHEMA_VERSION}, {"law_number": str(law_number)},
-                                {"article_no": str(number)}]},
+                where=current_where({"law_number": str(law_number)},
+                                    {"article_no": str(number)}),
                 include=["documents", "metadatas"])
         except Exception:
             return []
@@ -562,7 +579,7 @@ class LocalRAG:
         """Başlığındaki seri işareti bu numarayı taşıyan belgelerin parçaları (belge numarası meta verisiyle)."""
         try:
             got = self.collection.get(
-                where={"$and": [{"chunk_schema_version": CHUNK_SCHEMA_VERSION}, {"document_number": str(series_no)}]},
+                where=current_where({"document_number": str(series_no)}),
                 limit=SERIES_CANDIDATES, include=["documents", "metadatas"])
         except Exception:
             return []
@@ -584,19 +601,21 @@ class LocalRAG:
         statement: str,
         n: int,
         eligibility: Optional[EligibilityPolicy] = None,
+        as_of: Optional[Union[dt.date, str]] = None,
     ) -> List[Dict[str, Any]]:
         """Bir iddia cümlesi için aday parçalar: BM25 ve vektör sıralamaları ağırlıklı RRF ile
         birleştirilir (mufettis.rag.fusion), ilk n döner. query()'den farkı: yayıncı/başlık
         bonuslu hukuki yeniden sıralama (_legal_rerank) uygulanmaz; adaylar yeniden sıralayıcıya
         (cross-encoder) ve iddia-kanıt seçimine ham alaka sırasıyla gider. Her aday "distance"
-        (gerçek gömmeden kare L2) ve "fusion_score" taşır."""
+        (gerçek gömmeden kare L2) ve "fusion_score" taşır.
+
+        as_of: olay tarihi (M7.4). O tarihte önceki metni yürürlükte olan kanunların parçaları o metinle
+        değiştirilir (_at_event_date) ve o metinler ayrıca anlamsal olarak aranır; verilmezse güncel korpus."""
         if not statement.strip() or n <= 0:
             return []
         embedding=self.embed([statement])[0]
-        where: Dict[str, Any] = {"chunk_schema_version":CHUNK_SCHEMA_VERSION}
         policy_clauses = eligibility.chroma_clauses() if eligibility else []
-        if policy_clauses:
-            where = {"$and":[where, *policy_clauses]}
+        where = current_where(*policy_clauses)
         depth=min(CLAIM_SOURCE_DEPTH, MAX_RAG_RESULTS)
         result=self.collection.query(query_embeddings=[embedding], n_results=depth, where=where)
         semantic=[]
@@ -612,14 +631,130 @@ class LocalRAG:
             semantic.append({"id":cid,"document":clean_evidence_text(doc,12000),"metadata":meta,
                              "distance":float(distance) if distance is not None else None})
         lexical=self._lexical_candidates(statement, embedding, depth, eligibility)
-        by_id={r["id"]:r for r in lexical}
-        by_id.update({r["id"]:r for r in semantic})
-        scores=reciprocal_rank_fusion([
-            ([r["id"] for r in lexical], LEXICAL_WEIGHT),
-            ([r["id"] for r in semantic], SEMANTIC_WEIGHT),
-        ])
+        rankings=[(lexical, LEXICAL_WEIGHT), (semantic, SEMANTIC_WEIGHT)]
+        as_of=parse_date(as_of) if isinstance(as_of, str) else as_of
+        in_force=self.versions_in_force(as_of) if as_of else {}
+        if in_force:
+            rankings=[(self._at_event_date(rows, in_force, embedding, as_of, eligibility), weight)
+                      for rows, weight in rankings]
+            rankings.append((self._historical_semantic(embedding, in_force, depth, as_of, eligibility), SEMANTIC_WEIGHT))
+        by_id={}
+        for rows, _weight in rankings:
+            by_id.update({r["id"]:r for r in rows})
+        scores=reciprocal_rank_fusion([([r["id"] for r in rows], weight) for rows, weight in rankings])
         ranked=sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))[:n]
         return [dict(by_id[cid], fusion_score=score) for cid, score in ranked]
+
+    # ── olay tarihindeki metin (M7.4) ────────────────────────────────────────
+    supports_event_date = True
+
+    def _cache_signature(self) -> Any:
+        if getattr(self, "db_path", None):
+            return self._collection_signature()
+        return (self.collection.count(), getattr(self, "_mutations", 0))
+
+    def historical_versions(self) -> List[Dict[str, str]]:
+        """Kanunların önceki metinleri (M7.3), belge başına bir kayıt (file_hash, law_number, valid_from, valid_to,
+        status); koleksiyon değişince yenilenir."""
+        signature=self._cache_signature()
+        cached=getattr(self, "_historical_cache", None)
+        if cached is not None and cached[0]==signature:
+            return cached[1]
+        try:
+            got=self.collection.get(
+                where={"$and":[{"chunk_schema_version":CHUNK_SCHEMA_VERSION},
+                               {"status":{"$in":sorted(HISTORICAL_STATUSES)}}, {"chunk_no":0}]},
+                include=["metadatas"])
+        except Exception:
+            return []
+        rows=[{k:str((m or {}).get(k) or "") for k in ("file_hash", "law_number", "valid_from", "valid_to", "status")}
+              for m in got.get("metadatas") or []]
+        self._historical_cache=(signature, rows)
+        return rows
+
+    def versions_in_force(self, as_of: dt.date) -> Dict[str, str]:
+        """Kanun numarası → olay tarihinde yürürlükte olan önceki metnin özeti. Olay tarihi son değişiklikten
+        sonraysa (güncel metin yürürlükte) ya da o tarihin metni korpusta yoksa kanun listede yer almaz."""
+        out: Dict[str, str]={}
+        for row in self.historical_versions():
+            if row["law_number"] and row["file_hash"] and validity(row, as_of)==Validity.IN_FORCE:
+                out[row["law_number"]]=row["file_hash"]
+        return out
+
+    def _version_rows(self, file_hash: str, article_no: str, embedding: List[float], as_of: dt.date,
+                      eligibility: Optional[EligibilityPolicy]) -> List[Dict[str, Any]]:
+        try:
+            got=self.collection.get(where={"$and":[{"file_hash":file_hash}, {"article_no":article_no}]},
+                                    include=["documents", "metadatas", "embeddings"])
+        except Exception:
+            return []
+        q=np.asarray(embedding, dtype=np.float32)
+        ids=got.get("ids") or []
+        embeddings=got.get("embeddings")
+        if embeddings is None:
+            embeddings=[None]*len(ids)
+        out=[]
+        for cid,doc,meta,emb in zip(ids, got.get("documents") or [], got.get("metadatas") or [], embeddings):
+            meta=meta or {}
+            if not _chunk_is_retrievable(meta, doc, as_of) or (eligibility and not eligibility.admits(meta)):
+                continue
+            distance=float(np.sum((np.asarray(emb, dtype=np.float32)-q)**2)) if emb is not None else None
+            out.append({"id":cid, "document":clean_evidence_text(doc,12000), "metadata":meta, "distance":distance})
+        return sorted(out, key=lambda r: int(r["metadata"].get("chunk_no", 0) or 0))
+
+    def _at_event_date(self, rows: List[Dict[str, Any]], in_force: Dict[str, str], embedding: List[float],
+                       as_of: dt.date, eligibility: Optional[EligibilityPolicy]) -> List[Dict[str, Any]]:
+        """Sıralı adaylarda, olay tarihinde önceki metni yürürlükte olan kanunun güncel parçası o metindeki aynı
+        maddenin parçasıyla değiştirilir (aynı fıkra ve bent, yoksa aynı fıkra, yoksa madde); sıra korunur. Madde o
+        metinde yoksa (sonradan eklenmiş) ya da parça maddesizse düşer: olay tarihinde o hüküm yoktu."""
+        out: List[Dict[str, Any]]=[]
+        seen: set=set()
+        for r in rows:
+            meta=r.get("metadata") or {}
+            law=str(meta.get("law_number") or "")
+            if law not in in_force or str(meta.get("status", "")) in HISTORICAL_STATUSES:
+                replacement=[r]
+            elif not meta.get("article_no"):
+                replacement=[]
+            else:
+                prefix=str(meta.get("article_prefix") or "")[:1].upper()
+                article=[h for h in self._version_rows(in_force[law], str(meta["article_no"]), embedding, as_of,
+                                                       eligibility)
+                         if str(h["metadata"].get("article_prefix") or "")[:1].upper()==prefix]
+                replacement=[]
+                for key in (("paragraph_no", "item_no"), ("paragraph_no",), ()):
+                    replacement=[h for h in article
+                                 if all(str(h["metadata"].get(k) or "")==str(meta.get(k) or "") for k in key)]
+                    if replacement:
+                        break
+            for h in replacement:
+                if h["id"] not in seen:
+                    seen.add(h["id"])
+                    out.append(h)
+        return out
+
+    def _historical_semantic(self, embedding: List[float], in_force: Dict[str, str], depth: int, as_of: dt.date,
+                             eligibility: Optional[EligibilityPolicy]) -> List[Dict[str, Any]]:
+        """Olay tarihinde yürürlükte olan önceki metinlerde anlamsal arama: güncel metinde artık olmayan (sonradan
+        kaldırılmış) maddeler de aday olur."""
+        where={"$and":[{"chunk_schema_version":CHUNK_SCHEMA_VERSION}, {"file_hash":{"$in":sorted(in_force.values())}}]}
+        try:
+            result=self.collection.query(query_embeddings=[embedding], n_results=depth, where=where)
+        except Exception:
+            return []
+        out=[]
+        for cid,doc,meta,distance in zip(
+            (result.get("ids") or [[]])[0], result.get("documents",[[]])[0],
+            result.get("metadatas",[[]])[0], result.get("distances",[[]])[0],
+        ):
+            meta=meta or {}
+            if cid is None or not _chunk_is_retrievable(meta, doc, as_of):
+                continue
+            if eligibility and not eligibility.admits(meta):
+                continue
+            out.append({"id":cid,"document":clean_evidence_text(doc,12000),"metadata":meta,
+                        "distance":float(distance) if distance is not None else None})
+        return out
 
     def lexical_index_path(self, signature: str) -> Optional[Path]:
         """Kalıcı BM25 indeksinin yeri: Chroma veritabanının yanında (veri dizinine özgü). Dosya adı
@@ -645,7 +780,9 @@ class LocalRAG:
         zamanı kullanılamaz: Chroma veritabanını her açışta dosyaya yazar.) SQLite deposunda aynı
         rolü kalıcı yazma sayacı görür."""
         # Kanonik şema: indeks uygunluk alanlarını kurulumda saklar; türetme kuralı değişince yenilenmeli.
-        parts=[LEXICAL_INDEX_VERSION, str(CHUNK_SCHEMA_VERSION), CANONICAL_SCHEMA, str(self.collection.count())]
+        parts=[LEXICAL_INDEX_VERSION, str(CHUNK_SCHEMA_VERSION), CANONICAL_SCHEMA, str(self.collection.count()),
+             # Kapsam değişince (güncel korpus süzgeci) indeks yeniden kurulur.
+             json.dumps(current_where(), sort_keys=True, ensure_ascii=False)]
         sqlite_path=Path(self.db_path)/"chroma.sqlite3"
         if callable(getattr(self.collection, "generation", None)):
             parts.append(f"gen:{self.collection.generation()}")
@@ -666,7 +803,7 @@ class LocalRAG:
 
         Gerçek veritabanında indeks diskte tutulur (düşük RAM'li laptoplar, tam mevzuat) ve
         uygulama yeniden açıldığında yeniden kurulmaz. Yolu olmayan koleksiyonlarda bellek içidir."""
-        pages=lambda: iter_pages(self.collection, where={"chunk_schema_version":CHUNK_SCHEMA_VERSION})
+        pages=lambda: iter_pages(self.collection, where=current_where())
         if not getattr(self, "db_path", None):
             signature=(self.collection.count(), getattr(self, "_mutations", 0))
             cached=getattr(self, "_lexical_cache", None)

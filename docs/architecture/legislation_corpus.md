@@ -143,6 +143,33 @@ Tam mevzuat üretime geçerken (M6.10) bu dosya da yazılır.
 Aday havuzu derinliği (`CLAIM_CANDIDATES`) 30, 45 ve 60 için ölçüldü. Havuz isabeti üçünde de 0,885; derinlik 30
 kalır. Havuzdan düşen hükümler sıralamanın çok gerisinde, bu yüzden derinlik artışı onları geri getirmiyor.
 
+## Kanunların önceki metinleri (M7.3, M7.4)
+
+mevzuat.gov.tr her kanun için "X ile değişik hali" metinlerini yayımlar (`EskiKanunlar/EskiKanunlarList`, JSON;
+`mufettis/importers/historical_laws.py`, `scripts/fetch_historical_laws.py`, M6.10 betiğinde 4c adımı). Listedeki
+19 kanunda 50 sürüm var (TMK 14, Bankacılık 17, Harçlar 9, TTK 4, diğerleri 1).
+
+* **Değiştiren işlem** kanun, KHK ya da Anayasa Mahkemesi kararıdır ("2012205" = K. 2012/205); ilk kayıt kanunun ilk
+  metni olabilir. Sürüm adı metnin kendi başlık satırından alınır ("… ile değişik hali"; yoksa "ilk metin").
+* **Doğrulama:** metnin başında değiştiren işlemin numarası geçer ("2012/205" biçimi dahil); metinde değiştiren
+  işlemden sonraki bir değişiklik notu yoktur. Başlık ve kanun numarası indiricide güncel kanunla aynı denetlenir.
+* **Aralık:** başlangıç Resmî Gazete tarihi; bitiş bir sonraki değişikliğin kabul tarihi (listedeki sonraki sürüm
+  ya da güncel metindeki sonraki ilk not, hangisi önceyse). Kaynakta kabulü yayımından sonra görünen kayıtlarda
+  yayım esas alınır; sıralama yayım tarihine göredir. Aralık hiçbir zaman gerçeğinden uzun değildir; bitiş
+  bulunamazsa ya da başlangıçtan önceyse metin hiçbir tarihte yürürlükte sayılmaz.
+* **Durum** `historical`: güncel sürümün yerini almaz (`link_versions=False`), kimliği ayrıdır
+  (`mevzuat:<kod>@<kabul>`), onarımda korunur (`corpus.validity.preserved_status`).
+* **Güncel korpus süzgeci** (`rag.engine.current_where`): önceki metinler varsayılan anlamsal sorgulara ve BM25
+  istatistiklerine girmez. Bir kanunun 14 neredeyse aynı sürümü ilk sıraları doldurur ve terim sıklıklarını
+  değiştirirdi. BM25 indeksi imzası süzgeci içerir, bir kez yeniden kurulur.
+* **Olay tarihi (M7.4):** `claim_candidates(as_of=)` havuzu güncel metinle bulur; o tarihte önceki metni
+  yürürlükte olan kanunun parçasını aynı madde / fıkra / bentle değiştirir (o tarihte olmayan madde düşer) ve
+  önceki metinlerde ayrıca anlamsal arar (sonradan kaldırılan maddeler). Olay tarihi son değişiklikten sonraysa
+  sonuç olay tarihsiz aramayla aynıdır. Kanıt adı "— olay tarihindeki metin: … (başlangıç – bitiş)" taşır.
+
+Veri dizini kopyalanınca ingest dizini korunur (M7.3a): eski `ingest_index.json` içerik özetiyle izlenir; zaman
+damgasıyla izlendiği için kopyalanan veri dizininde eski JSON SQLite'taki yeni kayıtları siliyordu.
+
 ## M6.10 Üretime uygulama (kullanıcı onayıyla)
 
 1. Uygulama kapalıyken:

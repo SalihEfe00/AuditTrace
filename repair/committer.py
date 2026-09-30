@@ -26,6 +26,7 @@ from mufettis.config import (
 from mufettis.common.utils import mask_sensitive, now_iso, safe_json, source_profile
 from mufettis.corpus import with_canonical
 from mufettis.corpus.identity import content_fingerprint
+from mufettis.corpus.validity import preserved_status
 from mufettis.extraction.text_repair import repair_extracted_spacing
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex, store_path
@@ -468,7 +469,8 @@ def upsert_candidate_chroma(
             "source_type": str(cand_meta.get("source_type") or profile.get("source_type") or ""),
             "authority_rank": str(cand_meta.get("authority_rank") or profile.get("authority_rank") or 0),
             "content_fingerprint": fingerprint,
-            "status": "active",
+            # Ayıklanmış / önceki metin (M7.3) onarımda da aranamaz kalır; diğerleri etkin.
+            "status": preserved_status(cand_meta),
             "article_prefix": ch.get("article_prefix") or "",
             "article_no": ch.get("article_no") or "",
             "article_title": ch.get("article_title") or "",

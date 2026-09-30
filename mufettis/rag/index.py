@@ -25,7 +25,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
 
-from mufettis.common.utils import normalize_title, now_iso, safe_json
+from mufettis.common.utils import normalize_title, now_iso, safe_json, sha256_bytes
 from mufettis.config import INGEST_INDEX_FILE
 
 logger = logging.getLogger(__name__)
@@ -157,8 +157,10 @@ class IngestIndex:
 
     # ── eski JSON'dan içe aktarma ────────────────────────────────────────────
     def _legacy_signature(self) -> str:
-        stat = self.legacy_path.stat()
-        return f"{stat.st_size}:{stat.st_mtime_ns}"
+        """İçerik imzası. Değiştirilme zamanı kullanılmaz: veri dizini kopyalanınca / taşınınca (yedekten dönüş,
+        kurulum, veri kopyası) zaman değişir, içerik değişmez; eski JSON SQLite'taki yeni kayıtları ezmemeli."""
+        data = self.legacy_path.read_bytes()
+        return f"sha256:{len(data)}:{sha256_bytes(data)}"
 
     def _import_legacy_if_changed(self) -> None:
         if not self.legacy_path.is_file():
@@ -167,6 +169,12 @@ class IngestIndex:
         with self._connect() as con:
             row = con.execute("SELECT value FROM meta WHERE key = 'legacy_json_signature'").fetchone()
         if row and row[0] == signature:
+            return
+        if row and not row[0].startswith("sha256:") and row[0].split(":")[0] == signature.split(":")[1]:
+            # Eski ("boyut:zaman") imza, boyut aynı: dosya içe aktarıldıktan sonra değişmedi, yalnızca kopyalandı.
+            with self._connect() as con:
+                con.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('legacy_json_signature', ?)",
+                            (signature,))
             return
         # Bozuk dosya "boş indeks" sayılmaz: aksi halde tüm kayıtlar sessizce kaybolurdu.
         payload = json.loads(self.legacy_path.read_text(encoding="utf-8"))

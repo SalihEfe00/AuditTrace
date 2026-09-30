@@ -33,7 +33,11 @@ class _Collection:
     def get(self, where=None, include=None, **_):
         clauses = where["$and"]
         wanted = {k: v for c in clauses for k, v in c.items()}
-        hits = [(d, m) for d, m in self.rows if all(str(m.get(k)) == str(v) for k, v in wanted.items())]
+
+        def ok(m, k, v):
+            return str(m.get(k)) not in v["$nin"] if isinstance(v, dict) else str(m.get(k)) == str(v)
+
+        hits = [(d, m) for d, m in self.rows if all(ok(m, k, v) for k, v in wanted.items())]
         return {"documents": [d for d, _ in hits], "metadatas": [m for _, m in hits]}
 
 
