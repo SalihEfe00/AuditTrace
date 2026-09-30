@@ -40,6 +40,8 @@ def print_summary(summary) -> None:
                            f" (+{m['fields'][k]['fp']} fazla)" for k in FIELD_KINDS)
         line = (f"[{split}] {m['cases']} vaka, {m['documents']} belge | tür {m['type_correct']}/{m['documents']} "
                 f"| alan (bulunan/beklenen): {fields}")
+        if m.get("event_date_cases"):
+            line += f" | olay tarihi {m['event_date_ok']}/{m['event_date_cases']}"
         if m["decided"]:
             line += (f" | karar {m['decision_correct']}/{m['decided']}: kaçan kusur {m['missed_defects']}, "
                      f"yanlış alarm {m['false_alarms']}")

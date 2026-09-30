@@ -569,6 +569,25 @@ def extract_series_number(text: str) -> Optional[str]:
     return None
 
 
+# Sorgudaki madde: "geçici madde 5", "md. 54", "madde 12", "54 üncü madde", "89. maddesi".
+_QUERY_ARTICLE_RES = (
+    re.compile(r"\b(geçici|ek)\s+madde\s*(\d{1,4})\b", re.I),
+    re.compile(r"()\b(?:madde|md\.?)\s*(\d{1,4})\b", re.I),
+    re.compile(r"()\b(\d{1,4})\s*(?:\.|['’]?\s*(?:inci|ıncı|üncü|uncu|nci|ncı|ncü|ncu))?\s*madde", re.I),
+)
+
+
+def extract_query_article(query: str) -> Optional[Tuple[str, str]]:
+    """(önek, madde no): önek "" (asıl madde), "geçici" ya da "ek"; madde yoksa None."""
+    q = str(query or "")
+    for pattern in _QUERY_ARTICLE_RES:
+        m = pattern.search(q)
+        if m:
+            head = m.group(1)[:1].upper()
+            return ("geçici" if head == "G" else "ek" if head == "E" else ""), m.group(2)
+    return None
+
+
 def extract_legal_identifiers(text: str) -> List[str]:
     """Metnin atıf yaptığı tüm kanun numaraları; metindeki sırayla ve tekil."""
     t = str(text or "")
@@ -587,4 +606,5 @@ __all__ = [
     "extract_legal_identifier",
     "extract_legal_identifiers",
     "extract_series_number",
+    "extract_query_article",
 ]

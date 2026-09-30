@@ -6,7 +6,7 @@ import re
 import sqlite3
 from collections import Counter
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -36,7 +36,13 @@ from mufettis.config import (
 from mufettis.common.utils import now_iso, mask_sensitive
 from mufettis.corpus import NOT_IN_FORCE_STATUSES, EligibilityPolicy, refresh_canonical, with_canonical
 from mufettis.corpus.model import CANONICAL_SCHEMA
-from mufettis.extraction.text_repair import extract_series_number, normalize_extracted_text, repair_extracted_spacing
+from mufettis.extraction.text_repair import (
+    extract_query_article,
+    extract_series_number,
+    normalize_extracted_text,
+    repair_extracted_spacing,
+)
+from mufettis.legal.amendments import amendment_metadata
 from mufettis.legal.parser import (
     _chunk_is_retrievable,
     _chunk_matches_account_ref,
@@ -205,7 +211,9 @@ class LocalRAG:
             None if str(meta.get("content_fingerprint") or "").strip() else text,
         )
 
-        for ch in chunks:
+        # Madde / fıkra değişiklik notları (M7.2): olay tarihinden sonra değişen hükmü işaretlemek için.
+        amendments = amendment_metadata(chunks)
+        for ch, amendment in zip(chunks, amendments):
             chunk_text = repair_extracted_spacing(
                 ch["text"], meta.get("title", ""), meta.get("document_type", "")
             )
@@ -226,6 +234,7 @@ class LocalRAG:
                 "structure_type": effective_structure_type,
                 "subchunk_no": int(ch.get("subchunk_no", 0) or 0),
                 "chunk_no": int(ch.get("chunk_no", 0) or 0),
+                **amendment,
             }
             docs.append(chunk_text)
             metadatas.append({
@@ -450,7 +459,16 @@ class LocalRAG:
                 exact=[]
             if not exact:
                 exact=self._exact_law_candidates(str(explicit_law))
-            return prefer_official_matches(exact, limit=max(1,min(k,MAX_RAG_RESULTS)), query=query)
+            limit=max(1,min(k,MAX_RAG_RESULTS))
+            # Madde numarası da verilmişse ("54 üncü madde", "md. 89") o maddenin parçaları doğrudan başa gelir;
+            # anlamsal benzerlik maddeyi seçmez. Madde korpusta yoksa kanunun diğer parçalarıyla devam edilir.
+            article=extract_query_article(query)
+            direct=self._article_chunks(str(explicit_law), article) if article else []
+            if direct:
+                keys={(r["metadata"].get("file_hash"), r["metadata"].get("chunk_no")) for r in direct}
+                rest=[r for r in exact if (r["metadata"].get("file_hash"), r["metadata"].get("chunk_no")) not in keys]
+                return (direct + prefer_official_matches(rest, limit=limit, query=query))[:limit]
+            return prefer_official_matches(exact, limit=limit, query=query)
 
         # Açık belge/h hesap kimliğinde metadata where filtresi tek otorite değildir.
         # Rebuild sonrası eksik/stale kimlik metadata'sını gerçek chunk metniyle de doğrula.
@@ -513,6 +531,32 @@ class LocalRAG:
             seen={r["id"] for r in out if r["id"] is not None}
             out.extend(r for r in self._series_candidates(series_no, eligibility) if r["id"] not in seen)
         return prefer_official_matches(out, limit=max(1,min(k,MAX_RAG_RESULTS)), query=query)
+
+    def _article_chunks(self, law_number: str, article: Tuple[str, str]) -> List[Dict[str, Any]]:
+        """Kanunun o maddesinin erişilebilir güncel parçaları, madde içi sırayla (fıkra, bent). Önek: "" asıl madde,
+        "geçici" / "ek" (meta verideki article_prefix ilk üç harfiyle karşılaştırılır)."""
+        prefix, number = article
+        try:
+            got = self.collection.get(
+                where={"$and": [{"chunk_schema_version": CHUNK_SCHEMA_VERSION}, {"law_number": str(law_number)},
+                                {"article_no": str(number)}]},
+                include=["documents", "metadatas"])
+        except Exception:
+            return []
+        out = []
+        for doc, meta in zip(got.get("documents") or [], got.get("metadatas") or []):
+            meta = meta or {}
+            meta_prefix = str(meta.get("article_prefix") or "").strip()[:1].upper()
+            if meta_prefix != prefix[:1].upper() or not _chunk_is_retrievable(meta, doc):
+                continue
+            out.append({"document": clean_evidence_text(doc, 12000), "metadata": meta, "distance": None,
+                        "_article_match": True})
+
+        def order(item):
+            m = item["metadata"]
+            return tuple(int(v) if str(v).isdigit() else 0 for v in (m.get("paragraph_no"), m.get("item_no"),
+                                                                      m.get("chunk_no")))
+        return sorted(out, key=order)
 
     def _series_candidates(self, series_no: str, eligibility: Optional[EligibilityPolicy]) -> List[Dict[str, Any]]:
         """Başlığındaki seri işareti bu numarayı taşıyan belgelerin parçaları (belge numarası meta verisiyle)."""

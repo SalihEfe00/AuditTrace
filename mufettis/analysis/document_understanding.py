@@ -13,6 +13,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 from mufettis.analysis.field_extraction import extract_fields
+from mufettis.analysis.event_date import extract_event_date
 from mufettis.analysis.models import (
     DocumentClaim,
     DocumentEntity,
@@ -128,6 +129,7 @@ class DocumentUnderstandingService:
         title = self._detect_title(normalized, meta)
         date = self._detect_date(normalized, meta)
         fields = extract_fields(normalized)
+        event = extract_event_date(normalized, fields)
         entities = self._extract_entities(normalized, fields)
         subjects = self._extract_subjects(normalized)
         claims = self._extract_claims(normalized, subjects, entities)
@@ -145,6 +147,8 @@ class DocumentUnderstandingService:
             subjects=subjects,
             claims=claims,
             events=events,
+            event_date=event.value,
+            event_date_basis=event.basis,
             metadata=meta,
         )
 

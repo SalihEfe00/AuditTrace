@@ -82,6 +82,10 @@ class DocumentUnderstanding(BaseModel):
     subjects: List[str] = Field(default_factory=list, description="Identified topical subjects")
     claims: List[DocumentClaim] = Field(default_factory=list, description="Extracted claims or allegations")
     events: List[DocumentEvent] = Field(default_factory=list, description="Extracted chronological events")
+    event_date: Optional[str] = Field(default=None, description="Olay tarihi (YYYY-MM-DD; M7.1): belgenin anlattığı "
+                                                                "işlemin tarihi, düzenlenme tarihinden ayrı")
+    event_date_basis: str = Field(default="", description="Olay tarihinin dayanağı: etiket / düzyazı / işlem "
+                                                          "tablosu / düzenlenme tarihi / yok")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Forwarded metadata")
 
 

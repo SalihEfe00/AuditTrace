@@ -289,6 +289,12 @@ class DocumentPrediction:
     fields: Dict[str, List[str]]
     defective: Optional[bool] = None
     findings: List[str] = field(default_factory=list)
+    event_date: Optional[str] = None
+
+
+# Olay tarihi (M7.1) cevap anahtarına bu kadar gün yakınsa doğru: dayanak seçimi için olayın dönemi yeterli
+# (mevzuat sürümleri yıllar içinde değişir), kusurlu işlemin gününün birebir bulunması gerekmez.
+EVENT_DATE_TOLERANCE_DAYS = 30
 
 
 # Alan çıkarıcısının türleri (models.ExtractedField.kind) → benchmark alanları
@@ -316,6 +322,20 @@ class DocumentCaseResult:
     extra_fields: Dict[str, List[str]] = field(default_factory=dict)
     findings: List[str] = field(default_factory=list)
     seconds: float = 0.0
+    event_date_expected: str = ""
+    event_date_predicted: str = ""
+    event_date_ok: Optional[bool] = None     # cevap anahtarında olay tarihi yoksa None
+
+
+def _event_date_ok(expected: str, predicted: Optional[str]) -> Optional[bool]:
+    import datetime as dt
+
+    if not expected:
+        return None
+    if not predicted:
+        return False
+    delta = dt.date.fromisoformat(predicted) - dt.date.fromisoformat(expected)
+    return abs(delta.days) <= EVENT_DATE_TOLERANCE_DAYS
 
 
 def evaluate_document_case(case: DocumentCase, prediction: DocumentPrediction,
@@ -342,7 +362,9 @@ def evaluate_document_case(case: DocumentCase, prediction: DocumentPrediction,
         case_id=case.case_id, split=case.split, expected_types=expected_types,
         predicted_types=list(prediction.document_types), field_counts=counts, decision=decision,
         compliant=case.compliant, missing_fields=missing, extra_fields=extra, findings=list(prediction.findings),
-        seconds=round(seconds, 2),
+        seconds=round(seconds, 2), event_date_expected=case.event_date or "",
+        event_date_predicted=prediction.event_date or "",
+        event_date_ok=_event_date_ok(case.event_date or "", prediction.event_date),
     )
 
 
@@ -377,6 +399,7 @@ def summarize_documents(results: Sequence[DocumentCaseResult]) -> Dict[str, Dict
                 by_type[r.expected_types[0]]["decided"] += 1
                 by_type[r.expected_types[0]]["decision_correct"] += int(r.decision == DECISION_CORRECT)
         type_correct = sum(1 for e, p in pairs if e == p)
+        dated = [r for r in rs if r.event_date_ok is not None]
         out[split] = {
             "cases": len(rs),
             "documents": len(pairs),
@@ -389,6 +412,8 @@ def summarize_documents(results: Sequence[DocumentCaseResult]) -> Dict[str, Dict
             "missed_defects": sum(1 for r in decided if r.decision == MISSED_DEFECT),
             "false_alarms": sum(1 for r in decided if r.decision == FALSE_ALARM),
             "by_type": by_type,
+            "event_date_cases": len(dated),
+            "event_date_ok": sum(1 for r in dated if r.event_date_ok),
         }
     return out
 
@@ -405,6 +430,8 @@ def compare_document_results(previous: Sequence[Dict[str, Any]],
         changes = []
         if old["predicted_types"] != r.predicted_types:
             changes.append(f"tür {old['predicted_types']} -> {r.predicted_types}")
+        if old.get("event_date_ok") != r.event_date_ok:
+            changes.append(f"olay tarihi {old.get('event_date_predicted')} -> {r.event_date_predicted}")
         if old.get("decision") != r.decision:
             changes.append(f"karar {old.get('decision')} -> {r.decision}")
         changed_fields = [k for k in FIELD_KINDS if old["field_counts"].get(k) != r.field_counts[k]]
@@ -425,21 +452,22 @@ LEVELS = ("understanding", "decision")
 DOCUMENT_BASELINE_FILE = Path(__file__).resolve().parents[2] / "benchmarks" / "document_baseline.json"
 
 
-def understand(text: str, doc_service: Any = None, classifier: Any = None) -> Tuple[str, Dict[str, List[str]]]:
-    """Belge anlama + sınıflandırma (korpussuz): kanonik tür ve alanlar."""
+def understand(text: str, doc_service: Any = None,
+               classifier: Any = None) -> Tuple[str, Dict[str, List[str]], Optional[str]]:
+    """Belge anlama + sınıflandırma (korpussuz): kanonik tür, alanlar, olay tarihi."""
     from mufettis.analysis.classifier import DocumentClassifierService
     from mufettis.analysis.document_understanding import DocumentUnderstandingService
 
     doc = (doc_service or DocumentUnderstandingService()).analyze(text)
     classification = (classifier or DocumentClassifierService()).classify(doc)
-    return classification.branch_type, predicted_fields(doc)
+    return classification.branch_type, predicted_fields(doc), doc.event_date
 
 
 def predict_understanding(case: DocumentCase, doc_service: Any = None, classifier: Any = None) -> DocumentPrediction:
     """understanding seviyesi: tür (dosya paketinde belge başına) ve alanlar (tüm metinden); karar yok."""
-    doc_type, fields = understand(case.text, doc_service, classifier)
+    doc_type, fields, event_date = understand(case.text, doc_service, classifier)
     types = [understand(d.text, doc_service, classifier)[0] for d in case.documents] if case.documents else [doc_type]
-    return DocumentPrediction(document_types=types, fields=fields)
+    return DocumentPrediction(document_types=types, fields=fields, event_date=event_date)
 
 
 def predict_decision(case: DocumentCase, execution: Any, doc_service: Any = None,
@@ -453,7 +481,7 @@ def predict_decision(case: DocumentCase, execution: Any, doc_service: Any = None
              else [result.classification.branch_type])
     return DocumentPrediction(
         document_types=types, fields=predicted_fields(result.document), defective=bool(result.findings),
-        findings=[f.regulation_reference for f in result.findings],
+        findings=[f.regulation_reference for f in result.findings], event_date=result.document.event_date,
     )
 
 
@@ -468,6 +496,7 @@ def case_set_fingerprint(cases: Iterable[DocumentCase]) -> str:
 # (metrik yolu, daha büyük daha iyi mi, seviye); alan metrikleri her iki seviyede ölçülür
 _BASELINE_METRICS: Tuple[Tuple[str, bool, str], ...] = (
     ("type_correct", True, "understanding"),
+    ("event_date_ok", True, "understanding"),
     *((f"fields.{k}.tp", True, "understanding") for k in FIELD_KINDS),
     *((f"fields.{k}.fp", False, "understanding") for k in FIELD_KINDS),
     ("decision_correct", True, "decision"),
@@ -525,6 +554,6 @@ __all__ = [
     "DECISION_CORRECT", "MISSED_DEFECT", "FALSE_ALARM", "DocumentPrediction", "predicted_fields",
     "DocumentCaseResult", "evaluate_document_case", "summarize_documents", "compare_document_results",
     "document_results_to_json",
-    "LEVELS", "DOCUMENT_BASELINE_FILE", "understand", "predict_understanding", "predict_decision",
+    "EVENT_DATE_TOLERANCE_DAYS", "LEVELS", "DOCUMENT_BASELINE_FILE", "understand", "predict_understanding", "predict_decision",
     "case_set_fingerprint", "baseline_metrics", "check_document_baseline", "baseline_level_entry",
 ]

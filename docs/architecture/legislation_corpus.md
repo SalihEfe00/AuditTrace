@@ -56,9 +56,10 @@ Diğer kimlik kuralları (M6.13):
 - **Kanun adı (M6.13):** Sorguda adıyla anılan kanun ("İcra ve İflas Kanunu …") atıf çözücüsüyle
   (`analysis.cited_references`) korpustaki kanun kataloğuna karşı numaraya çözülür
   (`LocalRAG.named_law_number`). Sonra numaralı sorguyla aynı yoldan gider.
-- **Bilinen eksik:** Madde numarasıyla doğrudan erişim ("5411 sayılı Kanun 54 üncü madde" → madde 54) yok.
-  Sorgu doğru kanuna gider ama madde anlamsal benzerlikle seçilir. Bu M6'nın getirdiği bir gerileme değil,
-  hiç olmayan bir özellik; kullanıcı kararına sunuldu.
+- **Madde numarası (M6.14):** Kanun belli olduğunda (numarayla ya da adla) sorgudaki madde de çözülür:
+  "54 üncü madde", "md. 89", "584. madde", "geçici madde 5" (`extract_query_article`). O maddenin parçaları
+  fıkra sırasıyla doğrudan başa gelir (`LocalRAG._article_chunks`); anlamsal benzerlik maddeyi seçmez. Madde
+  korpusta yoksa kanunun diğer parçalarıyla devam edilir.
 
 ## Mevzuat olmayan kayıtlar (M6.5)
 
@@ -141,3 +142,22 @@ Tam mevzuat üretime geçerken (M6.10) bu dosya da yazılır.
 
 Aday havuzu derinliği (`CLAIM_CANDIDATES`) 30, 45 ve 60 için ölçüldü. Havuz isabeti üçünde de 0,885; derinlik 30
 kalır. Havuzdan düşen hükümler sıralamanın çok gerisinde, bu yüzden derinlik artışı onları geri getirmiyor.
+
+## M6.10 Üretime uygulama (kullanıcı onayıyla)
+
+1. Uygulama kapalıyken:
+   `python scripts/apply_legislation_corpus.py --production --exclude 64b009bc9ab3`
+   - Yedek, ayıklama, indirme, yükleme ve eşik dosyası tek komutta yapılır.
+   - Yedek `data/backups/legislation_corpus_<zaman>/` altına alınır.
+   - `64b009bc9ab3` = `mufettis_ai_test_temiz`. Ayıklama geri alınabilir.
+2. Üretim verisinin yeni bir kopyası alınır (ör. `datacopy4`). Tabanlar bu kopyada bilinçli olarak yeniden
+   yazılır:
+   - `MUFETTIS_DATA_DIR=<kopya> python scripts/eval_accuracy.py --split all --write-baseline "M6.10 tam mevzuat"`
+   - `MUFETTIS_DATA_DIR=<kopya> python scripts/eval_documents.py --level decision --write-baseline "M6.10 tam mevzuat"`
+   - İsteğe bağlı testler artık bu kopyayı gösterir: `MUFETTIS_BENCHMARK_DATA_DIR`,
+     `MUFETTIS_TEST_SOURCE_DATA_DIR`.
+3. Tüm testler çalıştırılır; `python scripts/check_legislation_retrieval.py --priority 2` kopyada tekrar edilir.
+4. Geri dönüş gerekirse yedekteki dizin ve parça deposu geri yüklenir. `reranker_calibration.json` silinirse
+   eşik modelin varsayılanına döner.
+
+Aynı betik `datacopy3`'ün taze kopyasında (indirme klasörü olmadan, üretimin birebir benzeri) prova edildi.

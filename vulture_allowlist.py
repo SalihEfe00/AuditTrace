@@ -35,6 +35,8 @@ _.fetched_at
 # kusurun mevzuat atfı M9'da ölçülür.
 signatures
 regulation
+# Olay tarihi sonucu (M7.1): vaka sonuç JSON'una yazılır, önceki koşuyla karşılaştırmada okunur.
+event_date_expected
 structure_status
 plan_version
 extraction_chain

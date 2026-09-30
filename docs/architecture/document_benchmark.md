@@ -111,3 +111,22 @@ başka modellerle ürettiği örnekler geldiğinde yapılır; aradaki fark M5'e 
   - Eski şikâyet / iç yazışma kararı tek başına bir türü taşır; başka türün belirgin işareti varsa o tür kazanır.
   - Puan düşükse ya da ilk iki aday arasındaki fark azsa tür "bilinmiyor" olur.
 - **Gerileme:** Tutar ve IBAN varlıkları artık alan çıkarıcısından geliyor. Gerçek korpus tabanı 32 / 1 / 0 korunuyor.
+
+## Olay tarihi (M7.1)
+
+`DocumentUnderstanding.event_date` belgenin anlattığı işlemin tarihidir (`mufettis/analysis/event_date.py`).
+Dayanağı `event_date_basis` alanında tutulur: etiket, düzyazı, işlem tablosu, düzenlenme tarihi ya da yok.
+
+Her tarih alanı bağlamından bir rol alır:
+- **olay:** "İşlem / Kullandırım / Tebliğ Tarihi:" etiketleri, düzyazıda "… tarihinde", işlem tablosu satırı.
+- **düzenlenme:** Başlıktaki ilk "Tarih:", "Rapor / Teklif Tarihi:".
+- **diğer:** Vade, doğum, sorgu, dönem, "… tarihli" başka bir belgeye atıf, "… itibarıyla".
+
+Olay tarihi en erken olay rolündeki tarihtir; yoksa düzenlenme tarihi alınır.
+
+Benchmark ölçütü `event_date_ok`: tahmin cevap anahtarındaki olay tarihine 30 gün içinde yakınsa doğru sayılır.
+Bu tolerans bilinçli: dayanak seçimi (M7.4) için olayın dönemi yeterli, çünkü mevzuat sürümleri yıllar içinde
+değişir. Kusurlu işlemin günü (ör. altı aylık ücret tablosundaki tek bir satır) belgeye özgüdür ve kurala
+dökülmez.
+
+Başlangıç setinde sonuç 12/13. Tek kaçan vaka, 6 aylık ücret tablosunda kusurlu satırın beklendiği vaka.

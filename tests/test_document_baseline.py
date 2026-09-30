@@ -45,10 +45,11 @@ class TestUnderstandingBaseline(unittest.TestCase):
 
 
 class TestBaselineCheck(unittest.TestCase):
-    def summary(self, type_correct=3, amounts_fp=1, false_alarms=0):
+    def summary(self, type_correct=3, amounts_fp=1, false_alarms=0, event_date_ok=5):
         fields = {k: {"tp": 1, "fp": 0, "fn": 0} for k in db.FIELD_KINDS}
         fields["amounts"]["fp"] = amounts_fp
-        return {"all": {"type_correct": type_correct, "fields": fields, "decision_correct": 2,
+        return {"all": {"type_correct": type_correct, "event_date_ok": event_date_ok, "fields": fields,
+                        "decision_correct": 2,
                         "missed_defects": 1, "false_alarms": false_alarms}}
 
     def test_detects_worse_metrics_and_changed_case_set(self):
@@ -58,6 +59,8 @@ class TestBaselineCheck(unittest.TestCase):
         problems = db.check_document_baseline(self.summary(type_correct=2, amounts_fp=2, false_alarms=1), entry, "abc")
         self.assertEqual(len(problems), 3)
         self.assertTrue(any("all.type_correct: 2 (taban 3)" == p for p in problems))
+        self.assertIn("all.event_date_ok: 4 (taban 5)",
+                      db.check_document_baseline(self.summary(event_date_ok=4), entry, "abc"))
         self.assertIn("vaka kümesi değişti", db.check_document_baseline(self.summary(), entry, "xyz")[0])
 
     def test_understanding_entry_has_no_decision_metrics(self):

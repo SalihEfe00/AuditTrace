@@ -1,11 +1,12 @@
 {
  "levels": {
   "understanding": {
-   "note": "M5.6: şube belge türü sınıflandırıcısı + alan çıkarıcısı",
+   "note": "M7.1: olay tarihi ölçütü eklendi (12/13, 30 gün tolerans); diğer sayılar değişmedi",
    "cases_fingerprint": "15d5504c57301ccc",
    "splits": {
     "dev": {
      "type_correct": 15,
+     "event_date_ok": 10,
      "fields.amounts.tp": 53,
      "fields.dates.tp": 43,
      "fields.tckn.tp": 11,
@@ -25,6 +26,7 @@
     },
     "holdout": {
      "type_correct": 2,
+     "event_date_ok": 2,
      "fields.amounts.tp": 37,
      "fields.dates.tp": 13,
      "fields.tckn.tp": 1,
@@ -44,6 +46,7 @@
     },
     "all": {
      "type_correct": 17,
+     "event_date_ok": 12,
      "fields.amounts.tp": 90,
      "fields.dates.tp": 56,
      "fields.tckn.tp": 12,
@@ -64,11 +67,12 @@
    }
   },
   "decision": {
-   "note": "M5 sonrası: tür + alan çıkarıcısı; karar = en az bir bulgu (M9 öncesi); datacopy3",
+   "note": "M7.1: olay tarihi ölçütü eklendi (12/13); karar sayıları değişmedi (eski korpus, datacopy3)",
    "cases_fingerprint": "15d5504c57301ccc",
    "splits": {
     "dev": {
      "type_correct": 15,
+     "event_date_ok": 10,
      "fields.amounts.tp": 53,
      "fields.dates.tp": 43,
      "fields.tckn.tp": 11,
@@ -91,6 +95,7 @@
     },
     "holdout": {
      "type_correct": 2,
+     "event_date_ok": 2,
      "fields.amounts.tp": 37,
      "fields.dates.tp": 13,
      "fields.tckn.tp": 1,
@@ -113,6 +118,7 @@
     },
     "all": {
      "type_correct": 17,
+     "event_date_ok": 12,
      "fields.amounts.tp": 90,
      "fields.dates.tp": 56,
      "fields.tckn.tp": 12,
