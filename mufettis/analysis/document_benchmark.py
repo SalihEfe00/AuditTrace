@@ -11,15 +11,17 @@ TCKN / VKN yalnızca rakam, IBAN boşluksuz büyük harf. Cevap anahtarı serbes
 """
 from __future__ import annotations
 
-import datetime as _dt
 import json
 import re
 from dataclasses import asdict, dataclass, field
-from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Tuple
 
 from mufettis.analysis import document_taxonomy as tax
+from mufettis.analysis.field_extraction import (
+    field_values, find_amounts, find_dates, find_ibans, find_rates, find_tckns, find_vkns, format_amount,
+    format_rate, mask_ibans, normalize_account, normalize_person, parse_number,
+)
 from mufettis.analysis.turkish_text import turkish_lower
 
 CASES_DIR = Path(__file__).resolve().parents[2] / "benchmarks" / "documents"
@@ -29,71 +31,12 @@ FIELD_KINDS = ("amounts", "dates", "tckn", "vkn", "iban", "accounts", "rates", "
 RAW_FIELD_KINDS = ("roles", "signatures")   # yalnızca saklanan (M9 kontrollerinin girdisi)
 
 
-# --- Normalleştirme ---------------------------------------------------------------------------------------
+# --- Cevap anahtarını normalleştirme ------------------------------------------------------------------------
+# Değer ayrıştırıcıları motorla ortaktır (field_extraction); cevap anahtarı serbest yazıldığı için burada daha
+# hoşgörülü okunur (çıplak sayı, "ad: değer", iç içe sözlük).
 
-_CURRENCIES = (
-    ("TRY", r"TL|TRY|₺|Türk\s+Lirası|Türk\s+lirası|TRL"),
-    ("USD", r"USD|US\$|\$|ABD\s+Doları|Dolar"),
-    ("EUR", r"EUR|€|Avro|Euro"),
-    ("GBP", r"GBP|£|Sterlin"),
-)
-_CURRENCY_RE = "|".join(f"(?:{pattern})" for _, pattern in _CURRENCIES)
-_MULTIPLIERS = {"bin": Decimal(1000), "milyon": Decimal(10) ** 6, "milyar": Decimal(10) ** 9}
-_NUMBER = r"\d{1,3}(?:[.,\s]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?"
-_AMOUNT_RE = re.compile(
-    rf"(?<![\w.,%])(?:(?P<pre>{_CURRENCY_RE})\s*)?(?P<num>{_NUMBER})(?:\s*(?P<mult>bin|milyon|milyar))?"
-    rf"(?:\s*(?P<post>{_CURRENCY_RE}))?(?![\w%])",
-    re.IGNORECASE,
-)
-
-
-def _currency_code(token: str) -> str:
-    for code, pattern in _CURRENCIES:
-        if re.fullmatch(pattern, token.strip(), re.IGNORECASE):
-            return code
-    return ""
-
-
-def parse_number(text: str) -> Optional[Decimal]:
-    """Türkçe ya da İngilizce biçimli sayı: "1.250.000,50", "1,250,000.50", "250.000", "2,5", "1 250 000"."""
-    s = re.sub(r"\s", "", text or "")
-    if not s or not re.fullmatch(r"[\d.,]+", s) or not s[0].isdigit():
-        return None
-    if "." in s and "," in s:
-        decimal_sep = "," if s.rfind(",") > s.rfind(".") else "."
-        thousands = "." if decimal_sep == "," else ","
-        s = s.replace(thousands, "").replace(decimal_sep, ".")
-    elif s.count(".") + s.count(",") > 1:          # tek tür ayırıcı birden çok kez: binlik
-        s = s.replace(".", "").replace(",", "")
-    elif "." in s:                                   # "250.000" binlik, "12.5" ondalık
-        s = s.replace(".", "") if re.fullmatch(r"\d{1,3}\.\d{3}", s) else s
-    elif "," in s:                                   # Türkçe ondalık
-        s = s.replace(",", ".")
-    try:
-        return Decimal(s)
-    except InvalidOperation:
-        return None
-
-
-def format_amount(value: Decimal, currency: str) -> str:
-    return f"{value.quantize(Decimal('0.01'))} {currency}"
-
-
-def find_amounts(text: str) -> List[str]:
-    """Metindeki para tutarları ("1250000.00 TRY"). Para birimi yazılmamış sayı tutar sayılmaz (vade, adet,
-    oran olabilir); cevap anahtarındaki çıplak tutar için bkz. key_amounts."""
-    out: List[str] = []
-    for m in _AMOUNT_RE.finditer(text or ""):
-        currency = _currency_code(m.group("pre") or m.group("post") or "")
-        if not currency:
-            continue
-        value = parse_number(m.group("num"))
-        if value is None:
-            continue
-        if m.group("mult"):
-            value *= _MULTIPLIERS[m.group("mult").lower()]
-        out.append(format_amount(value, currency))
-    return out
+_ACCOUNT_RE = re.compile(r"(?<![\w])\d[\d\s\-/]{4,30}\d(?![\w])")
+_PERSON_SPLIT_RE = re.compile(r"\s[-–—]\s|\s*[:(,/]\s*|\s[-–—]$")
 
 
 def key_amounts(entry: str) -> List[str]:
@@ -106,75 +49,6 @@ def key_amounts(entry: str) -> List[str]:
     return [format_amount(value, "TRY")] if value is not None else []
 
 
-_MONTHS = {name: i for i, name in enumerate(
-    ("ocak", "şubat", "mart", "nisan", "mayıs", "haziran", "temmuz", "ağustos", "eylül", "ekim", "kasım", "aralık"),
-    start=1)}
-_DATE_RES = (
-    (re.compile(r"(?<!\d)(\d{4})[-./](\d{1,2})[-./](\d{1,2})(?!\d)"), ("y", "m", "d")),
-    (re.compile(r"(?<!\d)(\d{1,2})[-./](\d{1,2})[-./](\d{4})(?!\d)"), ("d", "m", "y")),
-    (re.compile(r"(?<!\d)(\d{1,2})\s+(" + "|".join(_MONTHS) + r")\s+(\d{4})(?!\d)"), ("d", "mon", "y")),
-)
-
-
-def find_dates(text: str) -> List[str]:
-    """Metindeki geçerli takvim tarihleri, ISO biçiminde ("2023-04-05"), metindeki sırayla."""
-    lowered = turkish_lower(text or "")
-    found = []
-    for pattern, order in _DATE_RES:
-        for m in pattern.finditer(lowered):
-            parts = dict(zip(order, m.groups()))
-            month = _MONTHS[parts["mon"]] if "mon" in parts else int(parts["m"])
-            try:
-                found.append((m.start(), _dt.date(int(parts["y"]), month, int(parts["d"])).isoformat()))
-            except ValueError:
-                continue
-    return [iso for _, iso in sorted(found)]
-
-
-_IBAN_RE = re.compile(r"(?<![A-Za-z0-9])TR\s?\d{2}(?:\s?\d){22}(?!\d)", re.IGNORECASE)
-_TCKN_RE = re.compile(r"(?<!\d)[1-9]\d{10}(?!\d)")
-_VKN_RE = re.compile(r"(?<!\d)\d{10}(?!\d)")
-
-
-def find_ibans(text: str) -> List[str]:
-    return [re.sub(r"\s", "", m.group(0)).upper() for m in _IBAN_RE.finditer(text or "")]
-
-
-def find_tckns(text: str) -> List[str]:
-    return _TCKN_RE.findall(_IBAN_RE.sub(" ", text or ""))
-
-
-def find_vkns(text: str) -> List[str]:
-    return _VKN_RE.findall(_IBAN_RE.sub(" ", text or ""))
-
-
-_RATE_RE = re.compile(r"%\s?(\d+(?:[.,]\d+)?)|(?<![\d.,])(\d+(?:[.,]\d+)?)\s?%|yüzde\s+(\d+(?:[.,]\d+)?)",
-                      re.IGNORECASE)
-
-
-def format_rate(value: Decimal) -> str:
-    return str(value.quantize(Decimal("0.01")))
-
-
-def find_rates(text: str) -> List[str]:
-    """Yüzde oranlar ("%54,00", "4,5 %", "yüzde 2") → "54.00"."""
-    out = []
-    for m in _RATE_RE.finditer(text or ""):
-        value = parse_number(next(g for g in m.groups() if g))
-        if value is not None:
-            out.append(format_rate(value))
-    return out
-
-
-_ACCOUNT_RE = re.compile(r"(?<![\w])\d[\d\s\-/]{4,30}\d(?![\w])")
-ACCOUNT_DIGITS = (6, 20)
-
-
-def normalize_account(text: str) -> Optional[str]:
-    digits = re.sub(r"[\s\-/]", "", text or "")
-    return digits if digits.isdigit() and ACCOUNT_DIGITS[0] <= len(digits) <= ACCOUNT_DIGITS[1] else None
-
-
 def key_rates(entry: str) -> List[str]:
     """"oranlar" kaydı yüzde işaretsiz yazılmışsa ("faiz: 54,00") değer tek başına oran sayılır."""
     value = parse_number(entry.rsplit(":", 1)[-1].strip())
@@ -183,24 +57,8 @@ def key_rates(entry: str) -> List[str]:
 
 def key_accounts(entry: str) -> List[str]:
     """Cevap anahtarının "hesap_numaralari" kaydı → yalnızca rakam (IBAN ayrıca ölçülür, burada sayılmaz)."""
-    value = _IBAN_RE.sub(" ", entry.rsplit(":", 1)[-1])
+    value = mask_ibans(entry.rsplit(":", 1)[-1])
     return [a for a in (normalize_account(m.group(0)) for m in _ACCOUNT_RE.finditer(value)) if a]
-
-
-_COMPANY_RE = re.compile(r"\b(?:a\.?ş\.?|ltd|şti|anonim|limited|bankası|holding|kooperatif)\b|\ba\.s\.")
-_PERSON_TITLE_RE = re.compile(r"^(?:sayın|av\.|dr\.|sn\.|bay|bayan)\s+")
-_PERSON_SPLIT_RE = re.compile(r"\s[-–—]\s|\s*[:(,/]\s*|\s[-–—]$")
-
-
-def normalize_person(name: str) -> Optional[str]:
-    """Kişi adı → küçük harf, noktalama yok, en az iki kelime; şirket ve boş değer None."""
-    text = turkish_lower(name or "").strip()
-    if not text or _COMPANY_RE.search(text):
-        return None
-    text = _PERSON_TITLE_RE.sub("", text)
-    text = re.sub(r"[^a-zçğıöşüâîû\s]", " ", text)
-    words = text.split()
-    return " ".join(words) if 2 <= len(words) <= 4 else None
 
 
 def key_person(entry: Any) -> Optional[str]:
@@ -433,20 +291,16 @@ class DocumentPrediction:
     findings: List[str] = field(default_factory=list)
 
 
+# Alan çıkarıcısının türleri (models.ExtractedField.kind) → benchmark alanları
+_FIELD_KIND_MAP = {"amount": "amounts", "date": "dates", "tckn": "tckn", "vkn": "vkn", "iban": "iban",
+                   "account": "accounts", "rate": "rates", "person": "persons"}
+
+
 def predicted_fields(doc: Any) -> Dict[str, List[str]]:
-    """DocumentUnderstanding → ölçülen alanlar. Yalnızca motorun çıkardığı değerler normalleştirilir; belge
-    metni burada yeniden taranmaz (yoksa motor değil benchmark'ın ayrıştırıcısı ölçülürdü)."""
-    by_type: Dict[str, List[str]] = {}
-    for entity in doc.entities:
-        by_type.setdefault(entity.entity_type, []).append(entity.text)
-    dates = [doc.date] + [event.date for event in doc.events]
-    return {
-        "amounts": _unique(a for t in by_type.get("amount", []) for a in find_amounts(t)),
-        "dates": _unique(d for t in dates if t for d in find_dates(t)),
-        "tckn": _unique(n for t in by_type.get("tckn", []) for n in find_tckns(t)),
-        "vkn": _unique(n for t in by_type.get("vkn", []) for n in find_vkns(t)),
-        "iban": _unique(i for t in by_type.get("iban", []) for i in find_ibans(t)),
-    }
+    """DocumentUnderstanding.fields → ölçülen alanlar. Yalnızca motorun çıkardığı değerler kullanılır; belge
+    metni burada yeniden taranmaz (yoksa motor değil benchmark'ın kendisi ölçülürdü)."""
+    values = field_values(list(doc.fields))
+    return {kind: list(values.get(engine_kind, [])) for engine_kind, kind in _FIELD_KIND_MAP.items()}
 
 
 @dataclass

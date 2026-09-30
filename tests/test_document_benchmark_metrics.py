@@ -91,7 +91,12 @@ class TestPredictedFields(unittest.TestCase):
         self.assertEqual(fields["amounts"], ["1250.50 TRY"])
         self.assertEqual(fields["dates"], ["2024-03-12"])
         self.assertEqual(fields["iban"], ["TR330006100519786457841326"])
-        self.assertEqual(fields["tckn"], [], "motor TCKN çıkarmıyor (M5); benchmark metni kendisi taramaz")
+        self.assertEqual(fields["tckn"], ["12345678901"], "etiketli TCKN (M5.3)")
+
+    def test_prediction_comes_only_from_engine_fields(self):
+        doc = DocumentUnderstandingService().analyze("Tutar 1.250,50 TL, tarih 12.03.2024.")
+        doc.fields = []
+        self.assertEqual(db.predicted_fields(doc)["amounts"], [], "benchmark belge metnini kendisi taramaz")
 
 
 if __name__ == "__main__":

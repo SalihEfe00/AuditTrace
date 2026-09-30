@@ -12,12 +12,14 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, List, Optional
 
+from mufettis.analysis.field_extraction import extract_fields
 from mufettis.analysis.models import (
     DocumentClaim,
     DocumentEntity,
     DocumentEvent,
     DocumentType,
     DocumentUnderstanding,
+    ExtractedField,
 )
 from mufettis.analysis.turkish_text import contains_phrase, content_terms, turkish_lower
 from mufettis.extraction.text_repair import (
@@ -86,13 +88,6 @@ class DocumentUnderstandingService:
         r"\b(\d{1,2}\s+(?:Ocak|Şubat|Mart|Nisan|Mayıs|Haziran|Temmuz|Ağustos|Eylül|Ekim|Kasım|Aralık)\s+\d{4})\b",
     ]
 
-    AMOUNT_PATTERN = re.compile(
-        r"(?<!\w)(\d{1,3}(?:\.\d{3})*|\d+)(?:,\d{1,2})?\s*(?:TL|TRY|USD|EUR|\$|€|₺|Türk\s*Lirası)",
-        re.IGNORECASE,
-    )
-
-    IBAN_PATTERN = re.compile(r"\bTR\d{2}\s*(?:\d{4}\s*){5}\d{2}\b", re.IGNORECASE)
-
     INSTITUTION_KEYWORDS = [
         "BDDK", "TCMB", "MASAK", "SPK", "TBB",
         "Ziraat Bankası", "Halkbank", "VakıfBank", "İş Bankası", "Garanti BBVA",
@@ -132,7 +127,8 @@ class DocumentUnderstandingService:
 
         title = self._detect_title(normalized, meta)
         date = self._detect_date(normalized, meta)
-        entities = self._extract_entities(normalized)
+        fields = extract_fields(normalized)
+        entities = self._extract_entities(normalized, fields)
         subjects = self._extract_subjects(normalized)
         claims = self._extract_claims(normalized, subjects, entities)
         events = self._extract_events(normalized, entities)
@@ -145,6 +141,7 @@ class DocumentUnderstandingService:
             source=meta.get("source", meta.get("source_file", "")),
             date=date,
             entities=entities,
+            fields=fields,
             subjects=subjects,
             claims=claims,
             events=events,
@@ -175,7 +172,7 @@ class DocumentUnderstandingService:
                 return match.group(1).strip()
         return None
 
-    def _extract_entities(self, text: str) -> List[DocumentEntity]:
+    def _extract_entities(self, text: str, fields: List[ExtractedField]) -> List[DocumentEntity]:
         entities: List[DocumentEntity] = []
         seen = set()
 
@@ -193,9 +190,9 @@ class DocumentUnderstandingService:
                         )
                     )
 
-        # 2. Monetary amounts
-        for match in self.AMOUNT_PATTERN.finditer(text):
-            val_str = match.group(0).strip()
+        # 2. Monetary amounts (alan çıkarıcısından; tek kaynak)
+        for amount in (f for f in fields if f.kind == "amount"):
+            val_str = amount.text
             key = ("amount", val_str.lower())
             if key not in seen:
                 seen.add(key)
@@ -208,8 +205,8 @@ class DocumentUnderstandingService:
                 )
 
         # 3. IBAN
-        for match in self.IBAN_PATTERN.finditer(text):
-            iban = match.group(0).strip()
+        for iban_field in (f for f in fields if f.kind == "iban"):
+            iban = iban_field.text
             key = ("iban", iban.replace(" ", "").upper())
             if key not in seen:
                 seen.add(key)

@@ -35,6 +35,20 @@ class DocumentEntity(BaseModel):
     normalized_value: Any = Field(default=None, description="Normalized or parsed value")
 
 
+class ExtractedField(BaseModel):
+    """Belgeden çıkarılan yapılandırılmış alan (analysis/field_extraction.py)."""
+    model_config = ConfigDict(extra="forbid")
+
+    kind: str = Field(..., min_length=1, description="amount, date, rate, iban, tckn, vkn, account, person, "
+                                                     "signature, collateral, limit")
+    text: str = Field(..., min_length=1, description="Belgedeki yazımı")
+    value: str = Field(..., min_length=1, description="Normalleştirilmiş değer (ör. '1250000.00 TRY', '2023-04-05')")
+    start: int = Field(default=0, ge=0, description="Metindeki başlangıç konumu")
+    end: int = Field(default=0, ge=0, description="Metindeki bitiş konumu")
+    label: str = Field(default="", description="Değeri bulduran etiket / sütun / kural")
+    attributes: Dict[str, Any] = Field(default_factory=dict, description="Türe özgü ek bilgi (ör. kişi rolü)")
+
+
 class DocumentClaim(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -63,6 +77,8 @@ class DocumentUnderstanding(BaseModel):
     source: str = Field(default="", description="Source origin, filename, or channel")
     date: Optional[str] = Field(default=None, description="Document date if extracted")
     entities: List[DocumentEntity] = Field(default_factory=list, description="Extracted entities")
+    fields: List[ExtractedField] = Field(default_factory=list, description="Yapılandırılmış alanlar (tutar, tarih, "
+                                                                          "kimlik no, kişi-rol, imza …)")
     subjects: List[str] = Field(default_factory=list, description="Identified topical subjects")
     claims: List[DocumentClaim] = Field(default_factory=list, description="Extracted claims or allegations")
     events: List[DocumentEvent] = Field(default_factory=list, description="Extracted chronological events")
