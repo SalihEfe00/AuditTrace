@@ -27,6 +27,10 @@ output_schema
 
 # dataclass / enum alanları: kaydedilen ve raporlanan veri şeması (repair/models.py, gold_set.py, corpus/model.py).
 SOURCE_PATH_MISSING
+# Belge vakası şeması (analysis/document_benchmark.py): cevap anahtarından saklanır; imza / onay M5'te,
+# kusurun mevzuat atfı M9'da ölçülür.
+signatures
+regulation
 structure_status
 plan_version
 extraction_chain

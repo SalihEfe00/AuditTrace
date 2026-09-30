@@ -17,7 +17,7 @@ import re
 from dataclasses import asdict, dataclass, field
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Tuple
 
 from mufettis.analysis import document_taxonomy as tax
 from mufettis.analysis.turkish_text import turkish_lower
@@ -489,6 +489,103 @@ def document_results_to_json(results: Sequence[DocumentCaseResult]) -> List[Dict
     return [asdict(r) for r in results]
 
 
+# --- Koşu ve taban (M4.5) ---------------------------------------------------------------------------------
+
+LEVELS = ("understanding", "decision")
+DOCUMENT_BASELINE_FILE = Path(__file__).resolve().parents[2] / "benchmarks" / "document_baseline.json"
+
+
+def understand(text: str, doc_service: Any = None, classifier: Any = None) -> Tuple[str, Dict[str, List[str]]]:
+    """Belge anlama + sınıflandırma (korpussuz): kanonik tür ve alanlar."""
+    from mufettis.analysis.classifier import DocumentClassifierService
+    from mufettis.analysis.document_understanding import DocumentUnderstandingService
+
+    doc = (doc_service or DocumentUnderstandingService()).analyze(text)
+    classification = (classifier or DocumentClassifierService()).classify(doc)
+    return tax.from_engine(classification.document_type), predicted_fields(doc)
+
+
+def predict_understanding(case: DocumentCase, doc_service: Any = None, classifier: Any = None) -> DocumentPrediction:
+    """understanding seviyesi: tür (dosya paketinde belge başına) ve alanlar (tüm metinden); karar yok."""
+    doc_type, fields = understand(case.text, doc_service, classifier)
+    types = [understand(d.text, doc_service, classifier)[0] for d in case.documents] if case.documents else [doc_type]
+    return DocumentPrediction(document_types=types, fields=fields)
+
+
+def predict_decision(case: DocumentCase, execution: Any, doc_service: Any = None,
+                     classifier: Any = None) -> DocumentPrediction:
+    """decision seviyesi: tam hattın sonucu (AnalysisPresenter.execute_analysis). Bugünkü karar tanımı: en az bir
+    bulgu = kusurlu (M9'da şart kataloğunun kararı gelir). Dosya paketinde tür yine belge başına anlamadan."""
+    if not execution.success or execution.result is None:
+        raise RuntimeError(f"{case.case_id}: analiz başarısız: {execution.error_message}")
+    result = execution.result
+    types = ([understand(d.text, doc_service, classifier)[0] for d in case.documents] if case.documents
+             else [tax.from_engine(result.classification.document_type)])
+    return DocumentPrediction(
+        document_types=types, fields=predicted_fields(result.document), defective=bool(result.findings),
+        findings=[f.regulation_reference for f in result.findings],
+    )
+
+
+def case_set_fingerprint(cases: Iterable[DocumentCase]) -> str:
+    """Vaka kümesinin kimliği: vaka eklenince / değişince taban sayıları anlamını yitirir."""
+    import hashlib
+
+    payload = json.dumps(sorted((c.to_dict() for c in cases), key=lambda d: d["id"]), ensure_ascii=False, sort_keys=True)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+
+
+# (metrik yolu, daha büyük daha iyi mi, seviye); alan metrikleri her iki seviyede ölçülür
+_BASELINE_METRICS: Tuple[Tuple[str, bool, str], ...] = (
+    ("type_correct", True, "understanding"),
+    *((f"fields.{k}.tp", True, "understanding") for k in FIELD_KINDS),
+    *((f"fields.{k}.fp", False, "understanding") for k in FIELD_KINDS),
+    ("decision_correct", True, "decision"),
+    ("missed_defects", False, "decision"),
+    ("false_alarms", False, "decision"),
+)
+
+
+def _metric(split_summary: Dict[str, Any], path: str) -> Any:
+    value: Any = split_summary
+    for part in path.split("."):
+        value = value[part]
+    return value
+
+
+def baseline_metrics(summary: Dict[str, Dict[str, Any]], level: str) -> Dict[str, Dict[str, Any]]:
+    wanted = [m for m, _, lv in _BASELINE_METRICS if lv == "understanding" or lv == level]
+    return {split: {m: _metric(values, m) for m in wanted} for split, values in summary.items()}
+
+
+def check_document_baseline(summary: Dict[str, Dict[str, Any]], baseline_level: Dict[str, Any],
+                            fingerprint: str) -> List[str]:
+    """Tabana göre kötüleşen metrikler (boşsa geçti). Vaka kümesi değiştiyse sayılar karşılaştırılamaz."""
+    if baseline_level.get("cases_fingerprint") != fingerprint:
+        return [f"vaka kümesi değişti (taban {baseline_level.get('cases_fingerprint')}, şimdi {fingerprint}); "
+                "taban bilinçli olarak yeniden yazılmalı (--write-baseline)"]
+    problems = []
+    better = {m: higher for m, higher, _ in _BASELINE_METRICS}
+    for split, expected in (baseline_level.get("splits") or {}).items():
+        got = summary.get(split)
+        if got is None:
+            problems.append(f"{split}: sonuç yok")
+            continue
+        for metric, value in expected.items():
+            now = _metric(got, metric)
+            if (now < value) if better[metric] else (now > value):
+                problems.append(f"{split}.{metric}: {now} (taban {value})")
+    return problems
+
+
+def baseline_level_entry(summary: Dict[str, Dict[str, Any]], level: str, fingerprint: str, note: str,
+                         reranker: str = "") -> Dict[str, Any]:
+    entry = {"note": note, "cases_fingerprint": fingerprint, "splits": baseline_metrics(summary, level)}
+    if level == "decision":
+        entry["reranker"] = reranker
+    return entry
+
+
 __all__ = [
     "CASES_DIR", "SPLITS", "SEVERITIES", "FIELD_KINDS", "RAW_FIELD_KINDS",
     "parse_number", "format_amount", "find_amounts", "key_amounts", "find_dates", "find_ibans", "find_tckns", "find_vkns",
@@ -497,4 +594,6 @@ __all__ = [
     "DECISION_CORRECT", "MISSED_DEFECT", "FALSE_ALARM", "DocumentPrediction", "predicted_fields",
     "DocumentCaseResult", "evaluate_document_case", "summarize_documents", "compare_document_results",
     "document_results_to_json",
+    "LEVELS", "DOCUMENT_BASELINE_FILE", "understand", "predict_understanding", "predict_decision",
+    "case_set_fingerprint", "baseline_metrics", "check_document_baseline", "baseline_level_entry",
 ]
