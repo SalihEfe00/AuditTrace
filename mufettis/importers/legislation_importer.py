@@ -35,14 +35,17 @@ SOURCE_BY_HOST = {"www.tcmb.gov.tr": "tcmb_official", "tcmb.gov.tr": "tcmb_offic
 RUN_LOG = "import_runs.jsonl"
 DOCUMENT_TYPES = {"kanun": "Kanun", "kararname": "Kararname", "tüzük": "Tüzük", "yönetmelik": "Yönetmelik",
                   "tebliğ": "Tebliğ", "genelge": "Genelge", "rehber": "Rehber", "kurul kararı": "Kurul Kararı",
+                  "emsal karar": "Kurul Karar Özeti",
                   "talimat": "Talimat", "standart": "Standart", "tip sözleşme": "Tip Sözleşme", "duyuru": "Duyuru"}
 
 
 # Liste türü → kanonik tür (corpus.model.InstrumentType); `declared_instrument_type` olarak taşınır (en güçlü dayanak).
 # Tüzük kanunun uygulanmasını gösteren yürütme düzenlemesidir; hiyerarşide yönetmelik düzeyinde ele alınır. Talimat
-# ve tip sözleşme uygulama usulü, standart ve duyuru yol gösterici metindir.
+# ve tip sözleşme uygulama usulü, standart ve duyuru yol gösterici metindir. Emsal karar (tek olaya ilişkin Kurul
+# kararı) yorum gösterir, kural koymaz: yol gösterici rolde (bulgunun dayanağı kanundur).
 INSTRUMENT_TYPES = {"kanun": "kanun", "kararname": "cbk", "tüzük": "yonetmelik", "yönetmelik": "yonetmelik",
                     "tebliğ": "teblig", "genelge": "genelge", "rehber": "rehber", "kurul kararı": "kurul_karari",
+                    "emsal karar": "rehber",
                     "talimat": "usul_esas", "tip sözleşme": "usul_esas", "standart": "rehber", "duyuru": "diger"}
 
 

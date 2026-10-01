@@ -181,6 +181,24 @@ class TestFetcher(unittest.TestCase):
         coded = LegislationSource(**{**linked.__dict__, "code": "9.5.1", "url": ""})
         self.assertIn("resmî ad", verify_document(coded, [body]))  # mevzuat.gov.tr kodunda eşik katı kalır
 
+    def test_untitled_decision_is_verified_by_its_number(self):
+        from mufettis.harvesting.official_legislation import _number_in
+
+        decision = LegislationSource(code="", url="https://www.bddk.org.tr/Mevzuat/DokumanGetir/1249",
+                                     title="Sermaye Yeterliliği Hesaplamasında % 0 Risk Ağırlığı Uygulanacak Çok Taraflı "
+                                     "Kalkınma Bankalarının Kapsamının Güncellenmesi Hakkında Kurul Kararı",
+                                     instrument="kurul kararı", number="10953", issuer="BDDK", priority=2,
+                                     group="bddk", reason="test")
+        body = ("BDDK Kurul Kararı Karar Sayısı: 10953 Karar Tarihi: 15.08.2024 sermaye yeterliliği "
+                "hesaplamalarında Asya Altyapı Yatırım Bankası alacakları yüzde sıfır risk ağırlığına tabi "
+                + "metin " * 60)  # başlığın ancak üçte biri metinde (gerçek BDDK kararı gibi)
+        self.assertLess(title_coverage(decision.title, body), 0.5)
+        self.assertIsNone(verify_document(decision, [body]))
+        self.assertIn("resmî ad", verify_document(decision, [body.replace("10953", "10954")]))
+        self.assertTrue(_number_in("2020/7", "Sayı: 2020 / 7 Tebliğ"))
+        self.assertFalse(_number_in("10953", "109531 sayılı"))
+        self.assertFalse(_number_in("7", "Madde 7"))  # kısa numara kanıt sayılmaz
+
     def test_long_urls_get_short_unique_file_names(self):
         base = "https://www.tcmb.gov.tr/wps/wcm/connect/" + "x" * 200
         a = LegislationSource(code="", url=base + "/a.pdf", title="A", instrument="talimat", number="", issuer="TCMB",

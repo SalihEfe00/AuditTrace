@@ -7,7 +7,9 @@ betik aynı adımları tek seferde ve M2 yedekleme politikasıyla yapar:
 
 1. Yedek: dizin (ingest_index) ve parça deposu `BACKUP_DIR/legislation_corpus_<zaman>/` altına (manifest.json).
 2. Ayıklama: ikincil sitelerin madde yapısız sayfaları; `--exclude` ile verilen kayıtlar (kullanıcı kararı).
-3. İndirme: listedeki belgeler (öncelik 1 + 2), doğrulamayla.
+3. İndirme: listedeki belgeler (öncelik 1-3; M6.15 kapsamlı envanter dahil), doğrulamayla. `--downloads-from`
+   ile veri kopyasında doğrulanmış indirmeler (dosyalar + downloads.json) kopyalanır; aynı doğrulama yeniden
+   yapılmaz, saatler süren indirme tekrarlanmaz (eksik / yeni olanlar yine indirilir).
 4. Yükleme: belge belge; yüklenmiş olan atlanır (yarıda kalırsa yeniden çalıştırılabilir).
    4b. Madde değişiklik notları önceden yüklenmiş belgelerin parçalarına da eklenir (M7.2).
    4c. Kanunların önceki metinleri tarih aralığıyla, "historical" durumunda yüklenir (M7.3).
@@ -43,11 +45,39 @@ FULL_CORPUS_CALIBRATION = {
 }
 
 
+def copy_verified_downloads(source_dir: Path, download_dir: Path) -> int:
+    """Veri kopyasında doğrulanmış indirmeleri (downloaded / cached ve özeti tutan dosyalar) hedefe kopyalar;
+    hedefte zaten olan kayıt korunur. Kopyalanan dosya sayısı."""
+    import shutil
+
+    from mufettis.common.utils import atomic_write_json, sha256_bytes
+
+    download_dir.mkdir(parents=True, exist_ok=True)
+    src_records = json.loads((source_dir / "downloads.json").read_text(encoding="utf-8"))
+    target_file = download_dir / "downloads.json"
+    records = json.loads(target_file.read_text(encoding="utf-8")) if target_file.exists() else {}
+    copied = 0
+    for key, rec in src_records.items():
+        if rec.get("status") not in ("downloaded", "cached") or key in records:
+            continue
+        src = source_dir / Path(rec.get("path") or "-").name
+        if not src.exists() or sha256_bytes(src.read_bytes()) != rec.get("sha256"):
+            continue
+        shutil.copy2(src, download_dir / src.name)
+        records[key] = rec
+        copied += 1
+    atomic_write_json(target_file, records)
+    return copied
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--exclude", nargs="*", default=[], help="ayrıca ayıklanacak kayıtlar (özet öneki; kullanıcı kararı)")
     ap.add_argument("--production", action="store_true", help="üretim data/ dizininde çalış (kullanıcı onayıyla)")
     ap.add_argument("--skip-fetch", action="store_true", help="indirme adımını atla (dosyalar zaten indirilmişse)")
+    ap.add_argument("--downloads-from", default="", help="doğrulanmış indirmelerin kopyalanacağı legislation_downloads "
+                    "klasörü (veri kopyası)")
+    ap.add_argument("--max-priority", type=int, default=3, choices=(1, 2, 3), help="bu önceliğe kadar olan kayıtlar")
     args = ap.parse_args(argv)
     if not os.environ.get("MUFETTIS_DATA_DIR") and not args.production:
         print("MUFETTIS_DATA_DIR bir veri kopyasını göstermeli (üretim için --production, kullanıcı onayıyla).")
@@ -65,7 +95,7 @@ def main(argv=None) -> int:
     from mufettis.rag.store import backup_vector_store
 
     started = time.monotonic()
-    sources = select_sources(load_sources(), 2)
+    sources = select_sources(load_sources(), args.max_priority)
     problems = validate_sources(sources)
     if problems:
         print("liste hatalı:", problems)
@@ -97,6 +127,10 @@ def main(argv=None) -> int:
 
     # 3. İndirme
     download_dir = DATA_DIR / "legislation_downloads"
+    if args.downloads_from:
+        copied = copy_verified_downloads(Path(args.downloads_from), download_dir)
+        manifest["steps"].append({"step": "copy_downloads", "from": args.downloads_from, "files": copied})
+        print(f"3a. doğrulanmış indirmeler kopyalandı: {copied} dosya")
     fetcher = OfficialLegislationFetcher(download_dir)
     if not args.skip_fetch:
         fetched = fetcher.fetch_all(sources)
@@ -127,6 +161,7 @@ def main(argv=None) -> int:
 
     historical_dir = download_dir / "historical"
     historical_dir.mkdir(parents=True, exist_ok=True)
+    # Önceki metinler doğrudan dayanak olabilecek kanunlar için (öncelik 1-2); geniş katmanın kanunları M7.3c.
     historical = fetch_and_import(rag, index, select_sources(load_sources(), 2, include_in_corpus=True),
                                   historical_dir, log=lambda m: print(f"   {m}", flush=True))
     counts = {}

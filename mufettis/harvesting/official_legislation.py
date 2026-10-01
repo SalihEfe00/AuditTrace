@@ -32,6 +32,8 @@ MIN_TITLE_COVERAGE = 0.8
 # katalog etiketi ise resmî addan farklı yazılabilir ("Hk.", tarih-sayı öneki). Eşik daha düşük, ama boş / menü
 # sayfası kabul edilmesin diye en az bir metin uzunluğu aranır (M6.15).
 MIN_TITLE_COVERAGE_LINKED = 0.5
+# Başlıksız karar metinleri (BDDK Kurul kararı: yalnızca "Karar Sayısı"): numara ilk sayfalarda geçiyorsa
+MIN_TITLE_COVERAGE_NUMBERED = 0.25
 MIN_TEXT_CHARS_LINKED = 300
 RECORD_FILE = "downloads.json"
 MAX_NAME_CHARS = 100
@@ -55,6 +57,15 @@ def title_coverage(title: str, text: str) -> float:
     return len(wanted & have) / len(wanted)
 
 
+def _number_in(number: str, text: str) -> bool:
+    """Belge numarası (10953, 2020/7, 2021-79) metinde ayrı bir sayı olarak geçiyor mu?"""
+    parts = re.findall(r"\d+", number or "")
+    if not parts or (len(parts) == 1 and len(parts[0]) < 3):
+        return False  # tek basamaklı / iki basamaklı numara kimlik kanıtı sayılmaz
+    pattern = r"(?<!\d)" + r"\s*[/.-]\s*".join(parts) + r"(?!\d)"
+    return re.search(pattern, text or "") is not None
+
+
 def verify_document(source: LegislationSource, pages: List[str]) -> Optional[str]:
     """Sorun varsa açıklaması, yoksa None. İlk sayfalarda resmî ad ve (varsa) numara aranır."""
     head = "\n".join(pages[:VERIFY_PAGES])
@@ -63,7 +74,11 @@ def verify_document(source: LegislationSource, pages: List[str]) -> Optional[str
     if not source.code and len(head.strip()) < MIN_TEXT_CHARS_LINKED:
         return f"metin çok kısa ({len(head.strip())} karakter)"
     coverage = title_coverage(source.title, head)
-    if coverage < (MIN_TITLE_COVERAGE if source.code else MIN_TITLE_COVERAGE_LINKED):
+    needed = MIN_TITLE_COVERAGE if source.code else MIN_TITLE_COVERAGE_LINKED
+    if not source.code and _number_in(source.number, head):
+        # Başlıksız karar metni ("Karar Sayısı: 10953"): kurum bağlantısında numara kimliği kanıtlar.
+        needed = MIN_TITLE_COVERAGE_NUMBERED
+    if coverage < needed:
         return f"resmî ad ilk sayfalarda bulunamadı (kapsam {coverage:.2f})"
     if source.instrument == "kanun" and source.number not in re.findall(r"\d+", head):
         return f"kanun numarası {source.number} ilk sayfalarda yok"
