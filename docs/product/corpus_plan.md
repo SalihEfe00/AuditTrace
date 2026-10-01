@@ -62,3 +62,26 @@ bir M satırına bağlıdır; K adımı bitince o M satırı `docs/product/domai
 ## Adım kayıtları
 
 (Her adım bitince sonuç buraya yazılır.)
+
+### K1.5 — Bölüm 3 kontrolü (2026-10-01)
+
+32 maddeden 30'u listede "al". 6415 korpusta (resmî adı "Terörizmin …"). Eksikler: VUK Genel Tebliği Sıra No 320
+(mevzuat.gov.tr VUK tebliğlerini 327'den başlatıyor → K1.7, Resmî Gazete arşivi); KKDF dayanak kararı 88/12944
+(→ K1.7; karar serisi K4); finansal tüketici şikâyet düzenlemesi (→ K1.3, şapkalı yazım araması).
+
+### K1.6 — Şube faaliyet haritası denetimi (2026-10-01)
+
+Haritada 19 faaliyet / 165 gereksinim vardı; her faaliyet için "bu işi hangi metin düzenler" sorusu banka kelimesine
+bakılmadan yeniden soruldu. Sonuç 26 faaliyet / 191 gereksinim (`inv/branch_map.py`). Eklenen faaliyetler: teminat
+mektubu ve gayrinakdi krediler (4734, KİK genel tebliği, ihale uygulama yönetmelikleri, 4735, gümrük teminatı,
+e-teminat); bağış / yardım / devlet katkılı hesaplar (2860 ve yönetmeliği, konut hesabı, çeyiz hesabı, BES otomatik
+katılım); FATCA / CRS; pazarlama ve müşteri iletişimi (İYS yönetmeliği, 6563, reklam yönetmeliği); teminat
+değerlemesi ve DASK; avukat / noter / tebligat; şube binası (yangın yönetmeliği, 5188, işyeri ruhsatı).
+
+Bulunan sınıf hataları:
+- "Uluslararası anlaşma onayı → alma" kuralı bankaya doğrudan yükümlülük getiren vergi bilgisi paylaşımı
+  anlaşmalarını da (CRS Paris anlaşması, FATCA) dışarıda bırakıyordu → istisna (`search_rules.BANK_TREATY`).
+- İYS yönetmeliği ve FATCA anlaşması başlık aramasında yoktu → arama terimleri eklendi (K1.3 betiği).
+- TCMB reeskont kredisi uygulama talimatları gece doğruluk düşüşü yüzünden listeden çıkarılmıştı; ihracatçıya
+  reeskont kredisi kullandıran şube için gerekli. Belgeyi atmak yanlış çözümdü → K6'da geri alınır, sorun sıralamada
+  çözülür.
