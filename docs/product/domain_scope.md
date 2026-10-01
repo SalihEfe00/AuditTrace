@@ -4,6 +4,10 @@ Yazıldı: 2026-09-28. Amaç: ürünün hedef kullanıcılarının ne iş yaptı
 kararları verdiğini yazmak; bugünkü korpus ve analiz motorunun buna göre nerede eksik kaldığını çıkarmak.
 Kapsam: **bir banka şubesiyle ilgili olabilecek tüm belgeler** — yalnızca müşteri şikâyetleri değil.
 
+**Kapsam güncellemesi (kullanıcı kararı, 2026-10-02).** Bölüm 1–4 alanın tamamını anlatır ve arka plan olarak
+kalır. v1 ise artık bunun bir dilimidir: **kredi dosyasında teminat ve kullandırım öncesi uygunluk**, en derin blok
+kefalet (Bölüm 5). Bölüm 2–4'teki diğer işler Bölüm 5'teki v1.1 / v2 listelerindedir.
+
 ---
 
 ## 1. Kullanıcılar ve işleri
@@ -73,12 +77,58 @@ göstermek. Denetçinin asıl sorusu ise **uygunluk**. Aradaki fark eksiklerin �
 | 10 | **Şüpheli işlem tipolojileri** | Yok | MASAK tipolojilerine dayalı kural tabanlı uyarılar (kısa sürede çok sayıda eşik altı işlem vb.) |
 | 11 | **Ölçüm** | Benchmark şikâyet ve iç not ağırlıklı | Her belge türünden vaka; "ilgili hüküm" değil "doğru uygunluk kararı" ölçülmeli |
 
-## 5. v1 kapsamı ve sırası (kullanıcı kararı, 2026-09-28)
+## 5. v1 kapsamı ve sırası
 
-v1 = Bölüm 3'teki korpus ve ardından tam mevzuat + Bölüm 4'teki 11 eksiğin tamamı + gündelik dil genişletmesi,
-ikinci eğitim turu, kod ve veri temizliği, arayüz, marka ve .exe paketi. Hedef: kusursuza en yakın, masaüstünde
-kurulup çalışan bir ürün. Kapsam burada sabittir; v1 sırasında çıkan yeni fikirler "v2" listesine yazılır. Her
-kilometre taşı ölçütü sağlanınca kapanır. Numara = yapılış sırası.
+### 5.0 Yeniden kapsam (kullanıcı kararı, 2026-10-02): Seçenek A
+
+**Önceki tanım (2026-09-28).** v1 şunları kapsıyordu: Bölüm 3'teki korpus, ardından tam mevzuat, Bölüm 4'teki 11 eksiğin tamamı, gündelik dil genişletmesi,
+ikinci eğitim turu, arayüz, marka ve .exe paketi. Yani her belge türü, tüm mevzuat ve uygunluk kararı birlikte, "kusursuza en yakın" hedefiyle.
+2026-10-01'de dürüst değerlendirme yapıldı. Gerçek banka belgesi ve alan uzmanı olmadan bu kapsam bir kişi ve yapay zekâ için ölçülebilir
+biçimde bitirilemez. Kullanıcı (işletme son sınıf öğrencisi; amaç öğrenme, portföy ve kendini denemek, son tarih yok)
+üç araştırma turundan sonra kapsamı daralttı. Araştırmalar: denetim uygulaması, pazar, kurallar, süreçler, Türkiye kanıtı,
+uygulayıcı kaynakları ve şeytanın avukatı eleştirisi. Raporlar repoda değil, kullanıcının Masaüstünde:
+`Mufettis_AI_Kapsam_Arastirmasi_*.pdf` ve `Mufettis_AI_Kapsam_Daraltma_Ozeti.txt`.
+
+**Neden kredi dosyası ve kefalet.**
+- Uygunluk kuralları açık ve maddeye bağlı; çoğu belgeden okunabilir alanla denetlenir.
+- Teker (2005) çalışmasında belgeleme / sözleşme hatası, bireysel bankacılık operasyonel kayıplarında ikinci sırada.
+- KYC ayrı paket olmadı: MASAK'ın 2020 banka sektörü raporu, bankalarda müşteri tanımanın "artık bir sorun teşkil etmediği" tespitini içeriyor.
+
+**v1 = "Kredi dosyası: teminat ve kullandırım öncesi uygunluk".** Bloklar:
+
+1. **Kefalet (en derin).**
+   - Dayanaklar: TBK kefalet hükümleri (md. 581–603; özellikle 583 şekil, 584 eş rızası ve istisnaları), TKS Yönetmeliği md. 28, 5070 md. 5/2 (kefalette güvenli e-imza kullanılamaz).
+   - El yazısı ve imza gerçekliği gibi belgeden doğrulanamayan şartlar "manuel kontrol" sonucunu verir.
+2. **Diğer teminatların şekli geçerliliği:** senet / genel kredi sözleşmesi, ipotek, rehin, ekspertiz, DASK.
+3. **Kullandırım öncesi dosya kontrolleri:**
+   - teminat tarihi kullandırımdan önce mi;
+   - imzalayan imza sirkülerinde mi;
+   - komite / onay tutarı kullandırılan tutara eşit mi.
+4. **İsteğe bağlı (yoksa v1.1):** kullanıcının girdiği yetki tablosuna göre onay yetkisi kontrolü.
+
+**v1'de değişmeyenler.**
+- Mevzuat yardımcısı (olgu → ilgili hüküm) 15 belge türünün hepsinde bugünkü gibi çalışmaya devam eder.
+- Kimlik alanları (TCKN / VKN, kişi-rol) ortak katman olarak kalır.
+
+**Kural sınıfları.** Her kural kataloğa sonuç sınıfıyla yazılır:
+- **otomatik:** belgeden kesin karar;
+- **kısmen:** kısmen belgeden, kalanı insan kontrolü;
+- **belirsiz:** belge yetmez;
+- **manuel kontrol:** hiç belgeden okunamaz.
+
+Sistem doğrulayamadığı şart için "karşılandı" demez.
+
+**Kapsam dışı:**
+- **v1.1:** tüketici kredisi, ücret / komisyon; blok 4 v1'de yapılmazsa yetki tablosu.
+- **v2:** aşağıdaki v2 listesi.
+
+**Yürütme kuralı.** Bitiş tarihi yok. Her değişiklik kendi doğru ölçütünü sağladığında commit edilir. Uygulayıcı
+görüşmesi belirsiz olduğu için plan ona bağlı değildir.
+
+**Bu tabloda değişenler.**
+- M0–M7 satırları olduğu gibi kalır; biten iş korunur ve kredi dosyasına da hizmet eder.
+- M6.15 envanteri 3 399 kayıtla ara kayıt olarak commit'lendi; yalnızca kredi / teminat parçaları sürer (`corpus_plan.md`).
+- M8–M18 Seçenek A'ya göre yeniden tanımlandı. Numaralar diğer dokümanlardaki atıflar bozulmasın diye korundu.
 
 Sıralama ilkeleri:
 - **Önce temizlik ve karar gerektiren altyapı.** Ölü kod yeni özelliklerden önce gider (üzerine inşa edilmez);
@@ -152,7 +202,7 @@ Sıralama ilkeleri:
 | M6.12 | Korpus genişlemesinin doğruluk tabanına etkisi (M6.6'da çıkan alt adım) | Öncelikli set sonrası gerçek korpus 27 / 7 / 2 (taban 32 / 1 / 0); kod tek başına tabanı koruyor, fark korpustan. Neden analizi: (a) 6 "yanlış dayanak" hukuken isabetli — kanunun uygulama yönetmeliğindeki aynı konuyu düzenleyen madde (Kart Yönetmeliği md. 18, 21, 23, 25; Tedbirler Yönetmeliği md. 46; İç Sistemler Yönetmeliği md. 21); cevap anahtarı bunları bilemezdi, madde metniyle doğrulanıp gerekçe notuyla eklendi, kullanıcı hukuki gözden geçirmede onayladı (2026-10-01; M6.15 eki Karar Defterleri Yön. md. 11 dahil); (b) 1 kaçan (5464 md. 26): beklenen hüküm 30'luk aday havuzundan düştü — havuz derinliği M6.1'de yeniden seçilir; (c) 2 yanlış pozitif (otopark → TMK 468, eğitim notu → Uyum Programı md. 23): puanları (-3,7 / -3,0) doğru bulgularla aynı aralıkta, eşikle ayrılmıyor — sıralayıcı hatası, M14 girdisi; taban tam set ve M6.1 sonrası bilinçli yeniden yazılır (tam set: + Kredi İşlemleri Yönetmeliği md. 4 ve Belge Saklama Yönetmeliği md. 17 eşdeğerleri; kalan: İİK md. 68 (2 vaka) ve Sermaye Hareketleri Genelgesi md. 46 yanlış dayanak — büyük kanunlar yeni çekim merkezi; 2 havuz kaybı (5464 md. 26, md. 25); 2 yanlış pozitif — hepsi M6.1 / M14) | M6.6 |
 | M6.13 | Tam sette çıkan kimlik ve ad kusurları (M6.7'de çıkan alt adım) | (a) başlık kimliği 80 karakterde kesildiği için adı yalnızca sonunda ayrışan belgeler (32 sayılı Karara ilişkin 4 tebliğ) birbirinin sürümü sayılıyordu — listedeki kanun dışı belgelere listeden kalıcı kimlik (`declared_work_id`); korpusun geri kalanı için ayrı iş önerildi; (b) liste türü `declared_instrument_type` olarak taşınır; (c) "Tebligat" tebliğ sayılıyordu (tür deseni ve atıf çözücüsünün 5 harflik kökü); (d) başlığa bitişik dipnot işareti ("KANUNU1") türü ve beyan edilen adı bozuyordu; (e) kanun adıyla sorgu ("İcra ve İflas Kanunu …") korpustaki kanun kataloğuyla numaraya çözülür, numaralı sorguyla aynı yoldan gider; (f) "Tebliğ No: 2008-32/34" de seri kimliği (✓ 2026-09-30: ad sorgusu 54/59 → 59/59; seri numarası verilince o seri üyesinin parçaları da aday olur ve seri numarası hesap kodu sayılmaz) | M6.7 |
 | M6.14 | Madde numarasıyla doğrudan erişim (M6.13'te görüldü; kullanıcı kararı 2026-09-30: v1'de) | "5411 sayılı Kanun 54 üncü madde", "İcra ve İflas Kanunu md. 89", "madde 12" gibi sorgularda kanun (numara ya da adla) ve madde numarası çözülür; o maddenin parçaları doğrudan ilk sıraya gelir; madde korpusta yoksa kanunun diğer parçalarıyla devam edilir; geçici / ek maddeler ayrı; testle korunur (✓ 2026-09-30: `extract_query_article` + `LocalRAG._article_chunks`; 5411 md. 54, İcra ve İflas Kanunu md. 89 (adla), TBK md. 584, 5464 geçici md. 5 doğrudan ilk sırada; olmayan madde kanunun diğer parçalarına düşer; eski korpus 32 / 1 / 0 korunuyor) | M6.13 |
-| M6.15 | Eksiksiz mevzuat envanteri (kullanıcı kararı 2026-10-01: "ihtiyaç olabilecek en küçük detay bile korpusa girmeli") | Liste sezgiyle değil üç bağımsız, tekrarlanabilir kaynaktan çıkar ve birleştirilir; her aday için kurum, tür, resmî adres, yürürlük ve alınma / alınmama gerekçesi yazılır (alınmayan da gerekçesiyle listede kalır). Yürütme sırası: korpus yan planı `docs/product/corpus_plan.md` (K1–K11, kullanıcı isteği 2026-10-01) | M6 |
+| M6.15 | Eksiksiz mevzuat envanteri (kullanıcı kararı 2026-10-01: "ihtiyaç olabilecek en küçük detay bile korpusa girmeli") | Liste sezgiyle değil üç bağımsız, tekrarlanabilir kaynaktan çıkar ve birleştirilir; her aday için kurum, tür, resmî adres, yürürlük ve alınma / alınmama gerekçesi yazılır (alınmayan da gerekçesiyle listede kalır). Yürütme sırası: korpus yan planı `docs/product/corpus_plan.md` (K1–K11, kullanıcı isteği 2026-10-01). **2026-10-02 yeniden kapsam:** envanter 3 399 kayıtla ara kayıt olarak commit'lendi (07a3a6b6), hattı `scripts/inventory/`'de (899ad35e); "en küçük detay" hedefi v2'ye gitti, v1'de yalnızca kredi / teminat / kefalet parçaları kapanır (`corpus_plan.md` kısa K1 kapanışı) | M6 |
 | M6.15.1 | Atıf kapanışı | Korpustaki (ve indirilen) her metnin atıf verdiği kanun, KHK, CB kararnamesi / kararı, yönetmelik, tebliğ, genelge, Kurul kararı çıkarılır; yeni adaylar indirilip onların atıfları da taranır; yeni aday çıkmayana kadar. Çıktı: aday, kaç metinde / kaç kez atıf aldığı, hangi metinlerden | M6.15 |
 | M6.15.2 | Resmî kurum katalogları | Kurumların kendi mevzuat dizinleri tek tek: BDDK (kanun, yönetmelik, tebliğ, genelge, Kurul kararı, rehber, duyuru), MASAK (kanun, yönetmelik, genel tebliğ, rehber, tipoloji), TCMB (ödeme sistemleri, kambiyo, kart azami faiz, zorunlu karşılık vb.), TMSF, KVKK (yönetmelik, tebliğ, Kurul kararları, rehberler), GİB (vergi kanunları, genel tebliğler — şube işlemleri), Ticaret Bakanlığı (tüketici), Hazine ve Maliye, SPK (bankaların aracılık işlemleri), SEDDK (bankasürans); mevzuat.gov.tr aramasıyla tamamlanır. Resmî kaynak, dürüst kullanıcı aracısı, robots.txt, 3 sn | M6.15 |
 | M6.15.3 | Şube faaliyet haritası | Şubede yapılan her iş (müşteri kabulü, hesap, mevduat, kredi türleri, teminat / ipotek / rehin, kart, EFT / havale / FAST, çek / senet, kasa, kiralık kasa, kambiyo, altın, miras / vefat, haciz / bloke / tedbir, vekalet, vesayet / kısıtlı, reşit olmayan, yabancı müşteri, sigorta / emeklilik satışı, yatırım ürünleri, vergi / SGK tahsilatı, maaş / promosyon, şikâyet, personel / yetki, belge saklama, bilgi güvenliği, fiziksel güvenlik) → ilgili mevzuat; benchmark belgelerindeki atıflar da dahil | M6.15 |
@@ -163,7 +213,7 @@ Sıralama ilkeleri:
 | M6.15.5c | Kurum sayfası metinleri | KVKK Kurul kararları, TKBB düzenlemeleri HTML: site menüsü / alt bilgi ayıklanır (ana içerik); kurum kataloğu bağlantısında başlık doğrulaması 0,5 + en az 300 karakter metin; mevzuat.gov.tr kodlu kayıtta katı kural (0,8) sürer | M6.15.5 |
 | M6.15.5d | Katmanlı yükleme ve ölçüm | Öncelik 2 (kurum katalogları, atıf, şube haritası) önce, öncelik 3 (mevzuat.gov.tr başlık / içerik aramasının geniş katmanı) sonra; her katmandan sonra doğruluk (taban 30/3/0), dayanak bulma, bellek, süre; kötüleşme olursa sebep sınıf düzeyinde çözülür | M6.15.5 |
 | M6.15.5e | Geniş katman içerik eleği | mevzuat.gov.tr içerik aramasında "banka" / "mevduat" geçen her yürürlükteki metin indirilir; cümlesinde banka öznesiyle yükümlülük / işlem fiili (zorunlu, bildirir, bloke, haciz, öder, tahsil, iade ...) birlikte geçen metin yüklenir, geçmeyen gerekçesiyle ("indirildi; bankaya yükümlülük getiren hüküm yok") listede kalır. Çok kelimeli içerik araması VEYA çalıştığı için yalnızca tek kelimeler; bütün işverenlere uygulanan genel metinler (İSG, İş Kanunu) şube faaliyet haritasının güvenlik ağıyla alınır | M6.15.5 |
-| M6.15.6 | Yargı kararları (içtihadı birleştirme) | Resmî Gazete'de yayımlanan Yargıtay / Danıştay içtihadı birleştirme ve kurul kararları kanun gibi bağlayıcıdır: günlük fihristlerin YARGI BÖLÜMÜ taranır (2000-bugün, resmî kaynak, 3 sn); bankacılık / icra / kefalet / faiz / çek / miras / vergi konulu olanlar korpusa (Yargıtay İçtihat Merkezi e-Devlet girişi ister, kullanılmaz) | M6.15 |
+| M6.15.6 | Yargı kararları (içtihadı birleştirme) | Resmî Gazete'de yayımlanan Yargıtay / Danıştay içtihadı birleştirme ve kurul kararları kanun gibi bağlayıcıdır: günlük fihristlerin YARGI BÖLÜMÜ taranır (2000-bugün, resmî kaynak, 3 sn); bankacılık / icra / kefalet / faiz / çek / miras / vergi konulu olanlar korpusa (Yargıtay İçtihat Merkezi e-Devlet girişi ister, kullanılmaz). **v1'de (2026-10-02):** yalnızca 68 İBK ile kefalet / teminat / kredi terimi geçen kararlar OCR'lanır; tam yargı OCR'ı ve 2000 öncesi İBK v2 | M6.15 |
 | M6.15.7 | Dönemsel yenilenen karar serileri (M6.15.5e'de çıkan alt adım) | Aynı adla tekrar çıkan ve bir öncekini kaldıran kararlar (ör. GVK geçici 67 tevkifat oranları, 25+ karar): seri tanınır, en sonuncusu güncel, öncekiler bir sonrakinin yayımına kadar geçerli tarihî sürüm; olay tarihli arama doğru kararı bulur (K4) | M6.15.5, M7.4 |
 | M7 | **Olay tarihi** (eksik 6) | Olay tarihi belgeden çıkarılıyor; dayanak o tarihte yürürlükteki metinden; yürürlük değişikliği olan vakalarla test | M5, M6 |
 | M7.1 | Olay tarihi çıkarımı | Belgeden olay tarihi (işlem, kullandırım, olay, tespit tarihi) düzenlenme tarihinden ayrı çıkarılır: etiketli alanlar (M5 tarih alanları + etiket), düzyazıda "... tarihinde" kalıpları, birden çok olayda en erken / en geç; belgede yoksa düzenlenme tarihi, o da yoksa "bilinmiyor"; `DocumentUnderstanding` taşır; belge benchmark'ı (`event_date` cevap anahtarı) olay tarihi doğruluğunu ölçer (✓ 2026-09-30: `mufettis/analysis/event_date.py`; tarih rolleri olay / düzenlenme / diğer; `DocumentUnderstanding.event_date` + `event_date_basis`; belge benchmark'ı `event_date_ok` (30 gün tolerans): başlangıç setinde 12/13; iki belge tabanı bilinçli yeniden yazıldı) | M5 |
@@ -176,17 +226,28 @@ Sıralama ilkeleri:
 | M7.5 | Sonradan değişen hüküm uyarısı | Önceki metni olmayan belgelerde (yönetmelik, tebliğ) seçilen madde olay tarihinden sonra değiştiyse (M7.2) bulguya uyarı: "Bu hüküm olay tarihinden sonra değişti (RG …); olay tarihindeki metin korpusta yok" (✓ 2026-09-30: `analysis.engine.later_amendment_warning`; dayanak güncel metinse ve maddenin `article_amended_on` notu olay tarihinden sonraysa bulgu açıklamasına olaydan sonraki değişiklik notlarıyla uyarı; önceki metin dayanaksa uyarı yok) | M7.2, M7.4 |
 | M7.6 | Yürürlük değişikliği olan vakalar | Olay tarihi değişiklikten önce / sonra olan eşleştirilmiş vakalar (ör. 5464'te 5915 ve 6327 değişiklikleri; kart ve tüketici kredisi hükümleri); madde metninden etiketlenir (sistem çıktısına bakılmadan); gerçek korpus benchmark'ına ayrı bölüm | M7.3 |
 | M7.7 | Doğrulama | Tüm testler; gerçek korpus ve belge tabanları kötüleşmiyor; olay tarihli vakalarda doğru sürüm seçiliyor; doküman | M7.1–M7.6 |
-| M8 | **İç düzenlemeler** (eksik 9) | Kullanıcı bankanın talimat / yetki tablosu / ücret tarifesini yükleyebiliyor; ayrı kaynak türü, mevzuattan ayırt ediliyor | M6 |
-| M9 | **Şart kataloğu = uygunluk kararı** (eksik 1, 5) | Veri olarak tutulan katalog (şart → mevzuat veya iç düzenleme hükmü → kontrol türü: alan var mı / tarih sırası / eşik / süre / metin); her şart için karşılandı / karşılanmadı / belirsiz + belgeden kanıt; kredi, teminat, hesap açılış/KYC, kasa, işlem, şikâyet, ücret, resmî yazı türleri; kullanıcı hukuki gözden geçirmesi | M5–M8 |
-| M10 | **Dosya düzeyi çapraz kontrol** (eksik 4) | Birden çok belge tek dosya; belgeler arası şartlar (teminat ↔ kullandırım tarihi, imzalayan ↔ sirküler, mali tablo ↔ KKB) | M9 |
-| M11 | **Bulgu formatı + yaptırım** (eksik 7, 8) | Bulgu: tespit, ölçüt, neden, etki/önem, öneri, sorumlu, aksiyon tarihi; ihlal edilen hükümden yaptırım hükmüne bağlantı; UI ve DOCX'te | M9 |
-| M12 | **Tipoloji uyarıları** (eksik 10) | MASAK tipolojilerine dayalı kural tabanlı uyarılar, işlem listeleri / dekont kümeleri üzerinde | M5, M6 |
-| M13 | **Gündelik dil genişletmesi** | Tam korpusta madde başına gündelik / denetçi dili açıklamaları (üretim yapım aşamasında, çalışma anında dil modeli yok); ürüne alınmış; yanlış pozitif artmıyor | M6 |
-| M14 | **Sıralayıcı eğitimi — gerektiği kadar tur** | Tam korpus + çok modelli sentetik belgeler + M9'un gerçek aday listeleriyle eğitim. Tur açma koşulu: M6.1 veya sonraki taşlarda sıralayıcı kaynaklı kötüleşme ya da yeni eğitim verisi. Her tur M14.n alt adımı; bir tur ancak mühürlü doğrulamada önceki modeli geçerse kabul edilir. Durma kuralı: üst üste iki tur önceki modeli geçemezse eğitim durur, en iyi model kalır. Eğitim düzeneği repoda, tekrarlanabilir; her yeni sıralayıcı ONNX'e dönüştürülüp (`scripts/onnx_models/`) gönderilecek modelle ölçülür ve kabul edilir (M3.4) | M4, M6, M9, M13 |
-| M15 | **Arayüz tasarımı** | M3 kararındaki teknolojiyle; denetçi iş akışı (dosya yükleme → kontrol listesi → bulgular → rapor); tutarlı görsel dil; düşük çözünürlük kontrolü; Streamlit'in kaldıracağı `use_container_width` (14 kullanım) `width` ile değiştirilmiş (M3.2'de görüldü) | M3, M9–M12 |
-| M16 | **Logo ve marka** | Logo, uygulama simgesi, renk ve yazı tipi; arayüze ve DOCX raporuna uygulanmış (tasarım çalışması M15 ile paralel yürüyebilir) | M15 |
+| M8 | ~~İç düzenlemeler~~ — **v2'ye ertelendi (2026-10-02).** Yalnızca yetki tablosu (kullanıcının girdiği basit tablo) M10.4'te isteğe bağlı | — | — |
+| M9 | **Kural motoru + teminat kataloğu = uygunluk kararı** (eksik 1, 5; bloklar 1–2) | Veri olarak tutulan katalog: kural → dayanak madde → kontrol türü → sonuç sınıfı (otomatik / kısmen / belirsiz / manuel kontrol). Her kural için karşılandı / karşılanmadı / belirsiz / manuel kontrol ve belgeden kanıt. Kefalet ve diğer teminat belgeleri. Ölçülüyor; kullanıcı hukuki gözden geçirmesinden geçmiş | M5–M7 |
+| M9.1 | Katalog biçimi | Veri dosyası: kural kimliği, belge türü, dayanak (mevzuat kodu + madde / fıkra + madde metninden alıntı), kontrol türü (alan var mı / alan değeri / tarih sırası / eşik / metin kalıbı / insan), sonuç sınıfı, gerekçe, istisnalar. Yükleyici bozuk kuralı (bilinmeyen alan, dayanaksız kural, alıntısı korpustaki madde metninde geçmeyen kural) reddeder; test korur | — |
+| M9.2 | Kural motoru | Belge alanlarından (M5) kural sonucu + kanıt (belgedeki alıntı ve konum). Eksik alan "belirsiz" olur, asla "karşılandı" olmaz. "Manuel kontrol" kuralları ne yapılacağını söyleyen bir kontrol maddesi üretir. Belirlenimci; birim testleri her sonuç türü için | M9.1 |
+| M9.3 | Teminat belgesi alanları | Kefalet sözleşmesi: kefil, borçlu, alacaklı, azami tutar, sözleşme tarihi, kefalet türü (adi / müteselsil), eş rızası (var / yok / tarihi), el yazısı ibare beyanı, imza türü (ıslak / e-imza). İpotek: tescil tarihi, derece, tutar. Rehin, senet / genel kredi sözleşmesi, ekspertiz (tarih, değer, değerleme kuruluşu), DASK (poliçe no, bitiş tarihi). Alan benchmark'ında kesinlik ve duyarlılık ölçülür | M5 |
+| M9.4 | Ölçüm vakaları | Her kural için en az bir uyan ve bir ihlal eden sentetik vaka. Cevap anahtarı madde metninden yazılır, sistem çıktısına bakılmaz. Dev ve holdout bölümleri olur. Belge benchmark'ı kural düzeyinde doğru karar, kaçan ihlal ve yanlış alarm sayar; taban yazılıp testle korunur | M4, M9.1 |
+| M9.5 | Kefalet kataloğu (blok 1) | TBK 581–603 (583 şekil şartları, 584 eş rızası ve istisnaları dahil), TKS Yönetmeliği md. 28, 5070 md. 5/2. Her şart maddenin güncel ve olay tarihindeki metnine (M7) göre yazılır. Dev'de yanlış alarm 0, holdout'ta ölçülmüş | M9.1–M9.4 |
+| M9.6 | Diğer teminatlar (blok 2) | Senet / genel kredi sözleşmesi, ipotek (TMK), rehin (6750 dahil), ekspertiz (değerleme düzenlemeleri), DASK (6305). Aynı ölçütler | M9.5 |
+| M9.7 | Hukuki gözden geçirme | Katalog okunur bir tabloya dökülür (kural, dayanak alıntısı, sonuç sınıfı). Kullanıcı ve varsa bir uzman gözden geçirir; itirazlar katalogda işlenir | M9.5, M9.6 |
+| M10 | **Kullandırım öncesi dosya kontrolleri** (eksik 4; blok 3) | Birden çok belge tek dosya olarak yüklenir; belgeler arası kurallar M9 motoruyla çalışır ve ölçülür | M9 |
+| M10.1 | Dosya modeli | Bir kredi dosyası: teklif / onay, teminat belgeleri, imza sirküleri, kullandırım belgesi. Belgeler türüne göre (M5.6) yerleşir; eksik belge "belirsiz" sonucunu verir | M9 |
+| M10.2 | Tarih sırası | Her teminatın tesis tarihi kullandırım tarihinden önce mi (aynı gün kuralı açıkça yazılı) | M10.1 |
+| M10.3 | İmza ve tutar | İmzalayan imza sirkülerinde yetkili mi (ad eşleşmesi Türkçe normalleştirmeyle); onaylanan tutar kullandırılan tutara eşit mi (para birimi dahil) | M10.1 |
+| M10.4 | Yetki tablosu (isteğe bağlı, blok 4) | Kullanıcının girdiği basit tablo (unvan / komite → tutar sınırı); onay o sınır içinde mi. v1'de yapılmazsa v1.1 | M10.1 |
+| M11 | **Bulgu formatı** (eksik 7) | Kural sonucundan bulgu: tespit, ölçüt (dayanak alıntısı), kanıt, sonuç sınıfı, öneri. Arayüzde ve DOCX'te. Yaptırım eşlemesi (eksik 8) v2 | M9, M10 |
+| M12 | ~~Tipoloji uyarıları~~ — **v2 (2026-10-02)** | — | — |
+| M13 | ~~Gündelik dil genişletmesi~~ — **v2 (2026-10-02)** | — | — |
+| M14 | **Sıralayıcı eğitimi — yalnızca gerileme olursa** | Planlı ikinci tur v2'de. v1'de tur yalnızca kredi / teminat korpusu eklendikten sonra sıralayıcı kaynaklı gerileme olursa açılır. Kabul ve durma kuralları önceki tanımdaki gibidir: mühürlü doğrulamada önceki modeli geçmeli, üst üste iki başarısız turda eğitim durur; ONNX dönüşümüyle ölçülür (M3.4) | M6, M9 |
+| M15 | **Arayüz tasarımı** | M3 kararındaki teknolojiyle kredi dosyası iş akışı: dosya yükleme → kontrol listesi (kural sonuçları, sınıfına göre) → bulgular → rapor. Mevzuat yardımcısı ayrı sekmede kalır. Düşük çözünürlük kontrolü; `use_container_width` → `width` (M3.2'de görüldü) | M3, M9–M11 |
+| M16 | **Logo ve marka** | Sade logo, simge, renk ve yazı tipi; arayüze ve DOCX'e uygulanmış (M15 ile paralel yürüyebilir) | M15 |
 | M17 | **.exe paketleme** | Tek kurulum dosyası; Python / model / korpus dahil; internetsiz ilk açılış; 8 GB RAM, GPU'suz i5 dizüstünde temiz Windows'ta kurulum ve uçtan uca deneme; güncelleme ve kaldırma yolu; Streamlit dosya izleyicisi kapalı (M1.7'de görüldü: izleyici transformers'ın tembel modüllerini yoklarken günlüğe `torchvision` hatası yazıyor); M3.4 kararı: ONNX arka ucu (`tokenizers`, transformers'sız) + torch ile eşitlik testi, Edge `--app` varsayılan kip, çalışma zamanı DLL'leri ve eksik DLL tarama testi, günlük / yazılabilir veri `%LOCALAPPDATA%`, `--clean` derleme, kurulumda ısıtma (Defender ilk açılışı 82 sn → 10 sn), sunucu alt süreci Job Object'e bağlı, chromadb pakette yok | M3, M15, M16 |
-| M18 | Son kontrol ve v1 etiketi | Tüm testler, tüm benchmark'lar, mühürlü doğrulama, uçtan uca deneme, doküman ↔ kod uyumu | hepsi |
+| M18 | Son kontrol ve v1 etiketi | Tüm testler, tüm benchmark'lar (kural düzeyi dahil), mühürlü doğrulama, uçtan uca bir kredi dosyası denemesi, doküman ↔ kod uyumu | hepsi |
 
 **Gerileme kapısı.** Her kilometre taşının bitti ölçütüne örtük olarak şu da dahildir: tüm benchmark tabanları (`eval_accuracy --check-baseline` ve belge türü benchmark'ları) kötüleşmiyor. Önceki bir taşta kabul edilen bir bileşen (ör. M0'daki model) sonraki bir taşta bozulursa bu, bozulduğu taşın alt adımı olarak ele alınır (ör. M9.3 "sıralayıcı gerilemesi"); gerekirse M14'te yeni eğitim turu açılır. Bir taş ancak tabanlar yeşilken kapanır.
 
@@ -203,9 +264,24 @@ bir alan uzmanının gözden geçirmesini gerektirir (katalog veri olduğu için
 
 ### v2 listesi
 
-v1'de yapılmayacak, sonraya kalan fikirler buraya yazılır.
+v1'de yapılmayacak, sonraya kalan işler buraya yazılır.
 
-- (boş)
+**v1.1:**
+- tüketici kredisi kuralları;
+- ücret / komisyon kontrolleri;
+- yetki tablosu (M10.4 v1'de yapılmazsa).
+
+**v2 (2026-10-02 yeniden kapsamıyla ertelenenler):**
+- Ayrı KYC / hesap açılış paketi.
+- İç düzenlemeler (M8).
+- Tipoloji uyarıları (M12).
+- Gündelik dil genişletmesi (M13).
+- Planlı ikinci eğitim turu (M14).
+- Yaptırım eşlemesi (eksik 8).
+- Kasa, işlem, şikâyet ve resmî yazı türleri için kural katalogları.
+- El yazısı ve imza tanıma modeli.
+- Geniş korpusun kusursuz elemesi (`corpus_plan.md` K3–K4, K8).
+- 2000 öncesi İBK ve tam yargı OCR'ı.
 
 ## Kaynaklar
 
