@@ -1,0 +1,4826 @@
+{
+ "numbered": [
+  {
+   "kind": "kanun",
+   "number": "5411",
+   "count": 101,
+   "docs": 64,
+   "names": [
+    [
+     "Bankacılık",
+     80
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6362",
+   "count": 29,
+   "docs": 21,
+   "names": [
+    [
+     "Sermaye Piyasası",
+     29
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "213",
+   "count": 78,
+   "docs": 21,
+   "names": [
+    [
+     "Vergi Usul",
+     66
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6361",
+   "count": 22,
+   "docs": 16,
+   "names": [
+    [
+     "Finansal Kiralama, Faktoring, Finansman ve Tasarruf Finansman Şirketleri",
+     8
+    ],
+    [
+     "Finansal Kiralama, Faktoring ve Finansman Şirketleri",
+     7
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6102",
+   "count": 27,
+   "docs": 16,
+   "names": [
+    [
+     "Türk Ticaret",
+     19
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6183",
+   "count": 56,
+   "docs": 15,
+   "names": [
+    [
+     "Amme Alacaklarının Tahsil Usulü Hakkında",
+     12
+    ],
+    [
+     "Amme Alacakları nın Tahsil Usulü Hakkında",
+     7
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2004",
+   "count": 38,
+   "docs": 14,
+   "names": [
+    [
+     "İcra ve İflas",
+     38
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5549",
+   "count": 39,
+   "docs": 13,
+   "names": [
+    [
+     "Suç Gelirlerinin Aklanmasının Önlenmesi Hakkında",
+     17
+    ],
+    [
+     "Suç Gelirlerinin Aklanması Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "492",
+   "count": 22,
+   "docs": 12,
+   "names": [
+    [
+     "Harçlar",
+     19
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5237",
+   "count": 26,
+   "docs": 12,
+   "names": [
+    [
+     "Türk Ceza",
+     16
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6493",
+   "count": 12,
+   "docs": 10,
+   "names": [
+    [
+     "t Mutabakat Sistemleri, Ödeme Hizmetleri ve Elektronik Para Kuruluşları Hakkında",
+     8
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6502",
+   "count": 11,
+   "docs": 10,
+   "names": [
+    [
+     "Tüketicinin Korunması Hakkında",
+     8
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2499",
+   "count": 22,
+   "docs": 10,
+   "names": [
+    [
+     "Sermaye Piyasası",
+     22
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6698",
+   "count": 15,
+   "docs": 9,
+   "names": [
+    [
+     "Kişisel Verilerin Korunması",
+     12
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4458",
+   "count": 15,
+   "docs": 9,
+   "names": [
+    [
+     "Gümrük",
+     12
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5510",
+   "count": 11,
+   "docs": 8,
+   "names": [
+    [
+     "Sosyal Sigortalar ve Genel Sağlık Sigortası",
+     8
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5520",
+   "count": 16,
+   "docs": 7,
+   "names": [
+    [
+     "Kurumlar Vergisi",
+     15
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5464",
+   "count": 11,
+   "docs": 7,
+   "names": [
+    [
+     "Banka Kartları ve Kredi Kartları",
+     8
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5271",
+   "count": 10,
+   "docs": 7,
+   "names": [
+    [
+     "Ceza Muhakemesi",
+     10
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "13012",
+   "count": 11,
+   "docs": 7,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "193",
+   "count": 25,
+   "docs": 6,
+   "names": [
+    [
+     "Gelir Vergisi",
+     23
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3065",
+   "count": 9,
+   "docs": 6,
+   "names": [
+    [
+     "Katma Değer Vergisi",
+     9
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3568",
+   "count": 8,
+   "docs": 6,
+   "names": [
+    [
+     "Serbest Muhasebeci Mali Müşavirlik ve Yeminli Mali Müşavirlik",
+     4
+    ],
+    [
+     "erbest Muhasebecilik, Serbest Muhasebeci Mali Müşavir ve Yeminli Mali Müşavirlik",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "488",
+   "count": 8,
+   "docs": 6,
+   "names": [
+    [
+     "Damga Vergisi",
+     7
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5809",
+   "count": 7,
+   "docs": 6,
+   "names": [
+    [
+     "Elektronik Haberleşme",
+     7
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4875",
+   "count": 6,
+   "docs": 6,
+   "names": [
+    [
+     "Doğrudan Yabancı Yatırımlar",
+     6
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2863",
+   "count": 7,
+   "docs": 6,
+   "names": [
+    [
+     "Kültür ve Tabiat Varlıklarını Koruma",
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4389",
+   "count": 17,
+   "docs": 6,
+   "names": [
+    [
+     "Bankalar",
+     16
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6098",
+   "count": 7,
+   "docs": 6,
+   "names": [
+    [
+     "Türk Borçlar",
+     6
+    ],
+    [
+     "Borçlar",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6415",
+   "count": 10,
+   "docs": 6,
+   "names": [
+    [
+     "Terörizmin Finansmanının Önlenmesi Hakkında",
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5326",
+   "count": 5,
+   "docs": 5,
+   "names": [
+    [
+     "Kabahatler",
+     5
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5684",
+   "count": 7,
+   "docs": 5,
+   "names": [
+    [
+     "Sigortacılık",
+     7
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "1136",
+   "count": 8,
+   "docs": 5,
+   "names": [
+    [
+     "Avukatlık",
+     8
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5422",
+   "count": 9,
+   "docs": 5,
+   "names": [
+    [
+     "Kurumlar Vergisi",
+     6
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6948",
+   "count": 7,
+   "docs": 5,
+   "names": [
+    [
+     "Sanayi Sicili",
+     5
+    ],
+    [
+     "Sanayi Sicil",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "1211",
+   "count": 7,
+   "docs": 5,
+   "names": [
+    [
+     "Türkiye Cumhuriyet Merkez Bankası",
+     7
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5490",
+   "count": 6,
+   "docs": 5,
+   "names": [
+    [
+     "Nüfus Hizmetleri",
+     5
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3182",
+   "count": 10,
+   "docs": 5,
+   "names": [
+    [
+     "Bankalar",
+     10
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4721",
+   "count": 5,
+   "docs": 5,
+   "names": [
+    [
+     "Türk Medeni",
+     5
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "7201",
+   "count": 5,
+   "docs": 5,
+   "names": [
+    [
+     "Tebligat",
+     5
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "818",
+   "count": 6,
+   "docs": 5,
+   "names": [
+    [
+     "Borçlar",
+     6
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "190",
+   "count": 7,
+   "docs": 5,
+   "names": [
+    [
+     "Genel Kadro ve Usulü Hakkında",
+     6
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "1567",
+   "count": 32,
+   "docs": 5,
+   "names": [
+    [
+     "Türk Parasının Kıymetini Koruma Hakkında",
+     7
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "14391",
+   "count": 7,
+   "docs": 5,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5018",
+   "count": 4,
+   "docs": 4,
+   "names": [
+    [
+     "Kamu Mali Yönetimi ve Kontrol",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4760",
+   "count": 6,
+   "docs": 4,
+   "names": [
+    [
+     "Özel Tüketim Vergisi",
+     6
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "657",
+   "count": 12,
+   "docs": 4,
+   "names": [
+    [
+     "Devlet Memurları",
+     11
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4691",
+   "count": 7,
+   "docs": 4,
+   "names": [
+    [
+     "Teknoloji Geliştirme Bölgeleri",
+     6
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5746",
+   "count": 6,
+   "docs": 4,
+   "names": [
+    [
+     "Araştırma, Geliştirme ve Tasarım Faaliyetleri nin Desteklenmesi Hakkında",
+     2
+    ],
+    [
+     "Araştırma, Geliştirme ve Tasarım Faaliyetlerinin Desteklenmesi Hakkında",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4734",
+   "count": 7,
+   "docs": 4,
+   "names": [
+    [
+     "Kamu İhale",
+     7
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4632",
+   "count": 7,
+   "docs": 4,
+   "names": [
+    [
+     "Bireysel Emeklilik Tasarruf ve Yatırım Sistemi",
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6762",
+   "count": 15,
+   "docs": 4,
+   "names": [
+    [
+     "Türk Ticaret",
+     13
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "90",
+   "count": 8,
+   "docs": 4,
+   "names": [
+    [
+     "Ödünç Para Verme İşleri Hakkında",
+     5
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6802",
+   "count": 6,
+   "docs": 4,
+   "names": [
+    [
+     "Gider Vergileri",
+     6
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "765",
+   "count": 8,
+   "docs": 4,
+   "names": [
+    [
+     "Türk Ceza",
+     6
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3713",
+   "count": 4,
+   "docs": 4,
+   "names": [
+    [
+     "Terörle Mücadele",
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "660",
+   "count": 4,
+   "docs": 4,
+   "names": [
+    [
+     "etimi, Muhasebe ve Denetim Standartları Kurumunun Teşkilat ve Görevleri Hakkında",
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "700",
+   "count": 15,
+   "docs": 4,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "1086",
+   "count": 5,
+   "docs": 4,
+   "names": [
+    [
+     "Hukuk Usulü Muhakemeleri",
+     5
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "7262",
+   "count": 8,
+   "docs": 4,
+   "names": [
+    [
+     "Kitle İmha Silahlarının Yayılmasının Finansmanının Önlenmesine İlişkin",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5607",
+   "count": 8,
+   "docs": 4,
+   "names": [
+    [
+     "Kaçakçılıkla Mücadele",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "karar",
+   "number": "32",
+   "count": 14,
+   "docs": 4,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5393",
+   "count": 3,
+   "docs": 3,
+   "names": [
+    [
+     "Belediye",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2886",
+   "count": 4,
+   "docs": 3,
+   "names": [
+    [
+     "Devlet İhale",
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "506",
+   "count": 8,
+   "docs": 3,
+   "names": [
+    [
+     "Sosyal Sigortalar",
+     8
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3289",
+   "count": 3,
+   "docs": 3,
+   "names": [
+    [
+     "Gençlik ve Spor Genel Müdürlüğünün Teşkilat ve Görevleri Hakkında",
+     2
+    ],
+    [
+     "Gençlik ve Spor Hizmetleri",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "406",
+   "count": 4,
+   "docs": 3,
+   "names": [
+    [
+     "Telgraf ve Telefon",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "233",
+   "count": 5,
+   "docs": 3,
+   "names": [
+    [
+     "Kamu İktisadi Teşebbüsleri Hakkında",
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4749",
+   "count": 3,
+   "docs": 3,
+   "names": [
+    [
+     "Kamu Finansmanı ve Borç Yönetiminin Düzenlenmesi Hakkında",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "78",
+   "count": 6,
+   "docs": 3,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5300",
+   "count": 8,
+   "docs": 3,
+   "names": [
+    [
+     "Tarım Ürünleri Lisanslı Depoculuk",
+     8
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "11674",
+   "count": 3,
+   "docs": 3,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "1163",
+   "count": 3,
+   "docs": 3,
+   "names": [
+    [
+     "Kooperatifler",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3226",
+   "count": 5,
+   "docs": 3,
+   "names": [
+    [
+     "Finansal Kiralama",
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3218",
+   "count": 3,
+   "docs": 3,
+   "names": [
+    [
+     "Serbest Bölgeler",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6475",
+   "count": 3,
+   "docs": 3,
+   "names": [
+    [
+     "Posta Hizmetleri",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3628",
+   "count": 5,
+   "docs": 3,
+   "names": [
+    [
+     "Mal Bildiriminde Bulunulması, Rüşvet ve Yolsuzluklarla Mücadele",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "131",
+   "count": 5,
+   "docs": 3,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "6245",
+   "count": 3,
+   "docs": 3,
+   "names": [
+    [
+     "Harcırah",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6100",
+   "count": 3,
+   "docs": 3,
+   "names": [
+    [
+     "Hukuk Muhakemeleri",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2860",
+   "count": 3,
+   "docs": 3,
+   "names": [
+    [
+     "Yardım Toplama",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5253",
+   "count": 3,
+   "docs": 3,
+   "names": [
+    [
+     "Dernekler",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "4834",
+   "count": 8,
+   "docs": 2,
+   "names": [
+    [
+     "Kurul",
+     8
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6172",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Sulama Birlikleri",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5302",
+   "count": 3,
+   "docs": 2,
+   "names": [
+    [
+     "İl Özel İdaresi",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2560",
+   "count": 3,
+   "docs": 2,
+   "names": [
+    [
+     "stanbul Su ve Kanalizasyon İdaresi Genel Müdürlüğü Kuruluş ve Görevleri Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2464",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Belediye Gelirleri",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2918",
+   "count": 4,
+   "docs": 2,
+   "names": [
+    [
+     "Karayolları Trafik",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5434",
+   "count": 5,
+   "docs": 2,
+   "names": [
+    [
+     "Türkiye Cumhuriyeti Emekli Sandığı",
+     5
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4706",
+   "count": 5,
+   "docs": 2,
+   "names": [
+    [
+     "Hazineye Ait Taşınmaz Malların Değerlendirilmesi ve Katma Değer Vergisi",
+     5
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "7155",
+   "count": 3,
+   "docs": 2,
+   "names": [
+    [
+     "sinden Kaynaklanan Para Alacaklarına İlişkin Takibin Başlatılması Usulü Hakkında",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5369",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Evrensel Hizmet",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "37",
+   "count": 2,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5432",
+   "count": 3,
+   "docs": 2,
+   "names": [
+    [
+     "Vergi Usul",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5084",
+   "count": 2,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "7338",
+   "count": 3,
+   "docs": 2,
+   "names": [
+    [
+     "Veraset ve İntikal Vergisi",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6326",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Turist Rehberliği Meslek",
+     1
+    ],
+    [
+     "Petrol",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6446",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Elektrik Piyasası",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4646",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Doğal Gaz Piyasası",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2985",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Toplu Konut",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4737",
+   "count": 3,
+   "docs": 2,
+   "names": [
+    [
+     "Endüstri Bölgeleri",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4857",
+   "count": 4,
+   "docs": 2,
+   "names": [
+    [
+     "İş",
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "854",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Deniz İş",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3813",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Türkiye Futbol Federasyonu Kuruluş ve Görevleri Hakkında",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6563",
+   "count": 3,
+   "docs": 2,
+   "names": [
+    [
+     "Elektronik Ticaretin Düzenlenmesi Hakkında",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2634",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Turizmi Teşvik",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "625",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Özel Öğretim Kurumları",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4369",
+   "count": 6,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "6550",
+   "count": 3,
+   "docs": 2,
+   "names": [
+    [
+     "Araştırma Altyapılarının Desteklenmesine Dair",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4054",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Rekabetin Korunması Hakkında",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5015",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Petrol Piyasası",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5580",
+   "count": 5,
+   "docs": 2,
+   "names": [
+    [
+     "Özel Öğretim Kurumları",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5661",
+   "count": 3,
+   "docs": 2,
+   "names": [
+    [
+     "Yüksek Öğrenim Öğrenci Yurtları ve Aşevleri Hakkındaki Kanuna Ek",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4743",
+   "count": 2,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "1318",
+   "count": 3,
+   "docs": 2,
+   "names": [
+    [
+     "Finansman",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3359",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Sağlık Hizmetleri Temel",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6745",
+   "count": 3,
+   "docs": 2,
+   "names": [
+    [
+     "Yatırımların Proje Bazında Desteklenmesi ile Bazı",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4490",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Türk Uluslararası Gemi Sicili",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "491",
+   "count": 2,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "2577",
+   "count": 4,
+   "docs": 2,
+   "names": [
+    [
+     "İdari Yargılama Usulü",
+     3
+    ],
+    [
+     "İdari Yargılma Usulü",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "205",
+   "count": 3,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5187",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Basın",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4077",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Tüketicinin Korunması Hakkında",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "375",
+   "count": 2,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5682",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Pasaport",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "35",
+   "count": 5,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "178",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Maliye Bakanlığının Teşkilat ve Görevleri Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5188",
+   "count": 3,
+   "docs": 2,
+   "names": [
+    [
+     "Özel Güvenlik Hizmetlerine Dair",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "4093",
+   "count": 2,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5901",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Türk Vatandaşlığı",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "634",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Kat Mülkiyeti",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "13033",
+   "count": 2,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "3028",
+   "count": 2,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "6136",
+   "count": 2,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "7258",
+   "count": 2,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "tebliği",
+   "number": "1020",
+   "count": 2,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5737",
+   "count": 2,
+   "docs": 2,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "6491",
+   "count": 2,
+   "docs": 2,
+   "names": [
+    [
+     "Türk Petrol",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "11216",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Kurul",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "10295",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Kurul",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "7222",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5355",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Mahalli İdare Birlikleri",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5449",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "9617",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "6651",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Kurul",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "genelge",
+   "number": "1",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "karar",
+   "number": "2026",
+   "count": 3,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "5945",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Kurul",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "yönetmelik",
+   "number": "28337",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Sermaye Yeterliliğinin Ölçülmesi ve Değerlendirilmesi Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "yönetmelik",
+   "number": "28812",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "Sermaye Koruma ve Döngüsel Sermaye Tamponlarına İlişkin",
+     1
+    ],
+    [
+     "Bankaların Kaldıraç Düzeyinin Ölçülmesine ve Değerlendirilmesine İlişkin",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "10546",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Kurul",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "212",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "10541",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "10594",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "11037",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "11168",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "10914",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "11144",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "11201",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "11036",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "2872",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Çevre",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5539",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Karayolları Genel Müdürlüğü Kuruluş ve Görevleri Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6001",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Karayolları Genel Müdürlüğünün Hizmetleri Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "197",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Motorlu Taşıtlar Vergisi",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "191",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "7256",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "ların Yeniden Yapılandırılması ile Bazı Kanunlarda Değişiklik Yapılması Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5216",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Büyükşehir Belediyesi",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6552",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "İş",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6736",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Bazı Alacakların Yeniden Yapılandırılmasına İlişkin",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "7020",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Bazı Alacakların Yeniden Yapılandırılması ile Bazı Kanunlarda ve Bir",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "7143",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "arın Yeniden Yapılandırılması ile Bazı Kanunlarda Değişiklik Yapılmasına İlişkin",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2925",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Tarım İşçileri Sosyal Sigortalar",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2926",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Tarımda Kendi Adına ve Hesabına Çalışanlar Sosyal Sigortalar",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5174",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Türkiye Odalar ve Borsalar Birliği ile Odalar ve Borsalar",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5362",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "6235",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Türk Mühendis ve Mimar Odaları Birliği",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6023",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Türk Tabipleri Birliği",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3224",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Türk Diş Hekimleri Birliği",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6964",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Ziraat Odaları ve Ziraat Odaları Birliği",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "1512",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Noterlik",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5779",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "351",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Yüksek Öğrenim Kredi ve Yurt Hizmetleri",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6360",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "On Dört İlde Büyükşehir Belediyesi ve Yirmi Yedi İlçe Kurulması ile Bazı",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "1593",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Umumi Hıfzıssıhha",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5345",
+   "count": 4,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "116",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "29",
+   "count": 3,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "48",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "2022",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "68",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "11414",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "10556",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "6728",
+   "count": 3,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "1324",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Damga Resmi",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3437",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Tütün ve Tütün İnhisarı",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "9759",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "162",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5488",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "Tarım",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5258",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Aile Hekimliği",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "8",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Aile Hekimliği",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4447",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "İşsizlik Sigortası",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "1475",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "İş",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5421",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Gelir Vergisi",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2802",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Hakim ve Savcılar",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2914",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Yükseköğretim Personel",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3030",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "3",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "145",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "20",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "43",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "2089",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "Çırak, Kalfa ve Ustalık",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "11601",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "10680",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "172",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "bakanlar",
+   "number": "5174",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "1948",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "5058",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "144",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5224",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "ma Filmlerinin Değerlendirilmesi ve Sınıflandırılması ile Desteklenmesi Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "1117",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Küçükleri Muzır Neşriyattan Koruma",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3797",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "Milli Eğitim Bakanlığının Teşkilat ve Görevleri Hakkında",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2942",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Kamulaştırma",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "163",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "2456",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "İşletme Vergisi",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "121",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "4586",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Petrolün Boru Hatları ile Transit Geçişine Dair",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "2266",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "9770",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5846",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Fikir ve Sanat Eserleri",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararının",
+   "number": "9160",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Cumhurbaşkanı",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "551",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "Patent Haklarının Korunması Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6769",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "Sınai Mülkiyet",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "7910",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "7412",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "İstanbul Finans Merkezi",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4283",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "3996",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "bakanlar",
+   "number": "15386",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "7408",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "2151",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "1319",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "Emlak Vergisi",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "146",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "55",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "4358",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "3100",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "gisi Mükelleflerinin Ödeme Kaydedici Cihazları Kullanmaları Mecburiyeti Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4733",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Tütün, Tütün Mamulleri ve Alkol Piyasasının Düzenlenmesine Dair",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "153",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5887",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Harçlar",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6085",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Karayolları Trafik",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "210",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Değerli Kağıtlar",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "111",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "208",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "bakanlar",
+   "number": "9218",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "44",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "15",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "2920",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Türk Sivil Havacılık",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3291",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5953",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Mesleğinde Çalışanlarla Çalıştıranlar Arasındaki Münasebetlerin Tanzimi Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "33",
+   "count": 9,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "25",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "3",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "3346",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     " Fonların Türkiye Büyük Millet Meclisince Denetlenmesi nin Düzenlenmesi Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "36",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "4759",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "İller Bankası",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6219",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Türkiye Vakıflar Bankası Türk Anonim Ortaklığı",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5289",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "62",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Sermaye Piyasası",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5754",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "103",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "81",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararının",
+   "number": "10765",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Cumhurbaşkanı",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "3580",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararının",
+   "number": "3580",
+   "count": 18,
+   "docs": 1,
+   "names": [
+    [
+     "Cumhurbaşkanı",
+     18
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "8566",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararının",
+   "number": "9305",
+   "count": 10,
+   "docs": 1,
+   "names": [
+    [
+     "Cumhurbaşkanı",
+     10
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "15720",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararının",
+   "number": "5739",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Cumhurbaşkanı",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararının",
+   "number": "6702",
+   "count": 3,
+   "docs": 1,
+   "names": [
+    [
+     "Cumhurbaşkanı",
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "8793",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "bakanlar",
+   "number": "10938",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararının",
+   "number": "7037",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Cumhurbaşkanı",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "6381",
+   "count": 3,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "659",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "bakanlar",
+   "number": "9523",
+   "count": 4,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "yönetmelik",
+   "number": "4208",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Kanunun Uygulanmasına İlişkin",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "6785",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5570",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "rmayeli Bankalar Tarafından Yürütülen Faiz Destekli Kredi Kullandırılmasına Dair",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "270",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "165",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "92",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "38",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "96",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "115",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "143",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "39",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "139",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "203",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "105",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "52",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "743",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Türk",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "70",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "3332",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5070",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Elektronik İmza",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "5885",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "42",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "1618",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Seyahat Acentaları ve Seyahat Acentaları Birliği",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "6325",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Hukuk Uyuşmazlıklarında Arabuluculuk",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5941",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Çek",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3095",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Kanuni Faiz ve Temerrüt Faizine İlişkin",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "3167",
+   "count": 3,
+   "docs": 1,
+   "names": [
+    [
+     "Çekle Ödemelerin Düzenlenmesi ve Çek Hamillerinin Korunması Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "122",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "7887",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "4572",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "273",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "559",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "Türk Ticaret",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "183",
+   "count": 3,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "108",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "2948",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "225",
+   "count": 4,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "4306",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "69",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "61",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "4949",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "97",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "4",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "4829",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Kanunla,",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2813",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Telsiz",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "136",
+   "count": 3,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "bakanlar",
+   "number": "8518",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararının",
+   "number": "6833",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "Cumhurbaşkanı",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kararının",
+   "number": "9595",
+   "count": 5,
+   "docs": 1,
+   "names": [
+    [
+     "Cumhurbaşkanı",
+     5
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "13812",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "bakanlar",
+   "number": "8391",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararının",
+   "number": "10039",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Cumhurbaşkanı",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "karar",
+   "number": "30",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "karar",
+   "number": "18015",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "karar",
+   "number": "911",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "tebliğ",
+   "number": "33",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "tebliğ",
+   "number": "25",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "tebliğ",
+   "number": "32",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Karara İlişkin",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "663",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Sağlık Bakanlığı ve Bağlı Kuruluşlarının Teşkilat ve Görevleri Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "5842",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Denizcilik Bankası Türk Anonim Ortaklığı",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "3031",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararının",
+   "number": "3469",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Cumhurbaşkanı",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "tebliği",
+   "number": "4",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Özel İletişim Vergisi Genel",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "2380",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "6933",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "7179",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "4250",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "İspirto ve İspirtolu İçkiler İnhisarı",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "101",
+   "count": 2,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "201",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "3202",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "4444",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "4503",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "198",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Emlak Alım Vergisi",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "1598",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Mali Denge Vergisi",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "142",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "168",
+   "count": 4,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "6830",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "bakanlar",
+   "number": "3735",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "karar",
+   "number": "9973",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Bakanlar Kurulu Eki",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "karar",
+   "number": "11674",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Bakanlar Kurulu Eki",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararının",
+   "number": "10362",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Cumhurbaşkanı",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "10382",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "655",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Ulaştırma ve Altyapı Alanına İlişkin Bazı Düzenlemeler Hakkında",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "157",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "cumhurbaşkanı",
+   "number": "1314",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kararı",
+   "number": "492",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Kanunun Değiştirilen Maddeleri Yürürlüğe Giriş Tarihi",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "1738",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "tebliğ",
+   "number": "4",
+   "count": 4,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "bakanlar",
+   "number": "3305",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "kanun",
+   "number": "5346",
+   "count": 4,
+   "docs": 1,
+   "names": [
+    [
+     "ebilir Enerji Kaynaklarının Elektrik Enerjisi Üretimi Amaçlı Kullanımına İlişkin",
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "4046",
+   "count": 4,
+   "docs": 1,
+   "names": [
+    [
+     "Özelleştirme Uygulamaları Hakkında",
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "kanun",
+   "number": "7076",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "Olağanüstü Hal Kapsamında Bazı Düzenlemeler Yapılması Hakkında",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "2",
+   "count": 2,
+   "docs": 1,
+   "names": [
+    [
+     "Enerji Piyasası Düzenleme Kurumu’nun",
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "bakanlar",
+   "number": "10718",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "karar",
+   "number": "9538",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Kredi Garanti Kurumlarına Sağlanan Hazine Desteğine İlişkin",
+     1
+    ]
+   ]
+  },
+  {
+   "kind": "kararı",
+   "number": "3480",
+   "count": 1,
+   "docs": 1,
+   "names": []
+  },
+  {
+   "kind": "genelgesi",
+   "number": "4",
+   "count": 1,
+   "docs": 1,
+   "names": [
+    [
+     "Görünmeyen İşlemler",
+     1
+    ]
+   ]
+  }
+ ],
+ "named": [
+  {
+   "name": "Bankaların İç Sistemleri ve İçsel Sermaye Yeterliliği Değerlendirme Süreci Hakkında Yönetmelik",
+   "count": 38,
+   "docs": 15
+  },
+  {
+   "name": "Bankaların Sermaye Yeterliliğinin Ölçülmesine ve Değerlendirilmesine İlişkin Yönetmelik",
+   "count": 14,
+   "docs": 9
+  },
+  {
+   "name": "Bankacılık Düzenleme ve Denetleme Kurumu Tarafından Yapılacak Denetime İlişkin Usul ve Esaslar Hakkında Yönetmelik",
+   "count": 11,
+   "docs": 9
+  },
+  {
+   "name": "Kredi Riskine Esas Tutarın İçsel Derecelendirmeye Dayalı Yaklaşımlar ile Hesaplanmasına İlişkin Tebliğ",
+   "count": 5,
+   "docs": 5
+  },
+  {
+   "name": "Suç Gelirlerinin Aklanmasının ve Terörün Finansmanının Önlenmesine Dair Tedbirler Hakkında Yönetmeliği",
+   "count": 5,
+   "docs": 5
+  },
+  {
+   "name": "Kredi Riski Azaltım Tekniklerine İlişkin Tebliğ",
+   "count": 8,
+   "docs": 4
+  },
+  {
+   "name": "Mali Suçları Araştırma Kurulu Genel Tebliği",
+   "count": 8,
+   "docs": 4
+  },
+  {
+   "name": "Bankaların İç Sistemleri Hakkında Yönetmelik",
+   "count": 4,
+   "docs": 3
+  },
+  {
+   "name": "Bankaların Özkaynaklarına İlişkin Yönetmelik",
+   "count": 4,
+   "docs": 3
+  },
+  {
+   "name": "Usul ve Esaslar Hakkında Yönetmelik",
+   "count": 6,
+   "docs": 3
+  },
+  {
+   "name": "İç Sistemler ve İSEDES Yönetmeliği",
+   "count": 9,
+   "docs": 3
+  },
+  {
+   "name": "Tekdüzen Hesap Planı Hakkında Yönetmelik",
+   "count": 3,
+   "docs": 3
+  },
+  {
+   "name": "Ödeme Hizmetleri ve Elektronik Para İhracı ile Ödeme Kuruluşları ve Elektronik Para Kuruluşları Hakkında Yönetmelik",
+   "count": 5,
+   "docs": 3
+  },
+  {
+   "name": "Sayılı Karara İlişkin Tebliğ",
+   "count": 9,
+   "docs": 3
+  },
+  {
+   "name": "Bankaların Muhasebe Uygulamalarına ve Belgelerin Saklanmasına İlişkin Usul ve Esaslar Hakkında Yönetmelik",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Derecelendirme Kuruluşlarının Yetkilendirilmesine ve Faaliyetlerine İlişkin Esaslar Hakkında Yönetmelik",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Bankaların Sermaye Yeterliliğinin Değerlendirilmesine ve Ölçülmesine ilişkin Yönetmelik",
+   "count": 4,
+   "docs": 2
+  },
+  {
+   "name": "Bankaların Sermaye Yeterliliğinin Ölçülmesine ve Değerlendirilmesine İlişkin Yönetmeliği",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Kredilerin Sınıflandırılması ve Bunlar İçin Ayrılacak Karşılıklara İlişkin Usul ve Esaslar",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Süreci Hakkında Yönetmelik",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Kredilerin Sınıflandırılması ve Bunlar İçin Ayrılacak Karşılıklara İlişkin Usul ve Esaslar Hakkında Yönetmelik",
+   "count": 5,
+   "docs": 2
+  },
+  {
+   "name": "Bankaların Likidite Karşılama Oranı Hesaplamasına İlişkin Yönetmelik",
+   "count": 3,
+   "docs": 2
+  },
+  {
+   "name": "Bankaların Kurumsal Yönetim İlkelerine İlişkin Yönetmelik",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Sermaye Yeterliliğinin Ölçülmesi ve Değerlendirilmesi Hakkında Yönetmelik",
+   "count": 4,
+   "docs": 2
+  },
+  {
+   "name": "Sermaye Koruma ve Döngüsel Sermaye Tamponlarına İlişkin Yönetmelik",
+   "count": 3,
+   "docs": 2
+  },
+  {
+   "name": "Esaslar Hakkında Yönetmelik",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Operasyonel Riske Esas Tutarın İleri Ölçüm Yaklaşımı ile Hesaplanmasına İlişkin Tebliğ",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "YENİDEN YAPILANDIRILAN KREDİLER Karşılık Yönetmeliği",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "DONUK ALACAKLAR Karşılık Yönetmeliği",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Bankaların Kredi İşlemlerine İlişkin Yönetmelik",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "BİRİNCİ KISIM Genel Esaslar",
+   "count": 3,
+   "docs": 2
+  },
+  {
+   "name": "Hesapları Hakkında Tebliğ",
+   "count": 3,
+   "docs": 2
+  },
+  {
+   "name": "Suç Gelirlerinin Aklanmasının ve Terörün Finansmanının Önlenmesine İlişkin Yükümlülüklere Uyum Programı Hakkında Yönetmeliği",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Suç Gelirlerinin Aklanmasının ve Terörizmin Finansmanının Önlenmesi Kapsamında İşlemlerin Ertelenmesine Dair Yönetmelik",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Mevduat ve Katılım Fonunun Kabulüne, Çekilmesine ve Zamanaşımına Uğrayan Mevduat, Katılım Fonu, Emanet ve Alacaklara İlişkin Usul ve Esaslar",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Bankaların İç Sistemleri ve İçsel Sermaye Yeterliliği Değerlendirme Süreci Hakkında Yönetmeliği",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Bankaların Destek Hizmeti Almalarına ve Bu Hizmeti Verecek Kuruluşların Yetkilendirilmesine İlişkin Yönetmelik",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Yılında Uygulanacak Olan İdari Para Cezalarına İlişkin Tebliği",
+   "count": 5,
+   "docs": 2
+  },
+  {
+   "name": "Esaslar Hakkında Tebliğ",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "İhracat, Transit Ticaret, İhracat Sayılan Satış ve Teslimler ile Döviz Kazandırıcı Hizmet ve Faaliyetlerde Vergi, Resim ve Harç İstisnası Hakkında Tebliğ",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Kıymetli Madenler Borsası Aracı Kuruluşlarının Faaliyet Esasları ile Kıymetli Madenler Aracı Kurumlarının Kuruluşu Hakkında Yönetmelik",
+   "count": 2,
+   "docs": 2
+  },
+  {
+   "name": "Bilgilerin Paylaşılması Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankalarca Kullanılacak Uzaktan Kimlik Tespiti Yöntemlerine ve Elektronik Ortamda Sözleşme İlişkisinin Kurulmasına İlişkin Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Denetimi Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Tanımı, Nitelikleri ve Sınıflandırılması Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Projeli Konut Kredileri Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kurulca Riski Yüksek Olarak Belirlenen Alacaklar Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Risk Ağırlıklı Tutarın Hesaplanmasında Genel Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Nominal VDMK Yoğunlaşma Varlıklara, Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Ağırlıklı Ortalama Risk Ağırlığı Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Nominal VDMK Tutarı Yoğunlaşma Oranı Varlıklara, Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankaların Sermaye Yeterliliğinin Ölçülmesine ve Değerlendirilmesine İlişkin Yönetmelikte Değişiklik Yapılmasına Dair Yönetmelik",
+   "count": 2,
+   "docs": 1
+  },
+  {
+   "name": "Kurum ve Kuruluşlar Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankalar, Bankacılık Kanunu, Bankaların Kredi İşlemlerine İlişkin Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İçsel Sermaye Yeterliliği Değerlendirme Süreci Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankaların Kredi İşlemlerine İlişkin Yönetmelik ve Bankaların İç Sistemleri ve İçsel Sermaye Yeterliliği Değerlendirme Süreci Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Sorunlu Alacak Çözümleme Rehberi",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kuruluşların Yetkilendirilmesi ve Faaliyetleri Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankaların Değerleme Hizmeti Almaları ve Bankalara Değerleme Hizmeti Verecek Kuruluşların Yetkilendirilmesi ve Faaliyetleri Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Yetkilendirilmesi ve Faaliyetleri Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankacılık Düzenleme ve Denetleme Kurumu Tarafından Yapılacak Denetime İlişkin Usul ve Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Denetime İlişkin Usul ve Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Özellikli Çalışanın Belirlenmesine İlişkin Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankalarca Risk Yönetimine İlişkin Kamuya Yapılacak Açıklamalar Hakkında Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kurum Tarafından Yapılacak Denetime İlişkin Usul ve Esaslar Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankalar İç Sistemler ve İSEDES Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kurumsal Yönetim İç Sistemler ve İSEDES Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İSEDES’inin İç Sistemler ve İSEDES Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Stres Testi Rehberi",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Ayrıca Sermaye Koruma ve Döngüsel Sermaye Tamponlarına İlişkin Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Likidite Riskinin Yönetimine İlişkin Rehber ile Stres Testi Rehberi",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankaların Likidite Yeterliliğinin Ölçülmesine ve Değerlendirilmesine İlişkin Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankaların Kredi Yönetimine İlişkin İlkeler Rehberi",
+   "count": 2,
+   "docs": 1
+  },
+  {
+   "name": "Kredi Riski Azaltım Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Menkul Kıymetleştirmeye İlişkin Risk Ağırlıklı Tutarların Hesaplanması Hakkında Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Alacakların Niteliklerinin Belirlenmesi ve Bunlar İçin Ayrılacak Karşılıklara İlişkin Usul ve Esaslar Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Düzenleme ve Denetleme Kurumu Tarafından Yapılacak Denetime İlişkin Usul ve Esaslar Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Ölçülmesine ve Değerlendirilmesine İlişkin Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Değerlendirme Süreci Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Risk Ölçüm Modelleri İle Piyasa Riskinin Hesaplanmasına ve Risk Ölçüm Modellerinin Değerlendirilmesine İlişkin Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankalar, İç Sistemler ve İSEDES Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankaların Kaldıraç Düzeyinin Ölçülmesine ve Değerlendirilmesine İlişkin Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankacılık Düzenleme ve Denetleme Kurumu Tarafından Yapılacak Denetime İlişkin Usul ve Esaslar Hakkında Yönetmelik’te Değişiklik Yapılmasına Dair Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Değerlendirilmesine İlişkin Yönetmelik",
+   "count": 2,
+   "docs": 1
+  },
+  {
+   "name": "Bankalara Değerleme Hizmeti Verecek Kuruluşların Yetkilendirilmesi ve Faaliyetleri Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kurum, İç Sistemler ve İSEDES Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İş Süreçleri Bağımsız Denetimi Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankalarda Bilgi Sistemleri Yönetiminde Esas Alınacak İlkelere İlişkin Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Denetleme Kurulu Kararı ile Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Ancak, İDD Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Rehberde, İDD Tebliği ve İÖY Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kurum, İDD Tebliği ve İÖY Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İDD Tebliği ve İÖY Tebliği",
+   "count": 2,
+   "docs": 1
+  },
+  {
+   "name": "Banka, İDD Tebliği ve İÖY Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Örneğin, İDD Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Yönetmelik ve İÖY Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Alacakların İDD Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Özellikle, İDD Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankaların Konsolide Finansal Tablolarının Düzenlenmesine İlişkin Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "AYRILAN TUTARLAR Mevduat ve Katılım Fonunun Kabulüne, Çekilmesine ve Zamanaşımına Uğrayan Mevduat, Katılım Fonu, Emanet ve Alacaklara İlişkin Usul ve Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "ÖZEL KARŞILIK GİDERLERİ Karşılık Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "TÜRK PARASI İlgili Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kapat Kapat Bankaların Kredi İşlemlerine İlişkin Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kapat Kapat Mevduat ve Katılım Fonunun Kabulüne, Çekilmesine ve Zamanaşımına Uğrayan Mevduat, Katılım Fonu, Emanet ve Alacaklara İlişkin Usul ve Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Özkaynak Standart Oranının Bankalarca Konsolide ve Konsolide Olmayan Bazda Hesaplanması ve Uygulanması Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kapat Kapat Bankalarca Yapılacak Repo Ve Ters Repo İşlemlerine İlişkin Esaslar Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Ekler Dokuman Linki Bankalarca Yapılacak Repo ve Ters Repo İşlemlerine İlişkin Esaslar Hakkında Yönetmelikte Değişiklik Yapılmasına Dair Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kapat Kapat Bankaların Yeşil Varlık Oranı Hesaplaması Hakkında Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kapat Kapat Tasarruf Finansman Şirketlerinin Likidite Yeterlilik Oranının Hesaplanmasına İlişkin Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Veri Sorumlusuna Başvuru Usul ve Esasları Hakkında Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Vergi Usul Kanunu Genel Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "SAYILI TABLODA DEĞİŞİKLİK YAPAN TEBLİĞ VE KARARNAMELER CETVELİ Değişiklik Yapan Tebliğ",
+   "count": 2,
+   "docs": 1
+  },
+  {
+   "name": "Gazete’nin Tarihi Numarası Maddesi Tarihi Numarası Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Geçici Madde Tebliğ",
+   "count": 2,
+   "docs": 1
+  },
+  {
+   "name": "Türü Numarası Tarihi Numarası Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Mükerrer Madde Tebliğ",
+   "count": 5,
+   "docs": 1
+  },
+  {
+   "name": "Gelir Vergisi Genel Tebliği",
+   "count": 15,
+   "docs": 1
+  },
+  {
+   "name": "ÜÇÜNCÜ KISIM Tahrir Usulü BİRİNCİ BÖLÜM Genel Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "BEŞİNCİ KISIM Tebliğler BİRİNCİ BÖLÜM Tebliğ Esasları ve Muhataplar Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İKİNCİ BÖLÜM Posta ile Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "ÜÇÜNCÜ BÖLÜM İlan Yoliyle Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "BİRİNCİ BÖLÜM Genel Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "ÜÇÜNCÜ BÖLÜM Servetleri Değerleme Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Sıra Nolu Vergi Usul Kanunu Genel Tebliği",
+   "count": 8,
+   "docs": 1
+  },
+  {
+   "name": "Bağımsız Denetim Yönetmeliği",
+   "count": 2,
+   "docs": 1
+  },
+  {
+   "name": "Yönetmelik Cumhurbaşkanlığı Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "ÜÇÜNCÜ BÖLÜM Müşterinin Tanınmasına İlişkin Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "DÖRDÜNCÜ BÖLÜM Şüpheli İşlem Bildirimine İlişkin Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "BEŞİNCİ BÖLÜM Bilgi ve Belge Vermeye İlişkin Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Sayılı Kanunun Uygulanmasına İlişkin Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "YÜRÜRLÜĞE KONULAN YÖNETMELİĞE EK VE DEĞİŞİKLİK GETİREN YÖNETMELİKLERİN YÜRÜRLÜĞE GİRİŞ TARİHLERİNİ GÖSTEREN ÇİZELGE Ek ve Değişiklik Getiren Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Müşterinin Tanınmasına İlişkin Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kanunun Uygulanmasına İlişkin Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Türkiye Cumhuriyet Merkez Bankası ve Kamu Haznedarlığı Genel Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Elektronik Ticarette Güven Damgası Hakkında Tebliğ",
+   "count": 2,
+   "docs": 1
+  },
+  {
+   "name": "Diğer Hususlar Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Terörizmin Finansmanının Önlenmesi Hakkında Kanunun Uygulanmasına İlişkin Usul ve Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İKİNCİ BÖLÜM Şüpheli İşlem Bildirimine İlişkin Usul ve Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İKİNCİ BÖLÜM Uzaktan Kimlik Tespitine İlişkin Usul ve Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kripto Varlık Hizmet Sağlayıcılar Tarafından Kullanılacak Uzaktan Kimlik Tespiti Yöntemlerine ve Elektronik Ortamda Sözleşme İlişkisinin Kurulmasına İlişkin Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İKİNCİ BÖLÜM Kamusal Nüfuz Sahibi Kişiler Bakımından Alınacak Sıkılaştırılmış Tedbirlere İlişkin Usul ve Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kripto Varlık Hizmet Sağlayıcıların Kuruluş ve Faaliyet Esasları Hakkında Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İKİNCİ BÖLÜM Yetkilendirme Sınavına İlişkin Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kuruluşlarınca Gerçekleştirilecek Banka Bilgi Sistemleri ve Bankacılık Süreçlerinin Denetimi Hakkında Yönetmeliğin, Bilgi Sistemleri ve Bankacılık Süreçleri Denetimine İlişkin Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankalar, Bankacılık Düzenleme ve Denetleme Kurumu Tarafından Yapılacak Denetime İlişkin Usul ve Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bağımsız Denetim Kuruluşlarınca Gerçekleştirilecek Banka Bilgi Sistemleri ve Bankacılık Süreçlerinin Denetimi Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankalar, Kredi Riski Azaltım Tekniklerine İlişkin Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankalarca Kredilerin ve Diğer Alacakların Niteliklerinin Belirlenmesi ve Bunlar İçin Ayrılacak Karşılıklara İlişkin Usul ve Esaslar Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Siber Olaylara Müdahale Ekiplerinin Kuruluş, Görev ve Çalışmalarına Dair Usul ve Esaslar",
+   "count": 4,
+   "docs": 1
+  },
+  {
+   "name": "Bankalarca Yıllık Faaliyet Raporunun Hazırlanmasına ve Yayımlanmasına İlişkin Usul ve Esaslar Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Sistemik Önemli Bankalar Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İKİNCİ KISIM Genel Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Maddelerinde Yer Alan Parasal Sınırların Artırılmasına İlişkin Tebliğ",
+   "count": 9,
+   "docs": 1
+  },
+  {
+   "name": "Yılında Uygulanacak Olan İdari Para Cezalarına İlişkin Tebliğ",
+   "count": 7,
+   "docs": 1
+  },
+  {
+   "name": "İdari Para Cezalarına İlişkin Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "DÖRDÜNCÜ BÖLÜM Efektif Yıllık Faiz Oranı, Erken Ödeme ve Temerrüde İlişkin Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Tüketici Kredisinde Erken Ödeme İndirimi ve Kredinin Yıllık Maliyet Oranını Hesaplama Usul ve Esasları Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Konut Finansmanı Kuruluşlarınca Verilecek Sözleşme Öncesi Bilgi Formu Usul ve Esasları Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Değişken Faizi İçeren Konut Finansmanı Sözleşmelerine Dair Tüketicilerin Bilgilendirilmesi Usul ve Esasları Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Konut Finansmanı Sisteminde Erken Ödeme İndirimi ve Yıllık Maliyet Oranı Hesaplama Usul ve Esasları Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Konut Finansmanı Kapsamındaki Kredilerin Yeniden Finansmanına İlişkin Usul ve Esaslar Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankalarca Ticari Müşterilerden Alınabilecek Ücretlere İlişkin Usul ve Esaslar Hakkında Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankaların Sermaye Yeterliliğinin Ölçülmesine ve Değerlendirilmesine İlişkin Yönetmelik, Bankaların İç Sistemleri Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankalarca Kredilerin ve Diğer Alacakların Niteliklerinin Belirlenmesi ve Bunlar İçin Ayrılacak Karşılıklara İlişkin Usul ve Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Yıllık Faaliyet Raporunun Hazırlanmasına ve Yayımlanmasına İlişkin Usul ve Esaslar Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İKİNCİ FASIL Tebligat Esasları Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "DÖRDÜNCÜ KISIM Çeşitli Hükümler Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Tıbbi Cihaz Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İn Vitro Tanı Amaçlı Tıbbi Cihaz Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Sayılı Türk Parasının Kıymetini Koruma Hakkında Kanun Kapsamında Alınacak Ücretlere İlişkin Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Karara İlişkin Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Dijital Bankaların Faaliyet Esasları ile Servis Modeli Bankacılığı Hakkında Yönetmelik",
+   "count": 2,
+   "docs": 1
+  },
+  {
+   "name": "Yönetimine ve Denetimine İlişkin Tebliğ",
+   "count": 2,
+   "docs": 1
+  },
+  {
+   "name": "Ödeme ve Elektronik Para Kuruluşlarının Asgari Özkaynak Miktarlarının Yeniden Belirlenmesi ile İlgili Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Özel İletişim Vergisi Genel Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Seri Nolu Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Harçlar Kanunu Genel Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Seri Numaralı Harçlar Kanunu Genel Tebliği",
+   "count": 8,
+   "docs": 1
+  },
+  {
+   "name": "Seri No’lu Tebliği",
+   "count": 10,
+   "docs": 1
+  },
+  {
+   "name": "Karayolları Trafik Kanunu ve Yönetmelik",
+   "count": 2,
+   "docs": 1
+  },
+  {
+   "name": "Bankaların Bilgi Sistemleri ve Elektronik Bankacılık Hizmetleri Hakkında Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Nolu Finansal Tabloların Hazırlanma ve Sunulma Esaslarına İlişkin Kavramsal Çerçeve Hakkında Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Muhasebe Uygulama Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "ÜÇÜNCÜ BÖLÜM Katılım Fonuna İlişkin Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Hakkında Yönetmelikte Değişiklik Yapılmasına Dair Yönetmelikte Değişiklik Yapılması Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankaların Kıymetli Maden Alım Satımına ve Alacaklarından Dolayı Edindikleri Emtia ve Gayrimenkullerin Elden Çıkarılmasına İlişkin Usul ve Esaslar Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Bankalarca Kredilerin ve Diğer Alacakların Niteliklerinin Belirlenmesi ve Bunlar için Ayrılacak Karşılıklara İlişkin Usul ve Esaslar",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Finansal Kiralama, Faktoring ve Finansman Şirketlerince Alacakları için Ayrılacak Karşılıklara İlişkin Usul ve Esaslar Hakkında Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Şüpheli İşlem Bildirim Rehberi",
+   "count": 39,
+   "docs": 1
+  },
+  {
+   "name": "Suç Gelirlerinin Aklanmasının ve Terörün Finansmanının Önlenmesine Dair Tedbirler Hakkında Yönetmelik",
+   "count": 4,
+   "docs": 1
+  },
+  {
+   "name": "Sıra Numaralı Genel Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Hesap Bilgileri Bölümü Bilgi Alanları Tablosu Şüpheli İşlem Bildirim Rehberi",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Suç Gelirlerinin Aklanmasının ve Terörün Finansmanının Önlenmesine İlişkin Yükümlülüklere Uyum Programı Hakkında Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "POS Hizmetleri için Açılan Hesaplar Şüpheli İşlem Bildirim Rehberi",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İşlem Kanalları Tablosu Şüpheli İşlem Bildirim Rehberi",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Şüphe Kategorileri Referans Tablosu Şüpheli İşlem Bildirim Rehberi",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Teknoloji ve Yenilik Odaklı Girişimlerin Belirlenmesi ve Belgelendirilmesine Dair Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "İzlenmesine İlişkin Yönetmelik",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Yatırımlarda Devlet Yardımları Hakkında Kararın Uygulanmasına İlişkin Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Elektrik Piyasasında Lisanssız Elektrik Üretimine İlişkin Yönetmelik",
+   "count": 2,
+   "docs": 1
+  },
+  {
+   "name": "Yatırımlarda Devlet Yardımları Hakkında Karar ile Yatırımlarda Devlet Yardımları Hakkında Kararın Uygulanmasına İlişkin Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Tek Düzen Hesap Planı ve İzahnamesi Hakkında Tebliğ",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Seri No’lu Kurumlar Vergisi Genel Tebliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Kanuna ilişkin Uygulama Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Doğrudan Yabancı Yatırımlar Kanunu Uygulama Yönetmeliği",
+   "count": 1,
+   "docs": 1
+  },
+  {
+   "name": "Görünmeyen İşlemler Genelgesi",
+   "count": 1,
+   "docs": 1
+  }
+ ]
+}

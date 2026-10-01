@@ -1,0 +1,165 @@
+{
+ "toplam": 12296,
+ "karar": {
+  "al": 3474,
+  "mülga": 20,
+  "incele": 19,
+  "alma": 8783
+ },
+ "kaynak_al": {
+  "bddk": 260,
+  "elle": 2,
+  "korpus": 11,
+  "kvkk": 110,
+  "masak": 37,
+  "mevzuat.gov.tr": 2743,
+  "seddk": 113,
+  "tbb": 47,
+  "tcmb": 115,
+  "tkbb": 24,
+  "tmsf": 12
+ },
+ "tür_al": {
+  "kurul kararı": 145,
+  "talimat": 63,
+  "kanun": 343,
+  "RG'de Yayımlanmayan Kurul Kararları": 1,
+  "Bankacılık Kanununa İlişkin Düzenlemeler": 39,
+  "genelge": 22,
+  "Banka Kartları ve Kredi Kartları Kanununa İlişkin Düzenlemeler": 1,
+  "Kanunlar": 1,
+  "yönetmelik": 1316,
+  "tebliğ": 1012,
+  "cb kararı": 1,
+  "duyuru": 20,
+  "": 11,
+  "emsal karar": 63,
+  "rehberler": 4,
+  "rehber": 56,
+  "kararname": 16,
+  "karar": 256,
+  "tüzük": 30,
+  "17": 2,
+  "0": 2,
+  "genelge-teblig-ve-sektor-duyurulari": 37,
+  "ilgili-diger-mevzuat": 3,
+  "genel-sartlar": 10,
+  "bankacilik-kanunu": 3,
+  "tip sözleşme": 2,
+  "Odem": 2,
+  "mesleki": 1,
+  "standart": 7,
+  "tip sözleşmeler": 3,
+  "digerMevzuat": 1,
+  "kayyim.yonetmelik": 1
+ },
+ "gerekçe_alma": [
+  [
+   "metninde banka / mevduat geçmiyor (mevzuat.gov.tr içerik araması, eksi",
+   2710
+  ],
+  [
+   "başka sektör / kurum içi düzenleme (başlığa göre)",
+   2635
+  ],
+  [
+   "üniversite iç yönetmeliği; banka / şube işlemine değmez",
+   1294
+  ],
+  [
+   "tek kuruluşa özgü izin / iptal / devir / teşkilat kararı; şube işlemin",
+   824
+  ],
+  [
+   "sigorta şirketlerine yönelik genelge / duyuru; banka acenteliği içermi",
+   306
+  ],
+  [
+   "değiştirici metin; değişiklikler değiştirdiği metnin güncel birleşik h",
+   293
+  ],
+  [
+   "banka / finans dışı veri sorumlusu hakkında karar",
+   221
+  ],
+  [
+   "tek kuruluşa faaliyet izni / iptal kararı; genel kural koymaz (yetkili",
+   120
+  ],
+  [
+   "sigorta şirketinin teknik / başka branş düzenlemesi; banka acenteliğin",
+   69
+  ],
+  [
+   "sigorta şirketinin iç / teknik düzenlemesi ya da başka sigorta branşı;",
+   65
+  ],
+  [
+   "başka kurumun düzenlemesinin TBB kopyası (çoğu eski sürüm); asıl metni",
+   63
+  ],
+  [
+   "TCMB ile banka hazinesi arasındaki piyasa (APİ, repo, likidite) işlemi",
+   31
+  ],
+  [
+   "TBB'nin kanun tasarısı / taslak görüşü; bağlayıcı kural değil",
+   27
+  ],
+  [
+   "uluslararası mutabakat / anlaşma onayı; bankaya doğrudan yükümlülük ge",
+   26
+  ],
+  [
+   "taslak; yürürlükte değil (yürürlüğe girerse ilgili listeden alınır)",
+   16
+  ],
+  [
+   "banka şubesi dışındaki sektöre / genel tanıtıma yönelik; şube işlemine",
+   12
+  ],
+  [
+   "ödeme / e-para kuruluşunun TCMB'ye raporlama ve iç işleyişi; banka şub",
+   10
+  ],
+  [
+   "TMSF / kamu kurumunun iç işleyişi; banka şubesine yükümlülük getirmez",
+   10
+  ],
+  [
+   "değiştirici tebliğ; değişiklik 5 / 13 sayılı tebliğlerin derlenmiş met",
+   8
+  ],
+  [
+   "AB direktifi; Türk hukukunda doğrudan uygulanmaz",
+   7
+  ],
+  [
+   "tanıtım / genel bilgilendirme yayını; bağlayıcı kural içermez",
+   6
+  ],
+  [
+   "İngilizce çeviri; Türkçe asıl metni alınıyor",
+   6
+  ],
+  [
+   "TCMB'ye istatistik raporlaması; şube işlemine yükümlülük getirmez",
+   4
+  ],
+  [
+   "duyuru / uygulama bağlantısı; mevzuat değil",
+   3
+  ],
+  [
+   "başka kurumun metninin kopyası; asıl metni mevzuat.gov.tr'den alınıyor",
+   3
+  ]
+ ],
+ "indirme_al": {
+  "downloaded": 398,
+  "rejected": 60,
+  "-": 3014,
+  "failed": 2
+ },
+ "çözülemeyen_atıf": 210
+}

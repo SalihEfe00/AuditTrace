@@ -1,0 +1,26 @@
+{
+ "_note": "K1.7: temel metni envanterde olmayan değiştirici metin gruplarına karar (amend_base_missing.json'daki 'base' alanının başı ile eşleşir). Listede olmayan gruplar: alma — şube işine değmeyen konu (ithalat rejimi, tarife kontenjanı, sigorta şirketi teknik genelgeleri, proje bazlı teşvik, kamu personeli ücretleri …).",
+ "al": {
+  "kredi garanti kurumlarına sağlanan hazine desteğine ilişkin karar": "KGF kefaletli krediler; şube kredi tahsisi",
+  "gider vergileri kanununun 33 üncü maddesinde yer alan banka ve sigorta muameleleri vergisi nispetlerinin tespiti": "BSMV oranları; banka işlemlerinin vergisi",
+  "13 7 1956 tarihli ve 6802 sayılı gider vergileri kanununun 33 üncü maddesinde yer alan banka ve sigorta m": "BSMV oranları; banka işlemlerinin vergisi",
+  "kaynak kullanımını destekleme fonu kesintileri hakkındaki 21 7 2004 tarihli ve 2004 7668": "KKDF kesintisi; kredilerde uygulanır",
+  "kanun kapsamında hak sahiplerince bankalardan kullanılacak kredilere sağlanacak faiz desteğine ilişkin karar": "bankalardan kullanılan faiz destekli krediler",
+  "türkiye halk bankası anonim şirketince esnaf ve sanatkârlara hazine faiz destekli yatırım ve işletme kred": "esnaf kredileri (Halkbank şubeleri)",
+  "t c ziraat bankası a ş ve tarım kredi kooperatiflerince tarımsal üretime dair düşük faizli yatırım ve işl": "tarım kredileri (Ziraat şubeleri)",
+  "6 2 2023 tarihinde meydana gelen depremler nedeniyle zarar gören bazı illerdeki esnaf ve sanatkârların tü": "deprem bölgesi esnaf kredisi erteleme / faiz desteği",
+  "yatırımlarda devlet yardımları hakkında karar": "faiz / kâr payı desteği bankalar aracılığıyla ödenir",
+  "destekleme ve fiyat istikrar fonu hakkında karar": "bankalar aracılığıyla ödenen faiz destekleri DFİF'ten",
+  "ihracat transit ticaret ihracat sayılan satış ve teslimler ile döviz kazandırıcı hizmet ve faaliyetlerde vergi resim ve harç": "ihracat kredilerinde damga vergisi / harç istisnası (şube uygular)",
+  "ihracat ihracat sayılan satış ve teslimler ile döviz kazandırıcı hizmet ve faaliyetlerde vergi resim ve h": "ihracat kredilerinde damga vergisi / harç istisnası (şube uygular)",
+  "birleşmiş milletler güvenlik konseyi nin 1970 ve 1973 sayılı kararları çerçevesinde kabul edilen": "malvarlığı dondurma; bankalar hesapta uygular",
+  "birleşmiş milletler güvenlik konseyi?nin 1970 ve 1973 sayılı kararları çerçevesinde kabul edilen": "malvarlığı dondurma; bankalar hesapta uygular",
+  "tek hazine kurumlar hesabı kapsamına alınacak kamu idareleri ve hesapların belirlenmesi hakkında karar": "kamu idarelerinin banka hesapları",
+  "bireysel kredilerle bağlantılı sigortalar uygulama esasları yönetmeliğinin bazı maddelerinin uygulanması": "kredi bağlantılı sigorta (bankasürans)",
+  "hayat sigortaları yönetmeliği": "bankasürans; hayat sigortası satışı"
+ },
+ "dogrula": {
+  "zorunlu karşılıklar hakkında tebliğ": "doğrulandı: envanterde 9.5.19166 (Sayı 2013/15) al; değişiklikler mülga 2005 tebliğine ait",
+  "gelir vergisi kanununun geçici 67 nci maddesinde yer alan tevkifat oranları hakkındaki 24 12 2021 tarihli": "karar serisi → K4"
+ }
+}

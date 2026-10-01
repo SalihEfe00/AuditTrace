@@ -1,0 +1,7 @@
+[
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Kredi Garanti|Hazine Destekli|Hazine Desteğ",
+  "label": "KGF / Hazine destekli kefalet"
+ }
+]

@@ -1,0 +1,957 @@
+[
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Suç Gelirlerinin Aklanmasının Önlenmesi Hakkında Kanun",
+  "label": "5549 Kanun"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Tedbirler Hakkında Yönetmelik",
+  "label": "Tedbirler Yönetmeliği"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Uyum Programı Hakkında Yönetmelik",
+  "label": "Uyum Programı Yönetmeliği"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Uzaktan Kimlik Tespiti",
+  "label": "Uzaktan kimlik tespiti yönetmeliği"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Mali Suçları Araştırma Kurulu Genel Tebliği",
+  "label": "MASAK genel tebliğleri"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Nüfus Hizmetleri Kanunu",
+  "label": "5490 Nüfus Hizmetleri Kanunu"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Kimlik Kartı|Kimlik Bildirme Kanunu",
+  "label": "kimlik belgeleri / kimlik bildirme"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Yabancılar ve Uluslararası Koruma Kanunu",
+  "label": "6458 yabancı kimliği"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Türk Vatandaşlığı Kanunu",
+  "label": "5901 (vatandaşlık, mavi kart)"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Vergi Kimlik Numarası|Vergi Usul Kanunu Genel Tebliği",
+  "label": "vergi kimlik numarası (VUK tebliğleri)"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Ticaret Sicili Yönetmeliği",
+  "label": "tüzel kişi temsil yetkisi, sicil gazetesi"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Türk Ticaret Kanunu",
+  "label": "6102 TTK"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Dernekler Kanunu|Dernekler Yönetmeliği",
+  "label": "dernek hesapları"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Vakıflar Kanunu|Vakıflar Yönetmeliği",
+  "label": "vakıf hesapları"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Kooperatifler Kanunu",
+  "label": "1163 kooperatif hesapları"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Apartman|Kat Mülkiyeti Kanunu",
+  "label": "634 apartman yönetimi hesabı"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Siyasi Partiler Kanunu",
+  "label": "2820 parti hesapları"
+ },
+ {
+  "activity": "Müşteri kabulü, kimlik tespiti, müşterini tanı",
+  "pattern": "Sendikalar ve Toplu İş Sözleşmesi Kanunu",
+  "label": "6356 sendika hesapları"
+ },
+ {
+  "activity": "Temsil, vekâlet, vesayet, kısıtlılar, küçükler",
+  "pattern": "Türk Medeni Kanunu",
+  "label": "4721 TMK (vesayet, velayet, ehliyet)"
+ },
+ {
+  "activity": "Temsil, vekâlet, vesayet, kısıtlılar, küçükler",
+  "pattern": "Türk Borçlar Kanunu",
+  "label": "6098 TBK (temsil, vekâlet)"
+ },
+ {
+  "activity": "Temsil, vekâlet, vesayet, kısıtlılar, küçükler",
+  "pattern": "Noterlik Kanunu",
+  "label": "1512 Noterlik Kanunu"
+ },
+ {
+  "activity": "Temsil, vekâlet, vesayet, kısıtlılar, küçükler",
+  "pattern": "Noterlik Kanunu Yönetmeliği",
+  "label": "Noterlik Kanunu Yönetmeliği"
+ },
+ {
+  "activity": "Temsil, vekâlet, vesayet, kısıtlılar, küçükler",
+  "pattern": "Engelliler Hakkında Kanun|Erişilebilirliğ",
+  "label": "5378 ve erişilebilirlik"
+ },
+ {
+  "activity": "Temsil, vekâlet, vesayet, kısıtlılar, küçükler",
+  "pattern": "Bankacılık Hizmetlerinin Erişilebilirliğine",
+  "label": "Bankacılık hizmetlerinin erişilebilirliği yönetmeliği"
+ },
+ {
+  "activity": "Mevduat / katılım fonu, zamanaşımı, mevduat sigortası",
+  "pattern": "Bankacılık Kanunu",
+  "label": "5411"
+ },
+ {
+  "activity": "Mevduat / katılım fonu, zamanaşımı, mevduat sigortası",
+  "pattern": "Mevduat ve Katılım Fonunun Kabulüne",
+  "label": "mevduat kabul yönetmeliği"
+ },
+ {
+  "activity": "Mevduat / katılım fonu, zamanaşımı, mevduat sigortası",
+  "pattern": "Sigortaya Tabi Mevduat",
+  "label": "TMSF sigortalı mevduat yönetmeliği"
+ },
+ {
+  "activity": "Mevduat / katılım fonu, zamanaşımı, mevduat sigortası",
+  "pattern": "Zorunlu Karşılık",
+  "label": "TCMB zorunlu karşılık tebliği"
+ },
+ {
+  "activity": "Mevduat / katılım fonu, zamanaşımı, mevduat sigortası",
+  "pattern": "Mevduat.*Vade|Vadeli Mevduat",
+  "label": "mevduat vadeleri"
+ },
+ {
+  "activity": "Mevduat / katılım fonu, zamanaşımı, mevduat sigortası",
+  "pattern": "Faiz Oranları|Mevduat ve Kredi Faiz",
+  "label": "TCMB faiz tebliği"
+ },
+ {
+  "activity": "Mevduat / katılım fonu, zamanaşımı, mevduat sigortası",
+  "pattern": "Kur Korumalı|Yuvam|YUVAM",
+  "label": "KKM / YUVAM düzenlemeleri"
+ },
+ {
+  "activity": "Ölüm, mirasçılara ödeme, veraset",
+  "pattern": "Veraset ve İntikal Vergisi Kanunu",
+  "label": "7338 VİV"
+ },
+ {
+  "activity": "Ölüm, mirasçılara ödeme, veraset",
+  "pattern": "Veraset ve İntikal Vergisi Genel Tebliği",
+  "label": "VİV genel tebliğleri"
+ },
+ {
+  "activity": "Ölüm, mirasçılara ödeme, veraset",
+  "pattern": "Türk Medeni Kanunu",
+  "label": "mirasçılık belgesi"
+ },
+ {
+  "activity": "Ölüm, mirasçılara ödeme, veraset",
+  "pattern": "Noterlik Kanunu",
+  "label": "noterden mirasçılık belgesi"
+ },
+ {
+  "activity": "Haciz, icra, amme alacağı, bloke, müzekkere",
+  "pattern": "İcra ve İflas Kanunu",
+  "label": "2004 İİK"
+ },
+ {
+  "activity": "Haciz, icra, amme alacağı, bloke, müzekkere",
+  "pattern": "Amme Alacaklarının Tahsil Usulü",
+  "label": "6183"
+ },
+ {
+  "activity": "Haciz, icra, amme alacağı, bloke, müzekkere",
+  "pattern": "Tebligat Kanunu",
+  "label": "7201"
+ },
+ {
+  "activity": "Haciz, icra, amme alacağı, bloke, müzekkere",
+  "pattern": "Elektronik Tebligat Yönetmeliği|Tebligat Kanununun Uygulanmasına",
+  "label": "e-tebligat yönetmelikleri"
+ },
+ {
+  "activity": "Haciz, icra, amme alacağı, bloke, müzekkere",
+  "pattern": "Sosyal Sigortalar ve Genel Sağlık Sigortası Kanunu",
+  "label": "5510 (SGK alacağı, maaş haczi)"
+ },
+ {
+  "activity": "Haciz, icra, amme alacağı, bloke, müzekkere",
+  "pattern": "Ceza Muhakemesi Kanunu",
+  "label": "5271 (el koyma, bilgi isteme)"
+ },
+ {
+  "activity": "Haciz, icra, amme alacağı, bloke, müzekkere",
+  "pattern": "Kabahatler Kanunu",
+  "label": "5326"
+ },
+ {
+  "activity": "Haciz, icra, amme alacağı, bloke, müzekkere",
+  "pattern": "Harçlar Kanunu",
+  "label": "492"
+ },
+ {
+  "activity": "Haciz, icra, amme alacağı, bloke, müzekkere",
+  "pattern": "Hukuk Muhakemeleri Kanunu",
+  "label": "6100 HMK (ihtiyati tedbir)"
+ },
+ {
+  "activity": "Haciz, icra, amme alacağı, bloke, müzekkere",
+  "pattern": "Nafaka|Aile Mahkemeleri|İcra ve İflas Kanunu",
+  "label": "nafaka haczi (İİK md. 83)"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Bankaların Kredi İşlemlerine İlişkin Yönetmelik",
+  "label": "kredi işlemleri yönetmeliği"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Tüketici Kredisi Sözleşmeleri Yönetmeliği",
+  "label": "tüketici kredisi"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Konut Finansmanı Sözleşmeleri Yönetmeliği",
+  "label": "konut finansmanı"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Değişken Faiz",
+  "label": "değişken faizli konut kredisi"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Kredilerin Sınıflandırılması",
+  "label": "karşılık yönetmeliği"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Kredi Kayıt Bürosu|Risk Merkezi",
+  "label": "KKB / Risk Merkezi"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Finansal Tüketicilerden Alınacak Ücret",
+  "label": "ücret tebliği"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Kaynak Kullanımını Destekleme Fonu",
+  "label": "KKDF"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Gider Vergileri",
+  "label": "BSMV"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Damga Vergisi",
+  "label": "damga vergisi"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "(Vade|Taksit|Kredi Değer|KMH|Yapılandır).*Kurul Kararı",
+  "label": "BDDK vade / taksit / KDO kararları"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Kredi Garanti|Hazine Destekli|Hazine Desteğ",
+  "label": "KGF / Hazine destekli kefalet"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Kefalet",
+  "label": "kefalet (TBK md. 581 vd.)"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Tapu Kanunu|Tapu Sicili Tüzüğü|Tapu Sicili Yönetmeliği",
+  "label": "ipotek tesisi"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Taşınır Rehni Kanunu",
+  "label": "6750 taşınır rehni"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Karayolları Trafik Kanunu",
+  "label": "taşıt rehni"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Afet Sigortaları Kanunu|Zorunlu Deprem Sigortası",
+  "label": "DASK (konut kredisinde)"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Bireysel Kredilerle Bağlantılı Sigortalar",
+  "label": "kredi bağlantılı sigorta"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Kredi Tahsis ve İzleme",
+  "label": "BDDK kredi tahsis rehberi"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Faiz.*Kanun|Kanuni Faiz ve Temerrüt Faizine",
+  "label": "3095 kanuni faiz"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Tarımsal Kredi|Zirai Kredi|Çiftçi.*Kredi|Kredi.*Çiftçi|Çiftçi.*Borç",
+  "label": "tarım kredileri (sübvansiyon kararları)"
+ },
+ {
+  "activity": "Krediler (bireysel / ticari / konut / taşıt / KMH)",
+  "pattern": "Faiz Desteği|Sübvansiyon|Faiz İndirimli",
+  "label": "faiz destekli kredi kararları"
+ },
+ {
+  "activity": "Kartlar, POS, üye işyeri",
+  "pattern": "Banka Kartları ve Kredi Kartları Kanunu",
+  "label": "5464"
+ },
+ {
+  "activity": "Kartlar, POS, üye işyeri",
+  "pattern": "Banka Kartları ve Kredi Kartları Hakkında Yönetmelik",
+  "label": "kart yönetmeliği"
+ },
+ {
+  "activity": "Kartlar, POS, üye işyeri",
+  "pattern": "Kredi Kartı İşlemlerinde Uygulanacak Azami Faiz",
+  "label": "TCMB azami kart faizi"
+ },
+ {
+  "activity": "Kartlar, POS, üye işyeri",
+  "pattern": "Üye İşyeri|Amaç Dışı Kullanım",
+  "label": "TBB POS amaç dışı kullanım"
+ },
+ {
+  "activity": "Kartlar, POS, üye işyeri",
+  "pattern": "Kartlı Sistem|Banka Kartları ve Kredi Kartları",
+  "label": "kartlı sistem kuruluşları"
+ },
+ {
+  "activity": "Ödemeler, EFT / FAST, havale, çek, senet",
+  "pattern": "Ödeme ve Menkul Kıymet Mutabakat Sistemleri",
+  "label": "6493"
+ },
+ {
+  "activity": "Ödemeler, EFT / FAST, havale, çek, senet",
+  "pattern": "Ödeme Hizmetleri ve Elektronik Para İhracı",
+  "label": "ödeme hizmetleri yönetmeliği"
+ },
+ {
+  "activity": "Ödemeler, EFT / FAST, havale, çek, senet",
+  "pattern": "Mutabakat Sistemlerinin Faaliyetleri|Mutabakat Sistemleri Hakkında",
+  "label": "sistem yönetmeliği"
+ },
+ {
+  "activity": "Ödemeler, EFT / FAST, havale, çek, senet",
+  "pattern": "Çek Kanunu",
+  "label": "5941"
+ },
+ {
+  "activity": "Ödemeler, EFT / FAST, havale, çek, senet",
+  "pattern": "Çek Defteri|Çek Hesabı|Çek Takas|Karşılıksız Çek",
+  "label": "çek tebliğleri / takas"
+ },
+ {
+  "activity": "Ödemeler, EFT / FAST, havale, çek, senet",
+  "pattern": "Uluslararası Banka Hesap Numarası|IBAN",
+  "label": "IBAN tebliği"
+ },
+ {
+  "activity": "Ödemeler, EFT / FAST, havale, çek, senet",
+  "pattern": "Karekod",
+  "label": "TR Karekod"
+ },
+ {
+  "activity": "Ödemeler, EFT / FAST, havale, çek, senet",
+  "pattern": "Kıymetli Evrak|Türk Ticaret Kanunu",
+  "label": "senet (TTK kıymetli evrak)"
+ },
+ {
+  "activity": "Ödemeler, EFT / FAST, havale, çek, senet",
+  "pattern": "Protesto",
+  "label": "protesto (Noterlik)"
+ },
+ {
+  "activity": "Ödemeler, EFT / FAST, havale, çek, senet",
+  "pattern": "Hızlı Para Transferi",
+  "label": "TBB hızlı para transferi formu"
+ },
+ {
+  "activity": "Ödemeler, EFT / FAST, havale, çek, senet",
+  "pattern": "Ödemelerde Kripto Varlık",
+  "label": "kripto ödeme yasağı"
+ },
+ {
+  "activity": "Döviz, kambiyo, dış ticaret, kıymetli maden",
+  "pattern": "Türk Parasının Kıymetini Koruma Hakkında Kanun",
+  "label": "1567"
+ },
+ {
+  "activity": "Döviz, kambiyo, dış ticaret, kıymetli maden",
+  "pattern": "32 Sayılı Karar",
+  "label": "32 sayılı karar ve tebliğleri"
+ },
+ {
+  "activity": "Döviz, kambiyo, dış ticaret, kıymetli maden",
+  "pattern": "Sermaye Hareketleri Genelgesi",
+  "label": "sermaye hareketleri"
+ },
+ {
+  "activity": "Döviz, kambiyo, dış ticaret, kıymetli maden",
+  "pattern": "Görünmeyen İşlemler Genelgesi",
+  "label": "görünmeyen işlemler"
+ },
+ {
+  "activity": "Döviz, kambiyo, dış ticaret, kıymetli maden",
+  "pattern": "İhracat Genelgesi|İhracat Rejimi",
+  "label": "ihracat"
+ },
+ {
+  "activity": "Döviz, kambiyo, dış ticaret, kıymetli maden",
+  "pattern": "İthalat Rejimi|İthalat Genelgesi",
+  "label": "ithalat"
+ },
+ {
+  "activity": "Döviz, kambiyo, dış ticaret, kıymetli maden",
+  "pattern": "Döviz Pozisyonu",
+  "label": "döviz pozisyonu izleme"
+ },
+ {
+  "activity": "Döviz, kambiyo, dış ticaret, kıymetli maden",
+  "pattern": "Kıymetli Maden",
+  "label": "kıymetli maden alım satımı"
+ },
+ {
+  "activity": "Döviz, kambiyo, dış ticaret, kıymetli maden",
+  "pattern": "Efektif|Banknot",
+  "label": "banknot / efektif işlemleri"
+ },
+ {
+  "activity": "Döviz, kambiyo, dış ticaret, kıymetli maden",
+  "pattern": "İhracat Bedeli|İhracat Bedellerinin|İhracat Genelgesi",
+  "label": "ihracat bedeli (İBKB; TCMB İhracat Genelgesi)"
+ },
+ {
+  "activity": "Döviz, kambiyo, dış ticaret, kıymetli maden",
+  "pattern": "Dövize Endeksli|Döviz Kredisi|32 Sayılı Kara",
+  "label": "döviz kredisi sınırları (32 sayılı Karar md. 17)"
+ },
+ {
+  "activity": "Vergiler (şube işlemleri)",
+  "pattern": "Gelir Vergisi Kanunu",
+  "label": "193 GVK (stopaj)"
+ },
+ {
+  "activity": "Vergiler (şube işlemleri)",
+  "pattern": "Gelir Vergisi Genel Tebliği",
+  "label": "GVK tebliğleri (mevduat stopajı)"
+ },
+ {
+  "activity": "Vergiler (şube işlemleri)",
+  "pattern": "Kurumlar Vergisi Kanunu",
+  "label": "5520"
+ },
+ {
+  "activity": "Vergiler (şube işlemleri)",
+  "pattern": "Vergi Usul Kanunu",
+  "label": "213 VUK (bilgi verme, belge)"
+ },
+ {
+  "activity": "Vergiler (şube işlemleri)",
+  "pattern": "Vergi Usul Kanunu Genel Tebliği",
+  "label": "VUK genel tebliğleri"
+ },
+ {
+  "activity": "Vergiler (şube işlemleri)",
+  "pattern": "Katma Değer Vergisi Kanunu",
+  "label": "3065"
+ },
+ {
+  "activity": "Vergiler (şube işlemleri)",
+  "pattern": "Gider Vergileri Genel Tebliği",
+  "label": "BSMV tebliğleri"
+ },
+ {
+  "activity": "Vergiler (şube işlemleri)",
+  "pattern": "Damga Vergisi Kanunu Genel Tebliği",
+  "label": "damga vergisi tebliğleri"
+ },
+ {
+  "activity": "Vergiler (şube işlemleri)",
+  "pattern": "Mevduat.*Stopaj|Vergi Kesintisi Oranlarına|Tevkifat Oranları",
+  "label": "stopaj oran kararları"
+ },
+ {
+  "activity": "Vergiler (şube işlemleri)",
+  "pattern": "Harçlar Kanunu Genel Tebliği",
+  "label": "harç tebliğleri"
+ },
+ {
+  "activity": "Sigorta ve bireysel emeklilik (bankasürans)",
+  "pattern": "Sigortacılık Kanunu",
+  "label": "5684"
+ },
+ {
+  "activity": "Sigorta ve bireysel emeklilik (bankasürans)",
+  "pattern": "Sigorta Acenteleri Yönetmeliği",
+  "label": "banka acenteliği"
+ },
+ {
+  "activity": "Sigorta ve bireysel emeklilik (bankasürans)",
+  "pattern": "Bireysel Emeklilik Tasarruf ve Yatırım Sistemi Kanunu",
+  "label": "4632"
+ },
+ {
+  "activity": "Sigorta ve bireysel emeklilik (bankasürans)",
+  "pattern": "Bireysel Emeklilik Aracıları",
+  "label": "BES aracıları"
+ },
+ {
+  "activity": "Sigorta ve bireysel emeklilik (bankasürans)",
+  "pattern": "Bireysel Emeklilik Sistemi Hakkında Yönetmelik",
+  "label": "BES yönetmeliği"
+ },
+ {
+  "activity": "Sigorta ve bireysel emeklilik (bankasürans)",
+  "pattern": "Sigorta Sözleşmelerinde Bilgilendirme",
+  "label": "bilgilendirme"
+ },
+ {
+  "activity": "Sigorta ve bireysel emeklilik (bankasürans)",
+  "pattern": "Hayat Sigortaları Genel Şartları",
+  "label": "hayat genel şartları"
+ },
+ {
+  "activity": "Sigorta ve bireysel emeklilik (bankasürans)",
+  "pattern": "Bireysel Kredilerle Bağlantılı Sigortalar",
+  "label": "kredi bağlantılı sigorta"
+ },
+ {
+  "activity": "Sigorta ve bireysel emeklilik (bankasürans)",
+  "pattern": "Otomatik Katılım|Çalışanların Bireysel Emeklilik",
+  "label": "OKS"
+ },
+ {
+  "activity": "Yatırım ürünleri (fon, hisse, tahvil, repo)",
+  "pattern": "Sermaye Piyasası Kanunu",
+  "label": "6362"
+ },
+ {
+  "activity": "Yatırım ürünleri (fon, hisse, tahvil, repo)",
+  "pattern": "Yatırım Hizmetleri ve Faaliyetleri",
+  "label": "III-37.1"
+ },
+ {
+  "activity": "Yatırım ürünleri (fon, hisse, tahvil, repo)",
+  "pattern": "Yatırım Kuruluşları",
+  "label": "yatırım kuruluşları"
+ },
+ {
+  "activity": "Yatırım ürünleri (fon, hisse, tahvil, repo)",
+  "pattern": "Yatırım Fonlarına İlişkin Esaslar",
+  "label": "fon tebliği"
+ },
+ {
+  "activity": "Yatırım ürünleri (fon, hisse, tahvil, repo)",
+  "pattern": "Borçlanma Araçları Tebliği",
+  "label": "tahvil / bono"
+ },
+ {
+  "activity": "Yatırım ürünleri (fon, hisse, tahvil, repo)",
+  "pattern": "Kıymetli Madenler Borsası|Kıymetli Maden Depo",
+  "label": "kıymetli maden sertifikası"
+ },
+ {
+  "activity": "Yatırım ürünleri (fon, hisse, tahvil, repo)",
+  "pattern": "Devlet İç Borçlanma|Kamu Finansmanı ve Borç Yönetimi",
+  "label": "DİBS (4749)"
+ },
+ {
+  "activity": "Yatırım ürünleri (fon, hisse, tahvil, repo)",
+  "pattern": "Repo",
+  "label": "repo / ters repo"
+ },
+ {
+  "activity": "Yatırım ürünleri (fon, hisse, tahvil, repo)",
+  "pattern": "Uygunluk Testi|Yerindelik|Yatırım Hizmetleri ve Faaliyetleri",
+  "label": "uygunluk testi (SPK III-37.1)"
+ },
+ {
+  "activity": "Kişisel veri, sır, bilgi paylaşımı",
+  "pattern": "Kişisel Verilerin Korunması Kanunu",
+  "label": "6698"
+ },
+ {
+  "activity": "Kişisel veri, sır, bilgi paylaşımı",
+  "pattern": "Aydınlatma Yükümlülüğünün",
+  "label": "aydınlatma tebliği"
+ },
+ {
+  "activity": "Kişisel veri, sır, bilgi paylaşımı",
+  "pattern": "Veri Sorumlusuna Başvuru",
+  "label": "başvuru tebliği"
+ },
+ {
+  "activity": "Kişisel veri, sır, bilgi paylaşımı",
+  "pattern": "Sır Niteliğindeki Bilgilerin Paylaşılması",
+  "label": "sır yönetmeliği"
+ },
+ {
+  "activity": "Kişisel veri, sır, bilgi paylaşımı",
+  "pattern": "Yurt Dışına Aktarılması",
+  "label": "yurt dışı aktarım"
+ },
+ {
+  "activity": "Kişisel veri, sır, bilgi paylaşımı",
+  "pattern": "Silinmesi, Yok Edilmesi",
+  "label": "imha yönetmeliği"
+ },
+ {
+  "activity": "Kişisel veri, sır, bilgi paylaşımı",
+  "pattern": "Veri Sorumluları Sicili",
+  "label": "VERBİS"
+ },
+ {
+  "activity": "Kişisel veri, sır, bilgi paylaşımı",
+  "pattern": "Açık Rıza|Rehberi",
+  "label": "KVKK rehberleri"
+ },
+ {
+  "activity": "Tüketici, şikâyet, reklam, hakem heyeti",
+  "pattern": "Tüketicinin Korunması Hakkında Kanun",
+  "label": "6502"
+ },
+ {
+  "activity": "Tüketici, şikâyet, reklam, hakem heyeti",
+  "pattern": "Mesafeli Sözleşmeler",
+  "label": "mesafeli (finansal)"
+ },
+ {
+  "activity": "Tüketici, şikâyet, reklam, hakem heyeti",
+  "pattern": "Ticari Reklam",
+  "label": "ticari reklam yönetmeliği"
+ },
+ {
+  "activity": "Tüketici, şikâyet, reklam, hakem heyeti",
+  "pattern": "Haksız Ticari Uygulamalar",
+  "label": "haksız ticari uygulamalar"
+ },
+ {
+  "activity": "Tüketici, şikâyet, reklam, hakem heyeti",
+  "pattern": "Tüketici Hakem Heyetleri",
+  "label": "hakem heyetleri"
+ },
+ {
+  "activity": "Tüketici, şikâyet, reklam, hakem heyeti",
+  "pattern": "Arabuluculuk",
+  "label": "tüketici arabuluculuğu"
+ },
+ {
+  "activity": "Tüketici, şikâyet, reklam, hakem heyeti",
+  "pattern": "Bireysel Müşteri Hakem Heyeti",
+  "label": "TBB hakem heyeti"
+ },
+ {
+  "activity": "Tüketici, şikâyet, reklam, hakem heyeti",
+  "pattern": "Abonelik Sözleşme",
+  "label": "abonelik sözleşmeleri (fatura talimatı)"
+ },
+ {
+  "activity": "Tüketici, şikâyet, reklam, hakem heyeti",
+  "pattern": "Finansal Tüketicilerin Şikayet|Şikayetlerin",
+  "label": "şikayet süreçleri"
+ },
+ {
+  "activity": "Tüketici, şikâyet, reklam, hakem heyeti",
+  "pattern": "Tüketicinin Korunması.*İdari Para|İdari Para Ceza.*Tüketici",
+  "label": "6502 ceza tutarları"
+ },
+ {
+  "activity": "Tüketici, şikâyet, reklam, hakem heyeti",
+  "pattern": "Banka Promosyon|Maaş Promosyon",
+  "label": "maaş promosyonu genelgeleri"
+ },
+ {
+  "activity": "Bilgi sistemleri, dijital bankacılık, e-imza, kayıt saklama",
+  "pattern": "Bilgi Sistemleri ve Elektronik Bankacılık",
+  "label": "BS yönetmeliği"
+ },
+ {
+  "activity": "Bilgi sistemleri, dijital bankacılık, e-imza, kayıt saklama",
+  "pattern": "Elektronik İmza Kanunu",
+  "label": "5070"
+ },
+ {
+  "activity": "Bilgi sistemleri, dijital bankacılık, e-imza, kayıt saklama",
+  "pattern": "Belgelerin Saklanması|Muhasebe Uygulamalarına",
+  "label": "belge saklama"
+ },
+ {
+  "activity": "Bilgi sistemleri, dijital bankacılık, e-imza, kayıt saklama",
+  "pattern": "Destek Hizmeti",
+  "label": "destek hizmeti"
+ },
+ {
+  "activity": "Bilgi sistemleri, dijital bankacılık, e-imza, kayıt saklama",
+  "pattern": "Bankaların Bilgi Sistemleri",
+  "label": "BS"
+ },
+ {
+  "activity": "Bilgi sistemleri, dijital bankacılık, e-imza, kayıt saklama",
+  "pattern": "Elektronik Ticaretin Düzenlenmesi",
+  "label": "6563"
+ },
+ {
+  "activity": "Bilgi sistemleri, dijital bankacılık, e-imza, kayıt saklama",
+  "pattern": "Kayıtlı Elektronik Posta",
+  "label": "KEP"
+ },
+ {
+  "activity": "İç sistemler, uyum, iç kontrol, denetim",
+  "pattern": "İç Sistemleri ve İçsel Sermaye",
+  "label": "iç sistemler"
+ },
+ {
+  "activity": "İç sistemler, uyum, iç kontrol, denetim",
+  "pattern": "Kurumsal Yönetim",
+  "label": "kurumsal yönetim"
+ },
+ {
+  "activity": "İç sistemler, uyum, iç kontrol, denetim",
+  "pattern": "Denetime İlişkin Usul ve Esaslar|Bankacılık Düzenleme ve Denetleme Kurumu.*Denetim",
+  "label": "BDDK denetim usulü"
+ },
+ {
+  "activity": "İç sistemler, uyum, iç kontrol, denetim",
+  "pattern": "Etik İlkeleri",
+  "label": "bankacılık etik ilkeleri"
+ },
+ {
+  "activity": "İç sistemler, uyum, iç kontrol, denetim",
+  "pattern": "Tüketici İlişkileri Koordinasyon",
+  "label": "TİK görevlisi kararı"
+ },
+ {
+  "activity": "İç sistemler, uyum, iç kontrol, denetim",
+  "pattern": "Bankalarda.*Bağımsız Denetim|Bağımsız Denetim Kuruluşlarının",
+  "label": "bankalarda bağımsız denetim"
+ },
+ {
+  "activity": "Personel, çalışma hayatı (şube personeli)",
+  "pattern": "İş Kanunu",
+  "label": "4857"
+ },
+ {
+  "activity": "Personel, çalışma hayatı (şube personeli)",
+  "pattern": "İş Sağlığı ve Güvenliği Kanunu",
+  "label": "6331"
+ },
+ {
+  "activity": "Personel, çalışma hayatı (şube personeli)",
+  "pattern": "Özel Güvenlik Hizmetlerine Dair Kanun",
+  "label": "5188 (şube güvenliği)"
+ },
+ {
+  "activity": "Personel, çalışma hayatı (şube personeli)",
+  "pattern": "Türk Ceza Kanunu",
+  "label": "5237 (zimmet, güveni kötüye kullanma, dolandırıcılık)"
+ },
+ {
+  "activity": "Kasa, nakit, kiralık kasa, emanet",
+  "pattern": "Banknot|Tedavül|Madeni Para|Madenî Para",
+  "label": "TCMB emisyon / banknot"
+ },
+ {
+  "activity": "Kasa, nakit, kiralık kasa, emanet",
+  "pattern": "Kiralık Kasa|Saklama",
+  "label": "kiralık kasa (TBK saklama)"
+ },
+ {
+  "activity": "Kasa, nakit, kiralık kasa, emanet",
+  "pattern": "Özel Güvenlik Hizmetlerine Dair",
+  "label": "nakit taşıma güvenliği"
+ },
+ {
+  "activity": "Özel kesimler: çiftçi, esnaf, KOBİ, kamu",
+  "pattern": "Kamu Haznedarlığı",
+  "label": "kamu haznedarlığı"
+ },
+ {
+  "activity": "Özel kesimler: çiftçi, esnaf, KOBİ, kamu",
+  "pattern": "Esnaf ve Sanatkâr",
+  "label": "esnaf kredileri"
+ },
+ {
+  "activity": "Özel kesimler: çiftçi, esnaf, KOBİ, kamu",
+  "pattern": "Küçük ve Orta Büyüklükteki İşletmelerin Tanımı|KOBİ",
+  "label": "KOBİ tanımı"
+ },
+ {
+  "activity": "Özel kesimler: çiftçi, esnaf, KOBİ, kamu",
+  "pattern": "Maaş Promosyon|Banka Promosyon|Promosyon.*Banka|Kamu Personeli.*Banka",
+  "label": "kamu maaş promosyon genelgesi"
+ },
+ {
+  "activity": "Teminat mektubu ve gayrinakdi krediler",
+  "pattern": "Kamu İhale Kanunu$|^KAMU İHALE KANUNU",
+  "label": "4734 Kamu İhale Kanunu (teminat)"
+ },
+ {
+  "activity": "Teminat mektubu ve gayrinakdi krediler",
+  "pattern": "Kamu İhale Genel Tebliği",
+  "label": "KİK genel tebliği (teminat mektubu standart formları)"
+ },
+ {
+  "activity": "Teminat mektubu ve gayrinakdi krediler",
+  "pattern": "(Mal Alımı|Hizmet Alımı|Yapım İşleri|Danışmanlık Hizmet Alımı) İhaleleri Uygulama Yönetmeliği",
+  "label": "ihale uygulama yönetmelikleri (teminat mektubu örnekleri)"
+ },
+ {
+  "activity": "Teminat mektubu ve gayrinakdi krediler",
+  "pattern": "Kamu İhale Sözleşmeleri Kanunu",
+  "label": "4735 (kesin teminat)"
+ },
+ {
+  "activity": "Teminat mektubu ve gayrinakdi krediler",
+  "pattern": "Gümrük Yönetmeliği",
+  "label": "gümrük teminatı"
+ },
+ {
+  "activity": "Teminat mektubu ve gayrinakdi krediler",
+  "pattern": "e-TEMİNAT|Teminat Mektub",
+  "label": "elektronik teminat mektubu"
+ },
+ {
+  "activity": "Hesap türleri: bağış, yardım, devlet katkılı hesaplar",
+  "pattern": "Yardım Toplama Kanunu",
+  "label": "2860 yardım toplama hesabı"
+ },
+ {
+  "activity": "Hesap türleri: bağış, yardım, devlet katkılı hesaplar",
+  "pattern": "Yardım Toplama Esas ve Usulleri",
+  "label": "yardım toplama yönetmeliği"
+ },
+ {
+  "activity": "Hesap türleri: bağış, yardım, devlet katkılı hesaplar",
+  "pattern": "Konut Hesabı ve Devlet Katkısı",
+  "label": "konut hesabı"
+ },
+ {
+  "activity": "Hesap türleri: bağış, yardım, devlet katkılı hesaplar",
+  "pattern": "Çeyiz Hesabı ve Devlet Katkısı",
+  "label": "çeyiz hesabı"
+ },
+ {
+  "activity": "Hesap türleri: bağış, yardım, devlet katkılı hesaplar",
+  "pattern": "Otomatik (Olarak )?(Emeklilik|Katılım)|Otomatik Katılım",
+  "label": "BES otomatik katılım (işveren kesintisi)"
+ },
+ {
+  "activity": "Uluslararası vergi bilgi paylaşımı (FATCA / CRS)",
+  "pattern": "Finansal Hesap Bilgi",
+  "label": "CRS çok taraflı yetkili makam anlaşması"
+ },
+ {
+  "activity": "Uluslararası vergi bilgi paylaşımı (FATCA / CRS)",
+  "pattern": "FATCA|Uluslararası Vergi Uyumunun",
+  "label": "FATCA hükümetlerarası anlaşma"
+ },
+ {
+  "activity": "Uluslararası vergi bilgi paylaşımı (FATCA / CRS)",
+  "pattern": "Vergi Konularında Karşılıklı İdari Yardım",
+  "label": "OECD idari yardım sözleşmesi"
+ },
+ {
+  "activity": "Pazarlama ve müşteri iletişimi",
+  "pattern": "Ticari İletişim ve Ticari Elektronik İleti",
+  "label": "İYS / ticari elektronik ileti yönetmeliği"
+ },
+ {
+  "activity": "Pazarlama ve müşteri iletişimi",
+  "pattern": "Elektronik Ticaretin Düzenlenmesi Hakkında Kanun",
+  "label": "6563"
+ },
+ {
+  "activity": "Pazarlama ve müşteri iletişimi",
+  "pattern": "Ticari Reklam ve Haksız Ticari Uygulamalar",
+  "label": "reklam yönetmeliği"
+ },
+ {
+  "activity": "Teminat değerlemesi ve sigorta",
+  "pattern": "Değerleme Hizmeti",
+  "label": "bankaların değerleme hizmeti alması"
+ },
+ {
+  "activity": "Teminat değerlemesi ve sigorta",
+  "pattern": "Afet Sigortaları Kanunu",
+  "label": "6305 DASK"
+ },
+ {
+  "activity": "Teminat değerlemesi ve sigorta",
+  "pattern": "Zorunlu Deprem Sigortası",
+  "label": "DASK genel şartları"
+ },
+ {
+  "activity": "Avukat, noter ve resmî makamlarla yazışma",
+  "pattern": "Avukatlık Kanunu",
+  "label": "1136 (vekaletname, bilgi talebi)"
+ },
+ {
+  "activity": "Avukat, noter ve resmî makamlarla yazışma",
+  "pattern": "Tebligat Kanunu",
+  "label": "7201"
+ },
+ {
+  "activity": "Avukat, noter ve resmî makamlarla yazışma",
+  "pattern": "Elektronik Tebligat",
+  "label": "e-tebligat"
+ },
+ {
+  "activity": "Şube binası, yangın ve fiziksel güvenlik",
+  "pattern": "Binaların Yangından Korunması",
+  "label": "yangın yönetmeliği"
+ },
+ {
+  "activity": "Şube binası, yangın ve fiziksel güvenlik",
+  "pattern": "Özel Güvenlik Hizmetlerine Dair Kanun",
+  "label": "5188"
+ },
+ {
+  "activity": "Şube binası, yangın ve fiziksel güvenlik",
+  "pattern": "İşyeri Açma ve Çalışma Ruhsat",
+  "label": "işyeri ruhsatı"
+ }
+]

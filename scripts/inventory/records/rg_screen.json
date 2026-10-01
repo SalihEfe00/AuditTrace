@@ -1,0 +1,7408 @@
+{
+ "20000629": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/06/20000629.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 1772
+ },
+ "20000630": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/06/20000630.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 9
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 14152
+ },
+ "20000706": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/07/20000706.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 6416
+ },
+ "20000711": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/07/20000711.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4591
+ },
+ "20000712": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/07/20000712.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4227
+ },
+ "20000727": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/07/20000727.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 5,
+   "hesap": 1,
+   "havale": 1
+  },
+  "general": {
+   "icra": 1,
+   "miras": 2,
+   "vergi": 22,
+   "tebligat": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 54790
+ },
+ "20000803": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/08/20000803.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 2269
+ },
+ "20001007": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/10/20001007.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1853
+ },
+ "20001020": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/10/20001020.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2384
+ },
+ "20001105": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/11/20001105.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 8
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 24274
+ },
+ "20001110": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/11/20001110.htm",
+  "ibk": false,
+  "core": {
+   "banka": 8,
+   "kredi": 4,
+   "çek": 1,
+   "kefalet": 1,
+   "döviz": 7
+  },
+  "general": {
+   "vekalet": 1,
+   "vergi": 2,
+   "tebligat": 9
+  },
+  "verdict": "aday",
+  "examples": [
+   "en az 1,5 katı, döviz cinsinden ise verilen avans miktarı kadar alınır.",
+   "teminatlarda Türk Bankalarının kontrgarantisi aranır.",
+   "getirilen süresiz ve limit içi banka teminat mektubu kabul edilecektir."
+  ],
+  "chars": 71515
+ },
+ "20001114": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/11/20001114.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 6477
+ },
+ "20001115": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/11/20001115.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 3,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 2250
+ },
+ "20001122": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/11/20001122.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 2,
+   "vergi": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3019
+ },
+ "20001129": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/11/20001129.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 29
+ },
+ "20001206": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/12/20001206.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 1,
+   "tebligat": 5
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 25681
+ },
+ "20001215": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/12/20001215.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 1,
+   "miras": 17
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 21551
+ },
+ "20001219": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2000/12/20001219.htm",
+  "ibk": true,
+  "core": {
+   "kredi": 5,
+   "tüketici": 1
+  },
+  "general": {
+   "vergi": 2,
+   "tebligat": 11
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 32624
+ },
+ "20010105": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/01/20010105.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1277
+ },
+ "20010113": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/01/20010113.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4384
+ },
+ "20010117": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/01/20010117.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 11149
+ },
+ "20010125": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/01/20010125.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 37
+ },
+ "20010129": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/01/20010129.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3811
+ },
+ "20010204": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/02/20010204.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 7967
+ },
+ "20010208": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/02/20010208.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1,
+   "zamanaşımı": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4458
+ },
+ "20010211": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/02/20010211.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3759
+ },
+ "20010216": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/02/20010216.htm",
+  "ibk": false,
+  "core": {
+   "havale": 1
+  },
+  "general": {
+   "miras": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 11917
+ },
+ "20010315": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/03/20010315.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 36,
+   "tebligat": 5
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 18122
+ },
+ "20010316": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/03/20010316.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 13
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 40094
+ },
+ "20010318": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/03/20010318.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 14
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 43123
+ },
+ "20010329": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/03/20010329.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3892
+ },
+ "20010411": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/04/20010411.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "vergi": 10,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 22208
+ },
+ "20010412": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/04/20010412.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 15205
+ },
+ "20010416": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/04/20010416.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2842
+ },
+ "20010425": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/04/20010425.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3640
+ },
+ "20010427": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/04/20010427.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 1852
+ },
+ "20010514": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/05/20010514.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 2615
+ },
+ "20010523": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/05/20010523.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5490
+ },
+ "20010614": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/06/20010614.htm",
+  "ibk": false,
+  "core": {
+   "hesap": 1
+  },
+  "general": {
+   "vekalet": 1,
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 43987
+ },
+ "20010621": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/06/20010621.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2871
+ },
+ "20010630": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/06/20010630.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 112
+ },
+ "20010703": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/07/20010703.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 377
+ },
+ "20010716": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/07/20010716.htm",
+  "ibk": true,
+  "core": {
+   "banka": 1,
+   "hesap": 3,
+   "havale": 2
+  },
+  "general": {
+   "vergi": 285,
+   "tebligat": 1
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 38897
+ },
+ "20010720": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/07/20010720.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5939
+ },
+ "20010725": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/07/20010725.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 28
+ },
+ "20010801": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/08/20010801.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 17011
+ },
+ "20010807": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/08/20010807.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3262
+ },
+ "20010926": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/09/20010926.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1464
+ },
+ "20011010": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/10/20011010.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4546
+ },
+ "20011016": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/10/20011016.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6119
+ },
+ "20011030": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/10/20011030.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5326
+ },
+ "20011113": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/11/20011113.htm",
+  "ibk": false,
+  "core": {
+   "senet": 8
+  },
+  "general": {
+   "tebligat": 8,
+   "zamanaşımı": 8
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 29311
+ },
+ "20011114": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/11/20011114.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 2,
+   "zamanaşımı": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 11463
+ },
+ "20011118": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/11/20011118.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 119
+ },
+ "20011124": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/11/20011124.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4380
+ },
+ "20011226": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2001/12/20011226.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 14710
+ },
+ "20020104": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/01/20020104.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3613
+ },
+ "20020117": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/01/20020117.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 336
+ },
+ "20020130": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/01/20020130.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 5,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 2482
+ },
+ "20020207": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/02/20020207.htm",
+  "ibk": false,
+  "core": {
+   "kredi": 21
+  },
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "aday",
+  "examples": [
+   "kredisiz olup, toplam 12 kredi/saat karşılığı olan ders miktarını geçemez.",
+   "Bilimsel hazırlık programında alınması önerilen dersler, doktora zorunlu ders yükünün tamamlanmasında esas alınan kredili dersler dışında tutulur.",
+   "Madde 11 — Bir lisansüstü dersin kredi değeri; bir yarıyıl süren o derse ait haftalık ders saatinin tamamı ile uygulama saatinin yarısının toplamına eşittir.",
+   "Lisansüstü derslerin kredi değerleri ve hangi derslerin kredisiz olacağı, anabilim dalı başkanlığının önerisi ve Enstitü Kurulu kararıyla belirlenir.",
+   "Seminer, uzmanlık alanı dersi, dönem projesi ve tez çalışması kredisizdir.",
+   "Dördüncü yarıyıl sonunda kredili derslerini ve seminerlerini başarıyla tamamlamayan öğrencinin Enstitü Yönetim Kurulu kararıyla kaydı silinir."
+  ],
+  "chars": 32013
+ },
+ "20020216": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/02/20020216.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 73
+ },
+ "20020227": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/02/20020227.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 1759
+ },
+ "20020311": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/03/20020311.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 11193
+ },
+ "20020315": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/03/20020315.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3861
+ },
+ "20020324": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/03/20020324.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 139
+ },
+ "20020401": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/04/20020401.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 195
+ },
+ "20020412": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/04/20020412.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2160
+ },
+ "20020425": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/04/20020425.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6501
+ },
+ "20020508": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/05/20020508.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 92
+ },
+ "20020522": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/05/20020522.htm",
+  "ibk": false,
+  "core": {
+   "havale": 1
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [
+   "Davacı Hayrünnisa Aydemir’in 7/7/1999 havale tarihli dilekçesi ile, davalı Ali Aydemir’i evlat edinmesine izin verilmesini istediği, mahkemece davanın kabulüne karar verildiği ve hükmün temyiz edilmeksizin kesinleştiği anlaşılmaktadır."
+  ],
+  "chars": 4759
+ },
+ "20020531": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/05/20020531.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5577
+ },
+ "20020609": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/06/20020609.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 67
+ },
+ "20020613": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/06/20020613.htm",
+  "ibk": false,
+  "core": {
+   "banka": 12,
+   "kredi": 17,
+   "faiz": 6,
+   "hesap": 1,
+   "havale": 2,
+   "bddk": 1
+  },
+  "general": {
+   "vekalet": 1,
+   "vergi": 1,
+   "tebligat": 9,
+   "temlik": 1
+  },
+  "verdict": "aday",
+  "examples": [
+   "Banka: Tahs is yoluyla arsa satışlarında satışlara aracılık edecek ve bankacılık hizmetlerini yürütecek kuruluştur.",
+   "Altyapılı Arsa tahsisi için başvurular, arsa talebinde bulunan alıcılar tarafından, ilanda belirtilen tarihler arasında ve gösterilen Bankaya, tahsis teminatının yatırıldığını gösteren belge, ilanda istenen diğer belgelerle birlikte ibraz edilmek ve örneği İdarece düzenlenmiş Tahsis Yoluyla Altyapılı Arsa Satınalma Talep ve Yüklenim Belgesi imzalanmak suretiyle yapılır .",
+   "Madde 13 — Altyapılı Arsa tahsisi için yapılan başvurularda, tahsis bedelinin % 5’i oranında; nakit veya banka teminat mektubu veya Devlet tahvili veya Hazine bonosu tahsis teminatı olarak alınır.",
+   "İdare adına satışlara aracılık edecek Banka ile Hak Sahibi arasında Tahsis Yoluyla Altyapılı Arsa Satış Sözleşmesinin imzalanmasını takiben arsa, İdarece belirlenen teslim gününde bir teslim tutanağı ile Hak Sahibine teslim edilir.",
+   "İlave kredi olarak kullandırılan tutarlar, kredinin yeniden sınıflandırılması için izlendiği dönem süresince karşılık ayırma yükümlülüğüne tabi tutulmaz.",
+   "Bankanın dahil olduğu risk grubuna kullandırılan kredilerde birinci fıkranın (a) bendindeki % 6’lık oran % 12 olarak, (b) bendindeki 3 dönem ödeme yapılmış olması şartı 6 dönem olarak uygulanır."
+  ],
+  "chars": 92304
+ },
+ "20020704": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/07/20020704.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 10200
+ },
+ "20020709": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/07/20020709.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 39
+ },
+ "20020727": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/07/20020727.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 10060
+ },
+ "20020812": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/08/20020812.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 37
+ },
+ "20021021": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/10/20021021.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2253
+ },
+ "20021024": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/10/20021024.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 9333
+ },
+ "20021105": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/11/20021105.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 8
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 17703
+ },
+ "20021106": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/11/20021106.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 43
+ },
+ "20021111": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/11/20021111.htm",
+  "ibk": true,
+  "core": {
+   "banka": 78,
+   "mevduat": 21,
+   "kredi": 4,
+   "faiz": 25,
+   "hesap": 3,
+   "havale": 3
+  },
+  "general": {},
+  "verdict": "aday",
+  "examples": [
+   "tazminatlarını başkaca bir husus katmadan istemeleri halinde veya bu alacakları ve tazminat talepleri ile birlikte gecikilen süreyle orantılı olarak devlet bankalarının asgari b i r yıllık vadeli mevduata ödedikleri faizi ile birlikte dava yoluyla talep etmeleri halinde bu tür davalara genel mahkemelerce bakılır.",
+   "tahakkuk ettirmek suretiyle, kurum zararına neden olduğunu; kurum ile çalıştığı bankalar arasında yukarıda açıklananlar dışında meydana gelen uzlaşmazlıklar sonucunda oluşan kurum zararının 1479 sayılı kanunun ek 6.",
+   "ettikleri sigorta primlerini ve her ne nam altında olursa olsun Kuruma olan diğer borçlarını BAĞ-KUR hesaplarına on beş gün içerisinde ve tam olarak intikal ettirmedikleri takdirde, kurum ile olan anlaşmalarda ve diğer kanunlarda kayıtlı haklar saklı kalmak şartıyla ayrıca, gecikilen süreyle orantılı olarak, devlet bankalarının asgari bir yıllık vadeli mevduata ödedikleri fai zi de kuruma öderler.",
+   "Uygulanacak faiz haddinin tespitinde anlaşmazlık halinde Merkez Bankasının bildireceği oran esas alınır.",
+   "Bankaların tacir sıfatı bulunmakta ise d e Bağ-Kur Genel Müdürlüğünün, sosyal güvenlik hükümlerini uygulamak üzere kurulmuş, bir kamu tüzel kişisi olduğu gözetildiğinde taraflar arasında çıkan uyuşmazlık nispi ticari dava sayılamaz.",
+   "maddesi, bir bankanın anonim şirket şeklinde kurulmasını şart koşmuştur."
+  ],
+  "chars": 41582
+ },
+ "20021118": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/11/20021118.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 2,
+   "tebligat": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5871
+ },
+ "20021123": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/11/20021123.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 1,
+   "tebligat": 3,
+   "zamanaşımı": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 10108
+ },
+ "20021208": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/12/20021208.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2856
+ },
+ "20021213": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/12/20021213.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 67
+ },
+ "20021221": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/12/20021221.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3654
+ },
+ "20021226": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2002/12/20021226.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 7862
+ },
+ "20030111": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/01/20030111.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 1,
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4239
+ },
+ "20030122": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/01/20030122.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 59
+ },
+ "20030126": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/01/20030126.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 11333
+ },
+ "20030207": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/02/20030207.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6730
+ },
+ "20030222": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/02/20030222.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 3,
+   "vekalet": 11,
+   "vergi": 5
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6351
+ },
+ "20030306": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/03/20030306.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3465
+ },
+ "20030313": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/03/20030313.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2085
+ },
+ "20030320": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/03/20030320.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 1,
+   "tebligat": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 13871
+ },
+ "20030327": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/03/20030327.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 158
+ },
+ "20030329": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/03/20030329.htm",
+  "ibk": false,
+  "core": {
+   "hesap": 2
+  },
+  "general": {
+   "vergi": 28,
+   "tebligat": 17
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 10915
+ },
+ "20030330": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/03/20030330.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6369
+ },
+ "20030401": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/04/20030401.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 7792
+ },
+ "20030406": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/04/20030406.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 116
+ },
+ "20030408": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/04/20030408.htm",
+  "ibk": false,
+  "core": {
+   "havale": 1
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3452
+ },
+ "20030410": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/04/20030410.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 231
+ },
+ "20030422": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/04/20030422.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 10440
+ },
+ "20030424": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/04/20030424.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3285
+ },
+ "20030502": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/05/20030502.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 107
+ },
+ "20030506": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/05/20030506.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 6360
+ },
+ "20030509": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/05/20030509.htm",
+  "ibk": false,
+  "core": {
+   "banka": 25,
+   "mevduat": 6,
+   "tmsf": 5
+  },
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "aday",
+  "examples": [
+   "denetiminin 4389 sayılı Bankalar Kanununun 14.",
+   "527 sayılı kararı ile de İktisat Bankası T.",
+   "ilişkin hükümleri ile 4389 sayılı Bankalar Kanununun 18.",
+   "TMSF’na intikal eder.",
+   "Yönetim ve denetimi devralan TMSF."
+  ],
+  "chars": 9007
+ },
+ "20030510": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/05/20030510.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 9809
+ },
+ "20030516": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/05/20030516.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4512
+ },
+ "20030523": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/05/20030523.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 6832
+ },
+ "20030528": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/05/20030528.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3095
+ },
+ "20030618": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/06/20030618.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 1,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 8329
+ },
+ "20030622": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/06/20030622.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1444
+ },
+ "20030627": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/06/20030627.htm",
+  "ibk": false,
+  "core": {
+   "senet": 1
+  },
+  "general": {
+   "miras": 7
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 14906
+ },
+ "20030701": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/07/20030701.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3950
+ },
+ "20030710": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/07/20030710.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4599
+ },
+ "20030712": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/07/20030712.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1263
+ },
+ "20030721": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/07/20030721.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 7123
+ },
+ "20030722": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/07/20030722.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "vekalet": 3,
+   "vergi": 20,
+   "tebligat": 1,
+   "temlik": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 19428
+ },
+ "20030726": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/07/20030726.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 424
+ },
+ "20030814": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/08/20030814.htm",
+  "ibk": false,
+  "core": {
+   "havale": 1
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 8184
+ },
+ "20030821": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/08/20030821.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3344
+ },
+ "20031002": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/10/20031002.htm",
+  "ibk": false,
+  "core": {
+   "çek": 2
+  },
+  "general": {
+   "tebligat": 3
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 10960
+ },
+ "20031006": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/10/20031006.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 189
+ },
+ "20031015": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/10/20031015.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 11229
+ },
+ "20031019": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/10/20031019.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 19,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 9430
+ },
+ "20031031": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/10/20031031.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3871
+ },
+ "20031115": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/11/20031115.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2003
+ },
+ "20031117": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/11/20031117.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 9384
+ },
+ "20031121": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/11/20031121.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1332
+ },
+ "20031123": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/11/20031123.htm",
+  "ibk": false,
+  "core": {
+   "senet": 1
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5038
+ },
+ "20031128": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/11/20031128.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4877
+ },
+ "20031129": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/11/20031129.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4595
+ },
+ "20031203": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/12/20031203.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3965
+ },
+ "20031210": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/12/20031210.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 29253
+ },
+ "20031224": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/12/20031224.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 68
+ },
+ "20031225": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2003/12/20031225.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 14634
+ },
+ "20040105": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/01/20040105.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 267
+ },
+ "20040110": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/01/20040110.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 1922
+ },
+ "20040114": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/01/20040114.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 3,
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 15636
+ },
+ "20040115": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/01/20040115.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2100
+ },
+ "20040116": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/01/20040116.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3609
+ },
+ "20040118": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/01/20040118.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3579
+ },
+ "20040124": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/01/20040124.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 79
+ },
+ "20040212": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/02/20040212.htm",
+  "ibk": false,
+  "core": {
+   "banka": 2,
+   "kredi": 9,
+   "çek": 1,
+   "hesap": 4,
+   "tüketici": 5,
+   "döviz": 2
+  },
+  "general": {
+   "vergi": 2,
+   "tebligat": 12
+  },
+  "verdict": "aday",
+  "examples": [
+   "Her biri 3 (üç) kredi saattir.",
+   "seçmeli dersler hariç her dersin kredisi öğretim programında belirtilir.",
+   "çalışmaları için haftalık ders saatinin yarısı kadar kredi verilir.",
+   "Döviz Alış kuru kullanılır."
+  ],
+  "chars": 53472
+ },
+ "20040220": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/02/20040220.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 1782
+ },
+ "20040228": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/02/20040228.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2250
+ },
+ "20040229": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/02/20040229.htm",
+  "ibk": false,
+  "core": {
+   "haciz": 1
+  },
+  "general": {
+   "icra": 2,
+   "miras": 5,
+   "tebligat": 8
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 13414
+ },
+ "20040309": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/03/20040309.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3918
+ },
+ "20040328": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/03/20040328.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2448
+ },
+ "20040402": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/04/20040402.htm",
+  "ibk": true,
+  "core": {
+   "ipotek": 1,
+   "faiz": 7,
+   "havale": 1
+  },
+  "general": {
+   "icra": 1,
+   "miras": 1,
+   "vergi": 32,
+   "tebligat": 17
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 96568
+ },
+ "20040414": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/04/20040414.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 9118
+ },
+ "20040420": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/04/20040420.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3938
+ },
+ "20040430": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/04/20040430.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1314
+ },
+ "20040502": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/05/20040502.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5202
+ },
+ "20040517": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/05/20040517.htm",
+  "ibk": true,
+  "core": {
+   "hesap": 4
+  },
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 99613
+ },
+ "20040523": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/05/20040523.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 28338
+ },
+ "20040528": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/05/20040528.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 16806
+ },
+ "20040601": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/06/20040601.htm",
+  "ibk": false,
+  "core": {
+   "haciz": 1,
+   "havale": 1,
+   "tüketici": 2
+  },
+  "general": {
+   "icra": 3,
+   "vekalet": 2,
+   "vergi": 6,
+   "tebligat": 16
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 58021
+ },
+ "20040606": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/06/20040606.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2430
+ },
+ "20040614": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/06/20040614.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2428
+ },
+ "20040616": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/06/20040616.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2415
+ },
+ "20040623": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/06/20040623.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1909
+ },
+ "20040710": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/07/20040710.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6274
+ },
+ "20040711": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/07/20040711.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "icra": 6,
+   "vergi": 89
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 23943
+ },
+ "20040714": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/07/20040714.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4568
+ },
+ "20040730": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/07/20040730.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 8
+  },
+  "general": {
+   "icra": 6,
+   "vergi": 44
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 12138
+ },
+ "20040811": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/08/20040811.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1490
+ },
+ "20041013": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/10/20041013.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5790
+ },
+ "20041022": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/10/20041022.htm",
+  "ibk": false,
+  "core": {
+   "çek": 1,
+   "hesap": 1
+  },
+  "general": {
+   "icra": 3,
+   "vergi": 31,
+   "tebligat": 40
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 59119
+ },
+ "20041103": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/11/20041103.htm",
+  "ibk": true,
+  "core": {
+   "banka": 6,
+   "kredi": 8,
+   "çek": 1,
+   "senet": 5,
+   "haciz": 2,
+   "faiz": 9,
+   "hesap": 8,
+   "tüketici": 23,
+   "döviz": 1
+  },
+  "general": {
+   "vergi": 69,
+   "tebligat": 23,
+   "temlik": 3
+  },
+  "verdict": "aday",
+  "examples": [
+   "1 kredi 14 ders saatine eşdeğer olacak şekilde düzenleme yapılır."
+  ],
+  "chars": 184666
+ },
+ "20041105": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/11/20041105.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2562
+ },
+ "20041129": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/11/20041129.htm",
+  "ibk": false,
+  "core": {
+   "banka": 8,
+   "kredi": 3,
+   "senet": 1,
+   "faiz": 2,
+   "hesap": 28,
+   "döviz": 1
+  },
+  "general": {
+   "icra": 11,
+   "miras": 2,
+   "vergi": 8,
+   "tebligat": 26
+  },
+  "verdict": "aday",
+  "examples": [
+   "Türkiye Halk Bankası A."
+  ],
+  "chars": 183036
+ },
+ "20041220": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/12/20041220.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 7980
+ },
+ "20041221": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2004/12/20041221.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 12618
+ },
+ "20050109-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/01/20050109-8.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 24572
+ },
+ "20050115-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/01/20050115-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3370
+ },
+ "20050202-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/02/20050202-12.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 12446
+ },
+ "20050208-27": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/02/20050208-27.htm",
+  "ibk": false,
+  "core": {
+   "kefalet": 1
+  },
+  "general": {
+   "icra": 1,
+   "vergi": 1,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 8441
+ },
+ "20050223-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/02/20050223-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 10671
+ },
+ "20050302-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/03/20050302-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 13576
+ },
+ "20050302-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/03/20050302-4.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1695
+ },
+ "20050312-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/03/20050312-17.htm",
+  "ibk": true,
+  "core": {
+   "tüketici": 10
+  },
+  "general": {
+   "miras": 1,
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 16323
+ },
+ "20050316-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/03/20050316-5.htm",
+  "ibk": true,
+  "core": {
+   "faiz": 2
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5554
+ },
+ "20050320-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/03/20050320-3.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 7694
+ },
+ "20050321-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/03/20050321-3.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5190
+ },
+ "20050326-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/03/20050326-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2499
+ },
+ "20050330-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/03/20050330-10.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1,
+   "havale": 1
+  },
+  "general": {
+   "icra": 1,
+   "vekalet": 1,
+   "tebligat": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 7957
+ },
+ "20050408-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/04/20050408-4.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4842
+ },
+ "20050417-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/04/20050417-3.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "miras": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 14418
+ },
+ "20050419-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/04/20050419-6.htm",
+  "ibk": true,
+  "core": {
+   "banka": 33,
+   "mevduat": 16,
+   "kredi": 117,
+   "senet": 18,
+   "kefalet": 1,
+   "faiz": 110,
+   "hesap": 49,
+   "havale": 2,
+   "döviz": 1
+  },
+  "general": {
+   "vergi": 109,
+   "tebligat": 1
+  },
+  "verdict": "aday",
+  "examples": [
+   "Bankasının resmi iskonto haddi uygulanır.",
+   "Bankasının resmi iskonto haddinde bir faiz uygulanır.",
+   "alacağını teşkil ederken, krediyi kullananın da borcunu teşkil etmektedir.",
+   "faiz gelirini oluşturacak vadeli mevduat işlemi henüz tamamlanmamıştır.",
+   "kurumlarından kısa veya uzun vadeli kredi temin edebilirler.",
+   "vergi hukukumuz açısından senet olarak kabul edilmemektedir."
+  ],
+  "chars": 54533
+ },
+ "20050508-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/05/20050508-7.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3186
+ },
+ "20050517-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/05/20050517-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5221
+ },
+ "20050521-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/05/20050521-11.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 20
+  },
+  "general": {
+   "icra": 15,
+   "vergi": 130
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 31996
+ },
+ "20050621-27": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/06/20050621-27.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3178
+ },
+ "20050626-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/06/20050626-6.htm",
+  "ibk": false,
+  "core": {
+   "tüketici": 7
+  },
+  "general": {
+   "tebligat": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 9592
+ },
+ "20050626-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/06/20050626-7.htm",
+  "ibk": false,
+  "core": {
+   "tüketici": 5
+  },
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 8388
+ },
+ "20050629-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/06/20050629-17.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 7094
+ },
+ "20050719-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/07/20050719-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5717
+ },
+ "20050722-25": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/07/20050722-25.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3566
+ },
+ "20050722-26": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/07/20050722-26.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1781
+ },
+ "20050808-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/08/20050808-3.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 15773
+ },
+ "20051017-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/10/20051017-5.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5260
+ },
+ "20051114-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/11/20051114-5.htm",
+  "ibk": false,
+  "core": {
+   "senet": 1
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 10581
+ },
+ "20051125-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/11/20051125-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5042
+ },
+ "20051210-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/12/20051210-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1562
+ },
+ "20051228-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/12/20051228-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3181
+ },
+ "20051231-57": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2005/12/20051231-57.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 7
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3031
+ },
+ "20060126-22": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/01/20060126-22.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4729
+ },
+ "20060209-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/02/20060209-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 6189
+ },
+ "20060210-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/02/20060210-18.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5661
+ },
+ "20060305-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/03/20060305-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2994
+ },
+ "20060305-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/03/20060305-7.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4356
+ },
+ "20060316-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/03/20060316-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6658
+ },
+ "20060318-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/03/20060318-8.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3193
+ },
+ "20060325-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/03/20060325-15.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3094
+ },
+ "20060428-20": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/04/20060428-20.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 2,
+   "tüketici": 1
+  },
+  "general": {
+   "icra": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 24125
+ },
+ "20060504-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/05/20060504-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 7311
+ },
+ "20060514-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/05/20060514-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 6023
+ },
+ "20060520-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/05/20060520-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 5
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3714
+ },
+ "20060603-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/06/20060603-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4657
+ },
+ "20060616-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/06/20060616-14.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 7760
+ },
+ "20060618-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/06/20060618-7.htm",
+  "ibk": true,
+  "core": {
+   "faiz": 5,
+   "havale": 1
+  },
+  "general": {
+   "miras": 11,
+   "vekalet": 19,
+   "vergi": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 49337
+ },
+ "20060628-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/06/20060628-15.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3719
+ },
+ "20060715-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/07/20060715-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6346
+ },
+ "20060719-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/07/20060719-17.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 11810
+ },
+ "20060722-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/07/20060722-9.htm",
+  "ibk": true,
+  "core": {
+   "faiz": 3
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 9180
+ },
+ "20060727-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/07/20060727-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4594
+ },
+ "20060815-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/08/20060815-17.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 5
+  },
+  "general": {
+   "vekalet": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 11289
+ },
+ "20060907-20": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/09/20060907-20.htm",
+  "ibk": true,
+  "core": {
+   "faiz": 2
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4150
+ },
+ "20060913-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/09/20060913-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3942
+ },
+ "20060916-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/09/20060916-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 1,
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 27318
+ },
+ "20060920-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/09/20060920-5.htm",
+  "ibk": false,
+  "core": {
+   "banka": 3,
+   "kredi": 6,
+   "faiz": 4,
+   "kart": 6,
+   "tüketici": 24
+  },
+  "general": {
+   "icra": 8
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 8134
+ },
+ "20061014-1": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/10/20061014-1.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1832
+ },
+ "20061014-2": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/10/20061014-2.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1833
+ },
+ "20061102-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/11/20061102-4.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1652
+ },
+ "20061109-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/11/20061109-7.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 7890
+ },
+ "20061118-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/11/20061118-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 6713
+ },
+ "20061127-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/11/20061127-3.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 13248
+ },
+ "20061129-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/11/20061129-19.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4452
+ },
+ "20061215-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/12/20061215-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 9400
+ },
+ "20061219-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/12/20061219-14.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4724
+ },
+ "20061229-37": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2006/12/20061229-37.htm",
+  "ibk": false,
+  "core": {
+   "banka": 1,
+   "kredi": 1,
+   "kefalet": 2,
+   "faiz": 13,
+   "kart": 1
+  },
+  "general": {
+   "miras": 10,
+   "zamanaşımı": 1
+  },
+  "verdict": "aday",
+  "examples": [
+   "istenildiğini, oysa kefalet limitinin 150."
+  ],
+  "chars": 10798
+ },
+ "20070107-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/01/20070107-12.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3555
+ },
+ "20070110-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/01/20070110-12.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3413
+ },
+ "20070117-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/01/20070117-17.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2974
+ },
+ "20070120-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/01/20070120-10.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "icra": 1,
+   "zamanaşımı": 9
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 12153
+ },
+ "20070201-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/02/20070201-13.htm",
+  "ibk": true,
+  "core": {
+   "banka": 2,
+   "senet": 1,
+   "faiz": 2,
+   "hesap": 1,
+   "havale": 2
+  },
+  "general": {
+   "icra": 2,
+   "vekalet": 4,
+   "tebligat": 1,
+   "zamanaşımı": 1
+  },
+  "verdict": "aday",
+  "examples": [
+   "posta havalesi ile davacıya ödenmiştir."
+  ],
+  "chars": 21795
+ },
+ "20070203-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/02/20070203-5.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 1,
+   "tebligat": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 7581
+ },
+ "20070208-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/02/20070208-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 7620
+ },
+ "20070227-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/02/20070227-17.htm",
+  "ibk": true,
+  "core": {
+   "ipotek": 1,
+   "kefalet": 1,
+   "faiz": 1,
+   "hesap": 1
+  },
+  "general": {
+   "icra": 1,
+   "miras": 4,
+   "zamanaşımı": 59
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 31990
+ },
+ "20070227-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/02/20070227-18.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 184,
+   "tebligat": 12
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 45248
+ },
+ "20070302-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/03/20070302-18.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5350
+ },
+ "20070317-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/03/20070317-11.htm",
+  "ibk": false,
+  "core": {
+   "havale": 1
+  },
+  "general": {
+   "vekalet": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 7138
+ },
+ "20070325-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/03/20070325-4.htm",
+  "ibk": false,
+  "core": {
+   "banka": 1,
+   "çek": 1,
+   "senet": 1,
+   "faiz": 4,
+   "hesap": 1
+  },
+  "general": {
+   "vekalet": 1,
+   "vergi": 81,
+   "tebligat": 16
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 29346
+ },
+ "20070327-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/03/20070327-9.htm",
+  "ibk": false,
+  "core": {
+   "senet": 12,
+   "hesap": 3
+  },
+  "general": {
+   "icra": 6,
+   "vergi": 39
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 30827
+ },
+ "20070331-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/03/20070331-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3064
+ },
+ "20070407-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/04/20070407-10.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "icra": 15
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 30474
+ },
+ "20070421-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/04/20070421-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3236
+ },
+ "20070427-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/04/20070427-7.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "icra": 10
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 18449
+ },
+ "20070502-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/05/20070502-6.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1943
+ },
+ "20070508-24": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/05/20070508-24.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3628
+ },
+ "20070516-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/05/20070516-7.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3574
+ },
+ "20070517-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/05/20070517-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4983
+ },
+ "20070525-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/05/20070525-18.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 8095
+ },
+ "20070531-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/05/20070531-17.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4185
+ },
+ "20070531-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/05/20070531-4.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1801
+ },
+ "20070612-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/06/20070612-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 11232
+ },
+ "20070615-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/06/20070615-13.htm",
+  "ibk": false,
+  "core": {
+   "kredi": 6
+  },
+  "general": {
+   "vergi": 93
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 27348
+ },
+ "20070626-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/06/20070626-4.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 16,
+   "hesap": 2
+  },
+  "general": {
+   "icra": 1,
+   "vekalet": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5786
+ },
+ "20070627-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/06/20070627-18.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 2445
+ },
+ "20070704-27": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/07/20070704-27.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4652
+ },
+ "20070706-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/07/20070706-5.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 16,
+   "tebligat": 13
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 8614
+ },
+ "20070721-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/07/20070721-14.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 16166
+ },
+ "20070804-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/08/20070804-14.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 2
+  },
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 14865
+ },
+ "20070804-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/08/20070804-15.htm",
+  "ibk": false,
+  "core": {
+   "banka": 32,
+   "mevduat": 2,
+   "hesap": 3,
+   "bddk": 3
+  },
+  "general": {
+   "vergi": 36
+  },
+  "verdict": "aday",
+  "examples": [
+   "banka tarafından kanun yararına bozulması istemi üzerine konu incelendi.",
+   "Bankacılık Düzenleme ve Denetleme Kurumu tarafından onaylanan 31."
+  ],
+  "chars": 14762
+ },
+ "20070804-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/08/20070804-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1856
+ },
+ "20070805-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/08/20070805-3.htm",
+  "ibk": true,
+  "core": {
+   "faiz": 3,
+   "hesap": 1
+  },
+  "general": {
+   "vergi": 74
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 15608
+ },
+ "20070809-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/08/20070809-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 6210
+ },
+ "20070916-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/09/20070916-6.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 8
+  },
+  "general": {
+   "vergi": 54
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 18824
+ },
+ "20071006-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/10/20071006-12.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1,
+   "tüketici": 5
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4285
+ },
+ "20071031-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/10/20071031-15.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 1,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 9893
+ },
+ "20071102-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/11/20071102-12.htm",
+  "ibk": false,
+  "core": {
+   "banka": 1,
+   "hesap": 2
+  },
+  "general": {
+   "miras": 4,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3867
+ },
+ "20071117-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/11/20071117-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4505
+ },
+ "20071121-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/11/20071121-19.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 7610
+ },
+ "20071129-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/11/20071129-15.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3589
+ },
+ "20071207-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/12/20071207-12.htm",
+  "ibk": false,
+  "core": {
+   "banka": 1,
+   "haciz": 3,
+   "ipotek": 1
+  },
+  "general": {
+   "icra": 2,
+   "vergi": 21,
+   "tebligat": 2
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 7967
+ },
+ "20071211-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/12/20071211-7.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 4,
+   "zamanaşımı": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 9992
+ },
+ "20071213-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/12/20071213-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 6358
+ },
+ "20071218-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/12/20071218-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 1,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5229
+ },
+ "20071229-21": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2007/12/20071229-21.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 1,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5400
+ },
+ "20080118-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/01/20080118-16.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4926
+ },
+ "20080118-2": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/01/20080118-2.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1857
+ },
+ "20080125-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/01/20080125-15.htm",
+  "ibk": false,
+  "core": {
+   "banka": 2,
+   "kredi": 1,
+   "kart": 1
+  },
+  "general": {
+   "icra": 1
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 7436
+ },
+ "20080216-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/02/20080216-16.htm",
+  "ibk": false,
+  "core": {
+   "banka": 2,
+   "haciz": 10,
+   "faiz": 1
+  },
+  "general": {
+   "icra": 3
+  },
+  "verdict": "aday",
+  "examples": [
+   "DIŞ TİCARET BANKASI VEK."
+  ],
+  "chars": 6653
+ },
+ "20080222-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/02/20080222-8.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 12,
+   "hesap": 2
+  },
+  "general": {
+   "vergi": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 50202
+ },
+ "20080223-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/02/20080223-3.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2064
+ },
+ "20080226-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/02/20080226-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4439
+ },
+ "20080313-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/03/20080313-7.htm",
+  "ibk": false,
+  "core": {
+   "haciz": 1
+  },
+  "general": {
+   "miras": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 8765
+ },
+ "20080314-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/03/20080314-13.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1
+  },
+  "general": {
+   "icra": 5,
+   "vergi": 3,
+   "tebligat": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 10066
+ },
+ "20080320-20": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/03/20080320-20.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 2,
+   "vergi": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3413
+ },
+ "20080325-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/03/20080325-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2812
+ },
+ "20080325-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/03/20080325-7.htm",
+  "ibk": true,
+  "core": {
+   "havale": 1
+  },
+  "general": {
+   "vekalet": 1,
+   "vergi": 8,
+   "tebligat": 7
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 62646
+ },
+ "20080328-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/03/20080328-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2975
+ },
+ "20080403-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/04/20080403-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5740
+ },
+ "20080405-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/04/20080405-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4736
+ },
+ "20080411-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/04/20080411-6.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3322
+ },
+ "20080416-21": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/04/20080416-21.htm",
+  "ibk": false,
+  "core": {
+   "havale": 1
+  },
+  "general": {
+   "icra": 2,
+   "miras": 1,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 27125
+ },
+ "20080418-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/04/20080418-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5636
+ },
+ "20080424-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/04/20080424-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 7825
+ },
+ "20080502-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/05/20080502-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 1,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5298
+ },
+ "20080506-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/05/20080506-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 74,
+   "tebligat": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 16759
+ },
+ "20080506-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/05/20080506-7.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2115
+ },
+ "20080507-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/05/20080507-8.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 5,
+   "temlik": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 22475
+ },
+ "20080514-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/05/20080514-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3466
+ },
+ "20080515-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/05/20080515-17.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3795
+ },
+ "20080518-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/05/20080518-4.htm",
+  "ibk": true,
+  "core": {
+   "faiz": 1,
+   "tüketici": 10
+  },
+  "general": {
+   "icra": 10,
+   "vekalet": 5
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 15498
+ },
+ "20080601-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/06/20080601-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 8179
+ },
+ "20080603-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/06/20080603-18.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3479
+ },
+ "20080606-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/06/20080606-17.htm",
+  "ibk": false,
+  "core": {
+   "banka": 1,
+   "kredi": 2,
+   "kart": 2,
+   "tüketici": 5
+  },
+  "general": {
+   "vekalet": 4,
+   "tebligat": 1
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 3858
+ },
+ "20080617-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/06/20080617-4.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1923
+ },
+ "20080624-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/06/20080624-12.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2055
+ },
+ "20080626-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/06/20080626-9.htm",
+  "ibk": false,
+  "core": {
+   "banka": 5,
+   "faiz": 1
+  },
+  "general": {
+   "icra": 1,
+   "tebligat": 11,
+   "zamanaşımı": 4
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 5230
+ },
+ "20080705-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/07/20080705-16.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3656
+ },
+ "20080720-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/07/20080720-3.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3609
+ },
+ "20080721-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/07/20080721-4.htm",
+  "ibk": false,
+  "core": {
+   "banka": 8,
+   "kredi": 11,
+   "kefalet": 1,
+   "faiz": 1,
+   "hesap": 1,
+   "kart": 10,
+   "tüketici": 20
+  },
+  "general": {
+   "icra": 1,
+   "vekalet": 2
+  },
+  "verdict": "aday",
+  "examples": [
+   "Davacı : Yapı ve Kredi Bank.",
+   "örneği kart hamiline ve varsa kefile verilir."
+  ],
+  "chars": 10237
+ },
+ "20080722-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/07/20080722-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 64,
+   "zamanaşımı": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 16130
+ },
+ "20080723-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/07/20080723-8.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 6
+  },
+  "general": {
+   "icra": 2,
+   "vergi": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 42424
+ },
+ "20080724-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/07/20080724-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 13432
+ },
+ "20080726-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/07/20080726-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 32
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 34827
+ },
+ "20080812-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/08/20080812-10.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1,
+   "tüketici": 9
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6563
+ },
+ "20080831-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/08/20080831-4.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 8,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 15818
+ },
+ "20080917-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/09/20080917-14.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 4,
+   "tüketici": 10
+  },
+  "general": {
+   "icra": 4,
+   "vergi": 155,
+   "tebligat": 13
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 65916
+ },
+ "20081119-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/11/20081119-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4567
+ },
+ "20081125-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/11/20081125-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 9397
+ },
+ "20081203-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/12/20081203-18.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 3,
+   "tebligat": 3,
+   "temlik": 2,
+   "zamanaşımı": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 20845
+ },
+ "20081205-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/12/20081205-19.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 9249
+ },
+ "20081231-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2008/12/20081231-16.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3071
+ },
+ "20081231M7": {
+  "url": "http://www.resmigazete.gov.tr/eskiler/2008/12/20081231M7.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 1,
+   "tebligat": 13
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 2026
+ },
+ "20090113-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/01/20090113-7.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 2,
+   "tüketici": 17
+  },
+  "general": {
+   "icra": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 8810
+ },
+ "20090114-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/01/20090114-18.htm",
+  "ibk": false,
+  "core": {
+   "kredi": 1,
+   "tüketici": 3
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5700
+ },
+ "20090128-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/01/20090128-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3781
+ },
+ "20090128-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/01/20090128-14.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3857
+ },
+ "20090128-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/01/20090128-15.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3375
+ },
+ "20090128-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/01/20090128-16.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3894
+ },
+ "20090203-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/02/20090203-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 3,
+   "tebligat": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 20612
+ },
+ "20090204-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/02/20090204-15.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1,
+   "hesap": 1
+  },
+  "general": {
+   "icra": 7
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6189
+ },
+ "20090205-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/02/20090205-5.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 8318
+ },
+ "20090220-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/02/20090220-15.htm",
+  "ibk": false,
+  "core": {
+   "banka": 1,
+   "çek": 15
+  },
+  "general": {},
+  "verdict": "aday",
+  "examples": [
+   "sürerek, çeklerin iptaline karar verilmesini istemiştir."
+  ],
+  "chars": 4429
+ },
+ "20090226-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/02/20090226-7.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 2
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5277
+ },
+ "20090308-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/03/20090308-5.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 8335
+ },
+ "20090310-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/03/20090310-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 6083
+ },
+ "20090311-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/03/20090311-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 1,
+   "vergi": 10
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6835
+ },
+ "20090319-1": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/03/20090319-1.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2135
+ },
+ "20090319-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/03/20090319-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 4,
+   "vekalet": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 14916
+ },
+ "20090326-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/03/20090326-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 2,
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 12489
+ },
+ "20090328-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/03/20090328-3.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4180
+ },
+ "20090411-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/04/20090411-12.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 38,
+   "tebligat": 4,
+   "zamanaşımı": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 9968
+ },
+ "20090411-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/04/20090411-3.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1942
+ },
+ "20090415-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/04/20090415-7.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 9677
+ },
+ "20090421-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/04/20090421-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 17484
+ },
+ "20090507-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/05/20090507-9.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 3,
+   "hesap": 1
+  },
+  "general": {
+   "icra": 5,
+   "zamanaşımı": 8
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 11714
+ },
+ "20090515-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/05/20090515-16.htm",
+  "ibk": false,
+  "core": {
+   "banka": 14,
+   "mevduat": 15,
+   "haciz": 5,
+   "faiz": 13,
+   "hesap": 9
+  },
+  "general": {
+   "vergi": 69,
+   "tebligat": 6,
+   "zamanaşımı": 20
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 18550
+ },
+ "20090520-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/05/20090520-13.htm",
+  "ibk": false,
+  "core": {
+   "kredi": 1,
+   "kart": 1,
+   "tüketici": 5
+  },
+  "general": {
+   "vekalet": 4,
+   "tebligat": 1
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 3907
+ },
+ "20090522-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/05/20090522-6.htm",
+  "ibk": false,
+  "core": {
+   "tüketici": 1
+  },
+  "general": {
+   "icra": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5783
+ },
+ "20090605-21": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/06/20090605-21.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5087
+ },
+ "20090627-20": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/06/20090627-20.htm",
+  "ibk": false,
+  "core": {
+   "banka": 11,
+   "kredi": 13,
+   "kefalet": 1,
+   "faiz": 1,
+   "hesap": 1,
+   "kart": 12,
+   "tüketici": 22
+  },
+  "general": {
+   "icra": 3,
+   "vekalet": 6,
+   "tebligat": 2
+  },
+  "verdict": "aday",
+  "examples": [
+   "örneği kart hamiline ve varsa kefile verilir.",
+   "kredi kartı kullanıcısı davalıdan ücret istemesi olanaklı değildir."
+  ],
+  "chars": 15663
+ },
+ "20090630-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/06/20090630-5.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 12393
+ },
+ "20090710-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/07/20090710-14.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4199
+ },
+ "20090727-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/07/20090727-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4430
+ },
+ "20090801-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/08/20090801-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4392
+ },
+ "20090805-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/08/20090805-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 16,
+   "tebligat": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 11227
+ },
+ "20090805-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/08/20090805-9.htm",
+  "ibk": false,
+  "core": {
+   "kredi": 2,
+   "faiz": 4,
+   "kart": 2,
+   "tüketici": 11
+  },
+  "general": {
+   "vekalet": 7,
+   "tebligat": 1
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 6505
+ },
+ "20090809-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/08/20090809-5.htm",
+  "ibk": false,
+  "core": {
+   "tüketici": 5
+  },
+  "general": {
+   "vergi": 156,
+   "tebligat": 8
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 78673
+ },
+ "20090818-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/08/20090818-18.htm",
+  "ibk": false,
+  "core": {
+   "tüketici": 3
+  },
+  "general": {
+   "tebligat": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4764
+ },
+ "20090901-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/09/20090901-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4908
+ },
+ "20090915-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/09/20090915-7.htm",
+  "ibk": false,
+  "core": {
+   "tüketici": 19
+  },
+  "general": {
+   "icra": 4,
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 36285
+ },
+ "20091002-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/10/20091002-10.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 4
+  },
+  "general": {
+   "vergi": 8,
+   "tebligat": 18
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 48998
+ },
+ "20091015-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/10/20091015-15.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 42699
+ },
+ "20091021-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/10/20091021-7.htm",
+  "ibk": false,
+  "core": {
+   "haciz": 10
+  },
+  "general": {
+   "icra": 2,
+   "tebligat": 5
+  },
+  "verdict": "aday",
+  "examples": [
+   "bilindiği halde, alacaklının haciz uygulanmasını icra memurundan istemesidir.",
+   "bilindiği halde, alacaklının haciz uygulanmasını icra memurundan istemesidir."
+  ],
+  "chars": 12718
+ },
+ "20091030-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/10/20091030-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3323
+ },
+ "20091112-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/11/20091112-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5047
+ },
+ "20091117-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/11/20091117-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 7743
+ },
+ "20091123-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/11/20091123-7.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 7014
+ },
+ "20091204-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/12/20091204-13.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1,
+   "havale": 3,
+   "tüketici": 35
+  },
+  "general": {
+   "icra": 2,
+   "vekalet": 1,
+   "vergi": 1,
+   "tebligat": 5
+  },
+  "verdict": "aday",
+  "examples": [
+   "havale edildiği, ancak harçlandırmanın 23.",
+   "2007 hakim havale tarihli 2007/1898 muh."
+  ],
+  "chars": 10018
+ },
+ "20091208-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/12/20091208-16.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3423
+ },
+ "20091209-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/12/20091209-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3757
+ },
+ "20091210-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/12/20091210-14.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 1,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6203
+ },
+ "20091214-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/12/20091214-5.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "icra": 8
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 21789
+ },
+ "20091215-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/12/20091215-13.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "icra": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3391
+ },
+ "20091219-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/12/20091219-15.htm",
+  "ibk": false,
+  "core": {
+   "çek": 1,
+   "faiz": 13
+  },
+  "general": {
+   "vekalet": 3,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 73304
+ },
+ "20091222-21": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/12/20091222-21.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1
+  },
+  "general": {
+   "icra": 2,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 14680
+ },
+ "20091229-22": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/12/20091229-22.htm",
+  "ibk": false,
+  "core": {
+   "haciz": 7
+  },
+  "general": {
+   "icra": 2,
+   "tebligat": 1
+  },
+  "verdict": "aday",
+  "examples": [
+   "takip dosyasında yapılan muhafaza ve hacze ilişkin işlemin İİK'nun 97.",
+   "71 YTL) olduğu hacizli malların değerinin ise 3."
+  ],
+  "chars": 6554
+ },
+ "20100105-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/01/20100105-11.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "miras": 1,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4758
+ },
+ "20100107-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/01/20100107-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 6243
+ },
+ "20100115-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/01/20100115-12.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3629
+ },
+ "20100118-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/01/20100118-5.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 12663
+ },
+ "20100119-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/01/20100119-11.htm",
+  "ibk": false,
+  "core": {
+   "banka": 3,
+   "kredi": 2,
+   "faiz": 7,
+   "kart": 2
+  },
+  "general": {},
+  "verdict": "aday",
+  "examples": [],
+  "chars": 4935
+ },
+ "20100128-2": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/01/20100128-2.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3629
+ },
+ "20100129-21": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/01/20100129-21.htm",
+  "ibk": false,
+  "core": {
+   "banka": 40,
+   "çek": 29
+  },
+  "general": {
+   "icra": 8,
+   "vekalet": 1,
+   "zamanaşımı": 2
+  },
+  "verdict": "aday",
+  "examples": [
+   "Ziraat Bankası vek .",
+   "hatırlatmadığını beyanla bankanın 3167 sayılı Yasanın l0.",
+   "edilmiş çekler için 10.",
+   "Ziraat Bankası vek .",
+   "olan davalı banka hakkında da 3167 sayılı Kanunun 10.",
+   "edilmiş çekler için 10."
+  ],
+  "chars": 17778
+ },
+ "20100204-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/02/20100204-12.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 10
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 10630
+ },
+ "20100223-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/02/20100223-11.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 4,
+   "hesap": 1,
+   "tüketici": 6
+  },
+  "general": {
+   "icra": 15,
+   "vekalet": 3,
+   "vergi": 1,
+   "tebligat": 5,
+   "zamanaşımı": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 26749
+ },
+ "20100225-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/02/20100225-16.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1,
+   "zamanaşımı": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 8423
+ },
+ "20100304-22": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/03/20100304-22.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 7627
+ },
+ "20100304-23": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/03/20100304-23.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 10
+  },
+  "general": {
+   "vergi": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 16510
+ },
+ "20100309-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/03/20100309-16.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5050
+ },
+ "20100312-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/03/20100312-19.htm",
+  "ibk": false,
+  "core": {
+   "banka": 3,
+   "tüketici": 9
+  },
+  "general": {},
+  "verdict": "aday",
+  "examples": [
+   "veya banka teminatı altına alınmasına ilişkin şartlar."
+  ],
+  "chars": 10661
+ },
+ "20100318-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/03/20100318-19.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5292
+ },
+ "20100323-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/03/20100323-8.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3182
+ },
+ "20100325-22": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/03/20100325-22.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3078
+ },
+ "20100406-20": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/04/20100406-20.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 3
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5958
+ },
+ "20100407-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/04/20100407-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3500
+ },
+ "20100416-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/04/20100416-5.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4948
+ },
+ "20100429-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/04/20100429-8.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 3
+  },
+  "general": {
+   "vekalet": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5991
+ },
+ "20100506-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/05/20100506-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 8080
+ },
+ "20100515-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/05/20100515-6.htm",
+  "ibk": false,
+  "core": {
+   "hesap": 1
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3721
+ },
+ "20100528-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/05/20100528-11.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "vergi": 2,
+   "tebligat": 8
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 19937
+ },
+ "20100601-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/06/20100601-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3585
+ },
+ "20100602-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/06/20100602-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3594
+ },
+ "20100610-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/06/20100610-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3462
+ },
+ "20100612-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/06/20100612-5.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3574
+ },
+ "20100618-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/06/20100618-17.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 26,
+   "tebligat": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 21137
+ },
+ "20100625-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/06/20100625-12.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 7074
+ },
+ "20100713-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/07/20100713-19.htm",
+  "ibk": true,
+  "core": {
+   "senet": 1,
+   "faiz": 10
+  },
+  "general": {
+   "icra": 3,
+   "tebligat": 3,
+   "zamanaşımı": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 21199
+ },
+ "20100723-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/07/20100723-10.htm",
+  "ibk": true,
+  "core": {
+   "banka": 44,
+   "faiz": 11,
+   "hesap": 22
+  },
+  "general": {
+   "icra": 22,
+   "vekalet": 11,
+   "tebligat": 286
+  },
+  "verdict": "aday",
+  "examples": [
+   "suretiyle hak sahibine ödenmek üzere Bankaya aktarılır.",
+   "suretiyle hak sahibine ödenmek üzere Bankaya aktarılır.",
+   "hak sahibine ödenmek üzere Bankaya aktarılır.",
+   "suretiyle hak sahibine ödenmek üzere Bankaya aktarılır.",
+   "suretiyle hak sahibine ödenmek üzere Bankaya aktarılır.",
+   "Anonim Şirketi kayıtları esas alınarak Banka tarafından gerçekleştirilir."
+  ],
+  "chars": 96011
+ },
+ "20100731-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/07/20100731-15.htm",
+  "ibk": true,
+  "core": {
+   "banka": 72,
+   "faiz": 18,
+   "hesap": 36
+  },
+  "general": {
+   "icra": 36,
+   "vekalet": 18,
+   "tebligat": 468
+  },
+  "verdict": "aday",
+  "examples": [
+   "Anonim Şirketi kayıtları esas alınarak Banka tarafından gerçekleştirilir.",
+   "Anonim Şirketi kayıtları esas alınarak Banka tarafından gerçekleştirilir.",
+   "Şirketi kayıtları esas alınarak Banka tarafından gerçekleştirilir.",
+   "esas alınarak Banka tarafından gerçekleştirilir.",
+   "karşılanmak suretiyle hak sahibine ödenmek üzere Bankaya aktarılır.",
+   "Anonim Şirketi kayıtları esas alınarak Banka tarafından gerçekleştirilir."
+  ],
+  "chars": 161850
+ },
+ "20100803-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/08/20100803-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 10,
+   "tebligat": 6,
+   "zamanaşımı": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 18569
+ },
+ "20100804-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/08/20100804-18.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4605
+ },
+ "20100812-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/08/20100812-8.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3664
+ },
+ "20100817-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/08/20100817-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3167
+ },
+ "20101002-23": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/10/20101002-23.htm",
+  "ibk": false,
+  "core": {
+   "banka": 3,
+   "faiz": 43
+  },
+  "general": {
+   "icra": 4,
+   "vergi": 2,
+   "tebligat": 1
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 15347
+ },
+ "20101007-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/10/20101007-19.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4843
+ },
+ "20101023-23.": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/10/20101023-23..htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3288
+ },
+ "20101026-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/10/20101026-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3387
+ },
+ "20101028-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/10/20101028-10.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "miras": 1,
+   "vergi": 1,
+   "tebligat": 1,
+   "temlik": 6,
+   "zamanaşımı": 23
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 85476
+ },
+ "20101209-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/12/20101209-15.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 8100
+ },
+ "20101211-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/12/20101211-16.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4497
+ },
+ "20101217-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/12/20101217-19.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3705
+ },
+ "20101218-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/12/20101218-16.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5083
+ },
+ "20101221-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2010/12/20101221-11.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 4
+  },
+  "general": {
+   "miras": 2,
+   "zamanaşımı": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 19563
+ },
+ "20110104-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/01/20110104-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 27255
+ },
+ "20110105-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/01/20110105-5.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 18750
+ },
+ "20110106-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/01/20110106-9.htm",
+  "ibk": false,
+  "core": {
+   "hesap": 1
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6794
+ },
+ "20110113-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/01/20110113-17.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 7964
+ },
+ "20110118-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/01/20110118-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5853
+ },
+ "20110119-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/01/20110119-7.htm",
+  "ibk": false,
+  "core": {
+   "hesap": 4,
+   "havale": 1
+  },
+  "general": {
+   "miras": 10,
+   "vergi": 15,
+   "tebligat": 2,
+   "zamanaşımı": 1
+  },
+  "verdict": "sınırda",
+  "examples": [
+   "hesaplara nakledildiği veya emir ve havalelerine tediye olunduğu taktirde nakli ve tediyeyi temin eden kağıtların."
+  ],
+  "chars": 17100
+ },
+ "20110120-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/01/20110120-6.htm",
+  "ibk": true,
+  "core": {
+   "banka": 1,
+   "faiz": 1
+  },
+  "general": {
+   "vekalet": 5,
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5394
+ },
+ "20110121-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/01/20110121-8.htm",
+  "ibk": false,
+  "core": {
+   "banka": 1,
+   "faiz": 4,
+   "hesap": 1
+  },
+  "general": {
+   "vergi": 58
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 14591
+ },
+ "20110129-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/01/20110129-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3621
+ },
+ "20110205-2": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/02/20110205-2.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 15432
+ },
+ "20110219-26": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/02/20110219-26.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1
+  },
+  "general": {
+   "vergi": 33
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 11356
+ },
+ "20110222-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/02/20110222-15.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 13772
+ },
+ "20110226-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/02/20110226-13.htm",
+  "ibk": true,
+  "core": {
+   "faiz": 6
+  },
+  "general": {
+   "vergi": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 37245
+ },
+ "20110301-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/03/20110301-17.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 9222
+ },
+ "20110308-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/03/20110308-15.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3910
+ },
+ "20110311-2": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/03/20110311-2.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 10365
+ },
+ "20110311-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/03/20110311-3.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4709
+ },
+ "20110319-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/03/20110319-12.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 7780
+ },
+ "20110323-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/03/20110323-12.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5844
+ },
+ "20110329-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/03/20110329-15.htm",
+  "ibk": false,
+  "core": {
+   "banka": 38,
+   "çek": 28,
+   "faiz": 2
+  },
+  "general": {
+   "icra": 5,
+   "tebligat": 3,
+   "zamanaşımı": 1
+  },
+  "verdict": "aday",
+  "examples": [
+   "bankadan başka bankalara ibraz edildiği anlaşıldığından anılan yasanın 6.",
+   "-TL bedelli çekin süresi içinde 06.",
+   "uyarınca davalı bankanın bu çek yaprağı nedeni ile 435.",
+   "odaları aracılığı ile ibraz edilmiş çekler için l0.",
+   "çek aslının muhatap bankaya ibrazı gerekir.",
+   "bankadan başka bankalara ibraz edildiği anlaşıldığından anılan yasanın 6."
+  ],
+  "chars": 35656
+ },
+ "20110405-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/04/20110405-14.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 12084
+ },
+ "20110406-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/04/20110406-16.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "miras": 7,
+   "vekalet": 1,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 10964
+ },
+ "20110408-23": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/04/20110408-23.htm",
+  "ibk": false,
+  "core": {
+   "mevduat": 11,
+   "senet": 7,
+   "faiz": 12
+  },
+  "general": {
+   "vergi": 69,
+   "tebligat": 6
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 25828
+ },
+ "20110413-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/04/20110413-5.htm",
+  "ibk": false,
+  "core": {
+   "tüketici": 11
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4520
+ },
+ "20110419-22": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/04/20110419-22.htm",
+  "ibk": false,
+  "core": {
+   "senet": 1
+  },
+  "general": {
+   "icra": 1,
+   "miras": 19,
+   "vergi": 2
+  },
+  "verdict": "sınırda",
+  "examples": [
+   "davac ı n ı n murisinin bor ç lu oldu ğ u bono nedeniyle as ı l alacak 35."
+  ],
+  "chars": 14734
+ },
+ "20110420-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/04/20110420-19.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3672
+ },
+ "20110420-20": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/04/20110420-20.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 10
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 12247
+ },
+ "20110424-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/04/20110424-16.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 17193
+ },
+ "20110429-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/04/20110429-12.htm",
+  "ibk": false,
+  "core": {
+   "banka": 2
+  },
+  "general": {
+   "vekalet": 1,
+   "vergi": 35
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 17148
+ },
+ "20110430-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/04/20110430-19.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4016
+ },
+ "20110501-1": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/05/20110501-1.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2323
+ },
+ "20110506-1": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/05/20110506-1.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2334
+ },
+ "20110512-31": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/05/20110512-31.htm",
+  "ibk": true,
+  "core": {
+   "haciz": 1
+  },
+  "general": {
+   "vekalet": 21,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 19691
+ },
+ "20110513-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/05/20110513-10.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "vergi": 5,
+   "tebligat": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 19953
+ },
+ "20110531-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/05/20110531-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5530
+ },
+ "20110602-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/06/20110602-9.htm",
+  "ibk": true,
+  "core": {
+   "banka": 8,
+   "kredi": 5,
+   "çek": 9,
+   "senet": 8,
+   "haciz": 14,
+   "ipotek": 4,
+   "hesap": 10,
+   "kart": 5,
+   "havale": 1,
+   "masak": 1,
+   "tüketici": 6,
+   "döviz": 2
+  },
+  "general": {
+   "icra": 17,
+   "miras": 42,
+   "vekalet": 1,
+   "vergi": 1,
+   "tebligat": 2,
+   "temlik": 7
+  },
+  "verdict": "aday",
+  "examples": [
+   "haczin kaldırılması, haczedilemezlik.",
+   "ticari nitelikteki havale ( BK.",
+   "haciz yolu ile yapılan icra takiplerine karşı borçluların İİK."
+  ],
+  "chars": 100190
+ },
+ "20110616-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/06/20110616-14.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3851
+ },
+ "20110623-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/06/20110623-3.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4455
+ },
+ "20110625-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/06/20110625-12.htm",
+  "ibk": false,
+  "core": {
+   "tüketici": 12
+  },
+  "general": {
+   "vekalet": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6294
+ },
+ "20110705-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/07/20110705-11.htm",
+  "ibk": false,
+  "core": {
+   "tüketici": 11
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4522
+ },
+ "20110707-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/07/20110707-17.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 15523
+ },
+ "20110708-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/07/20110708-5.htm",
+  "ibk": false,
+  "core": {
+   "senet": 1
+  },
+  "general": {
+   "vergi": 46
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 14661
+ },
+ "20110714-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/07/20110714-7.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "tebligat": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 58828
+ },
+ "20110730-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/07/20110730-4.htm",
+  "ibk": false,
+  "core": {
+   "banka": 7,
+   "kredi": 1,
+   "çek": 9,
+   "kefalet": 1,
+   "faiz": 9,
+   "hesap": 1
+  },
+  "general": {
+   "icra": 2,
+   "vekalet": 1
+  },
+  "verdict": "aday",
+  "examples": [
+   "edildiği dosya içerisindeki çek örneğinden anlaşılmaktadır.",
+   "Kredi ve Kefalet Koop .",
+   "Banka aleyhine Gaziantep 1."
+  ],
+  "chars": 14443
+ },
+ "20110805-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/08/20110805-12.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4568
+ },
+ "20110812-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/08/20110812-6.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 9385
+ },
+ "20110813-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/08/20110813-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 1,
+   "miras": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6017
+ },
+ "20110818-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/08/20110818-14.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1
+  },
+  "general": {
+   "vekalet": 5,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5687
+ },
+ "20110823-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/08/20110823-19.htm",
+  "ibk": false,
+  "core": {
+   "senet": 1,
+   "hesap": 1
+  },
+  "general": {
+   "icra": 6,
+   "miras": 1,
+   "tebligat": 6,
+   "zamanaşımı": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 13914
+ },
+ "20110827-57": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/08/20110827-57.htm",
+  "ibk": false,
+  "core": {
+   "banka": 7,
+   "kredi": 10,
+   "faiz": 4,
+   "hesap": 2,
+   "kart": 11,
+   "tüketici": 4
+  },
+  "general": {},
+  "verdict": "aday",
+  "examples": [],
+  "chars": 6833
+ },
+ "20111001-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/10/20111001-8.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 2
+  },
+  "general": {
+   "vergi": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 15462
+ },
+ "20111005-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/10/20111005-11.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1,
+   "tüketici": 12
+  },
+  "general": {
+   "vekalet": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 7455
+ },
+ "20111011-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/10/20111011-17.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 2,
+   "tüketici": 2
+  },
+  "general": {
+   "icra": 3,
+   "vekalet": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6347
+ },
+ "20111027-26": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/10/20111027-26.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 15303
+ },
+ "20111125-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/11/20111125-12.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 26984
+ },
+ "20111126-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/11/20111126-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 10,
+   "vergi": 28,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 18195
+ },
+ "20111201-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/12/20111201-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4334
+ },
+ "20111206-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/12/20111206-8.htm",
+  "ibk": false,
+  "core": {
+   "banka": 2,
+   "kredi": 9,
+   "haciz": 2,
+   "hesap": 4,
+   "kart": 9,
+   "havale": 1,
+   "tüketici": 10
+  },
+  "general": {
+   "zamanaşımı": 5
+  },
+  "verdict": "aday",
+  "examples": [
+   "2010 havale tarihli dilekçesinde de belirtilmiştir."
+  ],
+  "chars": 12607
+ },
+ "20111207-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/12/20111207-14.htm",
+  "ibk": false,
+  "core": {
+   "banka": 2,
+   "faiz": 17,
+   "tüketici": 4
+  },
+  "general": {
+   "icra": 1
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 4998
+ },
+ "20111209-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/12/20111209-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5221
+ },
+ "20111220-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/12/20111220-7.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4291
+ },
+ "20111220-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/12/20111220-8.htm",
+  "ibk": false,
+  "core": {
+   "banka": 7,
+   "kredi": 14
+  },
+  "general": {
+   "vergi": 389,
+   "tebligat": 16
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 50123
+ },
+ "20111222-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2011/12/20111222-18.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4790
+ },
+ "20120103-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/01/20120103-5.htm",
+  "ibk": false,
+  "core": {
+   "banka": 5,
+   "çek": 4,
+   "havale": 1
+  },
+  "general": {
+   "icra": 2,
+   "vekalet": 3
+  },
+  "verdict": "aday",
+  "examples": [
+   "edilen çeklerde aynı Yasasının 10."
+  ],
+  "chars": 8114
+ },
+ "20120103-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/01/20120103-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 40
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 13895
+ },
+ "20120106-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/01/20120106-14.htm",
+  "ibk": false,
+  "core": {
+   "hesap": 1
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4201
+ },
+ "20120117-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/01/20120117-9.htm",
+  "ibk": false,
+  "core": {
+   "havale": 4,
+   "tüketici": 3
+  },
+  "general": {
+   "vekalet": 1,
+   "vergi": 7,
+   "tebligat": 5
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 11087
+ },
+ "20120126-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/01/20120126-18.htm",
+  "ibk": false,
+  "core": {
+   "banka": 1,
+   "kredi": 1,
+   "faiz": 3,
+   "hesap": 2
+  },
+  "general": {},
+  "verdict": "aday",
+  "examples": [
+   "3659 say ı l ı Yasa ise, banka ve Devlet kurumlar ı nda ç al ış an memurlar ı n ayl ı klar ı ile ilgili d ü zenleme getirmi ş ve halen y ü r ü rl ü ktedir.",
+   "alaca ğı n ı n sadece toplu i ş s ö zle ş mesine g ö re ö denmesinin kararla ş t ı r ı ld ığı durumlarda, 2822 say ı l ı Kanunun 61 inci maddesi uyar ı nca en y ü ksek i ş letme kredisi faizine h ü kmedilmelidir (Yarg ı tay 9."
+  ],
+  "chars": 12546
+ },
+ "20120203-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/02/20120203-11.htm",
+  "ibk": false,
+  "core": {
+   "banka": 7,
+   "çek": 6
+  },
+  "general": {
+   "icra": 1
+  },
+  "verdict": "aday",
+  "examples": [
+   "Davalı : Ziraat Bankası A.",
+   "vekili, müvekkilinin hamili olduğu çekin 3167 sayılı Kanun’un 10.",
+   "ibraz edilmiş çekler için 10.",
+   "odaları aracılığıyla ibraz edilen çeklerde aynı Yasanın 10."
+  ],
+  "chars": 4635
+ },
+ "20120204-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/02/20120204-7.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 4
+  },
+  "general": {
+   "vergi": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 19420
+ },
+ "20120214-22": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/02/20120214-22.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 2
+  },
+  "general": {
+   "vekalet": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3738
+ },
+ "20120217-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/02/20120217-6.htm",
+  "ibk": false,
+  "core": {
+   "banka": 15,
+   "çek": 15,
+   "senet": 6,
+   "kefalet": 1
+  },
+  "general": {
+   "icra": 6,
+   "miras": 5
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 54413
+ },
+ "20120218-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/02/20120218-16.htm",
+  "ibk": true,
+  "core": {
+   "banka": 9,
+   "kredi": 5,
+   "çek": 7,
+   "senet": 6,
+   "haciz": 16,
+   "ipotek": 5,
+   "hesap": 3,
+   "kart": 7,
+   "havale": 1,
+   "masak": 1,
+   "tüketici": 5,
+   "döviz": 1
+  },
+  "general": {
+   "icra": 17,
+   "miras": 15,
+   "vekalet": 1,
+   "vergi": 1,
+   "tebligat": 5,
+   "temlik": 6
+  },
+  "verdict": "aday",
+  "examples": [
+   "Kanunu'nda yer alan, rehin karşılığında ikraz ile meşgul olma (T.",
+   "ticari nitelikteki havale (B.",
+   "verilen kararlarla, ihtiyati hacze itiraz üzerine verilen kararlar."
+  ],
+  "chars": 91768
+ },
+ "20120221-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/02/20120221-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 5895
+ },
+ "20120224-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/02/20120224-8.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4085
+ },
+ "20120313-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/03/20120313-12.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 8
+  },
+  "general": {
+   "vergi": 2,
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 22901
+ },
+ "20120529-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/05/20120529-10.htm",
+  "ibk": false,
+  "core": {
+   "banka": 1
+  },
+  "general": {
+   "vekalet": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 16626
+ },
+ "20120726-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/07/20120726-18.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 3
+  },
+  "general": {
+   "vergi": 18,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 19524
+ },
+ "20120729-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/07/20120729-6.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 54
+  },
+  "general": {
+   "vergi": 14,
+   "tebligat": 14
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 147438
+ },
+ "20120811-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/08/20120811-3.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 3
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 12355
+ },
+ "20120920-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/09/20120920-8.htm",
+  "ibk": true,
+  "core": {},
+  "general": {
+   "icra": 16,
+   "vergi": 1,
+   "tebligat": 5
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 44972
+ },
+ "20120928-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/09/20120928-10.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 5,
+   "hesap": 6
+  },
+  "general": {
+   "vergi": 6,
+   "tebligat": 5,
+   "zamanaşımı": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 33096
+ },
+ "20121005-1": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/10/20121005-1.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 13443
+ },
+ "20121117-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/11/20121117-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2833
+ },
+ "20121123-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/11/20121123-14.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4947
+ },
+ "20121226-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2012/12/20121226-16.htm",
+  "ibk": false,
+  "core": {
+   "banka": 2
+  },
+  "general": {
+   "vergi": 30
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 16246
+ },
+ "20130103-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2013/01/20130103-18.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 12,
+   "vergi": 57,
+   "tebligat": 18
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 26269
+ },
+ "20130205-30": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2013/02/20130205-30.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 2
+  },
+  "general": {
+   "vekalet": 7,
+   "vergi": 2,
+   "tebligat": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 13324
+ },
+ "20130221-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2013/02/20130221-8.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4063
+ },
+ "20130222-2": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2013/02/20130222-2.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2060
+ },
+ "20130226-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2013/02/20130226-6.htm",
+  "ibk": true,
+  "core": {
+   "banka": 2,
+   "havale": 3
+  },
+  "general": {
+   "vergi": 542,
+   "tebligat": 1
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 86029
+ },
+ "20130620-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2013/06/20130620-12.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 42
+  },
+  "general": {
+   "vergi": 13,
+   "tebligat": 35,
+   "zamanaşımı": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 137629
+ },
+ "20130726-41": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2013/07/20130726-41.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5437
+ },
+ "20130812-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2013/08/20130812-13.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 9,
+   "hesap": 9,
+   "havale": 1
+  },
+  "general": {
+   "icra": 2,
+   "vergi": 30,
+   "tebligat": 18
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 163346
+ },
+ "20131001-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2013/10/20131001-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 29
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 15398
+ },
+ "20131010-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2013/10/20131010-10.htm",
+  "ibk": false,
+  "core": {
+   "banka": 1,
+   "faiz": 7,
+   "hesap": 9
+  },
+  "general": {
+   "vergi": 9
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 54894
+ },
+ "20131226-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2013/12/20131226-13.htm",
+  "ibk": false,
+  "core": {
+   "banka": 5,
+   "kredi": 4,
+   "tüketici": 5
+  },
+  "general": {
+   "zamanaşımı": 7
+  },
+  "verdict": "aday",
+  "examples": [
+   "Davacı : Türkiye Vakıflar Bankası T."
+  ],
+  "chars": 5262
+ },
+ "20140121-21": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/01/20140121-21.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 6,
+   "hesap": 4,
+   "havale": 1
+  },
+  "general": {
+   "vekalet": 1,
+   "vergi": 6,
+   "tebligat": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 32456
+ },
+ "20140129-32": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/01/20140129-32.htm",
+  "ibk": true,
+  "core": {
+   "banka": 17,
+   "kredi": 15,
+   "çek": 6,
+   "senet": 2,
+   "haciz": 12,
+   "ipotek": 6,
+   "hesap": 2,
+   "kart": 10,
+   "havale": 2,
+   "masak": 1,
+   "tüketici": 10
+  },
+  "general": {
+   "icra": 17,
+   "miras": 12,
+   "vekalet": 1,
+   "vergi": 1,
+   "tebligat": 1,
+   "temlik": 6,
+   "zamanaşımı": 1
+  },
+  "verdict": "aday",
+  "examples": [
+   "alan, rehin karşılığında ikraz ile meşgul olma (TMK m.",
+   "487-501), kredi mektubu ve kredi emri (TBK m.",
+   "ticari nitelikli havale (TBK m."
+  ],
+  "chars": 99027
+ },
+ "20140206-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/02/20140206-17.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 59,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 21645
+ },
+ "20140220-17": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/02/20140220-17.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 8014
+ },
+ "20140220-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/02/20140220-18.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 1,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 11702
+ },
+ "20140220-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/02/20140220-19.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 3,
+   "tebligat": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 11476
+ },
+ "20140315-21": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/03/20140315-21.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1
+  },
+  "general": {
+   "icra": 6,
+   "miras": 2,
+   "vekalet": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 8350
+ },
+ "20140323-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/03/20140323-10.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1,
+   "hesap": 1
+  },
+  "general": {
+   "vergi": 3,
+   "tebligat": 7
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 15123
+ },
+ "20140323-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/03/20140323-11.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1,
+   "hesap": 1
+  },
+  "general": {
+   "vergi": 3,
+   "tebligat": 7
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 15026
+ },
+ "20140323-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/03/20140323-6.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1,
+   "hesap": 1
+  },
+  "general": {
+   "vergi": 3,
+   "tebligat": 7
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 15221
+ },
+ "20140323-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/03/20140323-7.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1,
+   "hesap": 1
+  },
+  "general": {
+   "vergi": 3,
+   "tebligat": 7
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 14625
+ },
+ "20140323-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/03/20140323-8.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 2,
+   "hesap": 1
+  },
+  "general": {
+   "vergi": 3,
+   "tebligat": 7
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 16163
+ },
+ "20140323-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/03/20140323-9.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1,
+   "hesap": 1
+  },
+  "general": {
+   "vergi": 3,
+   "tebligat": 7
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 15042
+ },
+ "20140403-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/04/20140403-19.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 2,
+   "tebligat": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5035
+ },
+ "20140417-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/04/20140417-18.htm",
+  "ibk": true,
+  "core": {
+   "haciz": 60
+  },
+  "general": {
+   "icra": 13,
+   "tebligat": 4
+  },
+  "verdict": "aday",
+  "examples": [
+   "haciz talebinin reddi halinde alacaklı kanun yoluna başvurabilir.",
+   "haciz kararının uygulanmasını durdurmaz.",
+   "yoluna başvuru, ihtiyatî haciz kararının icrasını durdurmaz.",
+   "gerekçenin en önemli dayanağı, ihtiyati hacizler bakımından mevcut düzenlemedir.",
+   "hacizdeki hükümlere paralel bir düzenlemedir."
+  ],
+  "chars": 83622
+ },
+ "20140417-19": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/04/20140417-19.htm",
+  "ibk": false,
+  "core": {
+   "havale": 1
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5587
+ },
+ "20140417-20": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/04/20140417-20.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 652
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 121055
+ },
+ "20140429-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/04/20140429-9.htm",
+  "ibk": false,
+  "core": {
+   "banka": 1,
+   "kredi": 1,
+   "senet": 1,
+   "kefalet": 1,
+   "havale": 1,
+   "döviz": 1
+  },
+  "general": {
+   "icra": 1,
+   "miras": 5,
+   "vekalet": 3
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 11471
+ },
+ "20140513-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/05/20140513-10.htm",
+  "ibk": false,
+  "core": {
+   "hesap": 4
+  },
+  "general": {
+   "icra": 1,
+   "vekalet": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 8652
+ },
+ "20140513-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/05/20140513-11.htm",
+  "ibk": false,
+  "core": {
+   "banka": 4,
+   "mevduat": 3,
+   "kredi": 5,
+   "hesap": 9
+  },
+  "general": {},
+  "verdict": "aday",
+  "examples": [
+   "kaynaklanmad ığı ndan genel g ö revli mahkemeler ö n ü nde çö z ü mlenmesi gereken bankac ı l ı k i ş lemi mahiyetindedir."
+  ],
+  "chars": 7202
+ },
+ "20140513-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/05/20140513-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 5
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 5657
+ },
+ "20140531-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/05/20140531-11.htm",
+  "ibk": false,
+  "core": {
+   "banka": 9,
+   "mevduat": 1,
+   "kredi": 8,
+   "hesap": 5,
+   "kart": 1,
+   "tüketici": 30
+  },
+  "general": {
+   "icra": 1,
+   "vekalet": 6
+  },
+  "verdict": "aday",
+  "examples": [
+   "davalının bankadan kullandığı krediler nedeniyle kendisinden 1."
+  ],
+  "chars": 13917
+ },
+ "20140701-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/07/20140701-9.htm",
+  "ibk": false,
+  "core": {
+   "banka": 20,
+   "kredi": 22
+  },
+  "general": {
+   "vekalet": 3
+  },
+  "verdict": "aday",
+  "examples": [
+   "Taraflar aras ı nda konut kredisi s ö zle ş mesi bulundu ğ u ve davac ı banka taraf ı ndan 682,50 TL masraf al ı nd ığı hususu ihtilafl ı de ğ ildir.",
+   "maddesinde ise “ sat ı c ı , sa ğ lay ı c ı veya kredi veren taraf ı ndan t ü ketici ile akdedilen s ö zle ş mede kullan ı lan haks ı z ş artlar ı n bat ı l oldu ğ u ” h ü km ü getirilmi ş tir.",
+   "Daval ı bankan ı n tacir olup, yapt ığı masraflar ı t ü keticiden isteme hakk ı bulundu ğ u anla şı lmakta ise de, somut uyu ş mazl ığı n t ü ketici hukukundan kaynakland ığı da g ö zetildi ğ inde, bankan ı n ancak davaya konu kredinin verilmesi i ç in zorunlu, makul ve belgeli masraflar ı t ü keticiden isteyebilece ğ inin kabul ü gerekir.",
+   "Taraflar aras ı nda konut kredisi s ö zle ş mesi bulundu ğ u ve davac ı banka taraf ı ndan 445,07 TL masraf al ı nd ığı hususu ihtilafl ı de ğ ildir.",
+   "maddesinde ise “ sat ı c ı , sa ğ lay ı c ı veya kredi veren taraf ı ndan t ü ketici ile akdedilen s ö zle ş mede kullan ı lan haks ı z ş artlar ı n bat ı l oldu ğ u ” h ü km ü getirilmi ş tir.",
+   "Daval ı bankan ı n tacir olup, yapt ığı masraflar ı t ü keticiden isteme hakk ı bulundu ğ u anla şı lmakta ise de, somut uyu ş mazl ığı n t ü ketici hukukundan kaynakland ığı da g ö zetildi ğ inde, bankan ı n ancak davaya konu kredinin verilmesi i ç in zorunlu, makul ve belgeli masraflar ı t ü keticiden isteyebilece ğ inin kabul ü gerekir."
+  ],
+  "chars": 25168
+ },
+ "20140716-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/07/20140716-10.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 2,
+   "hesap": 2
+  },
+  "general": {
+   "vergi": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 17634
+ },
+ "20140720-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/07/20140720-5.htm",
+  "ibk": true,
+  "core": {
+   "banka": 17,
+   "kredi": 15,
+   "çek": 6,
+   "senet": 2,
+   "haciz": 12,
+   "ipotek": 6,
+   "hesap": 2,
+   "kart": 10,
+   "havale": 2,
+   "masak": 1,
+   "tüketici": 10
+  },
+  "general": {
+   "icra": 17,
+   "miras": 12,
+   "vekalet": 1,
+   "vergi": 1,
+   "tebligat": 1,
+   "temlik": 6,
+   "zamanaşımı": 1
+  },
+  "verdict": "aday",
+  "examples": [
+   "487-501), kredi mektubu ve kredi emri (TBK m.",
+   "ticari nitelikli havale (TBK m."
+  ],
+  "chars": 98533
+ },
+ "20141025-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/10/20141025-15.htm",
+  "ibk": false,
+  "core": {
+   "havale": 1
+  },
+  "general": {
+   "miras": 1,
+   "vekalet": 1,
+   "tebligat": 10
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 12437
+ },
+ "20141025-20": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/10/20141025-20.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1
+  },
+  "general": {
+   "icra": 2,
+   "vekalet": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6156
+ },
+ "20141114-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/11/20141114-8.htm",
+  "ibk": false,
+  "core": {
+   "tüketici": 9
+  },
+  "general": {
+   "vekalet": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 8675
+ },
+ "20141206-2": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/12/20141206-2.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 6
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 25747
+ },
+ "20141216-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/12/20141216-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2186
+ },
+ "20141216-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/12/20141216-11.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2193
+ },
+ "20141216-12": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/12/20141216-12.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2173
+ },
+ "20141216-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/12/20141216-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2192
+ },
+ "20141216-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/12/20141216-14.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2175
+ },
+ "20141216-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/12/20141216-6.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2167
+ },
+ "20141216-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/12/20141216-7.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2253
+ },
+ "20141216-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/12/20141216-8.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2183
+ },
+ "20141216-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/12/20141216-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2189
+ },
+ "20141231-35": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2014/12/20141231-35.htm",
+  "ibk": false,
+  "core": {
+   "faiz": 1
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 4184
+ },
+ "20150306-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2015/03/20150306-8.htm",
+  "ibk": false,
+  "core": {
+   "haciz": 4
+  },
+  "general": {
+   "tebligat": 2
+  },
+  "verdict": "aday",
+  "examples": [],
+  "chars": 5177
+ },
+ "20150403-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2015/04/20150403-10.htm",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vekalet": 4
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 6715
+ },
+ "20150411-2": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2015/04/20150411-2.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4979
+ },
+ "20150519-1": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2015/05/20150519-1.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2259
+ },
+ "20150519-2": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2015/05/20150519-2.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2282
+ },
+ "20160120M1": {
+  "url": "http://www.resmigazete.gov.tr/eskiler/2016/01/20160120M1.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 404
+ },
+ "20160325-18": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2016/03/20160325-18.htm",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2268
+ },
+ "20160702M1": {
+  "url": "http://www.resmigazete.gov.tr/eskiler/2016/07/20160702M1.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 405
+ },
+ "20160723M1": {
+  "url": "http://www.resmigazete.gov.tr/eskiler/2016/07/20160723M1.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 511
+ },
+ "20160723M2": {
+  "url": "http://www.resmigazete.gov.tr/eskiler/2016/07/20160723M2.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 432
+ },
+ "20170324-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2017/03/20170324-4.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2625
+ },
+ "20170524-15": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2017/05/20170524-15.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2225
+ },
+ "20170608-2": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2017/06/20170608-2.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2088
+ },
+ "20170720M1": {
+  "url": "http://www.resmigazete.gov.tr/eskiler/2017/07/20170720M1.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 387
+ },
+ "20170929-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2017/09/20170929-5.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3157
+ },
+ "20171024-1": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2017/10/20171024-1.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2085
+ },
+ "20171226-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2017/12/20171226-9.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2445
+ },
+ "20190307M1": {
+  "url": "http://www.resmigazete.gov.tr/eskiler/2019/03/20190307M1.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 387
+ },
+ "20190516-13": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2019/05/20190516-13.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3535
+ },
+ "20200130-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2020/01/20200130-7.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 3,
+   "vekalet": 2
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 2591
+ },
+ "20200405-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2020/04/20200405-4.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 445
+ },
+ "20200414-24": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2020/04/20200414-24.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2502
+ },
+ "20200605-1": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2020/06/20200605-1.pdf",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 445
+ },
+ "20200821-21": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2020/08/20200821-21.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 705
+ },
+ "20201128-1": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2020/11/20201128-1.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 933
+ },
+ "20210219-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2021/02/20210219-11.pdf",
+  "ibk": false,
+  "core": {
+   "hesap": 2
+  },
+  "general": {
+   "icra": 4,
+   "tebligat": 9
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3695
+ },
+ "20210326-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2021/03/20210326-7.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 1896
+ },
+ "20210611-1": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2021/06/20210611-1.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 338
+ },
+ "20210625-22": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2021/06/20210625-22.pdf",
+  "ibk": false,
+  "core": {
+   "haciz": 1
+  },
+  "general": {
+   "icra": 1,
+   "vekalet": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 2577
+ },
+ "20211102-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2021/11/20211102-3.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "icra": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3368
+ },
+ "20211112-2": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2021/11/20211112-2.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2827
+ },
+ "20211218-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2021/12/20211218-3.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 943
+ },
+ "20211218-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2021/12/20211218-4.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 480
+ },
+ "20211228-14": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2021/12/20211228-14.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2714
+ },
+ "20211231M5": {
+  "url": "http://www.resmigazete.gov.tr/eskiler/2021/12/20211231M5.htm",
+  "ibk": false,
+  "core": {
+   "banka": 1
+  },
+  "general": {
+   "tebligat": 5
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 2089
+ },
+ "20220106-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2022/01/20220106-5.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 14
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 2499
+ },
+ "20220311-16": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2022/03/20220311-16.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2488
+ },
+ "20220415-10": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2022/04/20220415-10.pdf",
+  "ibk": false,
+  "core": {
+   "haciz": 1
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3448
+ },
+ "20220602-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2022/06/20220602-5.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 374
+ },
+ "20220602-6": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2022/06/20220602-6.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 467
+ },
+ "20220706-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2022/07/20220706-8.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 4002
+ },
+ "20220921-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2022/09/20220921-8.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 2127
+ },
+ "20221013-1": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2022/10/20221013-1.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 906
+ },
+ "20221110-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2022/11/20221110-4.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "tebligat": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 2266
+ },
+ "20221130-4": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2022/11/20221130-4.htm",
+  "ibk": true,
+  "core": {
+   "banka": 13,
+   "çek": 1,
+   "faiz": 2,
+   "hesap": 10,
+   "havale": 50
+  },
+  "general": {
+   "icra": 1,
+   "vekalet": 5,
+   "vergi": 29,
+   "tebligat": 60
+  },
+  "verdict": "aday",
+  "examples": [
+   "havale edilecek dosyaları ayırmak.",
+   "uygun olarak dairesi belirlenmek suretiyle havalesi yapılır.",
+   "imzalanarak havalesi yapılır.",
+   "havale edilmesi sağlanır.",
+   "dosyaların havale edilmesi sağlanır.",
+   "havale edilmesi sağlanır."
+  ],
+  "chars": 97296
+ },
+ "20221202-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2022/12/20221202-3.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "miras": 3
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 2360
+ },
+ "20230124-8": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2023/01/20230124-8.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3730
+ },
+ "20230308-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2023/03/20230308-9.pdf",
+  "ibk": false,
+  "core": {
+   "tüketici": 10
+  },
+  "general": {},
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 3100
+ },
+ "20230720-7": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2023/07/20230720-7.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {
+   "vergi": 1
+  },
+  "verdict": "sınırda",
+  "examples": [],
+  "chars": 509
+ },
+ "20230727-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2023/07/20230727-5.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 567
+ },
+ "20240118-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2024/01/20240118-11.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 491
+ },
+ "20240405-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2024/04/20240405-9.pdf",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 446
+ },
+ "20240516-11": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2024/05/20240516-11.pdf",
+  "ibk": true,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 449
+ },
+ "20241003-1": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2024/10/20241003-1.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 983
+ },
+ "20241003-2": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2024/10/20241003-2.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 579
+ },
+ "20260212-3": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2026/02/20260212-3.htm",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 3861
+ },
+ "20260314-5": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2026/03/20260314-5.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 991
+ },
+ "20260611-1": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2026/06/20260611-1.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 598
+ },
+ "20260611-2": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2026/06/20260611-2.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 555
+ },
+ "20260611-9": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2026/06/20260611-9.pdf",
+  "ibk": false,
+  "core": {},
+  "general": {},
+  "verdict": "dışarıda",
+  "examples": [],
+  "chars": 416
+ },
+ "yargı": {
+  "url": "https://www.resmigazete.gov.tr/eskiler/2009/07/yargı.htm",
+  "ibk": false,
+  "core": {
+   "haciz": 5
+  },
+  "general": {
+   "vekalet": 1,
+   "tebligat": 1
+  },
+  "verdict": "aday",
+  "examples": [
+   "kabulü ile haczin kaldırılmasına karar verilmesini istemiştir."
+  ],
+  "chars": 4803
+ }
+}
