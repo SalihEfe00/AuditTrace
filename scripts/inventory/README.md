@@ -12,6 +12,10 @@ Betikler `records/` klasöründe çalıştırılır, çünkü girdi ve çıktı 
     python ../merge.py                # kataloglar + aramalar + atıflar + şube haritası → inventory.json
     python ../gen_sources.py          # kuru çalıştırma; --write → legislation_sources.json
 
+**Seçenek A dondurması (K1.8a).** `gen_sources.py` commit'li listedeki öncelikleri korur. Öncelik 2'ye yalnızca
+`records/k18_core.json` (K1.8 kefalet / teminat çekirdeği) girer; envanterin yeni adayları v2'ye kalır.
+`--all` eski davranışı verir: her şey envanterden yeniden üretilir.
+
 `MUFETTIS_DATA_DIR` isteyen betikler (`cite_round.py`, `screen.py`, `build_evidence.py`, `ibk_cites.py`,
 `report.py`, `run_fetch.py`, `run_delist.py`) yalnızca **veri kopyasıyla** çalıştırılır. Üretim `data/` klasörüne
 yazılmaz.
@@ -31,13 +35,14 @@ yazılmaz.
 | Atıflar | `cite_round.py`, `resolve_cites.py`, `resolve_cites2.py` |
 | Birleştirme ve liste | `branch_map.py`, `merge.py`, `gen_sources.py`, `report.py`, `sec3_check.py` |
 | İndirme ve eleme | `run_fetch.py`, `run_delist.py`, `screen.py`, `build_evidence.py` |
-| Resmî Gazete yargı bölümü (K1.4) | `rg_judiciary_scan.py` → `rg_fetch_texts.py` → `rg_ocr.py` / `rg_fallback.py` → `rg_screen.py`, `ibk_cites.py` |
+| Resmî Gazete yargı bölümü (K1.4) | `rg_judiciary_scan.py` → `rg_fetch_texts.py` → `rg_ocr.py` (`--ibk`, `--head N`, `--selected`: K1.4a daraltması) / `rg_fallback.py` → `rg_screen.py`, `ibk_cites.py` |
 | Eski temel metinler (K1.7) | `k17_basedates.py` |
+| Kefalet / teminat kontrol listesi (K1.8) | `k18_checklist.py` (veri kopyasıyla), `records/k18_core.json` |
 
 ## Kayıtlar
 
 `records/*.json` dosyaları git'te tutulur, toplamı yaklaşık 22 MB.
 
-Büyük ara çıktılar git dışındadır (`records/.gitignore`): `cache/`, `rg_pdf/` (663 taranmış PDF), `rg_full/`, `rg_docs/`
+Büyük ara çıktılar git dışındadır (`records/.gitignore`): `cache/`, `rg_pdf/` (663 taranmış PDF), `rg_full/`, `rg_heads/` (ilk sayfa OCR'ı), `rg_docs/`
 (RG metinleri ve OCR çıktıları), `rg_docs_old_htm/`, `pilot_dl/`. Bunların yedeği Masaüstündeki
 `Mufettis_AI_yedek_2026-10-02/inv` klasöründedir. Tek seferlik yama ve yoklama betikleri depoya alınmadı; onlar da aynı yedekte durur.
