@@ -33,6 +33,32 @@ class TestTesseractLookup(unittest.TestCase):
             self.assertEqual(ocr.ocr_pdf_pages(b"%PDF-1.7"), [])
 
 
+class TestPageStreaming(unittest.TestCase):
+    def test_pages_are_rendered_one_at_a_time(self):
+        # 764 sayfalık RG sayısı tümü birden çizilseydi ~9 GB olurdu: görüntüler istendikçe çizilmeli.
+        import pypdfium2 as pdfium
+        from PIL import Image
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "three.pdf"
+            first, *rest = [Image.new("RGB", (200, 200), "white") for _ in range(3)]
+            first.save(path, "PDF", save_all=True, append_images=rest)
+            data = path.read_bytes()
+        rendered = []
+        original = pdfium.PdfPage.render
+
+        def counting(page, *args, **kwargs):
+            rendered.append(1)
+            return original(page, *args, **kwargs)
+
+        with mock.patch.object(pdfium.PdfPage, "render", counting):
+            pages = ocr.iter_page_images(data, dpi=36)
+            next(pages)
+            self.assertEqual(len(rendered), 1)
+            self.assertEqual(len(list(pages)), 2)
+        self.assertEqual(len(rendered), 3)
+
+
 class TestFetcherOcrFallback(unittest.TestCase):
     def test_image_only_pdf_is_verified_with_ocr_text(self):
         with mock.patch("mufettis.extraction.pdf._extract_pdfium_pages", return_value=["", ""]), \

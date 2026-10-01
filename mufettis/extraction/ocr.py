@@ -12,7 +12,7 @@ import os
 import shutil
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Optional
+from typing import Iterator, List, Optional
 
 from mufettis.config import PDFIUM_LOCK
 
@@ -48,24 +48,30 @@ def available() -> bool:
     return True
 
 
-def render_pages(pdf_bytes: bytes, dpi: int = OCR_DPI, max_pages: Optional[int] = None) -> list:
-    """PDF sayfalarının PIL görüntüleri (pypdfium2; poppler gerekmez)."""
+def iter_page_images(pdf_bytes: bytes, dpi: int = OCR_DPI, max_pages: Optional[int] = None) -> Iterator:
+    """PDF sayfalarının PIL görüntüleri, birer birer (pypdfium2; poppler gerekmez).
+
+    Bellekte aynı anda tek sayfa görüntüsü durur: 200 dpi A4 ~11 MB, 764 sayfalık bir Resmî Gazete sayısı tümü
+    birden çizilseydi ~9 GB olurdu (8 GB RAM hedefini aşar). Kilit yalnızca çizim sırasında tutulur; OCR kilit
+    dışında çalışır.
+    """
     import pypdfium2 as pdfium
 
-    images = []
     with PDFIUM_LOCK:
         pdf = pdfium.PdfDocument(pdf_bytes)
-        try:
-            count = len(pdf) if max_pages is None else min(len(pdf), max_pages)
-            for index in range(count):
+        count = len(pdf) if max_pages is None else min(len(pdf), max_pages)
+    try:
+        for index in range(count):
+            with PDFIUM_LOCK:
                 page = pdf.get_page(index)
                 try:
-                    images.append(page.render(scale=dpi / 72).to_pil())
+                    image = page.render(scale=dpi / 72).to_pil()
                 finally:
                     page.close()
-        finally:
+            yield image
+    finally:
+        with PDFIUM_LOCK:
             pdf.close()
-    return images
 
 
 def ocr_pdf_pages(pdf_bytes: bytes, max_pages: Optional[int] = None, lang: str = OCR_LANG) -> List[str]:
@@ -77,10 +83,10 @@ def ocr_pdf_pages(pdf_bytes: bytes, max_pages: Optional[int] = None, lang: str =
 
         pytesseract.pytesseract.tesseract_cmd = tesseract_cmd()
         return [pytesseract.image_to_string(image, lang=lang).strip()
-                for image in render_pages(pdf_bytes, max_pages=max_pages)]
+                for image in iter_page_images(pdf_bytes, max_pages=max_pages)]
     except Exception as exc:  # bozuk PDF, eksik dil dosyası: OCR yok sayılır
         print(f"[OCR] Çalıştırılamadı: {exc}")
         return []
 
 
-__all__ = ["tesseract_cmd", "available", "render_pages", "ocr_pdf_pages", "OCR_LANG"]
+__all__ = ["tesseract_cmd", "available", "iter_page_images", "ocr_pdf_pages", "OCR_LANG"]
