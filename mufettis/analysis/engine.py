@@ -42,6 +42,7 @@ from mufettis.analysis.turkish_text import (
 from mufettis.common.utils import article_label, canonical_source_id
 from mufettis.config import MAX_RAG_RESULTS
 from mufettis.corpus import HISTORICAL_STATUSES, EligibilityPolicy, InstrumentType, canonical_view
+from mufettis.corpus.model import NormativeRole
 from mufettis.extraction.text_repair import clean_evidence_text, normalize_legal_whitespace
 
 # Bir kanıtın bir iddiayla ilişkilendirilmesi için gereken en az farklı içerik terimi
@@ -88,6 +89,11 @@ _TITLE_CONNECTORS = frozenset({"ve", "ile", "veya", "ya", "da", "de", "dair", "h
 
 def _is_transitional(meta: Dict[str, Any]) -> bool:
     return turkish_lower(str(meta.get("article_prefix", "") or "")).startswith("geç")
+
+
+def _is_guidance(evidence: Evidence) -> bool:
+    """Yol gösterici metin mi (rehber, izahname, emsal karar; kanonik model, corpus.authority)?"""
+    return canonical_view(evidence.metadata or {}).normative_role == NormativeRole.GUIDANCE
 
 
 def _turkish_title_case(text: str) -> str:
@@ -627,14 +633,20 @@ class AnalysisEngine:
         return score is not None and (confident is None or score < confident)
 
     def _pick(self, ranked: List[Tuple[Evidence, Optional[float]]]) -> Tuple[Optional[Evidence], Optional[float]]:
-        """Sıralamanın ilki; yeniden sıralayıcı puanı modelin eşiğinin altındaysa hiçbiri."""
+        """Eşiği geçenler arasında kural koyan metnin ilki (kural önce); eşiği geçen kural yoksa yol gösterici metnin
+        ilki (rehber, izahname, emsal karar). Bulgunun dayanağı bağlayıcı hükümdür: yol gösterici metin aynı konuda
+        eşiği geçen bir kural varken öne geçemez (M6.15: kurumların izahname / emsal kararları eklenince ücret
+        tebliğinin yerine izahnamenin ilan maddesi seçiliyordu). Hiçbiri eşiği geçmiyorsa bulgu yok."""
         if not ranked:
             return None, None
-        best, score = ranked[0]
         min_score = getattr(self.reranker, "min_score", None)
-        if score is not None and min_score is not None and score < min_score:
-            return None, score
-        return best, score
+        passing = [(ev, s) for ev, s in ranked if s is None or min_score is None or s >= min_score]
+        if not passing:
+            return None, ranked[0][1]
+        for ev, s in passing:
+            if not _is_guidance(ev):
+                return ev, s
+        return passing[0]
 
     def _gated_ranking(
         self,

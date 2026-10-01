@@ -49,6 +49,23 @@ def find_non_legislation(records: Iterable[Tuple[str, Dict[str, Any]]]) -> List[
     return out
 
 
+
+def find_delisted(records: Iterable[Tuple[str, Dict[str, Any]]], listed_keys: Iterable[str]) -> List[Dict[str, str]]:
+    """Mevzuat listesinden yüklenmiş ama listeden sonradan çıkarılmış kayıtlar (M6.15: inceleme bir belgeyi "alma"ya
+    çevirdiyse — ör. tasarı / gerekçe gibi yasama süreci belgeleri). Önceki metinler (M7.3) ve mülga kanunlar
+    (M7.3c) liste dışından gelir, dokunulmaz."""
+    keys = set(listed_keys)
+    out = []
+    for h, r in records:
+        r = r or {}
+        if r.get("ingest_origin") != "legislation_list" or str(r.get("status", "")) in INACTIVE_STATUSES:
+            continue
+        key = str(r.get("legislation_code") or "")
+        if key and key not in keys:
+            out.append({"file_hash": h, "title": str(r.get("title") or ""), "key": key,
+                        "reason": "mevzuat listesinden çıkarıldı (M6.15 envanter kararı)", "action": "exclude"})
+    return out
+
 def exclude(rag, index, file_hash: str, reason: str) -> int:
     """Kaydı ve parçalarını ayıklar; güncellenen parça sayısı."""
     from mufettis.audit.service import append_audit

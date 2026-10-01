@@ -6,7 +6,8 @@ Adımlar veri kopyasında (datacopy_m6) ayrı ayrı denenip ölçüldü (docs/ar
 betik aynı adımları tek seferde ve M2 yedekleme politikasıyla yapar:
 
 1. Yedek: dizin (ingest_index) ve parça deposu `BACKUP_DIR/legislation_corpus_<zaman>/` altına (manifest.json).
-2. Ayıklama: ikincil sitelerin madde yapısız sayfaları; `--exclude` ile verilen kayıtlar (kullanıcı kararı).
+2. Ayıklama: ikincil sitelerin madde yapısız sayfaları; listeden çıkarılmış kayıtlar (M6.15); `--exclude` ile
+   verilen kayıtlar (kullanıcı kararı).
 3. İndirme: listedeki belgeler (öncelik 1-3; M6.15 kapsamlı envanter dahil), doğrulamayla. `--downloads-from`
    ile veri kopyasında doğrulanmış indirmeler (dosyalar + downloads.json) kopyalanır; aynı doğrulama yeniden
    yapılmaz, saatler süren indirme tekrarlanmaz (eksik / yeni olanlar yine indirilir).
@@ -86,7 +87,7 @@ def main(argv=None) -> int:
 
     from mufettis.common.backups import new_backup_dir, prune_backups
     from mufettis.config import DATA_DIR
-    from mufettis.corpus.curation import exclude, find_non_legislation
+    from mufettis.corpus.curation import exclude, find_delisted, find_non_legislation
     from mufettis.corpus.legislation_sources import load_sources, select_sources, validate_sources
     from mufettis.harvesting.official_legislation import OfficialLegislationFetcher
     from mufettis.importers.legislation_importer import import_downloads
@@ -116,6 +117,8 @@ def main(argv=None) -> int:
     rag = LocalRAG(allow_download=False)
     candidates = find_non_legislation(index.iter_records())
     wanted = [c for c in candidates if c["action"] == "exclude"]
+    # Listeden sonradan çıkarılmış (inceleme "alma"ya çevirmiş) ama daha önce yüklenmiş kayıtlar (M6.15)
+    wanted += find_delisted(index.iter_records(), {s.key for s in load_sources()})
     for prefix in args.exclude:
         hits = [h for h, _ in index.iter_records() if h.startswith(prefix)]
         if len(hits) != 1:
