@@ -27,6 +27,7 @@ MIN_DELAY_SECONDS = 3.0
 REQUEST_TIMEOUT = 60
 MAX_BYTES = 60 * 1024 * 1024
 VERIFY_PAGES = 3
+VERIFY_PAGES_LINKED = 8
 MIN_TITLE_COVERAGE = 0.8
 # Kurumun kendi kataloğundaki bağlantı (kodsuz kayıt): adres, belgeyi yayımlayan kurumdan geldiği için güçlü kanıttır;
 # katalog etiketi ise resmî addan farklı yazılabilir ("Hk.", tarih-sayı öneki). Eşik daha düşük, ama boş / menü
@@ -68,7 +69,8 @@ def _number_in(number: str, text: str) -> bool:
 
 def verify_document(source: LegislationSource, pages: List[str]) -> Optional[str]:
     """Sorun varsa açıklaması, yoksa None. İlk sayfalarda resmî ad ve (varsa) numara aranır."""
-    head = "\n".join(pages[:VERIFY_PAGES])
+    # Kurum bağlantısında (kodsuz kayıt) pencere daha geniş: tasarımlı rehberlerin ilk sayfaları kapak / içindekiler.
+    head = "\n".join(pages[:VERIFY_PAGES if source.code else VERIFY_PAGES_LINKED])
     if not head.strip():
         return "metin çıkarılamadı"
     if not source.code and len(head.strip()) < MIN_TEXT_CHARS_LINKED:

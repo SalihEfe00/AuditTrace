@@ -13,6 +13,7 @@ betik aynı adımları tek seferde ve M2 yedekleme politikasıyla yapar:
 4. Yükleme: belge belge; yüklenmiş olan atlanır (yarıda kalırsa yeniden çalıştırılabilir).
    4b. Madde değişiklik notları önceden yüklenmiş belgelerin parçalarına da eklenir (M7.2).
    4c. Kanunların önceki metinleri tarih aralığıyla, "historical" durumunda yüklenir (M7.3).
+   4d. Mülga kanunlar (6762, 2499) yürürlükten kalkmadan önceki son hâlleriyle, kalkış tarihine kadar (M7.3c).
 5. Eşik: tam korpus için dev'den seçilen sıralayıcı eşiği `DATA_DIR/reranker_calibration.json` dosyasına (M6.1).
 
 Üretim `data/` dizininde yalnızca --production ile, kullanıcı onayından sonra çalışır. Sonrasında taban dosyaları
@@ -169,6 +170,17 @@ def main(argv=None) -> int:
         counts[row["status"]] = counts.get(row["status"], 0) + 1
     manifest["steps"].append({"step": "historical_laws", "counts": counts})
     print(f"4c. önceki kanun metinleri: {counts}")
+
+    # 4d. Mülga kanunlar (M7.3c): yürürlükten kalkmadan önceki son hâl, "historical", kalkış tarihine kadar.
+    from mufettis.importers.repealed_laws import import_repealed
+
+    repealed = import_repealed(rag, index, OfficialLegislationFetcher(historical_dir), download_dir,
+                               progress=lambda i, n, r: print(f"   [{i}/{n}] {r['status']:<22} {r['key']}", flush=True))
+    counts = {}
+    for row in repealed:
+        counts[row["status"]] = counts.get(row["status"], 0) + 1
+    manifest["steps"].append({"step": "repealed_laws", "counts": counts})
+    print(f"4d. mülga kanunlar: {counts}")
 
     # 5. Eşik
     calibration = Path(DATA_DIR) / CALIBRATION_FILE
