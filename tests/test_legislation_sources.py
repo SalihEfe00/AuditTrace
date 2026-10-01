@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import dataclasses
+import json
 import unittest
+from pathlib import Path
 
 from mufettis.corpus.legislation_sources import (
     LegislationSource,
@@ -29,6 +31,19 @@ class TestLegislationSources(unittest.TestCase):
                        "BİLGİ SİSTEMLERİ", "KURUMSAL YÖNETİM", "DESTEK HİZMETİ", "TÜKETİCİ KREDİSİ",
                        "KONUT FİNANSMANI", "ALINACAK ÜCRETLER", "MALİ SUÇLARI ARAŞTIRMA KURULU GENEL TEBLİĞİ"):
             self.assertIn(phrase, titles)
+
+    def test_option_a_core_is_loaded_in_v1(self):
+        # K1.8 (Seçenek A): kefalet / teminat kurallarının dayanakları öncelik 2'de (v1'de yüklenir); "K1.8"
+        # gerekçeli her kayıt çekirdek dosyasından gelir (scripts/inventory/records/k18_core.json)
+        core = json.loads((Path(__file__).resolve().parents[1] / "scripts" / "inventory" / "records"
+                           / "k18_core.json").read_text(encoding="utf-8"))
+        keys = set(core["core"]) | {e.get("code") or e.get("url") for e in core["entries"]}
+        by_key = {s.key: s for s in self.sources}
+        for key in keys:
+            self.assertIn(key, by_key)
+            self.assertLessEqual(by_key[key].priority, 2, key)
+        marked = {s.key for s in self.sources if s.reason.startswith("K1.8")}
+        self.assertEqual(marked, keys)
 
     def test_download_urls_are_official(self):
         from urllib.parse import urlparse

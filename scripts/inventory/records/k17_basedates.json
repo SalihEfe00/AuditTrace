@@ -2,17 +2,25 @@
  "yatırımlarda devlet yardımları hakkında karar": {
   "decision": "yatırımlarda devlet yardımları hakkında karar",
   "n_amend": 14,
-  "refs": {}
+  "refs": {
+   "15/6/2012 / 2012/3305": "Bakanlar Kurulu Kararı ile yürürlüğe konulan Yatırımlarda Devlet Yardımları Hakkında Kararın 24 üncü maddesinin birinci "
+  }
  },
  "kredi garanti kurumlarına sağlanan hazine desteğine ilişkin karar": {
   "decision": "kredi garanti kurumlarına sağlanan hazine desteğine ilişkin karar",
   "n_amend": 11,
-  "refs": {}
+  "refs": {
+   "31/10/2016 / 2016/9538": "Bakanlar Kurulu Kararı ile yürürlüğe konulan Kredi Garanti Kurumlarına Sağlanan Hazine Desteğine İlişkin Kararın 3 üncü ",
+   "14/7/2009 / 2009/15197": "Bakanlar Kurulu Kararı, 25/2/2015 tarihli ve 2015/7331 sayılı Bakanlar Kurulu Kararı ve bu Karar kapsamında Bakanlık ile",
+   "1/3/2019 / 30701": "Resmi Gazete’de yayımlanan düzeltme ile sırasıyla “(c)” ve “c)” şeklinde değiştirilerek düzeltilmiştir"
+  }
  },
  "destekleme ve fiyat istikrar fonu hakkında karar": {
   "decision": "destekleme ve fiyat istikrar fonu hakkında karar",
   "n_amend": 7,
-  "refs": {}
+  "refs": {
+   "13/10/1988 / 88/13384": "Bakanlar Kurulu Kararı ile yürürlüğe konulan Destekleme ve Fiyat İstikrar Fonu Hakkında Kararın 11 inci maddesinin (A) f"
+  }
  },
  "gider vergileri kanununun 33 üncü maddesinde yer alan banka ve sigorta muameleleri vergisi nispetlerinin tespiti hakkındaki 28 8 1998 tarihli ve 98 11591 sayılı bakanlar kurulu kararının eki karar": {
   "decision": "gider vergileri kanununun 33 üncü maddesinde yer alan banka ve sigorta muameleleri vergisi nispetlerinin tespiti",
@@ -32,7 +40,9 @@
  "birleşmiş milletler güvenlik konseyi nin 1970 ve 1973 sayılı kararları çerçevesinde kabul edilen 21 6 2011 tarihli ve 2011 2001 sayılı bakanlar kurulu kararı": {
   "decision": "birleşmiş milletler güvenlik konseyi nin 1970 ve 1973 sayılı kararları çerçevesinde kabul edilen",
   "n_amend": 3,
-  "refs": {}
+  "refs": {
+   "21/6/2011 / 2011/2001": "Bakanlar Kurulu Kararının eki Kararın 1 inci maddesi aşağıdaki şekilde değiştirilmiştir"
+  }
  },
  "bireysel kredilerle bağlantılı sigortalar uygulama esasları yönetmeliğinin bazı maddelerinin uygulanması hakkında genelge": {
   "decision": "bireysel kredilerle bağlantılı sigortalar uygulama esasları yönetmeliğinin bazı maddelerinin uygulanması",
@@ -67,12 +77,16 @@
  "13 7 1956 tarihli ve 6802 sayılı gider vergileri kanununun 33 üncü maddesinde yer alan banka ve sigorta muameleleri vergisi nispetlerinin tespiti hakkındaki 28 8 1998 tarihli ve 98 11591 sayılı bakanlar kurulu kararının eki karar": {
   "decision": "13 7 1956 tarihli ve 6802 sayılı gider vergileri kanununun 33 üncü maddesinde yer alan banka ve sigorta m",
   "n_amend": 1,
-  "refs": {}
+  "refs": {
+   "13/7/1956 / 6802": "Gider Vergileri Kanununun 33 üncü maddesinde yer alan banka ve sigorta muameleleri vergisi nispetlerinin tespitine ilişk"
+  }
  },
  "13 7 1956 tarihli ve 6802 sayılı gider vergileri kanununun 33 üncü maddesinde yer alan banka ve sigorta muameleleri vergisi nispetlerinin tespiti hakkındaki 28 8 1998 tarihli ve 98 11591 sayılı bakanlar kurulu kararı": {
   "decision": "13 7 1956 tarihli ve 6802 sayılı gider vergileri kanununun 33 üncü maddesinde yer alan banka ve sigorta m",
   "n_amend": 1,
-  "refs": {}
+  "refs": {
+   "13/7/1956 / 6802": "Gider Vergileri Kanununun 33 üncü maddesinde yer alan banka ve sigorta muameleleri vergisi nispetlerinin tespitine ilişk"
+  }
  },
  "ihracat ihracat sayılan satış ve teslimler ile döviz kazandırıcı hizmet ve faaliyetlerde vergi resim ve harç istisnası hakkında karar": {
   "decision": "ihracat ihracat sayılan satış ve teslimler ile döviz kazandırıcı hizmet ve faaliyetlerde vergi resim ve h",

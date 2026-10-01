@@ -3534,19 +3534,6 @@
   },
   {
    "code": "",
-   "title": "Aydınlatma Yükümlülüğünün Yerine Getirilmesinde Uyulacak Usul ve Esaslar Hakkında Tebliğ",
-   "instrument": "tebliğ",
-   "number": "",
-   "issuer": "KVKK",
-   "priority": 2,
-   "group": "kvkk_sir",
-   "reason": "M6.15 (kvkk): kvkk: KVKK mevzuatı / ilke kararı / uygulama rehberi; şubede kişisel veri işleme",
-   "in_corpus": false,
-   "rg_date": "",
-   "url": "https://www.kvkk.gov.tr/Icerik/4132/aydinlatma-yukumlulugunun-yerine-getirilmesinde-uyulacak-usul-ve-esaslar-hakkinda-teblig"
-  },
-  {
-   "code": "",
    "title": "Açık Rıza",
    "instrument": "rehber",
    "number": "",
@@ -4775,7 +4762,7 @@
    "issuer": "MASAK",
    "priority": 2,
    "group": "masak",
-   "reason": "M6.15 (masak, mevzuat.gov.tr): masak: MASAK'ın görev ve yetkileri (tebligat, bilgi isteme) bu kararnamededir; mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (masak, mevzuat.gov.tr, atıf): masak: MASAK'ın görev ve yetkileri (tebligat, bilgi isteme) bu kararnamededir; mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "",
    "url": ""
@@ -5204,7 +5191,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "30.04.2026",
    "url": ""
@@ -5217,7 +5204,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "04.02.2021",
    "url": ""
@@ -5594,7 +5581,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "11.12.2025",
    "url": ""
@@ -5607,7 +5594,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "kambiyo",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "30.12.2019",
    "url": ""
@@ -5620,7 +5607,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "31.12.2021",
    "url": ""
@@ -6595,7 +6582,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "31.12.2025",
    "url": ""
@@ -6751,7 +6738,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "01.05.2025",
    "url": ""
@@ -7336,7 +7323,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "bddk",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "25.12.2025",
    "url": ""
@@ -7349,7 +7336,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "sigorta_emeklilik",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "21.11.2025",
    "url": ""
@@ -7375,7 +7362,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "sigorta_emeklilik",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "12.03.2024",
    "url": ""
@@ -7388,7 +7375,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "27.11.2024",
    "url": ""
@@ -7414,7 +7401,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "29.07.2023",
    "url": ""
@@ -7635,7 +7622,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "cek_ticaret_icra",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "13.06.2026",
    "url": ""
@@ -7700,7 +7687,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "cek_ticaret_icra",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "13.11.2025",
    "url": ""
@@ -8194,7 +8181,7 @@
    "issuer": "Bakanlar Kurulu",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "30.06.1989",
    "url": ""
@@ -8207,7 +8194,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "01.05.2026",
    "url": ""
@@ -8220,7 +8207,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "30.01.2021",
    "url": ""
@@ -8246,7 +8233,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "20.06.1989",
    "url": ""
@@ -8415,7 +8402,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "kambiyo",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "31.05.2012",
    "url": ""
@@ -8753,7 +8740,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "03.04.2011",
    "url": ""
@@ -9013,7 +9000,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "10.05.1969",
    "url": ""
@@ -9104,7 +9091,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "15.06.1930",
    "url": ""
@@ -9130,7 +9117,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "15.07.1953",
    "url": ""
@@ -9442,7 +9429,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "20.03.2012",
    "url": ""
@@ -9455,7 +9442,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "15.07.2018",
    "url": ""
@@ -9754,7 +9741,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "09.01.1961",
    "url": ""
@@ -9819,7 +9806,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "08.03.2017",
    "url": ""
@@ -9845,7 +9832,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "12.03.2023",
    "url": ""
@@ -9884,7 +9871,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "sigorta_emeklilik",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "25.02.2011",
    "url": ""
@@ -10001,7 +9988,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "03.03.2001",
    "url": ""
@@ -10027,7 +10014,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "27.02.2008",
    "url": ""
@@ -10040,7 +10027,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "19.01.2005",
    "url": ""
@@ -10053,7 +10040,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "07.08.2003",
    "url": ""
@@ -10352,7 +10339,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "16.07.1968",
    "url": ""
@@ -10495,7 +10482,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "13.06.1983",
    "url": ""
@@ -10651,7 +10638,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "22.11.1983",
    "url": ""
@@ -10690,7 +10677,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "27.12.2019",
    "url": ""
@@ -11119,7 +11106,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "odeme",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "07.01.2026",
    "url": ""
@@ -11704,7 +11691,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "31.03.2005",
    "url": ""
@@ -11860,7 +11847,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "26.01.2012",
    "url": ""
@@ -12601,7 +12588,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "29.01.2004",
    "url": ""
@@ -12679,7 +12666,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "31.01.1968",
    "url": ""
@@ -12705,7 +12692,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "03.04.1981",
    "url": ""
@@ -12874,7 +12861,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "25.12.1953",
    "url": ""
@@ -12900,7 +12887,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "11.07.1956",
    "url": ""
@@ -12926,7 +12913,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "03.11.1983",
    "url": ""
@@ -13036,19 +13023,6 @@
    "url": ""
   },
   {
-   "code": "7.5.19084",
-   "title": "DIŞ EKONOMİK İLİŞKİLER KURULU VE İŞ KONSEYLERİ ÇALIŞMA USUL VE ESASLARI HAKKINDA YÖNETMELİK",
-   "instrument": "yönetmelik",
-   "number": "",
-   "issuer": "",
-   "priority": 3,
-   "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
-   "in_corpus": false,
-   "rg_date": "06.12.2013",
-   "url": ""
-  },
-  {
    "code": "7.5.24111",
    "title": "DIŞ EKONOMİK İLİŞKİLER KURULU VE İŞ KONSEYLERİ ÇALIŞMA USUL VE ESASLARI HAKKINDA YÖNETMELİK",
    "instrument": "yönetmelik",
@@ -13059,6 +13033,19 @@
    "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
    "in_corpus": false,
    "rg_date": "26.11.2017",
+   "url": ""
+  },
+  {
+   "code": "7.5.19084",
+   "title": "DIŞ EKONOMİK İLİŞKİLER KURULU VE İŞ KONSEYLERİ ÇALIŞMA USUL VE ESASLARI HAKKINDA YÖNETMELİK",
+   "instrument": "yönetmelik",
+   "number": "",
+   "issuer": "",
+   "priority": 3,
+   "group": "genel",
+   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "in_corpus": false,
+   "rg_date": "06.12.2013",
    "url": ""
   },
   {
@@ -13498,7 +13485,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "02.07.1965",
    "url": ""
@@ -13550,7 +13537,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "16.04.1929",
    "url": ""
@@ -14343,7 +14330,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "03.03.2001",
    "url": ""
@@ -14434,7 +14421,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde banka / mevduat geçmiyor (mevzuat.gov.tr içerik araması, eksiksiz sorgu); harita: şube faaliyet haritası: Temsil, vekâlet, vesayet, kısıtlılar, küçükler (5378 ve erişilebilirlik)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde banka / mevduat geçmiyor (mevzuat.gov.tr içerik araması, eksiksiz sorgu); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "07.07.2005",
    "url": ""
@@ -14447,7 +14434,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "27.02.1961",
    "url": ""
@@ -14642,7 +14629,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "sigorta_emeklilik",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "14.09.1971",
    "url": ""
@@ -15045,7 +15032,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "10.11.2012",
    "url": ""
@@ -15071,7 +15058,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "cek_ticaret_icra",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "31.03.1988",
    "url": ""
@@ -15305,7 +15292,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "20.12.1994",
    "url": ""
@@ -15357,7 +15344,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "30.07.1966",
    "url": ""
@@ -16423,7 +16410,7 @@
    "issuer": "Bakanlar Kurulu",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "06.11.1989",
    "url": ""
@@ -17151,7 +17138,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "bddk",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "18.11.2017",
    "url": ""
@@ -17515,7 +17502,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "13.06.2007",
    "url": ""
@@ -17632,7 +17619,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "12.07.2001",
    "url": ""
@@ -17697,7 +17684,7 @@
    "issuer": "Bakanlar Kurulu",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "02.11.2011",
    "url": ""
@@ -17736,7 +17723,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "11.11.1983",
    "url": ""
@@ -18204,7 +18191,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "22.01.2002",
    "url": ""
@@ -18217,7 +18204,7 @@
    "issuer": "Bakanlar Kurulu",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "18.06.1984",
    "url": ""
@@ -18620,7 +18607,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "odeme",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "28.01.2009",
    "url": ""
@@ -18867,7 +18854,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "borclar_medeni",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "06.06.1934",
    "url": ""
@@ -19101,7 +19088,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "17.04.1990",
    "url": ""
@@ -19205,7 +19192,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "odeme",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "30.05.2007",
    "url": ""
@@ -19816,7 +19803,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "07.04.1924",
    "url": ""
@@ -19998,7 +19985,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "20.04.1990",
    "url": ""
@@ -20024,7 +20011,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "11.07.1973",
    "url": ""
@@ -20167,7 +20154,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "04.02.1954",
    "url": ""
@@ -20271,7 +20258,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "15.06.1985",
    "url": ""
@@ -20401,7 +20388,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "06.06.1970",
    "url": ""
@@ -21441,7 +21428,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "17.05.1969",
    "url": ""
@@ -21480,7 +21467,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "13.06.1983",
    "url": ""
@@ -21922,7 +21909,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "24.06.1973",
    "url": ""
@@ -21974,7 +21961,7 @@
    "issuer": "Bakanlar Kurulu",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "06.06.1988",
    "url": ""
@@ -22468,7 +22455,7 @@
    "issuer": "Bakanlar Kurulu",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "14.07.1987",
    "url": ""
@@ -22494,7 +22481,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "27.10.1983",
    "url": ""
@@ -22546,7 +22533,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "08.03.2018",
    "url": ""
@@ -22559,7 +22546,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "08.03.2018",
    "url": ""
@@ -22572,7 +22559,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "24.11.2016",
    "url": ""
@@ -22591,32 +22578,6 @@
    "url": ""
   },
   {
-   "code": "1.5.7085",
-   "title": "OLAĞANÜSTÜ HAL KAPSAMINDA BAZI TEDBİRLER ALINMASI HAKKINDA KANUN HÜKMÜNDE KARARNAMENİN KABUL EDİLMESİNE DAİR KANUN",
-   "instrument": "kanun",
-   "number": "7085",
-   "issuer": "TBMM",
-   "priority": 3,
-   "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
-   "in_corpus": false,
-   "rg_date": "08.03.2018",
-   "url": ""
-  },
-  {
-   "code": "1.5.7082",
-   "title": "OLAĞANÜSTÜ HAL KAPSAMINDA BAZI TEDBİRLER ALINMASI HAKKINDA KANUN HÜKMÜNDE KARARNAMENİN KABUL EDİLMESİNE DAİR KANUN",
-   "instrument": "kanun",
-   "number": "7082",
-   "issuer": "TBMM",
-   "priority": 3,
-   "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
-   "in_corpus": false,
-   "rg_date": "08.03.2018",
-   "url": ""
-  },
-  {
    "code": "1.5.7086",
    "title": "OLAĞANÜSTÜ HAL KAPSAMINDA BAZI TEDBİRLER ALINMASI HAKKINDA KANUN HÜKMÜNDE KARARNAMENİN KABUL EDİLMESİNE DAİR KANUN",
    "instrument": "kanun",
@@ -22630,6 +22591,19 @@
    "url": ""
   },
   {
+   "code": "1.5.7085",
+   "title": "OLAĞANÜSTÜ HAL KAPSAMINDA BAZI TEDBİRLER ALINMASI HAKKINDA KANUN HÜKMÜNDE KARARNAMENİN KABUL EDİLMESİNE DAİR KANUN",
+   "instrument": "kanun",
+   "number": "7085",
+   "issuer": "TBMM",
+   "priority": 3,
+   "group": "genel",
+   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "in_corpus": false,
+   "rg_date": "08.03.2018",
+   "url": ""
+  },
+  {
    "code": "1.5.7083",
    "title": "OLAĞANÜSTÜ HAL KAPSAMINDA BAZI TEDBİRLER ALINMASI HAKKINDA KANUN HÜKMÜNDE KARARNAMENİN KABUL EDİLMESİNE DAİR KANUN",
    "instrument": "kanun",
@@ -22638,6 +22612,19 @@
    "priority": 3,
    "group": "genel",
    "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "in_corpus": false,
+   "rg_date": "08.03.2018",
+   "url": ""
+  },
+  {
+   "code": "1.5.7082",
+   "title": "OLAĞANÜSTÜ HAL KAPSAMINDA BAZI TEDBİRLER ALINMASI HAKKINDA KANUN HÜKMÜNDE KARARNAMENİN KABUL EDİLMESİNE DAİR KANUN",
+   "instrument": "kanun",
+   "number": "7082",
+   "issuer": "TBMM",
+   "priority": 3,
+   "group": "genel",
+   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
    "in_corpus": false,
    "rg_date": "08.03.2018",
    "url": ""
@@ -22741,7 +22728,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "09.01.1961",
    "url": ""
@@ -22793,7 +22780,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "15.04.2000",
    "url": ""
@@ -22923,7 +22910,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "08.09.1956",
    "url": ""
@@ -23014,7 +23001,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "26.04.2012",
    "url": ""
@@ -23235,7 +23222,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "29.01.2015",
    "url": ""
@@ -23430,7 +23417,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "14.07.1934",
    "url": ""
@@ -23729,7 +23716,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "03.03.2011",
    "url": ""
@@ -23870,9 +23857,9 @@
    "instrument": "yönetmelik",
    "number": "",
    "issuer": "",
-   "priority": 3,
+   "priority": 2,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "K1.8 (Seçenek A): rehinli taşınır sicili kaydı (blok 2: rehin); M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "31.12.2016",
    "url": ""
@@ -24093,7 +24080,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "27.12.1968",
    "url": ""
@@ -24353,7 +24340,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "13.11.1985",
    "url": ""
@@ -24548,7 +24535,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "26.03.2010",
    "url": ""
@@ -24600,7 +24587,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "07.11.2012",
    "url": ""
@@ -24949,9 +24936,9 @@
    "instrument": "tebliğ",
    "number": "III-62.1",
    "issuer": "SPK",
-   "priority": 3,
+   "priority": 2,
    "group": "sermaye_piyasasi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "K1.8 (Seçenek A): değerleme standartları, ekspertiz raporu (blok 2: ekspertiz); M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "01.02.2017",
    "url": ""
@@ -25029,7 +25016,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "02.05.1961",
    "url": ""
@@ -25250,7 +25237,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "sosyal_guvenlik",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "24.07.2003",
    "url": ""
@@ -25289,7 +25276,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "sosyal_guvenlik",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "20.05.2006",
    "url": ""
@@ -25328,7 +25315,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "sosyal_guvenlik",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "04.03.2006",
    "url": ""
@@ -25354,7 +25341,7 @@
    "issuer": "Bakanlar Kurulu",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "08.06.2011",
    "url": ""
@@ -25367,7 +25354,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "27.05.1983",
    "url": ""
@@ -25458,7 +25445,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "sigorta_emeklilik",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "06.08.2003",
    "url": ""
@@ -25510,7 +25497,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "14.06.1986",
    "url": ""
@@ -25601,7 +25588,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "26.04.2022",
    "url": ""
@@ -25692,7 +25679,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "14.04.2011",
    "url": ""
@@ -25822,7 +25809,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "04.04.1971",
    "url": ""
@@ -26368,7 +26355,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "24.04.1983",
    "url": ""
@@ -26652,9 +26639,9 @@
    "instrument": "kanun",
    "number": "2644",
    "issuer": "TBMM",
-   "priority": 3,
+   "priority": 2,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "K1.8 (Seçenek A): ipotek tescili, tapu işlemleri (blok 2: ipotek); M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "29.12.1934",
    "url": ""
@@ -26730,9 +26717,9 @@
    "instrument": "yönetmelik",
    "number": "",
    "issuer": "",
-   "priority": 3,
+   "priority": 2,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "K1.8 (Seçenek A): tapu resmî senetleri, ipotek akit tablosu (blok 2: ipotek); M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "10.11.2009",
    "url": ""
@@ -26743,9 +26730,9 @@
    "instrument": "tüzük",
    "number": "",
    "issuer": "",
-   "priority": 3,
+   "priority": 2,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "K1.8 (Seçenek A): tapu sicili, tescil usulü (blok 2: ipotek); M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "17.08.2013",
    "url": ""
@@ -26758,7 +26745,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "10.12.2010",
    "url": ""
@@ -26940,7 +26927,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "bddk",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "28.04.1972",
    "url": ""
@@ -27642,7 +27629,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "15.12.1984",
    "url": ""
@@ -27694,7 +27681,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "12.01.1961",
    "url": ""
@@ -28188,7 +28175,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "19.07.2005",
    "url": ""
@@ -28799,7 +28786,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "13.11.2004",
    "url": ""
@@ -29319,7 +29306,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "22.11.1960",
    "url": ""
@@ -29332,7 +29319,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "10.08.1967",
    "url": ""
@@ -29358,7 +29345,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "09.01.1961",
    "url": ""
@@ -29735,7 +29722,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "sigorta_emeklilik",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "28.10.1990",
    "url": ""
@@ -29917,7 +29904,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "bddk",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "17.05.2020",
    "url": ""
@@ -30047,7 +30034,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "31.01.2004",
    "url": ""
@@ -30138,7 +30125,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "bddk",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "25.11.2000",
    "url": ""
@@ -30476,7 +30463,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "18.06.1983",
    "url": ""
@@ -31204,7 +31191,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "15.12.1984",
    "url": ""
@@ -31607,7 +31594,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "15.07.2019",
    "url": ""
@@ -31958,7 +31945,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "18.11.2005",
    "url": ""
@@ -32062,7 +32049,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "05.07.2003",
    "url": ""
@@ -32554,9 +32541,9 @@
    "instrument": "yönetmelik",
    "number": "",
    "issuer": "",
-   "priority": 3,
+   "priority": 2,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "K1.8 (Seçenek A): ticari işlemlerde rehin hakkının kurulması (blok 2: rehin); M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "31.12.2016",
    "url": ""
@@ -32567,9 +32554,9 @@
    "instrument": "kanun",
    "number": "6750",
    "issuer": "TBMM",
-   "priority": 3,
+   "priority": 2,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "K1.8 (Seçenek A): taşınır rehni (blok 2: rehin); M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "28.10.2016",
    "url": ""
@@ -32621,7 +32608,7 @@
    "issuer": "Bakanlar Kurulu",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "01.11.2011",
    "url": ""
@@ -32660,7 +32647,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "26.07.1965",
    "url": ""
@@ -32790,7 +32777,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "sigorta_emeklilik",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "25.05.1959",
    "url": ""
@@ -32803,7 +32790,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "13.08.1982",
    "url": ""
@@ -33063,7 +33050,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "30.06.1956",
    "url": ""
@@ -33466,7 +33453,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "vergi",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "27.02.2003",
    "url": ""
@@ -34753,7 +34740,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "11.04.2013",
    "url": ""
@@ -34805,7 +34792,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "04.07.1939",
    "url": ""
@@ -34961,7 +34948,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "05.07.2012",
    "url": ""
@@ -35416,7 +35403,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "bddk",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "01.05.2023",
    "url": ""
@@ -35520,7 +35507,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "18.05.2007",
    "url": ""
@@ -35988,7 +35975,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "bddk",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "06.03.2004",
    "url": ""
@@ -36001,7 +35988,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "06.11.1981",
    "url": ""
@@ -36027,7 +36014,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "30.03.1983",
    "url": ""
@@ -37223,7 +37210,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "10.07.2018",
    "url": ""
@@ -37496,7 +37483,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "09.07.2025",
    "url": ""
@@ -37639,7 +37626,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "12.01.1961",
    "url": ""
@@ -37743,7 +37730,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka, mevduat' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "09.05.1985",
    "url": ""
@@ -37873,7 +37860,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "26.09.2006",
    "url": ""
@@ -37925,7 +37912,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "14.10.2007",
    "url": ""
@@ -38185,7 +38172,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "kambiyo",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "31.12.2020",
    "url": ""
@@ -38302,7 +38289,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "kambiyo",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "10.08.2018",
    "url": ""
@@ -38536,7 +38523,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "kambiyo",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "29.12.2018",
    "url": ""
@@ -39979,7 +39966,7 @@
    "issuer": "Cumhurbaşkanı",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "24.10.2018",
    "url": ""
@@ -40213,7 +40200,7 @@
    "issuer": "TBMM",
    "priority": 3,
    "group": "genel",
-   "reason": "M6.15 (mevzuat.gov.tr): mevzuat.gov.tr: metninde banka / mevduat geçmiyor (mevzuat.gov.tr içerik araması, eksiksiz sorgu); harita: şube faaliyet haritası: Personel, çalışma hayatı (şube personeli) (6331)",
+   "reason": "M6.15 (mevzuat.gov.tr, atıf): mevzuat.gov.tr: metninde banka / mevduat geçmiyor (mevzuat.gov.tr içerik araması, eksiksiz sorgu); atıf: başlık kapsamı belirsiz; tek tek bakılacak",
    "in_corpus": false,
    "rg_date": "30.06.2012",
    "url": ""
@@ -41279,7 +41266,7 @@
    "issuer": "SEDDK",
    "priority": 2,
    "group": "sigorta_emeklilik",
-   "reason": "M6.15 (seddk, mevzuat.gov.tr): seddk: sigorta şirketinin teknik / başka branş düzenlemesi; banka acenteliğine değmez; mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (seddk, mevzuat.gov.tr, atıf): seddk: sigorta şirketinin teknik / başka branş düzenlemesi; banka acenteliğine değmez; mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "",
    "url": ""
@@ -41721,7 +41708,7 @@
    "issuer": "SEDDK",
    "priority": 2,
    "group": "sigorta_emeklilik",
-   "reason": "M6.15 (seddk, mevzuat.gov.tr): seddk: sigorta şirketinin iç / teknik düzenlemesi ya da başka sigorta branşı; şube işlemine değmez; mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor",
+   "reason": "M6.15 (seddk, mevzuat.gov.tr, atıf): seddk: sigorta şirketinin iç / teknik düzenlemesi ya da başka sigorta branşı; şube işlemine değmez; mevzuat.gov.tr: başlık şube / banka işlemine doğrudan değiyor; atıf: başlık şube / banka işlemine doğrudan değiyor",
    "in_corpus": false,
    "rg_date": "",
    "url": ""
@@ -41747,7 +41734,7 @@
    "issuer": "SEDDK",
    "priority": 2,
    "group": "sigorta_emeklilik",
-   "reason": "M6.15 (seddk, mevzuat.gov.tr): seddk: sigorta şirketinin iç / teknik düzenlemesi ya da başka sigorta branşı; şube işlemine değmez; mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması)",
+   "reason": "M6.15 (seddk, mevzuat.gov.tr, atıf): seddk: sigorta şirketinin iç / teknik düzenlemesi ya da başka sigorta branşı; şube işlemine değmez; mevzuat.gov.tr: metninde 'banka' hükmü geçiyor (mevzuat.gov.tr içerik araması); atıf: başka sektör / kurum içi düzenleme (başlığa göre)",
    "in_corpus": false,
    "rg_date": "",
    "url": ""
@@ -44130,6 +44117,32 @@
    "in_corpus": false,
    "rg_date": "",
    "url": "https://www.tmsf.org.tr/File/Download?fileId=595421E5-597B-4043-8338-538068DA49BC&typeId=1"
+  },
+  {
+   "code": "",
+   "title": "Kredi Garanti Kurumlarına Sağlanan Hazine Desteğine İlişkin Karar (2016/9538)",
+   "instrument": "karar",
+   "number": "2016/9538",
+   "issuer": "Bakanlar Kurulu",
+   "priority": 2,
+   "group": "bddk",
+   "reason": "K1.8 (Seçenek A): KGF kefaletinin teminat olarak dayanağı; temel metin mevzuat.gov.tr'de yok, yalnızca 11 değişiklik kararı var (K1.7). 2009/15197 sayılı karar (RG 15/7/2009) eski usul ve esaslar kararıdır",
+   "in_corpus": false,
+   "rg_date": "22.11.2016",
+   "url": "https://www.resmigazete.gov.tr/eskiler/2016/11/20161122-3.pdf"
+  },
+  {
+   "code": "",
+   "title": "Aydınlatma Yükümlülüğünün Yerine Getirilmesinde Uyulacak Usul ve Esaslar Hakkında Tebliğ",
+   "instrument": "tebliğ",
+   "number": "",
+   "issuer": "KVKK",
+   "priority": 2,
+   "group": "kvkk_sir",
+   "reason": "M6.15 (kvkk): kvkk: KVKK mevzuatı / ilke kararı / uygulama rehberi; şubede kişisel veri işleme",
+   "in_corpus": false,
+   "rg_date": "",
+   "url": "https://www.kvkk.gov.tr/Icerik/4132/aydinlatma-yukumlulugunun-yerine-getirilmesinde-uyulacak-usul-ve-esaslar-hakkinda-teblig"
   }
  ]
 }

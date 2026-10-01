@@ -1,0 +1,32 @@
+{
+ "_note": "K1.8 (Seçenek A, 2026-10-02): kefalet / teminat / kullandırım öncesi kurallarının dayanağı olup listede öncelik 3'te olan ya da listede olmayan metinler. gen_sources.py bunları öncelik 2 yapar ('core'), envanterde olmayanları tam kayıt olarak ekler ('entries'); 'skip' gerekçeli olarak alınmayanlardır. k18_checklist.py aynı dosyayı okur.",
+ "core": {
+  "1.5.6750": "taşınır rehni (blok 2: rehin)",
+  "7.5.23204": "rehinli taşınır sicili kaydı (blok 2: rehin)",
+  "7.5.23205": "ticari işlemlerde rehin hakkının kurulması (blok 2: rehin)",
+  "1.3.2644": "ipotek tescili, tapu işlemleri (blok 2: ipotek)",
+  "2.5.20135150": "tapu sicili, tescil usulü (blok 2: ipotek)",
+  "7.5.13535": "tapu resmî senetleri, ipotek akit tablosu (blok 2: ipotek)",
+  "9.5.23301": "değerleme standartları, ekspertiz raporu (blok 2: ekspertiz)"
+ },
+ "entries": [
+  {
+   "code": "",
+   "title": "Kredi Garanti Kurumlarına Sağlanan Hazine Desteğine İlişkin Karar (2016/9538)",
+   "instrument": "karar",
+   "number": "2016/9538",
+   "issuer": "Bakanlar Kurulu",
+   "priority": 2,
+   "group": "bddk",
+   "reason": "K1.8 (Seçenek A): KGF kefaletinin teminat olarak dayanağı; temel metin mevzuat.gov.tr'de yok, yalnızca 11 değişiklik kararı var (K1.7). 2009/15197 sayılı karar (RG 15/7/2009) eski usul ve esaslar kararıdır",
+   "in_corpus": false,
+   "rg_date": "22.11.2016",
+   "url": "https://www.resmigazete.gov.tr/eskiler/2016/11/20161122-3.pdf"
+  }
+ ],
+ "skip": {
+  "1.5.6103": "TTK yürürlük ve uygulama kanunu: geçiş hükümleri; kefalet / teminat kuralına dayanak değil",
+  "1.5.3402": "Kadastro Kanunu: taşınmazın kaydı Tapu Kanunu ve Tapu Sicili Tüzüğü'yle kapsanıyor; kadastro işlemi şube işi değil",
+  "Bireysel Sözleşmeler Tebliği | Türkiye Bankalar Birliği": "TBB sitesindeki bağlantı belge değil (simge dosyası); kredi sözleşmesinin şekli Kredi İşlemleri ve Tüketici Kredisi Sözleşmeleri yönetmeliklerinde"
+ }
+}

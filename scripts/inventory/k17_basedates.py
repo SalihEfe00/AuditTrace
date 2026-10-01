@@ -13,7 +13,7 @@ for g in groups:
     if not key:
         continue
     found = {}
-    for code in sorted([c for c in g["amendments"] if re.fullmatch(r"d+.d+.d+", c)], key=lambda c: int(c.split(".")[2]))[:3]:  # en eski 3 değişiklik
+    for code in sorted([c for c in g["amendments"] if re.fullmatch(r"\d+\.\d+\.\d+", c)], key=lambda c: int(c.split(".")[2]))[:3]:  # en eski 3 değişiklik
         tur, tertip, no = code.split(".")
         try:
             raw = web.get(URL.format(tur=tur, no=no, tertip=tertip)).decode("utf-8", "replace")

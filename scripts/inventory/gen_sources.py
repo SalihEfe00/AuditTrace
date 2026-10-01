@@ -1,7 +1,11 @@
 """inventory.json ("al", korpusta yok) → legislation_sources.json kayıtları (M6.15.4).
 
 Mevcut 63 kayıt korunur; yeni kayıtlar eklenir. Kaynaksız (resmî adres / kod yok) kalanlar ayrıca raporlanır.
-Kullanım: python gen_sources.py [--write]   (--write: depodaki dosyayı günceller)
+
+Seçenek A (K1.8a, 2026-10-02): öncelikler commit'li listedeki gibi kalır (07a3a6b6 dondurması); yalnızca K1.8 çekirdeği
+(records/k18_core.json) öncelik 2 olur ya da eklenir; envanterin yeni adayları v2'ye kalır. --all: eski davranış (her
+şey envanterden yeniden).
+Kullanım: python gen_sources.py [--write] [--all]   (--write: depodaki dosyayı günceller)
 """
 import collections
 import datetime as dt
@@ -154,10 +158,15 @@ def clean_title(title):
     return t
 
 
-def main(write=False):
+GENERATED = ("M6.15", "K1.8")  # bu önekle başlayan gerekçeler her çalıştırmada yeniden üretilir
+
+
+def main(write=False, keep_all=False):
     inv = json.loads((HERE / "inventory.json").read_text(encoding="utf-8"))["items"]
     data = json.loads(SOURCES_FILE.read_text(encoding="utf-8"))
-    data["entries"] = [e for e in data["entries"] if not e["reason"].startswith("M6.15")]  # her çalıştırmada yeniden
+    previous = {e.get("code") or e.get("url"): e for e in data["entries"] if e["reason"].startswith(GENERATED)}
+    core = json.loads((HERE / "k18_core.json").read_text(encoding="utf-8"))
+    data["entries"] = [e for e in data["entries"] if not e["reason"].startswith(GENERATED)]
     existing = {e.get("code") or e.get("url") for e in data["entries"]}
     existing_titles = {turkish_lower(re.sub(r"\s+", " ", e["title"])) for e in data["entries"]}
     new, sourceless, skipped = [], [], collections.Counter()
@@ -199,12 +208,31 @@ def main(write=False):
                  "group": group_for(item["title"], item["sources"][0]),
                  "reason": f"M6.15 ({', '.join(item['sources'])}): {reasons}", "in_corpus": False,
                  "rg_date": rg_date(item), "url": url}
+        if not keep_all:
+            if key in core["core"]:
+                entry["priority"] = 2
+                entry["reason"] = f"K1.8 (Seçenek A): {core['core'][key]}; {entry['reason']}"[:900]
+            elif key in previous:
+                entry["priority"] = previous[key]["priority"]
+            else:
+                skipped["Seçenek A: yeni aday v2'de"] += 1
+                continue
         problems = LegislationSource(**entry).problems()
         if problems:
             skipped["geçersiz: " + problems[0][:40]] += 1
             continue
         existing.add(key)
         new.append(entry)
+    if not keep_all:
+        for entry in core["entries"]:  # envanterde olmayan çekirdek kayıtlar
+            if (entry.get("code") or entry.get("url")) not in existing:
+                existing.add(entry.get("code") or entry.get("url"))
+                new.append(entry)
+        for key, entry in previous.items():  # dondurulmuş: envanterden artık çıkmasa da listede kalır
+            if key not in existing:
+                existing.add(key)
+                new.append(entry)
+                skipped["Seçenek A: dondurulmuş kayıt korundu"] += 1
     entries = data["entries"] + new
     problems = validate_sources([LegislationSource(**e) for e in entries])
     print("yeni kayıt", len(new), collections.Counter(e["priority"] for e in new),
@@ -223,4 +251,4 @@ def main(write=False):
 
 
 if __name__ == "__main__":
-    main("--write" in sys.argv)
+    main("--write" in sys.argv, keep_all="--all" in sys.argv)
