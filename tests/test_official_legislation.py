@@ -178,6 +178,9 @@ class TestFetcher(unittest.TestCase):
         body = "TÜKETİCİ KREDİLERİNE İLİŞKİN VADE SINIRLARI HAKKINDA KARAR 10479 " + "madde metni " * 40
         self.assertIsNone(verify_document(linked, [body]))
         self.assertIn("metin çok kısa", verify_document(linked, ["TÜKETİCİ KREDİLERİNE İLİŞKİN VADE SINIRLARI"]))
+        # PDF / Word: kısa ama gerçek belge (tek paragraflık tavsiye kararı) kabul
+        short = "TÜKETİCİ KREDİLERİNE İLİŞKİN VADE SINIRLARI HAKKINDA KURUL KARARI 10479: vade 36 aydır."
+        self.assertIsNone(verify_document(linked, [short], min_chars=80))
         coded = LegislationSource(**{**linked.__dict__, "code": "9.5.1", "url": ""})
         self.assertIn("resmî ad", verify_document(coded, [body]))  # mevzuat.gov.tr kodunda eşik katı kalır
 

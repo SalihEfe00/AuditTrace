@@ -35,7 +35,8 @@ MIN_TITLE_COVERAGE = 0.8
 MIN_TITLE_COVERAGE_LINKED = 0.5
 # Başlıksız karar metinleri (BDDK Kurul kararı: yalnızca "Karar Sayısı"): numara ilk sayfalarda geçiyorsa
 MIN_TITLE_COVERAGE_NUMBERED = 0.25
-MIN_TEXT_CHARS_LINKED = 300
+MIN_TEXT_CHARS_LINKED = 300   # HTML sayfası: daha kısası menü / boş sayfa
+MIN_TEXT_CHARS_DOCUMENT = 80  # PDF / Word: kısa tavsiye kararı gerçek belge olabilir
 RECORD_FILE = "downloads.json"
 MAX_NAME_CHARS = 100
 # İlk sayfalarda bundan az metin varsa belge taranmış sayılır (üstte yalnızca kısa bir metin başlığı olan görüntü PDF)
@@ -67,13 +68,14 @@ def _number_in(number: str, text: str) -> bool:
     return re.search(pattern, text or "") is not None
 
 
-def verify_document(source: LegislationSource, pages: List[str]) -> Optional[str]:
+def verify_document(source: LegislationSource, pages: List[str],
+                    min_chars: int = MIN_TEXT_CHARS_LINKED) -> Optional[str]:
     """Sorun varsa açıklaması, yoksa None. İlk sayfalarda resmî ad ve (varsa) numara aranır."""
     # Kurum bağlantısında (kodsuz kayıt) pencere daha geniş: tasarımlı rehberlerin ilk sayfaları kapak / içindekiler.
     head = "\n".join(pages[:VERIFY_PAGES if source.code else VERIFY_PAGES_LINKED])
     if not head.strip():
         return "metin çıkarılamadı"
-    if not source.code and len(head.strip()) < MIN_TEXT_CHARS_LINKED:
+    if not source.code and len(head.strip()) < min_chars:
         return f"metin çok kısa ({len(head.strip())} karakter)"
     coverage = title_coverage(source.title, head)
     needed = MIN_TITLE_COVERAGE if source.code else MIN_TITLE_COVERAGE_LINKED
@@ -332,7 +334,8 @@ class OfficialLegislationFetcher:
                 pages = [non_pdf_text(data, suffix, main_content=not source.code)[:HTML_VERIFY_CHARS]]
             except Exception as exc:  # bozuk Word dosyası
                 return [], f"metin çıkarılamadı ({type(exc).__name__})"
-        return pages, verify_document(source, pages)
+        return pages, verify_document(
+            source, pages, MIN_TEXT_CHARS_LINKED if suffix == ".html" else MIN_TEXT_CHARS_DOCUMENT)
 
     def _finish(self, result: FetchResult, started: float) -> FetchResult:
         result.fetched_at = now_iso()
