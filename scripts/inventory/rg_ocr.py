@@ -5,8 +5,9 @@ Kipler (K1.4a, Seçenek A daraltması):
   --ibk        yalnızca içtihadı birleştirme kararlarının PDF'leri, tam
   --head N     tam OCR'ı olmayan her PDF'in ilk N sayfası → rg_heads/<ad>.txt
   --selected   ilk sayfalarında kredi / teminat terimi geçen PDF'ler (rg_heads/), tam
+MUFETTIS_OCR_REST=0.5: her PDF'ten sonra OCR süresinin yarısı kadar dinlenir (gece fan / ısı için).
 """
-import json, re, sys, time
+import json, os, re, sys, time
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from mufettis.corpus.citations import turkish_lower  # noqa: E402
@@ -48,6 +49,7 @@ def main(argv):
         if out.exists() or (head and (Path("rg_docs") / out.name).exists()):
             done_pages += n
             continue
+        started = time.time()
         try:
             texts = ocr.ocr_pdf_pages((Path("rg_pdf") / name).read_bytes(), max_pages=head)
         except Exception as exc:
@@ -61,6 +63,7 @@ def main(argv):
         done_pages += n
         el = time.time() - t0
         print(f"{done_pages}/{total} sayfa, {name} ({n}), {el/60:.0f} dk", flush=True)
+        time.sleep((time.time() - started) * float(os.environ.get("MUFETTIS_OCR_REST", "0")))
     print("bitti", len(pages), "pdf")
 
 
