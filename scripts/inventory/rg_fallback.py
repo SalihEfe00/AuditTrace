@@ -1,6 +1,6 @@
 """K1.4: gün sayfasında karar metni olmayan (<1000 kr) eski HTML günleri için tam gazete PDF'i (taranmış) → OCR.
 
-Aşama "indir": rg_full/<YYYYMMDD>.pdf (tek akış). Aşama "ocr": OCR → rg_docs/<gün>.txt yerine yazılır (eski metin
+Aşama "indir": rg_full/<YYYYMMDD>.pdf (tek akış). Kullanım: python rg_fallback.py indir|ocr [gün ...]. Aşama "ocr": OCR → rg_docs/<gün>.txt yerine yazılır (eski metin
 .htmltxt olarak saklanır). Gazetenin tamamı okunur; yargı bölümünü eleme metnin kendisinden yapılır.
 """
 import json, re, sys
@@ -9,6 +9,8 @@ import web
 
 miss = json.loads(Path("rg_htm_missing.json").read_text())
 days = [d for d in miss if len(Path(f"rg_docs/{d}.txt").read_text(encoding="utf-8")) < 1000]
+if sys.argv[2:]:  # yalnızca verilen günler (K1.4a: İBK içeren günler)
+    days = [d for d in days if d in sys.argv[2:]]
 FULL = Path("rg_full"); FULL.mkdir(exist_ok=True)
 if sys.argv[1] == "indir":
     for d in days:
