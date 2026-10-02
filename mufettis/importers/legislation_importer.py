@@ -33,6 +33,9 @@ SOURCE_BY_HOST = {"www.tcmb.gov.tr": "tcmb_official", "tcmb.gov.tr": "tcmb_offic
                   "www.tkbb.org.tr": "tkbb_official", "tkbb.org.tr": "tkbb_official",
                   "www.resmigazete.gov.tr": "resmi_gazete", "resmigazete.gov.tr": "resmi_gazete"}
 RUN_LOG = "import_runs.jsonl"
+# --reextract: yeni metin eskisinin %5 fazlası + 200 karakterden uzunsa çıkarıcı iyileşmiş sayılır (K5.1); küçük
+# farklar (normalleştirme, OCR gürültüsü) yeniden indekslemeye değmez.
+REEXTRACT_MIN_GROWTH, REEXTRACT_MIN_CHARS = 1.05, 200
 DOCUMENT_TYPES = {"kanun": "Kanun", "kararname": "Kararname", "tüzük": "Tüzük", "yönetmelik": "Yönetmelik",
                   "tebliğ": "Tebliğ", "genelge": "Genelge", "rehber": "Rehber", "kurul kararı": "Kurul Kararı",
                   "emsal karar": "Kurul Karar Özeti", "yargı kararı": "Yargı Kararı",
@@ -132,13 +135,25 @@ def listed_meta(source: LegislationSource, path: Path, raw: bytes, pages: int, o
     return meta
 
 
+def grew(new_text: str, old_text: str) -> bool:
+    """Yeniden çıkarılan metin önbellektekinden belirgin uzun mu (çıkarıcı iyileşti: görüntü sayfası OCR'ı, K5.1)?"""
+    new, old = len(new_text.strip()), len(old_text.strip())
+    return new > old * REEXTRACT_MIN_GROWTH + REEXTRACT_MIN_CHARS
+
+
 def import_downloads(rag, index, sources: List[LegislationSource], records: Dict[str, dict], log_dir: Path,
                      progress: Optional[Callable[[int, int, Dict[str, Any]], None]] = None,
-                     ingest: Optional[Callable[..., Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
+                     ingest: Optional[Callable[..., Dict[str, Any]]] = None, reextract: bool = False,
+                     cached_text: Optional[Callable[[str], str]] = None) -> List[Dict[str, Any]]:
     """records: indiricinin downloads.json kaydı (anahtar → FetchResult sözlüğü); dosyalar log_dir (indirme
-    klasörü) altındadır."""
+    klasörü) altındadır.
+
+    Yüklenmiş belge (aynı dosya özeti) metni çıkarılmadan atlanır. reextract=True: metin yeniden çıkarılır ve
+    önbellektekinden belirgin uzunsa eski parçalar silinip belge yeniden indekslenir (durum `reextracted`, K5.1)."""
     if ingest is None:
         from mufettis.rag.maintenance import versioned_ingest_text as ingest
+    if cached_text is None:
+        from mufettis.rag.maintenance import load_source_cache as cached_text
     rows: List[Dict[str, Any]] = []
     log_path = Path(log_dir) / RUN_LOG
     for i, source in enumerate(sources, 1):
@@ -151,13 +166,27 @@ def import_downloads(rag, index, sources: List[LegislationSource], records: Dict
         else:
             try:
                 raw = path.read_bytes()
-                if sha256_bytes(raw) != record.get("sha256"):
+                file_hash = sha256_bytes(raw)
+                if file_hash != record.get("sha256"):
                     raise ValueError("dosya indirme kaydıyla uyuşmuyor")
-                text, pages, ocr_used = document_text(path, raw, main_content=not source.code)
-                meta = listed_meta(source, path, raw, pages, ocr_used)
-                result = ingest(rag, index, text, meta, raw_bytes=raw, source_path=str(path))
-                row.update(status=result.get("status", ""), chunks=int(result.get("count", 0) or 0),
-                           chars=len(text), reason=str(result.get("error") or result.get("reason") or ""))
+                existing = index.get(file_hash) if index is not None else None
+                if existing and not reextract:
+                    row.update(status="skipped", chunks=int(existing.get("chunk_count", 0) or 0), reason="")
+                else:
+                    text, pages, ocr_used = document_text(path, raw, main_content=not source.code)
+                    old = cached_text(file_hash) if existing else ""
+                    if existing and not grew(text, old):
+                        row.update(status="skipped", chunks=int(existing.get("chunk_count", 0) or 0),
+                                   chars=len(text), reason="yeniden çıkarılan metin uzamadı")
+                    else:
+                        meta = listed_meta(source, path, raw, pages, ocr_used)
+                        result = (ingest(rag, index, text, meta, raw_bytes=raw, source_path=str(path), force=True)
+                                  if existing else ingest(rag, index, text, meta, raw_bytes=raw, source_path=str(path)))
+                        status = result.get("status", "")
+                        row.update(status="reextracted" if existing and status.endswith("indexed") else status,
+                                   chunks=int(result.get("count", 0) or 0), chars=len(text),
+                                   reason=str(result.get("error") or result.get("reason") or "")
+                                   + (f" (önceki metin {len(old.strip())} karakter)" if existing else ""))
             except Exception as exc:  # bir belgenin hatası çalışmayı durdurmaz
                 row.update(status="error", reason=f"{type(exc).__name__}: {exc}")
             gc.collect()

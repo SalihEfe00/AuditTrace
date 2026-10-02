@@ -7,6 +7,8 @@ import json
 import sys
 import tempfile
 import unittest
+from contextlib import nullcontext
+from unittest import mock
 from pathlib import Path
 
 from mufettis.common.utils import sha256_bytes
@@ -121,6 +123,35 @@ class TestImportDownloads(unittest.TestCase):
             log = [json.loads(line) for line in (Path(tmp) / "import_runs.jsonl").read_text(encoding="utf-8").splitlines()]
             self.assertEqual(len(log), 3)
             self.assertEqual(log[0]["chunks"], 3)
+
+    def test_loaded_document_is_reextracted_only_when_text_grew(self):
+        # K5.1: yüklenmiş belge metni çıkarılmadan atlanır; --reextract'te uzayan metin eski parçaların yerine geçer
+        from mufettis.importers import legislation_importer
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "7.5.19864.html"
+            path.write_bytes(f"<html><p>{YONETMELIK_TEXT}</p></html>".encode("utf-8"))
+            digest = sha256_bytes(path.read_bytes())
+            records = {YONETMELIK.key: {"status": "downloaded", "path": str(path), "sha256": digest}}
+            index = {digest: {"chunk_count": 4}}
+            calls = []
+
+            def ingest(rag, index, text, meta, raw_bytes=None, source_path=None, force=False):
+                calls.append(force)
+                return {"status": "indexed", "count": 9}
+
+            def run(reextract, old_text):
+                with mock.patch.object(legislation_importer, "document_text",
+                                       side_effect=AssertionError("çıkarılmamalı")) if not reextract else nullcontext():
+                    return import_downloads(None, index, [YONETMELIK], records, Path(tmp), ingest=ingest,
+                                            reextract=reextract, cached_text=lambda h: old_text)[0]
+
+            row = run(False, "")
+            self.assertEqual((row["status"], row["chunks"], calls), ("skipped", 4, []))
+            row = run(True, YONETMELIK_TEXT)                     # aynı metin: dokunulmaz
+            self.assertEqual((row["status"], calls), ("skipped", []))
+            row = run(True, "imza sayfası")                      # önbellekte yalnızca kısa metin vardı
+            self.assertEqual((row["status"], row["chunks"], calls), ("reextracted", 9, [True]))
 
 
 if __name__ == "__main__":

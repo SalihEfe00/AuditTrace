@@ -7,6 +7,7 @@
 Kullanım:
     MUFETTIS_DATA_DIR=<kopya> python scripts/import_legislation.py --priority 1
     MUFETTIS_DATA_DIR=<kopya> python scripts/import_legislation.py --only 1.5.5549
+    MUFETTIS_DATA_DIR=<kopya> python scripts/import_legislation.py --only <anahtar> ... --reextract  (çıkarıcı iyileşince)
 """
 from __future__ import annotations
 
@@ -28,6 +29,8 @@ def main(argv=None) -> int:
     ap.add_argument("--priority", type=int, default=1, choices=(1, 2, 3))
     ap.add_argument("--include-in-corpus", action="store_true")
     ap.add_argument("--only", nargs="*", default=None)
+    ap.add_argument("--reextract", action="store_true",
+                    help="yüklenmiş belgenin metnini yeniden çıkar; belirgin uzadıysa yeniden indeksle (K5.1)")
     ap.add_argument("--production", action="store_true", help="üretim data/ dizinine yaz (kullanıcı onayıyla)")
     args = ap.parse_args(argv)
     if not os.environ.get("MUFETTIS_DATA_DIR") and not args.production:
@@ -56,13 +59,13 @@ def main(argv=None) -> int:
               f"{row['seconds']:6.1f} sn {row.get('peak_working_set_mb', 0):7.0f} MB tepe  {row.get('reason', '')}",
               flush=True)
 
-    rows = import_downloads(rag, index, chosen, records, download_dir, progress=progress)
+    rows = import_downloads(rag, index, chosen, records, download_dir, progress=progress, reextract=args.reextract)
     counts = {}
     for row in rows:
         counts[row["status"]] = counts.get(row["status"], 0) + 1
     print("özet:", ", ".join(f"{k} {v}" for k, v in sorted(counts.items())),
           f"| toplam {time.monotonic() - started:.0f} sn")
-    ok = {"indexed", "repaired_and_indexed", "skipped"}
+    ok = {"indexed", "repaired_and_indexed", "skipped", "reextracted"}
     return 0 if all(row["status"] in ok for row in rows) else 1
 
 
