@@ -106,6 +106,14 @@ class TestMixedPdfPages(unittest.TestCase):
         self.assertTrue(used)
         self.assertIn("Hazine Desteğine", text)
 
+    def test_label_only_pages_are_all_ocrd(self):
+        # K2b.3: mikrofilm taraması; her sayfanın metin katmanı yalnızca "Yargıtay Film 1"
+        text, used, calls = self._extract(["Yargıtay\nFilm\n1", "Yargıtay\nFilm\n2"],
+                                          ["İÇTİHADI BİRLEŞTİRME KARARI Esas No: 2017/4", "Karar No: 2018/5"])
+        self.assertEqual(calls, [[0, 1]])
+        self.assertTrue(used)
+        self.assertIn("2018/5", text)
+
     def test_text_pages_do_not_go_to_ocr(self):
         page = "Bu sayfada yeterince uzun bir metin katmanı vardır; OCR gerekmez. " * 2
         text, used, calls = self._extract([page, page], ["OCR METNİ"])

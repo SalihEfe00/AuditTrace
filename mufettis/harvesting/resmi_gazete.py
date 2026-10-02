@@ -173,9 +173,10 @@ class ResmiGazeteScraper:
 
     def _ocr_image_pages(self, pdf_bytes: bytes, pages: List[str]) -> Tuple[List[str], bool]:
         """Karışık PDF (K2a.1): metin katmanı olan belgede metni neredeyse boş sayfalar taranmış görüntüdür; yalnızca
-        onlar tek tek OCR'lanır. Hiçbir sayfada metin yoksa belge tümden OCR yoluna zaten düşer."""
+        onlar tek tek OCR'lanır. Her sayfada yalnızca kısa bir etiket varsa ("Yargıtay Film 1": mikrofilmden taranmış
+        eski RG) kalite kapısı bunu metin sayar ve belge OCR yoluna düşmez; o durumda da bütün sayfalar OCR'lanır (K2b.3)."""
         empty = [i for i, page in enumerate(pages) if len(page.strip()) < IMAGE_PAGE_MAX_CHARS]
-        if not empty or len(empty) == len(pages):
+        if not empty:
             return pages, False
         from mufettis.extraction.ocr import ocr_pdf_pages
 
