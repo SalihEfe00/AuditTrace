@@ -82,3 +82,12 @@ class TestDocumentUnderstanding:
         run2 = self.service.analyze(text)
 
         assert run1.model_dump() == run2.model_dump()
+
+
+def test_inline_article_reference_does_not_split_the_claim():
+    from mufettis.analysis.document_understanding import split_claim_sentences
+    text = ("Şube 5411 sayılı Kanun ve bankamız Kredi Tahsis Yönetmeliği\nMadde 12 hükmünde belirtilen limiti aşmıştır.\n"
+            "Amaç\nMadde 1 – Bu Yönetmelik.\nSayın Yetkili,\nMadde 3 kapsamında başvuruyorum.")
+    parts = [s for s in split_claim_sentences(text) if s.strip()]
+    assert parts[0].startswith("Şube 5411") and "Madde 12 hükmünde" in parts[0]
+    assert "Amaç" in parts and "Sayın Yetkili," in parts

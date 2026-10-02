@@ -29,6 +29,17 @@ from mufettis.extraction.text_repair import (
 )
 
 
+# Normalleştirme her "Madde N" önüne satır sonu koyar (mevzuat başlıkları için). Belgedeki cümle içi atıfta
+# ("Kredi Tahsis Yönetmeliği Madde 12 hükmünde") ardından küçük harfli sözcük gelir, önceki satır cümle sonu
+# ya da hitap ("Sayın Yetkili,") değildir; o kırılma cümle sınırı sayılmaz, yoksa iddia baştan kesilir (K6.3).
+_INLINE_ARTICLE_BREAK = re.compile(r"(?<=[^\s.!?:;,])\n(?=[Mm]adde\s*\d+[A-Za-z]?\s+[a-zçğıöşü])")
+
+
+def split_claim_sentences(text: str) -> List[str]:
+    """Cümle ve satır sınırlarında böler; cümle içi madde atfının önündeki kırılmayı birleştirir."""
+    return re.split(r"(?<=[.!?])\s+|\n+", _INLINE_ARTICLE_BREAK.sub(" ", text))
+
+
 # İç yazışmalarda denetim tespitini taşıyan cümle işaretleri (iddia çıkarılamadığında).
 _OBSERVATION_MARKERS = re.compile(
     r"tespit\s+edil|belirlen|aşılarak|aşıldığı|ihlal|yenilenmedi|gecikme|gecikti|bildirilmedi|kesinti",
@@ -246,7 +257,7 @@ class DocumentUnderstandingService:
     def observation_statement(doc: DocumentUnderstanding, max_chars: int = 400) -> str:
         """İddia çıkarılamayan belgede tespit cümlelerini (yoksa başlığı) iddia metni olarak döndürür."""
         text = doc.normalized_text or doc.text or ""
-        sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+|\n+", text) if len(s.strip()) >= 15]
+        sentences = [s.strip() for s in split_claim_sentences(text) if len(s.strip()) >= 15]
         observations = [s for s in sentences if _OBSERVATION_MARKERS.search(turkish_lower(s))]
         if observations:
             return " ".join(observations)[:max_chars]
@@ -287,7 +298,7 @@ class DocumentUnderstandingService:
         claims: List[DocumentClaim] = []
         # Satır sonu da cümle sınırıdır: yüklenen dilekçelerde hitap ("Sayın Yetkili,") ve başlık
         # satırları noktasızdır; aksi halde ilk iddiaya yapışıp eşleşmeyi bozuyorlardı.
-        sentences = re.split(r"(?<=[.!?])\s+|\n+", text)
+        sentences = split_claim_sentences(text)
         claim_idx = 1
         seen_statements = set()
 
