@@ -114,6 +114,16 @@ class TestMixedPdfPages(unittest.TestCase):
         self.assertTrue(used)
         self.assertIn("2018/5", text)
 
+    def test_glyph_code_pages_are_ocrd(self):
+        # K5.3a: Unicode eşlemesi olmayan yazı tipi: pdfplumber harf yerine "(cid:N)" yazar, sayfa okunamaz
+        glyphs = "(cid:4)(cid:12)(cid:7)(cid:6)(cid:10)(cid:11)(cid:3)(cid:5)(cid:9) " * 6
+        page = "Bu sayfada yeterince uzun bir metin katmanı vardır; OCR gerekmez. " * 2
+        text, used, calls = self._extract([page, glyphs], ["Kredi Garanti Kurumu kararı MADDE 1"])
+        self.assertEqual(calls, [[1]])
+        self.assertTrue(used)
+        self.assertNotIn("(cid:", text)
+        self.assertIn("MADDE 1", text)
+
     def test_text_pages_do_not_go_to_ocr(self):
         page = "Bu sayfada yeterince uzun bir metin katmanı vardır; OCR gerekmez. " * 2
         text, used, calls = self._extract([page, page], ["OCR METNİ"])

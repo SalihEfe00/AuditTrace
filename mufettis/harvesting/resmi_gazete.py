@@ -39,6 +39,8 @@ from mufettis.rag.index import IngestIndex
 
 # Metin katmanı bundan kısa olan sayfa, metni olan bir PDF'te taranmış görüntü sayılır (karışık PDF, K2a.1).
 IMAGE_PAGE_MAX_CHARS = 40
+# Yazı tipinde Unicode eşlemesi yoksa pdfplumber harf yerine "(cid:12)" yazar: okunamayan sayfa, metin sayılmaz (K5.3a).
+CID_GLYPHS = re.compile(r"\(cid:\d+\)")
 
 
 class ResmiGazeteScraper:
@@ -175,6 +177,7 @@ class ResmiGazeteScraper:
         """Karışık PDF (K2a.1): metin katmanı olan belgede metni neredeyse boş sayfalar taranmış görüntüdür; yalnızca
         onlar tek tek OCR'lanır. Her sayfada yalnızca kısa bir etiket varsa ("Yargıtay Film 1": mikrofilmden taranmış
         eski RG) kalite kapısı bunu metin sayar ve belge OCR yoluna düşmez; o durumda da bütün sayfalar OCR'lanır (K2b.3)."""
+        pages = [CID_GLYPHS.sub("", page) for page in pages]  # glif kodu metin değildir (K5.3a)
         empty = [i for i, page in enumerate(pages) if len(page.strip()) < IMAGE_PAGE_MAX_CHARS]
         if not empty:
             return pages, False
