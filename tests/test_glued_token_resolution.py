@@ -386,4 +386,12 @@ class TestNumericRunsAreNotCorruption(unittest.TestCase):
                       "(Anonimleştirme)" + "." * 39 + "46"):
             self.assertFalse(_is_very_long_token(token), token)
         self.assertTrue(_is_very_long_token("Gelirler" + "." * 10 + "x" * 45))
+        # K5.3f: eğik çizgi / tire / alt çizgi bağlı öğeler ve rakamlı referans kodları; glif kodu yine bozuk
+        for token in ("gov.tr/Icerik/7938/Standart-Sozlesmeler-ve-Baglayici-Sirket-Kurallarin",
+                      "Ankara-Bartın-Çankırı-Karabük-Kastamonu-Kırıkkale", "kişilerin/hesapların/kartların/işyerlerinin",
+                      "Bankacilik_Kisisel_Verilerin_Korunmasina_Bir_Tehdit_Mi",
+                      "A684910002341567250163993942332851791519100021002040010030823451017040"):
+            self.assertFalse(_is_very_long_token(token), token)
+        self.assertTrue(_is_very_long_token("(cid:4)(cid:12)-(cid:7)(cid:6)/(cid:10)(cid:11)(cid:3)(cid:5)"))
+        self.assertTrue(_is_very_long_token("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMN0123"))
         self.assertTrue(_is_very_long_token("TÜRKİYECUMHURİYETMERKEZBANKASINAKİTYÖNETİMSİSTEMİ"))

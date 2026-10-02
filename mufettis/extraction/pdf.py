@@ -907,15 +907,26 @@ _NUMERIC_RUN = re.compile(r"^[\d.,;:/()\-–]+$")
 _ADDRESS = re.compile(r"(?:https?://|www\.)\S+|[\w.+-]+@[\w-]+\.[\w.]+", re.I)
 
 
-# İçindekiler ve form noktaları ("Kapsamı……….46", "……….……", "____") öğe değil ayraçtır (K5.3d).
-_LEADER = re.compile(r"[.…_·]{3,}")
+# İçindekiler ve form noktaları ("Kapsamı……….46", "……….……", "____") öğe değil ayraçtır (K5.3d). Eğik çizgi, tire ve
+# alt çizgi de öğeleri bağlar: satıra bölünmüş adres yolu ("gov.tr/Icerik/7938/…"), "Ankara-Bartın-Çankırı-…",
+# "kişilerin/hesapların/kartların", "Bankacilik_Kisisel_…" (K5.3f).
+_LEADER = re.compile(r"[.…_·]{3,}|[/\\\-–_]")
+# Büyük harf + rakamdan oluşan, çoğu rakam olan öğe bir referans / kayıt kodudur ("A684910002341567…", K5.3f).
+_REFERENCE_CODE = re.compile(r"^[A-Z0-9]+$")
+# PDF glif kodu ("(cid:4)(cid:12)…") gerçek çıkarım hatasıdır; parçalanmaz.
+_GLYPH_CODE = "(cid:"
+
+
+def _is_reference_code(part: str) -> bool:
+    return bool(_REFERENCE_CODE.match(part)) and sum(ch.isdigit() for ch in part) >= 0.7 * len(part)
 
 
 def _is_very_long_token(token: str) -> bool:
-    """Bozuk çıkarım belirtisi olan çok uzun öğe (≥ 40 karakter); rakam / noktalama dizileri ve adres / e-posta sayılmaz,
-    nokta / alt çizgi dizileri ayraç sayılır ve uzunluğa katılmaz."""
+    """Bozuk çıkarım belirtisi olan çok uzun öğe (≥ 40 karakter); rakam / noktalama dizileri, referans kodları ve
+    adres / e-posta sayılmaz; nokta dizileri, eğik çizgi, tire, alt çizgi ayraç sayılır ve uzunluğa katılmaz."""
+    parts = [token] if _GLYPH_CODE in token else _LEADER.split(token)
     return any(len(part) >= 40 and not _NUMERIC_RUN.match(part) and not _ADDRESS.search(part)
-               for part in _LEADER.split(token))
+               and not _is_reference_code(part) for part in parts)
 
 
 def _pdf_generic_quality_metrics(value: str) -> Dict[str, Any]:
