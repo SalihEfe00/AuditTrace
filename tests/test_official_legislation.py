@@ -228,6 +228,19 @@ class TestFetcher(unittest.TestCase):
         self.assertNotIn("Son duyurular", main)
         self.assertIn("idari para cezası", main)
 
+    def test_declared_charset_is_honoured(self):
+        # K5: eski RG sayfaları Windows-1254 bildirir; UTF-8 diye okununca harfler bozuk karaktere dönüyordu
+        from mufettis.harvesting.official_legislation import html_text
+
+        body = "<p>Kefilin sorumluluğu, kefalet limitiyle sınırlıdır. İçtihadı Birleştirme Kararı</p>"
+        old = ('<html><head><meta http-equiv=Content-Type content="text/html; charset=Windows-1254"></head>'
+               f"<body>{body}</body></html>").encode("cp1254")
+        self.assertIn("sorumluluğu, kefalet limitiyle sınırlıdır. İçtihadı", html_text(old))
+        plain = f"<html><body>{body}</body></html>".encode("utf-8")  # bildirim yok: UTF-8 (değişmedi)
+        self.assertIn("sınırlıdır", html_text(plain))
+        odd = b'<meta charset="x-bilinmeyen"><p>' + "Şube".encode("utf-8") + b"</p>"
+        self.assertIn("Şube", html_text(odd))
+
     def test_content_suffix(self):
         from mufettis.harvesting.official_legislation import content_suffix
 

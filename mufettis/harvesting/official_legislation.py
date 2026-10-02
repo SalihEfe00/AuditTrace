@@ -21,6 +21,7 @@ from urllib.parse import urlparse
 from mufettis.analysis.turkish_text import turkish_lower
 from mufettis.common.utils import atomic_write_json, now_iso, sha256_bytes
 from mufettis.corpus.legislation_sources import OFFICIAL_HOSTS, LegislationSource
+from mufettis.extraction.files import decode_html
 
 USER_AGENT = "MufettisAI/0.13 (+local-decision-support)"
 MIN_DELAY_SECONDS = 3.0
@@ -127,7 +128,7 @@ def html_text(raw: bytes, main_content: bool = False) -> str:
     zaten yalnızca metindir ve özet karşılaştırması (M6.8) değişmesin diye tam alınır."""
     from bs4 import BeautifulSoup
 
-    soup = BeautifulSoup(raw.decode("utf-8", errors="replace"), "html.parser")
+    soup = BeautifulSoup(decode_html(raw), "html.parser")
     for el in soup(["script", "style", "header", "footer", "nav"]):
         el.extract()
     root = _main_content(soup) if main_content else soup

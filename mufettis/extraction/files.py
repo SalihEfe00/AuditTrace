@@ -31,6 +31,19 @@ class _NoIndex:
     data: Dict[str, Any] = {"indexed_items": {}}
 
 
+_CHARSET_RE = re.compile(rb"""<meta[^>]+charset=["']?([A-Za-z0-9_-]+)""", re.I)
+
+
+def decode_html(raw: bytes) -> str:
+    """Sayfanın bildirdiği kodlamayla (eski RG sayfaları: Windows-1254, K5.n); bildirim yoksa ya da tanınmıyorsa UTF-8."""
+    m = _CHARSET_RE.search(raw[:4096])
+    charset = m.group(1).decode("ascii").lower() if m else "utf-8"
+    try:
+        return raw.decode(charset, errors="replace")
+    except LookupError:
+        return raw.decode("utf-8", errors="replace")
+
+
 def extract_file_text(name: str, data: bytes, index: Optional[Any] = None) -> ExtractedFile:
     extension = Path(str(name or "")).suffix.lower()
     if extension == ".pdf":
@@ -58,7 +71,7 @@ def extract_file_text(name: str, data: bytes, index: Optional[Any] = None) -> Ex
     if extension in {".html", ".htm"}:
         from bs4 import BeautifulSoup
 
-        soup = BeautifulSoup(data.decode("utf-8", errors="replace"), "html.parser")
+        soup = BeautifulSoup(decode_html(data), "html.parser")
         for el in soup(["script", "style", "header", "footer", "nav"]):
             el.extract()
         return ExtractedFile(text=re.sub(r"\n\s*\n", "\n", soup.get_text(separator="\n")).strip(), extension=extension)

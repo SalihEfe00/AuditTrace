@@ -29,6 +29,7 @@ from mufettis.config import (
 )
 from mufettis.legal.parser import extract_legal_metadata, find_previous_same_title
 from mufettis.rag.maintenance import versioned_ingest_text
+from mufettis.extraction.files import decode_html
 from mufettis.harvesting.resmi_gazete import ResmiGazeteScraper, enrich_source_meta
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.engine import LocalRAG
@@ -92,7 +93,7 @@ class BulkRegulationImporter:
                         paragraphs.append(" | ".join(cells))
             return "\n".join(paragraphs).strip(), 0, False
         if suffix in {".html", ".htm"}:
-            soup = BeautifulSoup(raw.decode("utf-8", errors="replace"), "html.parser")
+            soup = BeautifulSoup(decode_html(raw), "html.parser")
             for el in soup(["script", "style", "header", "footer", "nav"]):
                 el.extract()
             return re.sub(r"\n\s*\n", "\n", soup.get_text(separator="\n")).strip(), 0, False
