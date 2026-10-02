@@ -831,9 +831,15 @@ _NUMERIC_RUN = re.compile(r"^[\d.,;:/()\-–]+$")
 _ADDRESS = re.compile(r"(?:https?://|www\.)\S+|[\w.+-]+@[\w-]+\.[\w.]+", re.I)
 
 
+# İçindekiler ve form noktaları ("Kapsamı……….46", "……….……", "____") öğe değil ayraçtır (K5.3d).
+_LEADER = re.compile(r"[.…_·]{3,}")
+
+
 def _is_very_long_token(token: str) -> bool:
-    """Bozuk çıkarım belirtisi olan çok uzun öğe (≥ 40 karakter); rakam / noktalama dizileri ve adres / e-posta sayılmaz."""
-    return len(token) >= 40 and not _NUMERIC_RUN.match(token) and not _ADDRESS.search(token)
+    """Bozuk çıkarım belirtisi olan çok uzun öğe (≥ 40 karakter); rakam / noktalama dizileri ve adres / e-posta sayılmaz,
+    nokta / alt çizgi dizileri ayraç sayılır ve uzunluğa katılmaz."""
+    return any(len(part) >= 40 and not _NUMERIC_RUN.match(part) and not _ADDRESS.search(part)
+               for part in _LEADER.split(token))
 
 
 def _pdf_generic_quality_metrics(value: str) -> Dict[str, Any]:

@@ -358,3 +358,13 @@ class TestNumericRunsAreNotCorruption(unittest.TestCase):
         self.assertTrue(_is_very_long_token("(cid:4)(cid:12)(cid:7)(cid:6)(cid:10)(cid:11)(cid:3)(cid:5)"))
         page = "Kurum talimatı uyarınca işlem yapılır. Belge Doğrulama Adresi:https://www.turkiye.gov.tr/tcmb-ebys\n"
         self.assertEqual(_pdf_generic_quality_metrics(page * 20)["very_long_token_count"], 0)
+
+    def test_leader_dots_are_separators(self):
+        # K5.3d: içindekiler ve form noktaları uzun öğe sayılmaz; noktayla bölünmüş gerçek bozukluk yine sayılır
+        from mufettis.extraction.pdf import _is_very_long_token
+
+        for token in ("Kapsamı" + "." * 60 + "46", "……….……………………" + "." * 40 + "…………", "Kefil" + "_" * 50,
+                      "(Anonimleştirme)" + "." * 39 + "46"):
+            self.assertFalse(_is_very_long_token(token), token)
+        self.assertTrue(_is_very_long_token("Gelirler" + "." * 10 + "x" * 45))
+        self.assertTrue(_is_very_long_token("TÜRKİYECUMHURİYETMERKEZBANKASINAKİTYÖNETİMSİSTEMİ"))
