@@ -65,6 +65,19 @@ class TestListedIdentity(unittest.TestCase):
     def test_decision_types(self):
         self.assertEqual(document_type_for(KARAR), "Cumhurbaşkanı Kararı")
 
+    def test_court_decision_is_guidance(self):
+        # K2b: RG'deki Yargıtay kararı listede geçerli; yorum gösterir, bulgunun dayanağı kanundur (yol gösterici)
+        from mufettis.corpus import canonical_view
+
+        src = LegislationSource(code="", title="Yargıtay Hukuk Genel Kurulu İçtihadı Birleştirme Kararı (E: 2017/4, K: 2018/5)",
+                                instrument="yargı kararı", number="E: 2017/4, K: 2018/5", issuer="Yargıtay",
+                                priority=2, group="borclar_medeni", reason="test", rg_date="16.10.2018",
+                                url="https://www.resmigazete.gov.tr/eskiler/2018/10/20181016-20.pdf")
+        self.assertEqual(src.problems(), [])
+        self.assertEqual(document_type_for(src), "Yargı Kararı")
+        meta = extract_legal_metadata(src.title, "Kefalette eşin rızası ...", listed_meta(src, Path("x.pdf"), b"x", 0, False))
+        self.assertEqual(canonical_view(meta).instrument_type, "rehber")
+
     def test_number_pattern_does_not_read_sayili(self):
         meta = extract_legal_metadata("Bir Genelge", "5411 sayılı Kanun uyarınca ...\nSayı: E-12345\n",
                                       {"source_id": "local_file"})

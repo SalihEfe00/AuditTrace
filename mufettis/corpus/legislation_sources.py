@@ -35,7 +35,9 @@ OFFICIAL_HOSTS = frozenset({
 # M6.15: kurumların kendi düzenleme türleri eklendi (talimat, standart, Kurul kararı, duyuru, tip sözleşme);
 # tüzük ve kararname (KHK / CBK) mevzuat.gov.tr türleridir.
 # "emsal karar": bir kurulun tek olaya ilişkin kararı (KVKK Kurul karar özeti); genel kural koymaz, yorumu gösterir.
-INSTRUMENTS = ("kanun", "kararname", "tüzük", "yönetmelik", "tebliğ", "karar", "kurul kararı", "emsal karar", "genelge",
+# "yargı kararı" (K2b): RG'de yayımlanan Yargıtay / Danıştay kararı (içtihadı birleştirme, daire kararı); kanunun
+# yorumunu gösterir, bulgunun dayanağı yine kanundur.
+INSTRUMENTS = ("kanun", "kararname", "tüzük", "yönetmelik", "tebliğ", "karar", "kurul kararı", "emsal karar", "yargı kararı", "genelge",
                "talimat", "rehber", "standart", "tip sözleşme", "duyuru")
 GROUPS = ("masak", "borclar_medeni", "bddk", "tuketici", "odeme", "cek_ticaret_icra", "kambiyo", "kvkk_sir", "vergi",
           "sigorta_emeklilik", "sermaye_piyasasi", "katilim", "mevduat_sigortasi", "meslek_birligi", "sosyal_guvenlik",
