@@ -827,11 +827,13 @@ is_glued_token = _is_true_glued_token
 
 # Rakam ve noktalama dizileri ("4,5,24,25,26,27,33,…" madde listeleri, hesap kodu aralıkları) bozuk metin değildir.
 _NUMERIC_RUN = re.compile(r"^[\d.,;:/()\-–]+$")
+# Adres ve e-posta da uzun olur ama bozuk değildir (e-imza doğrulama adresi her sayfada: "Adresi:https://…", K5.3b).
+_ADDRESS = re.compile(r"(?:https?://|www\.)\S+|[\w.+-]+@[\w-]+\.[\w.]+", re.I)
 
 
 def _is_very_long_token(token: str) -> bool:
-    """Bozuk çıkarım belirtisi olan çok uzun öğe (≥ 40 karakter); yalnızca rakam / noktalama dizileri sayılmaz."""
-    return len(token) >= 40 and not _NUMERIC_RUN.match(token)
+    """Bozuk çıkarım belirtisi olan çok uzun öğe (≥ 40 karakter); rakam / noktalama dizileri ve adres / e-posta sayılmaz."""
+    return len(token) >= 40 and not _NUMERIC_RUN.match(token) and not _ADDRESS.search(token)
 
 
 def _pdf_generic_quality_metrics(value: str) -> Dict[str, Any]:
