@@ -3,7 +3,7 @@
 Aşama "indir": rg_full/<YYYYMMDD>.pdf (tek akış). Kullanım: python rg_fallback.py indir|ocr [gün ...]. Aşama "ocr": OCR → rg_docs/<gün>.txt yerine yazılır (eski metin
 .htmltxt olarak saklanır). Gazetenin tamamı okunur; yargı bölümünü eleme metnin kendisinden yapılır.
 """
-import json, re, sys
+import json, os, re, sys, time
 from pathlib import Path
 import web
 
@@ -27,12 +27,18 @@ if sys.argv[1] == "indir":
 else:
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from mufettis.extraction import ocr
+    import pytesseract
+    pytesseract.pytesseract.tesseract_cmd = ocr.tesseract_cmd()
     for d in days:
         f = FULL / f"{d}.pdf"
         out = Path(f"rg_docs/{d}.txt")
         if not f.exists() or out.with_suffix(".htmltxt").exists():
             continue
-        texts = ocr.ocr_pdf_pages(f.read_bytes())
+        texts = []
+        for image in ocr.iter_page_images(f.read_bytes()):  # sayfa sayfa; her sayfadan sonra dinlenir (ısı)
+            started = time.time()
+            texts.append(pytesseract.image_to_string(image, lang=ocr.OCR_LANG).strip())
+            time.sleep((time.time() - started) * float(os.environ.get("MUFETTIS_OCR_REST", "0")))
         if not texts:
             print(d, "OCR boş", flush=True); continue
         out.rename(out.with_suffix(".htmltxt"))
