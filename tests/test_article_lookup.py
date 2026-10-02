@@ -14,6 +14,7 @@ class TestQueryArticle(unittest.TestCase):
         cases = {
             "5411 sayılı Kanun 54 üncü madde": ("", "54"),
             "İcra ve İflas Kanunu md. 89 haciz ihbarnamesi": ("", "89"),
+            "Türk Borçlar Kanunu m. 584 eş rızası": ("", "584"),
             "5464 sayılı Kanun madde 10": ("", "10"),
             "Türk Borçlar Kanunu 584. madde": ("", "584"),
             "5411 sayılı Kanunun 73'üncü maddesi": ("", "73"),

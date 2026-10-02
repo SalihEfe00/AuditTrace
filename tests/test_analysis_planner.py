@@ -97,3 +97,14 @@ def test_explicit_laws_are_the_documents_own_citations():
         doc = DocumentUnderstandingService().analyze(text)
         plan = AnalysisPlannerService().plan(doc, DocumentClassifierService().classify(doc))
         assert plan.retrieval_scope.explicit_laws == expected
+
+
+def test_cited_article_becomes_a_query():
+    # K5.3c.2: belgenin maddesiyle andığı kanun (adla da olsa) maddesiyle aranır
+    from mufettis.analysis.document_understanding import DocumentUnderstandingService
+    from mufettis.analysis.planner import AnalysisPlannerService
+
+    text = ("KEFALET SÖZLEŞMESİ\nKefil: Ali Veli\nEŞ RIZASI\nTürk Borçlar Kanunu m. 584 uyarınca eşin yazılı rızası:\n"
+            "Eş Adı Soyadı: ..........\n")
+    queries = AnalysisPlannerService._document_queries(DocumentUnderstandingService().analyze(text))
+    assert queries[0] == "Türk Borçlar Kanunu madde 584"

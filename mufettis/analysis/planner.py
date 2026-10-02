@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import List
 
+from mufettis.analysis.cited_references import extract_citations
 from mufettis.analysis.document_understanding import DocumentUnderstandingService
 from mufettis.analysis.models import (
     AnalysisParameters,
@@ -57,6 +58,10 @@ class AnalysisPlannerService:
         yapılan anlamsal arama çoğu zaman en isabetli kanıtı getirir.
         """
         candidates: List[str] = []
+        # Belgenin maddesiyle andığı düzenleme ("Türk Borçlar Kanunu m. 584") en doğrudan dayanak adayıdır; adla
+        # anılan kanun da sorguda katalogla numarasına çözülür (LocalRAG.named_law_number) ve madde başa gelir.
+        cited = [f"{c['label']} madde {c['article']}" for c in extract_citations(doc.text or doc.normalized_text)
+                 if c["article"] and not c["internal"]][:MAX_EXPLICIT_LAWS]
         if doc.title and doc.title != "Belge Metni":
             candidates.append(doc.title)
         candidates.extend(claim.statement for claim in doc.claims)
@@ -72,7 +77,7 @@ class AnalysisPlannerService:
                 queries.append(query)
             if len(queries) >= limit:
                 break
-        return queries
+        return list(dict.fromkeys(cited + queries))
 
     @staticmethod
     def _cited_laws(doc: DocumentUnderstanding) -> List[str]:

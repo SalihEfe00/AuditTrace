@@ -569,10 +569,10 @@ def extract_series_number(text: str) -> Optional[str]:
     return None
 
 
-# Sorgudaki madde: "geçici madde 5", "md. 54", "madde 12", "54 üncü madde", "89. maddesi".
+# Sorgudaki madde: "geçici madde 5", "md. 54", "m. 584", "madde 12", "54 üncü madde", "89. maddesi".
 _QUERY_ARTICLE_RES = (
     re.compile(r"\b(geçici|ek)\s+madde\s*(\d{1,4})\b", re.I),
-    re.compile(r"()\b(?:madde|md\.?)\s*(\d{1,4})\b", re.I),
+    re.compile(r"()\b(?:madde|md\.?|m\.)\s*(\d{1,4})\b", re.I),
     re.compile(r"()\b(\d{1,4})\s*(?:\.|['’]?\s*(?:inci|ıncı|üncü|uncu|nci|ncı|ncü|ncu))?\s*madde", re.I),
 )
 

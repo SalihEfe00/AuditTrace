@@ -39,7 +39,7 @@ _NAMED_RE = re.compile(
     rf"(?:(?<=\s)|^)((?:{_WORD}|\d{{3,6}}\s+sayılı)(?:\s+(?:{_WORD}|{_CONNECTOR})){{0,12}}?\s+{_INSTRUMENT})\b"
 )
 _LAW_NUMBER_RE = re.compile(r"(?<!\d)(\d{3,6})\s*sayılı\b", re.I)
-_ARTICLE_RE = re.compile(r"^\W{0,3}(?:(?:[A-Za-zÇĞİÖŞÜçğıöşü]+\s+){0,3})?(?:madde|md\.?)\s*(\d{1,3}(?:/\d{1,2})?)",
+_ARTICLE_RE = re.compile(r"^\W{0,3}(?:(?:[A-Za-zÇĞİÖŞÜçğıöşü]+\s+){0,3})?(?:madde|md\.?|m\.)\s*(\d{1,3}(?:/\d{1,2})?)",
                          re.I)
 # "54 üncü maddesi", "12. maddesi", "13'üncü maddesinin"
 _ARTICLE_BEFORE_RE = re.compile(
@@ -103,7 +103,17 @@ def extract_citations(text: str) -> List[Dict[str, str]]:
     out: List[Dict[str, str]] = []
     seen = set()
     for m in _NAMED_RE.finditer(text):
-        label = re.sub(r"\s+", " ", m.group(1)).strip()
+        raw = m.group(1)
+        # Ad satır sonunu aşabilir (uzun ad iki satıra bölünür), ama üstteki büyük harfli satır bir başlıktır:
+        # "EŞ RIZASI\nTürk Borçlar Kanunu m. 584" -> "Türk Borçlar Kanunu".
+        # Başlığın üstündeki satırlar da ad değildir.
+        lines = raw.split("\n")
+        if lines[-1] != lines[-1].upper():
+            for i in range(len(lines) - 2, -1, -1):
+                if any(c.isalpha() for c in lines[i]) and lines[i] == lines[i].upper():
+                    raw = "\n".join(lines[i + 1:])
+                    break
+        label = re.sub(r"\s+", " ", raw).strip()
         words = label.split(" ")
         dropped: List[str] = []
         while len(words) > 1 and turkish_lower(words[0]) in _LEADING_NON_NAME:

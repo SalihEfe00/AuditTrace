@@ -55,6 +55,16 @@ class TestExtraction(unittest.TestCase):
         text = "5411 sayılı Bankacılık Kanunu çerçevesinde... yine 5411 sayılı Bankacılık Kanunu kapsamında."
         self.assertEqual(len(extract_citations(text)), 1)
 
+    def test_heading_line_is_not_part_of_name_and_m_abbreviation_is_article(self):
+        # K5.3c.2: kefalet sözleşmesinde büyük harfli bölüm başlığının altındaki atıf
+        text = "EŞ RIZASI\nTürk Borçlar Kanunu m. 584 uyarınca eşin yazılı rızası:"
+        c = extract_citations(text)[0]
+        self.assertEqual((c["label"], c["article"]), ("Türk Borçlar Kanunu", "584"))
+
+    def test_name_wrapped_over_two_lines_is_kept(self):
+        text = "Finansal Tüketicilerden Alınacak Ücretlere\nİlişkin Usul ve Esaslar Hakkında Yönetmelik madde 5"
+        self.assertTrue(extract_citations(text)[0]["label"].startswith("Finansal Tüketicilerden"))
+
 
 class TestResolution(unittest.TestCase):
     def test_law_number_and_inflected_name_match_law(self):
