@@ -929,6 +929,19 @@ def _is_very_long_token(token: str) -> bool:
                and not _is_reference_code(part) for part in parts)
 
 
+_LETTER = re.compile(r"[A-Za-zÇĞİÖŞÜçğıöşü]")
+_LIST_MARKER = re.compile(r"^\(?[0-9A-Za-zÇĞİÖŞÜçğıöşü]{1,4}[).]$|^\([0-9A-Za-zÇĞİÖŞÜçğıöşü]{1,4}\)$")
+
+
+def _is_fragmented_line(line: str) -> bool:
+    """Satır parçalanması: ≤ 2 harf / rakamlık satır; K5.3h: tablo hücreleri (harfsiz satır) ve bent işaretleri
+    ("a)", "(i)", "1.") parçalanma sayılmaz, tek başına harf ve iki harfli satır (dikey harf dizilmesi) sayılır."""
+    if len(re.sub(r"\W", "", line, flags=re.UNICODE)) > 2:
+        return False
+    stripped = line.strip()
+    return bool(_LETTER.search(stripped)) and not _LIST_MARKER.match(stripped)
+
+
 def _pdf_generic_quality_metrics(value: str) -> Dict[str, Any]:
     """B1: Belge şemasından bağımsız genel metin bütünlüğü metrikleri."""
     text = str(value or "")
@@ -940,7 +953,7 @@ def _pdf_generic_quality_metrics(value: str) -> Dict[str, Any]:
     alpha_tokens = [token for token in tokens if re.search(r"[A-Za-zÇĞİÖŞÜçğıöşü]", token)]
     glued_tokens = [token for token in tokens if _is_true_glued_token(token)]
     very_long_tokens = [token for token in tokens if _is_very_long_token(token)]
-    fragmented_lines = [line for line in nonempty_lines if len(re.sub(r"\W", "", line, flags=re.UNICODE)) <= 2]
+    fragmented_lines = [line for line in nonempty_lines if _is_fragmented_line(line)]
     encoding = _pdf_encoding_anomaly_metrics(text)
     replacement_chars = encoding["replacement_char_count"]
     mojibake_sequence_count = encoding["mojibake_sequence_count"]

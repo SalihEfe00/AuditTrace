@@ -395,3 +395,16 @@ class TestNumericRunsAreNotCorruption(unittest.TestCase):
         self.assertTrue(_is_very_long_token("(cid:4)(cid:12)-(cid:7)(cid:6)/(cid:10)(cid:11)(cid:3)(cid:5)"))
         self.assertTrue(_is_very_long_token("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMN0123"))
         self.assertTrue(_is_very_long_token("TÜRKİYECUMHURİYETMERKEZBANKASINAKİTYÖNETİMSİSTEMİ"))
+
+    def test_table_cells_and_list_markers_are_not_fragmentation(self):
+        # K5.3h: tablo hücreleri ve bent işaretleri satır parçalanması sayılmaz; dikey harf dizilmesi cezalı kalır
+        from mufettis.extraction.pdf import _pdf_generic_quality_metrics
+
+        table = "\n".join(["Senaryo", "(i)", "1", "Paralel Yukarı", "0,8", "2", "Paralel Aşağı", "1,2", "c)", "3",
+                           "Dik Yukarı", "≤", "%", "iv)", "Dik Aşağı", "0,5", "k)", "1.", "(3)", "Kısa Faiz Artışı",
+                           "-", "12", "a)", "(ii)", "Uzun Faiz Düşüşü"])
+        self.assertLessEqual(_pdf_generic_quality_metrics(table)["line_fragmentation_ratio"], 0.2)
+        vertical = "\n".join("MADDE 1 Bu yönetmeliğin amacı bankaların kredi işlemlerini düzenlemektir")
+        self.assertGreaterEqual(_pdf_generic_quality_metrics(vertical)["line_fragmentation_ratio"], 0.9)
+        for line in ("M", "s", "i", "ab"):
+            self.assertEqual(_pdf_generic_quality_metrics("\n".join([line] * 5))["line_fragmentation_ratio"], 1.0)
