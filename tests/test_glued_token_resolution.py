@@ -359,6 +359,25 @@ class TestNumericRunsAreNotCorruption(unittest.TestCase):
         page = "Kurum talimatı uyarınca işlem yapılır. Belge Doğrulama Adresi:https://www.turkiye.gov.tr/tcmb-ebys\n"
         self.assertEqual(_pdf_generic_quality_metrics(page * 20)["very_long_token_count"], 0)
 
+    def test_inflected_turkish_words_are_not_glued(self):
+        # K5.3e: kaynaştırma ünsüzlü, ğ yumuşamalı uzun çekimler ve yazıyla tutar tek sözcüktür; gerçek yapışık ve OCR çöpü değil
+        natural = ("değerlendirilemeyecektir", "DEĞERLENDİRİLEMEYECEKTİR", "sınırlandırılabileceğini",
+                   "teşkilatlandırılabilmesi", "gösterilemeyebileceğinden", "muhasebeleştiremeyecekleri",
+                   "yüzyirmiikibinüçyüzseksenyedi", "kimliksizleştirildiğinde")
+        glued = ("TÜRKİYECUMHURİYETMERKEZBANKASI", "Bilgiedinilmesiniricaederiz", "AYDINLATMAYUKUMLULUGUNUN",
+                 "sorgulamalarınyürütüleceği", "PREFİNANSMANKREDİLERİNDEN", "seeereeeereeeeeeerememrerenzez")
+        for token in natural:
+            self.assertFalse(_is_true_glued_token(token), token)
+        for token in glued:
+            self.assertTrue(_is_true_glued_token(token), token)
+
+    def test_glued_institution_letterhead_is_split(self):
+        # K5.3e: kısa TCMB yazısında antet sözcükleri metinde başka yerde geçmez; kurum adları sözlükte
+        from mufettis.extraction.text_repair import _repair_glued_uppercase_words
+
+        self.assertEqual(_repair_glued_uppercase_words("TÜRKİYECUMHURİYETMERKEZBANKASI\nSayı: 12"),
+                         "TÜRKİYE CUMHURİYET MERKEZ BANKASI\nSayı: 12")
+
     def test_leader_dots_are_separators(self):
         # K5.3d: içindekiler ve form noktaları uzun öğe sayılmaz; noktayla bölünmüş gerçek bozukluk yine sayılır
         from mufettis.extraction.pdf import _is_very_long_token

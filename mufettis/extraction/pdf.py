@@ -6,6 +6,7 @@ import math
 import re
 import statistics
 from collections import defaultdict
+from functools import lru_cache
 from typing import Any, Dict, List, Optional, Tuple
 
 
@@ -800,6 +801,81 @@ _TURKISH_AGGLUTINATIVE_SUFFIX_RE = re.compile(
 )
 
 
+_BACK_VOWELS, _FRONT_VOWELS, _ROUND_VOWELS = frozenset("aıou"), frozenset("eiöü"), frozenset("ouöü")
+_VOWELS = _BACK_VOWELS | _FRONT_VOWELS
+# K5.3e: ünlü uyumlu ek şablonları (A a/e, I ı/i/u/ü, D d/t, C c/ç, K k/ğ). "-abil-" ve "-iyor" içindeki i/o
+# uyuma girmez (bil- fiili, yor- eki). Kaynaştırma ünsüzü (y, n, s) ünlüyle başlayan ekin önüne gelebilir.
+_SUFFIX_TEMPLATES = (
+    "lA", "lAn", "lAş", "lAt", "lI", "lIK", "sIz", "sAl", "CI", "CIK", "DIr", "t", "Il", "In", "Iş", "n", "r", "Ar", "Ir",
+    "Abil", "mA", "mAz", "mAK", "mAktA", "mIş", "AcAK", "DI", "DIK", "Ip", "ArAk", "IncA", "ken", "mAlI", "sA", "lAr",
+    "I", "A", "DA", "DAn", "ki", "Im", "Iz", "ImIz", "InIz", "sIn", "sInIz", "cAsInA", "CA", "Iyor", "mAdAn",
+)
+# Yazıyla tutar ("yüzyirmiikibinüçyüzseksenyedi") bitişik yazılır; bozulma değildir.
+_NUMBER_WORDS = (
+    "bir", "iki", "üç", "dört", "beş", "altı", "yedi", "sekiz", "dokuz", "on", "yirmi", "otuz", "kırk", "elli", "altmış",
+    "yetmiş", "seksen", "doksan", "yüz", "bin", "milyon", "milyar", "trilyon",
+)
+
+
+def _last_vowel(text: str) -> Optional[str]:
+    for ch in reversed(text):
+        if ch in _VOWELS:
+            return ch
+    return None
+
+
+@lru_cache(maxsize=4096)
+def _suffix_forms(template: str, vowel: str) -> Tuple[str, ...]:
+    forms = [""]
+    for ch in template:
+        if ch == "A":
+            options = ["a" if vowel in _BACK_VOWELS else "e"]
+        elif ch == "I":
+            options = [("u" if vowel in _ROUND_VOWELS else "ı") if vowel in _BACK_VOWELS
+                       else ("ü" if vowel in _ROUND_VOWELS else "i")]
+        else:
+            options = {"D": ["d", "t"], "C": ["c", "ç"], "K": ["k", "ğ"]}.get(ch, [ch])
+        forms = [form + option for form in forms for option in options]
+        vowel = _last_vowel(forms[0]) or vowel
+    return tuple(forms)
+
+
+@lru_cache(maxsize=65536)
+def _is_suffix_chain(rest: str, vowel: str, after_vowel: bool) -> bool:
+    """`rest` ünlü uyumuna uyan bir ek dizisi mi; ünlüyle başlayan ek ünlüden sonra kaynaştırmasız gelmez."""
+    if not rest:
+        return True
+    for template in _SUFFIX_TEMPLATES:
+        vowel_initial = template[0] in "AI" or template[0] in _VOWELS
+        for buffer in (("", "y", "n", "s") if vowel_initial else ("",)):
+            if vowel_initial and not buffer and after_vowel:
+                continue
+            for form in _suffix_forms(template, vowel):
+                piece = buffer + form
+                if rest.startswith(piece) and _is_suffix_chain(
+                        rest[len(piece):], _last_vowel(piece) or vowel, piece[-1] in _VOWELS):
+                    return True
+    return False
+
+
+@lru_cache(maxsize=4096)
+def _is_number_words(text: str) -> bool:
+    return not text or any(text.startswith(w) and _is_number_words(text[len(w):]) for w in _NUMBER_WORDS)
+
+
+def _is_inflected_word(low: str) -> bool:
+    """Tek bir Türkçe sözcük mü: 3–10 harflik bir kök + ünlü uyumlu ek dizisi ya da yazıyla sayı. İki sözcük yapıştığında
+    sınırda uyum ya da ek dizisi çoğunlukla bozulur ("bilgiedinilmesiniricaederiz", "aydınlatmayukumlulugunun")."""
+    if _is_number_words(low):
+        return True
+    for k in range(3, min(10, len(low)) + 1):
+        stem = low[:k]
+        vowel = _last_vowel(stem)
+        if vowel and _is_suffix_chain(low[k:], vowel, stem[-1] in _VOWELS):
+            return True
+    return False
+
+
 def _is_true_glued_token(token: str) -> bool:
     """Belirteç düzeyinde gerçek yapışık kelime bozulması ile doğal uzun Türkçe sözcükleri ayırır."""
     cleaned = re.sub(r"^[^\w]+|[^\w]+$", "", str(token or "").strip())
@@ -813,13 +889,13 @@ def _is_true_glued_token(token: str) -> bool:
     if re.search(r"[a-zçğıöşü][A-ZÇĞİÖŞÜ]", cleaned):
         return True
     # Doğal Türkçe eklemeli türetim kontrolü
-    low = cleaned.lower()
+    low = cleaned.replace("I", "ı").replace("İ", "i").lower()
     for stem in _TURKISH_AGGLUTINATIVE_STEMS:
         if low.startswith(stem):
             suffix = low[len(stem):]
             if not suffix or _TURKISH_AGGLUTINATIVE_SUFFIX_RE.fullmatch(suffix):
                 return False
-    return True
+    return not _is_inflected_word(low)
 
 
 is_glued_token = _is_true_glued_token

@@ -74,6 +74,21 @@ def repair_mojibake(value: Any) -> str:
     if whitespace_signature(best) != original_whitespace:
         return original
     return best
+# K5.3e: resmî kaynakların antetleri boşluksuz çıkabilir ("TÜRKİYECUMHURİYETMERKEZBANKASI"); kısa yazılarda bu sözcükler
+# metnin başka yerinde geçmez, belge içi sözlük ayıramaz. Korpus kaynaklarının kurum adları sözlüğe eklenir.
+_INSTITUTION_NAMES = (
+    "Türkiye Cumhuriyet Merkez Bankası", "Bankacılık Düzenleme ve Denetleme Kurumu", "Kişisel Verileri Koruma Kurumu",
+    "Sermaye Piyasası Kurulu", "Türkiye Bankalar Birliği", "Türkiye Katılım Bankaları Birliği",
+    "Mali Suçları Araştırma Kurulu Başkanlığı", "Hazine ve Maliye Bakanlığı", "Ticaret Bakanlığı",
+    "Sigortacılık ve Özel Emeklilik Düzenleme ve Denetleme Kurumu", "Tasarruf Mevduatı Sigorta Fonu",
+    "Kredi Garanti Fonu", "Gelir İdaresi Başkanlığı", "Resmî Gazete", "Türkiye Büyük Millet Meclisi",
+    "Cumhurbaşkanlığı", "Yargıtay", "Danıştay", "Anayasa Mahkemesi",
+)
+_INSTITUTION_WORDS = frozenset(
+    word.replace("i", "İ").replace("ı", "I").upper() for name in _INSTITUTION_NAMES for word in name.split() if len(word) >= 3
+)
+
+
 def _repair_glued_uppercase_words(text: str) -> str:
     """PDF'nin boşluksuz birleştirdiği uzun Türkçe büyük-harf kelime dizilerini
     aynı belge içindeki kelime sözlüğünden temkinli biçimde ayırır."""
@@ -96,6 +111,7 @@ def _repair_glued_uppercase_words(text: str) -> str:
         "HESAPLARI", "BORCUNA", "ALACAĞINA", "KARŞILIĞI", "KAYDEDİLİR", "KAYDEDİLEN", "TÜRK",
         "PARASINA", "DÖNÜŞTÜRÜLÜR",
     })
+    vocab.update(_INSTITUTION_WORDS)
 
     def segment(run: str) -> Optional[str]:
         if len(run) < 10:
