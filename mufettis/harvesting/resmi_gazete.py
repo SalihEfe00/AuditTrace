@@ -37,6 +37,10 @@ from mufettis.extraction.pdf import (
 )
 from mufettis.rag.index import IngestIndex
 
+# Metin katmanı bundan kısa olan sayfa, metni olan bir PDF'te taranmış görüntü sayılır (karışık PDF, K2a.1).
+IMAGE_PAGE_MAX_CHARS = 40
+
+
 class ResmiGazeteScraper:
     """
     Resmî Gazete scraper.
@@ -167,6 +171,21 @@ class ResmiGazeteScraper:
             print(f"[Scraper] Fihrist hatası: {exc}")
             return []
 
+    def _ocr_image_pages(self, pdf_bytes: bytes, pages: List[str]) -> Tuple[List[str], bool]:
+        """Karışık PDF (K2a.1): metin katmanı olan belgede metni neredeyse boş sayfalar taranmış görüntüdür; yalnızca
+        onlar tek tek OCR'lanır. Hiçbir sayfada metin yoksa belge tümden OCR yoluna zaten düşer."""
+        empty = [i for i, page in enumerate(pages) if len(page.strip()) < IMAGE_PAGE_MAX_CHARS]
+        if not empty or len(empty) == len(pages):
+            return pages, False
+        from mufettis.extraction.ocr import ocr_pdf_pages
+
+        filled, used = list(pages), False
+        for index, text in zip(empty, ocr_pdf_pages(pdf_bytes, only=empty)):
+            if len(text.strip()) > len(filled[index].strip()):
+                filled[index], used = text, True
+        self._last_pdf_diagnostic["image_pages_ocr"] = {"pages": len(empty), "filled": used}
+        return filled, used
+
     def _ocr_pdf(self, pdf_bytes: bytes) -> str:
         from mufettis.extraction.ocr import ocr_pdf_pages
 
@@ -196,7 +215,8 @@ class ResmiGazeteScraper:
                 "selected_score": float(fast_gate.get("score", 0.0)),
                 "selected_status": str(fast_gate.get("status", "")),
             })
-            return _join_pdf_pages(_normalize_pdf_candidate_pages(fast_pages)), page_count, False
+            pages, ocr_used = self._ocr_image_pages(pdf_bytes, fast_pages)
+            return _join_pdf_pages(_normalize_pdf_candidate_pages(pages)), page_count, ocr_used
 
         candidates: List[Tuple[str, List[str]]] = []
         if fast_pages:
@@ -240,7 +260,8 @@ class ResmiGazeteScraper:
         self._last_pdf_diagnostic["candidates"] = decision.get("candidates", [])
 
         if not decision.get("ocr_required"):
-            repaired_pages = _normalize_pdf_candidate_pages(decision.get("selected_pages", []))
+            pages, ocr_used = self._ocr_image_pages(pdf_bytes, decision.get("selected_pages", []))
+            repaired_pages = _normalize_pdf_candidate_pages(pages)
             text = _join_pdf_pages(repaired_pages)
             if text:
                 self._last_pdf_diagnostic.update({
@@ -248,7 +269,7 @@ class ResmiGazeteScraper:
                     "selected_score": float(decision.get("selected_score", 0.0)),
                     "selected_status": decision.get("selected_status", ""),
                 })
-                return text, page_count, False
+                return text, page_count, ocr_used
 
         text = self._ocr_pdf(pdf_bytes)
         self._last_pdf_diagnostic.update({

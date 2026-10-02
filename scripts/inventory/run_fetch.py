@@ -1,4 +1,7 @@
-"""M6.15.5 indirme: MUFETTIS_DATA_DIR veri kopyasına; --hosts other|mevzuat, --priority N."""
+"""M6.15.5 indirme: MUFETTIS_DATA_DIR veri kopyasına; --hosts other|mevzuat|all, --priority N, --only=<gerekçe öneki>.
+
+Varsayılan: envanterden üretilen kayıtlar (gerekçe "M6.15" ya da "K1.8"; K2a). --only=K1.8 yalnızca K1.8 çekirdeği.
+"""
 import collections, os, sys, time
 from pathlib import Path
 from urllib.parse import urlparse
@@ -9,9 +12,10 @@ from mufettis.corpus.legislation_sources import load_sources, select_sources
 from mufettis.harvesting.official_legislation import OfficialLegislationFetcher
 args = dict(a.split("=", 1) for a in sys.argv[1:])
 prio, hosts = int(args.get("--priority", 2)), args.get("--hosts", "other")
-src = [s for s in select_sources(load_sources(), prio) if s.reason.startswith("M6.15")]
+prefix = (args["--only"],) if "--only" in args else ("M6.15", "K1.8")
+src = [s for s in select_sources(load_sources(), prio) if s.reason.startswith(prefix)]
 is_mev = lambda s: urlparse(s.download_url).hostname in ("www.mevzuat.gov.tr", "mevzuat.gov.tr")
-src = [s for s in src if (is_mev(s) if hosts == "mevzuat" else not is_mev(s))]
+src = [s for s in src if hosts == "all" or (is_mev(s) if hosts == "mevzuat" else not is_mev(s))]
 f = OfficialLegislationFetcher(DATA_DIR / "legislation_downloads")
 c, t0 = collections.Counter(), time.time()
 for i, s in enumerate(src, 1):

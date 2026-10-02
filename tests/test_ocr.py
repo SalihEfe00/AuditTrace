@@ -82,6 +82,37 @@ class TestFetcherOcrFallback(unittest.TestCase):
 
 
 @unittest.skipUnless(ocr.available(), "Tesseract kurulu değil")
+class TestMixedPdfPages(unittest.TestCase):
+    """K2a.1: metin katmanı olan PDF'te görüntü sayfaları tek tek OCR'lanır (KGF kararı: 6 sayfanın 5'i görüntü)."""
+
+    def _extract(self, fast_pages, ocr_texts):
+        from mufettis.harvesting import resmi_gazete
+
+        calls = []
+
+        def fake_ocr(pdf_bytes, max_pages=None, lang=ocr.OCR_LANG, only=None):
+            calls.append(list(only) if only is not None else None)
+            return ocr_texts[:len(only or [])]
+
+        scraper = resmi_gazete.ResmiGazeteScraper(local_only=True)
+        with mock.patch.object(resmi_gazete, "_extract_pdfium_pages", return_value=fast_pages),                 mock.patch.object(resmi_gazete, "_pdf_quality_gate", return_value={"status": "HIGH_CONFIDENCE"}),                 mock.patch.object(ocr, "ocr_pdf_pages", side_effect=fake_ocr):
+            text, pages, used = scraper._extract_pdf_text(b"%PDF")
+        return text, used, calls
+
+    def test_image_pages_are_filled_by_ocr(self):
+        body = "Kredi Garanti Kurumlarına Sağlanan Hazine Desteğine İlişkin Karar MADDE 1 Amaç ve kapsam"
+        text, used, calls = self._extract(["Karar Sayısı : 2016/9538 imza sayfası metni burada", "", " "], [body, "MADDE 2"])
+        self.assertEqual(calls, [[1, 2]])
+        self.assertTrue(used)
+        self.assertIn("Hazine Desteğine", text)
+
+    def test_text_pages_do_not_go_to_ocr(self):
+        page = "Bu sayfada yeterince uzun bir metin katmanı vardır; OCR gerekmez. " * 2
+        text, used, calls = self._extract([page, page], ["OCR METNİ"])
+        self.assertEqual(calls, [])
+        self.assertFalse(used)
+
+
 class TestRealOcr(unittest.TestCase):
     def test_rendered_text_page_is_read(self):
         import pypdfium2 as pdfium

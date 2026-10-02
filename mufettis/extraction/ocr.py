@@ -12,7 +12,7 @@ import os
 import shutil
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator, List, Optional
+from typing import Iterator, List, Optional, Sequence
 
 from mufettis.config import PDFIUM_LOCK
 
@@ -48,12 +48,13 @@ def available() -> bool:
     return True
 
 
-def iter_page_images(pdf_bytes: bytes, dpi: int = OCR_DPI, max_pages: Optional[int] = None) -> Iterator:
+def iter_page_images(pdf_bytes: bytes, dpi: int = OCR_DPI, max_pages: Optional[int] = None,
+                     only: Optional[Sequence[int]] = None) -> Iterator:
     """PDF sayfalarının PIL görüntüleri, birer birer (pypdfium2; poppler gerekmez).
 
     Bellekte aynı anda tek sayfa görüntüsü durur: 200 dpi A4 ~11 MB, 764 sayfalık bir Resmî Gazete sayısı tümü
     birden çizilseydi ~9 GB olurdu (8 GB RAM hedefini aşar). Kilit yalnızca çizim sırasında tutulur; OCR kilit
-    dışında çalışır.
+    dışında çalışır. ``only`` verilirse yalnızca o sayfalar (0 tabanlı sıra) çizilir.
     """
     import pypdfium2 as pdfium
 
@@ -61,7 +62,7 @@ def iter_page_images(pdf_bytes: bytes, dpi: int = OCR_DPI, max_pages: Optional[i
         pdf = pdfium.PdfDocument(pdf_bytes)
         count = len(pdf) if max_pages is None else min(len(pdf), max_pages)
     try:
-        for index in range(count):
+        for index in (range(count) if only is None else [i for i in only if 0 <= i < count]):
             with PDFIUM_LOCK:
                 page = pdf.get_page(index)
                 try:
@@ -74,8 +75,9 @@ def iter_page_images(pdf_bytes: bytes, dpi: int = OCR_DPI, max_pages: Optional[i
             pdf.close()
 
 
-def ocr_pdf_pages(pdf_bytes: bytes, max_pages: Optional[int] = None, lang: str = OCR_LANG) -> List[str]:
-    """Sayfa sayfa OCR metni; OCR kullanılamıyorsa ya da hata olursa boş liste."""
+def ocr_pdf_pages(pdf_bytes: bytes, max_pages: Optional[int] = None, lang: str = OCR_LANG,
+                  only: Optional[Sequence[int]] = None) -> List[str]:
+    """Sayfa sayfa OCR metni (``only`` verilirse yalnızca o sayfalar, aynı sırayla); OCR yoksa ya da hata olursa boş liste."""
     if not available():
         return []
     try:
@@ -83,7 +85,7 @@ def ocr_pdf_pages(pdf_bytes: bytes, max_pages: Optional[int] = None, lang: str =
 
         pytesseract.pytesseract.tesseract_cmd = tesseract_cmd()
         return [pytesseract.image_to_string(image, lang=lang).strip()
-                for image in iter_page_images(pdf_bytes, max_pages=max_pages)]
+                for image in iter_page_images(pdf_bytes, max_pages=max_pages, only=only)]
     except Exception as exc:  # bozuk PDF, eksik dil dosyası: OCR yok sayılır
         print(f"[OCR] Çalıştırılamadı: {exc}")
         return []
