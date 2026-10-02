@@ -240,6 +240,9 @@ class TestFetcher(unittest.TestCase):
         self.assertIn("sınırlıdır", html_text(plain))
         odd = b'<meta charset="x-bilinmeyen"><p>' + "Şube".encode("utf-8") + b"</p>"
         self.assertIn("Şube", html_text(odd))
+        # mevzuat.gov.tr: Windows-1254 bildirir ama bayt UTF-8'dir; bildirime uyulursa "Ä±" gibi bozulurdu
+        lying = ('<meta http-equiv=Content-Type content="text/html; charset=Windows-1254">' + body).encode("utf-8")
+        self.assertIn("sınırlıdır. İçtihadı", html_text(lying))
 
     def test_content_suffix(self):
         from mufettis.harvesting.official_legislation import content_suffix

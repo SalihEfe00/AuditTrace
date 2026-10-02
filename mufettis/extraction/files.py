@@ -35,13 +35,19 @@ _CHARSET_RE = re.compile(rb"""<meta[^>]+charset=["']?([A-Za-z0-9_-]+)""", re.I)
 
 
 def decode_html(raw: bytes) -> str:
-    """Sayfanın bildirdiği kodlamayla (eski RG sayfaları: Windows-1254, K5.n); bildirim yoksa ya da tanınmıyorsa UTF-8."""
+    """Önce katı UTF-8: geçerliyse odur (mevzuat.gov.tr sayfalarının çoğu Windows-1254 bildirir ama UTF-8'dir). Değilse
+    sayfanın bildirdiği kodlama (2006 öncesi RG sayfaları gerçekten Windows-1254); bildirim yoksa ya da tanınmıyorsa
+    Windows-1254 (Türkçe resmî sayfalar), o da olmazsa yerine koyma karakterli UTF-8."""
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError:
+        pass
     m = _CHARSET_RE.search(raw[:4096])
-    charset = m.group(1).decode("ascii").lower() if m else "utf-8"
+    charset = m.group(1).decode("ascii").lower() if m else "cp1254"
     try:
         return raw.decode(charset, errors="replace")
     except LookupError:
-        return raw.decode("utf-8", errors="replace")
+        return raw.decode("cp1254", errors="replace")
 
 
 def extract_file_text(name: str, data: bytes, index: Optional[Any] = None) -> ExtractedFile:
