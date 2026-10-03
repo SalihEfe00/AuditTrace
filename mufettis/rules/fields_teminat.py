@@ -26,6 +26,7 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
         "sicil_tescil_tarihi": [r"(?:sicil )?tescil tarihi", r"rehinli taşınır sicili kayıt tarihi"],
         "sicil_no": [r"(?:sicil|kayıt) (?:no|numarası)"],
         "imza_onayi": [r"imza onayı", r"onay şekli"],
+        "sozlesme_tarihi": [r"(?:rehin )?sözleşme(?:nin)? tarihi", r"düzenleme tarihi"],
     },
     "ekspertiz": {
         "rapor_tarihi": [r"(?:rapor|değerleme|ekspertiz) tarihi"],
@@ -61,7 +62,7 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
     },
 }
 
-_DATES = {"tescil_tarihi", "sicil_tescil_tarihi", "rapor_tarihi", "baslangic_tarihi", "bitis_tarihi",
+_DATES = {"sozlesme_tarihi", "tescil_tarihi", "sicil_tescil_tarihi", "rapor_tarihi", "baslangic_tarihi", "bitis_tarihi",
           "duzenleme_tarihi", "vade_tarihi", "islem_tarihi"}
 _AMOUNTS = {"ipotek_tutari", "rehin_tutari", "deger", "tutar"}
 _CONVERT = {f: as_date for f in _DATES}

@@ -72,3 +72,24 @@ def test_unrecognised_document_is_not_checked():
     at = _app("Müşteri şikâyeti: kartımdan ücret kesildi.").run()
     assert not at.exception and not at.radio
     assert any("tanınmadı" in c.value for c in at.caption)
+
+
+def test_event_date_comes_from_the_document():
+    """Eski tarihli belgede kurallar o tarihteki metne göre seçilir (önce hep bugün kullanılıyordu, M9.4b)."""
+    from mufettis.rules.mutation_cases import BASE
+    at = _app_today(BASE.replace("Sözleşme Tarihi: 12.03.2024", "Sözleşme Tarihi: 15.03.2013")).run()
+    assert not at.exception
+    assert any("Olay tarihi: 15.03.2013" in c.value for c in at.caption)
+    md = _markdown(at)
+    assert "`TBK584-es-rizasi-2013-oncesi`" in md and "uygulanmaz** — `TBK584-es-rizasi-2013-oncesi`" not in md
+    assert "uygulanmaz** — `TBK584-es-rizasi`" in md
+    at2 = _app_today("TAŞINIR REHİN SÖZLEŞMESİ\nRehin Tutarı: ……\n").run()
+    assert any("bugün varsayıldı" in c.value for c in at2.caption)
+
+
+def _app_today(text):
+    def script(text):
+        from mufettis.ui.rules_view import render_collateral_check
+        render_collateral_check(text)
+
+    return AppTest.from_function(script, args=(text,), default_timeout=60)

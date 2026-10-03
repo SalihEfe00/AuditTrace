@@ -17,6 +17,7 @@ except Exception:  # pragma: no cover
 
 from mufettis.rules.catalog import load_catalog
 from mufettis.rules.doctype import detect_collateral_type
+from mufettis.rules.event_date import document_event_date
 from mufettis.rules.engine import EXEMPT, MANUAL, MET, NOT_APPLICABLE, NOT_MET, UNKNOWN, evaluate
 from mufettis.rules.fields_kefalet import extract_kefalet_fields
 from mufettis.rules.fields_teminat import extract_teminat_fields
@@ -48,7 +49,12 @@ def render_collateral_check(text: str, event_date: Optional[dt.date] = None) -> 
         doc_key = hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]
         answers = st.session_state.setdefault(f"rules_answers_{doc_key}", {})
         fields = apply_answers(fields, answers)
-        results = evaluate(rules, kind, fields, text=text, event_date=event_date or dt.date.today())
+        if event_date is None:
+            event_date, source = document_event_date(kind, fields)
+            st.caption(f"Olay tarihi: {event_date:%d.%m.%Y} ("
+                       + ("belgeden okunamadı, bugün varsayıldı; kurallar güncel metne göre" if source == "bugün"
+                          else f"belgedeki {source}; kurallar o tarihteki kanun metnine göre") + ")")
+        results = evaluate(rules, kind, fields, text=text, event_date=event_date)
         questions = pending_questions(rules, results, fields)
         if questions:
             st.markdown("**Belgeden anlaşılamayanlar** — cevaplarınız *müfettiş beyanı* olarak kanıta yazılır:")

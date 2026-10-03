@@ -58,7 +58,8 @@ DOCUMENT_FIELDS: Dict[str, set] = {
     },
     # Çıkarıcılar: mufettis/rules/fields_teminat.py (test iki listenin tutarlılığını korur)
     "ipotek": {"malik", "tasinmaz", "ipotek_tutari", "derece", "tescil_tarihi", "yevmiye_no", "alacakli"},
-    "rehin": {"rehin_veren", "rehin_konusu", "rehin_tutari", "sicil_tescil_tarihi", "sicil_no", "imza_onayi"},
+    "rehin": {"rehin_veren", "rehin_konusu", "rehin_tutari", "sicil_tescil_tarihi", "sicil_no", "imza_onayi",
+              "sozlesme_tarihi"},
     "ekspertiz": {"rapor_tarihi", "deger", "degerleme_kurulusu", "eksper", "lisans_no"},
     "dask": {"police_no", "baslangic_tarihi", "bitis_tarihi", "sigortali", "dain_murtehin", "islem_tarihi"},
     "senet_gks": {"borclu", "tutar", "duzenleme_tarihi", "vade_tarihi", "imza"},
