@@ -71,7 +71,9 @@ def one_of(choices: List[Tuple[str, str]]) -> Callable[[str], object]:
 
 
 def _line_value(text: str, low: str, label: str) -> Optional[Tuple[str, str]]:
-    m = re.search(r"(?m)^[ \t]*(?:[-•*\d.)]+\s*)?" + label + _LABEL_END + r"[ \t]*(.*)$", low)
+    # Aynı etiket birden çok satırda olabilir (form başında boş, sonunda dolu; OCR sütun kayması): doluyu tercih et.
+    found = list(re.finditer(r"(?m)^[ \t]*(?:[-•*\d.)]+\s*)?" + label + _LABEL_END + r"[ \t]*(.*)$", low))
+    m = next((x for x in found if not is_blank(text[x.start(1):x.end(1)].strip())), found[0] if found else None)
     if not m:
         # Aynı satırda birden çok etiket ("... Sicil No: Tescil Tarihi: 17.08.2021, Sicil No: X"): virgül / noktalı
         # virgülden ya da önceki etiketin iki noktasından sonra gelen etiket, değeri bir sonraki virgüle kadar (M9.4c).

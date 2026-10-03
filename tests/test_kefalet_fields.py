@@ -30,6 +30,12 @@ def test_three_state_extraction():
     assert f["kefalet_tarihi"].value == dt.date(2024, 3, 12) and "sözleşme tarihi" in f["kefalet_tarihi"].location
     both = extract_kefalet_fields(CONTRACT + "Kefalet Tarihi: 14.03.2024\n")
     assert both["kefalet_tarihi"].value == dt.date(2024, 3, 14) and both["sozlesme_tarihi"].value == dt.date(2024, 3, 12)
+    # Ana kredi sözleşmesinin tarihi kefalet tarihinin yerine geçmez
+    credit = extract_kefalet_fields(CONTRACT.replace("Sözleşme Tarihi: 12.03.2024", "Kredi Sözleşme Tarihi: 12.03.2024"))
+    assert "kefalet_tarihi" not in credit and credit["kredi_sozlesme_tarihi"].value == dt.date(2024, 3, 12)
+    # Aynı etiket iki kez: biri boş biri dolu → dolu okunur
+    twice = extract_kefalet_fields("Azami Kefalet Tutarı :\n" + CONTRACT)
+    assert twice["azami_tutar"].value == "250000.00"
     assert f["es_rizasi"].state == EMPTY and "satır 10" in f["es_rizasi"].location
     assert f["es_rizasi_tarihi"].state == EMPTY
     assert "imza_turu" not in f  # etiket yok: bulunamadı

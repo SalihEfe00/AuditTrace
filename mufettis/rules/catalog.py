@@ -55,7 +55,7 @@ DOCUMENT_FIELDS: Dict[str, set] = {
         "kefil", "borclu", "alacakli", "azami_tutar", "sozlesme_tarihi", "kefalet_turu",
         "es_rizasi", "es_rizasi_tarihi", "el_yazisi_azami_tutar", "el_yazisi_tarih", "el_yazisi_kefalet_turu",
         "imza_turu", "kefil_medeni_hal", "kefil_ticari_sifat", "kredi_turu",
-        "kefalet_tarihi", "ayrilik_durumu", "kefalet_isletmeyle_ilgili",
+        "kefalet_tarihi", "ayrilik_durumu", "kefalet_isletmeyle_ilgili", "kredi_sozlesme_tarihi",
     },
     # Çıkarıcılar: mufettis/rules/fields_teminat.py (test iki listenin tutarlılığını korur)
     "ipotek": {"malik", "tasinmaz", "ipotek_tutari", "derece", "tescil_tarihi", "yevmiye_no", "alacakli"},

@@ -1,7 +1,5 @@
 import datetime as dt
 
-import pytest
-
 from mufettis.rules.catalog import load_catalog, parse_rule
 from mufettis.rules.engine import (EMPTY, EXEMPT, FILLED, INSPECTOR, MANUAL, MET, NOT_APPLICABLE, NOT_FOUND,
                                    NOT_MET, UNKNOWN, FieldValue, evaluate, evaluate_rule)

@@ -14,7 +14,8 @@ from mufettis.rules.engine import FILLED, FieldValue
 
 # Belge türü → olay tarihi sayılacak alanlar (öncelik sırasıyla)
 EVENT_DATE_FIELDS = {
-    "kefalet_sozlesmesi": ("kefalet_tarihi", "sozlesme_tarihi"),
+    # Kefalet tarihi yoksa kredi sözleşmesinin tarihi yalnızca yürürlükteki metni seçmek için yaklaşık olay tarihidir
+    "kefalet_sozlesmesi": ("kefalet_tarihi", "sozlesme_tarihi", "kredi_sozlesme_tarihi"),
     "ipotek": ("tescil_tarihi",),
     "rehin": ("sozlesme_tarihi", "sicil_tescil_tarihi"),
     "ekspertiz": ("rapor_tarihi",),

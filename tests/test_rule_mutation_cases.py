@@ -11,7 +11,7 @@ from mufettis.rules.review import apply_answers
 RULES = load_catalog()
 
 
-@pytest.mark.parametrize("case", CASES, ids=[c.id for c in CASES])
+@pytest.mark.parametrize("case", CASES, ids=lambda case: case.id)
 def test_mutation_case(case):
     fields = apply_answers(extract_kefalet_fields(case.text), case_answers(case))
     got = {r.rule_id: r.status for r in evaluate(RULES, "kefalet_sozlesmesi", fields, text=case.text,

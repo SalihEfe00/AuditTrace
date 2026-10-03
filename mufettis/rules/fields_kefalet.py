@@ -24,7 +24,9 @@ LABELS: Dict[str, List[str]] = {
     # TBK 583 "kefalet tarihi" ile ana sözleşmenin tarihi ayrı alanlar (M9.7b); kefalet sözleşmesinde kefalet tarihi
     # etiketi yoksa sözleşme tarihi kefalet tarihidir (aşağıda).
     "kefalet_tarihi": [r"kefalet (?:veriliş |düzenleme |tesis(?:i)? )?tarihi"],
-    "sozlesme_tarihi": [r"(?:kredi )?sözleşme(?:si|nin)? tarihi", r"düzenleme tarihi", r"tanzim tarihi"],
+    # Ana kredi sözleşmesinin tarihi ayrı alan: kefalet tarihinin yerine geçmez (M9.4g)
+    "sozlesme_tarihi": [r"sözleşme(?:si|nin)? tarihi", r"düzenleme tarihi", r"tanzim tarihi"],
+    "kredi_sozlesme_tarihi": [r"(?:genel |ana )?kredi sözleşme(?:si|sinin)? tarihi"],
     "kefalet_turu": [r"kefalet(?:in)? türü", r"kefalet şekli"],
     "es_rizasi": [r"eş(?:in)? rızası", r"eş(?:in)? (?:muvafakati|onayı|izni)", r"eş muvafakatnamesi"],
     "es_rizasi_tarihi": [r"(?:eş(?:in)? )?rıza tarihi", r"eş(?:in)? rızası(?:nın)? tarihi", r"muvafakat tarihi"],
@@ -37,6 +39,7 @@ LABELS: Dict[str, List[str]] = {
 
 CONVERT = {
     "sozlesme_tarihi": as_date,
+    "kredi_sozlesme_tarihi": as_date,
     "kefalet_tarihi": as_date,
     "es_rizasi_tarihi": as_date,
     "azami_tutar": as_amount,

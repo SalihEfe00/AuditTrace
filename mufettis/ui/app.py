@@ -203,7 +203,6 @@ def run_streamlit() -> None:
         stale = staleness_message(last_update)
         if stale:
             st.warning(stale)
-        from mufettis.config import BASE_DIR
         from mufettis.corpus.currency import running_update, start_update
         busy = running_update(DATA_DIR)
         if busy:

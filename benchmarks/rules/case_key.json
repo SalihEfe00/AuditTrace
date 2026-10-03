@@ -91,6 +91,19 @@
     "TBK581-kefil-ucuncu-kisi": "karşılanmadı"
    },
    "note": "kefil ile asıl borçlu aynı kişi (esnafın şahıs işletmesi): kimse kendi borcuna kefil olamaz"
+  },
+  "p1_chatgpt_1": {
+   "no_violation": false,
+   "expected": {
+    "6502-4-adi-kefalet": "karşılanmadı"
+   },
+   "note": "gizli set: kusursuz istendi ama bireysel krediye müteselsil kefalet yazılmış"
+  },
+  "p2_chatgpt_6": {
+   "expected": {
+    "TBK583-kefalet-tarihi": "karşılandı"
+   },
+   "note": "gizli set: kefalet tarihi dolu; boş olan ana kredi sözleşmesinin tarihi (TBK 583 kefalet tarihini arar)"
   }
  },
  "types": {

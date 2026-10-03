@@ -8,7 +8,7 @@ gerçek ölçüm kullanıcının vakalarıyla (M9.4 kaynakları, holdout ayrım�
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 BASE = """KEFALET SÖZLEŞMESİ
 Alacaklı Banka: Örnek Bankası A.Ş.
