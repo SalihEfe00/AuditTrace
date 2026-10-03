@@ -23,14 +23,14 @@ from mufettis.rules.fields_teminat import extract_teminat_fields
 from mufettis.rules.review import UNKNOWN_ANSWER, apply_answers, pending_questions
 
 TYPE_NAMES = {"kefalet_sozlesmesi": "kefalet sözleşmesi", "ipotek": "ipotek", "rehin": "taşınır rehni",
-              "ekspertiz": "ekspertiz / değerleme raporu", "dask": "DASK poliçesi"}
+              "ekspertiz": "ekspertiz / değerleme raporu", "dask": "DASK poliçesi", "bono": "bono"}
 ICON = {MET: "✅", NOT_MET: "❌", UNKNOWN: "❔", MANUAL: "📝", EXEMPT: "➖", NOT_APPLICABLE: "➖"}
 
 
 def render_collateral_check(text: str, event_date: Optional[dt.date] = None) -> None:
     if st is None:
         return
-    with st.expander("Teminat uygunluk kontrolü — kefalet, ipotek, rehin, ekspertiz, DASK"):
+    with st.expander("Teminat uygunluk kontrolü — kefalet, ipotek, rehin, ekspertiz, DASK, bono"):
         if not (text or "").strip():
             st.caption("Kontrol için önce belge metnini girin.")
             return

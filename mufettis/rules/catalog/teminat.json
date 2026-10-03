@@ -201,6 +201,66 @@
       "validity": {"from": "2012-08-18", "to": null},
       "finding": "DASK poliçesi tapu işlemi tarihinden önce sona ermiş: işlem tarihinde geçerli poliçe yok",
       "rationale": "6305 md. 11/2, bkz. 6305-11-dask-baslangic."
+    },
+    {
+      "id": "TTK776-bono-bedel",
+      "document_type": "bono",
+      "title": "Bonoda belirli bir bedel yazılı",
+      "basis": {"law": "6102", "article": "776", "paragraph": "1", "quote": "Kayıtsız ve şartsız belirli bir bedeli ödemek vaadini"},
+      "check": {"type": "field_present", "field": "tutar"},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "borçlu",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {"from": "2012-07-01", "to": null},
+      "finding": "Bono bedeli boş: senet bono sayılmaz (TTK 777/1)",
+      "rationale": "TTK 776/1-b zorunlu unsur; eksikliğinde 777/1 gereği senet bono sayılmaz ve kambiyo senedi teminatı kaybolur."
+    },
+    {
+      "id": "TTK776-bono-lehtar",
+      "document_type": "bono",
+      "title": "Bonoda lehtarın (kime ödeneceğinin) adı yazılı",
+      "basis": {"law": "6102", "article": "776", "paragraph": "1", "quote": "Kime veya kimin emrine ödenecek ise onun adını"},
+      "check": {"type": "field_present", "field": "lehtar"},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "borçlu",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {"from": "2012-07-01", "to": null},
+      "finding": "Lehtar adı boş: senet bono sayılmaz (TTK 777/1)",
+      "rationale": "TTK 776/1-e zorunlu unsur; 777/2-4'teki tamamlayıcı hükümler lehtarı kapsamaz."
+    },
+    {
+      "id": "TTK776-bono-duzenleme-tarihi",
+      "document_type": "bono",
+      "title": "Bonoda düzenlenme tarihi yazılı",
+      "basis": {"law": "6102", "article": "776", "paragraph": "1", "quote": "Düzenlenme tarihini ve yerini"},
+      "check": {"type": "field_present", "field": "duzenleme_tarihi"},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "borçlu",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {"from": "2012-07-01", "to": null},
+      "finding": "Düzenlenme tarihi boş: senet bono sayılmaz (TTK 777/1)",
+      "rationale": "TTK 776/1-f; düzenlenme yeri eksikliği 777/4 ile tamamlanır, tarih eksikliği tamamlanmaz. Vade (777/2) ve ödeme yeri (777/3) eksikliği bonoyu geçersiz kılmadığı için kural yazılmadı."
+    },
+    {
+      "id": "TTK776-bono-imza",
+      "document_type": "bono",
+      "title": "Bonoda düzenleyenin imzası var",
+      "basis": {"law": "6102", "article": "776", "paragraph": "1", "quote": "Düzenleyenin imzasını"},
+      "check": {"type": "field_present", "field": "imza"},
+      "result_class": "kısmen",
+      "norm_type": "yükümlülük",
+      "obligor": "borçlu",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {"from": "2012-07-01", "to": null},
+      "finding": "Düzenleyenin imzası yok: senet bono sayılmaz (TTK 777/1)",
+      "rationale": "TTK 776/1-g. İmzanın varlığı taranmış belgede her zaman metne yansımaz: sınıf 'kısmen', bilinmiyorsa müfettişe sorulur."
     }
   ]
 }

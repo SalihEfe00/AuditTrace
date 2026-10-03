@@ -12,6 +12,9 @@ from mufettis.rules.doctype import detect_collateral_type
     ("GAYRİMENKUL DEĞERLEME RAPORU\nRapor Tarihi: 10.01.2024", "ekspertiz", False),
     ("ZORUNLU DEPREM SİGORTASI POLİÇESİ", "dask", False),
     ("GENEL KREDİ SÖZLEŞMESİ", "senet_gks", False),
+    ("GENEL KREDİ SÖZLEŞMESİ\nMadde 9: Borçlu teminat olarak bono verecektir.", "senet_gks", False),
+    ("BONO\nVade: 12.09.2024\nDüzenleyen: Deniz Kaya", "bono", False),
+    ("Emre Yazılı Senet\nTutarı: 50.000 TL", "bono", False),
     ("Müşteri şikâyeti: kartımdan ücret kesildi.", None, False),
 ])
 def test_detect_collateral_type(text, expected, via_603):

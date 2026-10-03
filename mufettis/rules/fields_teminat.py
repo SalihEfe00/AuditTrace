@@ -49,6 +49,16 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
         "vade_tarihi": [r"vade(?: tarihi)?"],
         "imza": [r"(?:borçlu )?imza(?:sı)?"],
     },
+    "bono": {
+        "duzenleyen": [r"düzenleyen(?: adı soyadı| unvanı)?", r"borçlu(?: adı soyadı)?"],
+        "lehtar": [r"lehtar", r"alacaklı"],
+        "tutar": [r"(?:senet )?(?:tutarı|bedeli)", r"meblağ"],
+        "vade_tarihi": [r"vade(?: tarihi)?", r"ödeme günü"],
+        "odeme_yeri": [r"ödeme yeri"],
+        "duzenleme_tarihi": [r"(?:düzenleme|düzenlenme|tanzim) tarihi"],
+        "duzenleme_yeri": [r"(?:düzenleme|düzenlenme|tanzim) yeri"],
+        "imza": [r"(?:düzenleyen(?:in)? )?imza(?:sı)?"],
+    },
 }
 
 _DATES = {"tescil_tarihi", "sicil_tescil_tarihi", "rapor_tarihi", "baslangic_tarihi", "bitis_tarihi",

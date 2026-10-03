@@ -58,6 +58,10 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     Question("lisans_no", "Değerleme uzmanının lisans numarası raporda var mı?", (("var", "var"), ("yok / boş", ""))),
     Question("rapor_tarihi", "Değerleme raporunun tarihi yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
     Question("deger", "Raporda nihai değer takdiri var mı?", (("var", "var"), ("yok / boş", ""))),
+    Question("tutar", "Senette bedel yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
+    Question("lehtar", "Bonoda lehtarın (alacaklının) adı yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
+    Question("duzenleme_tarihi", "Senedin düzenlenme tarihi yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
+    Question("imza", "Senette düzenleyenin imzası var mı?", (("var", "var"), ("yok", ""))),
 ]}
 
 

@@ -21,7 +21,9 @@ _PATTERNS = [
     ("ipotek", r"ipotek (?:akit tablosu|sözleşmesi|belgesi)|resmi senet.{0,40}ipotek"),
     ("rehin", r"(?:taşınır )?rehin sözleşmesi|rehinli taşınır sicili"),
     ("kefalet_sozlesmesi", r"kefalet sözleşmesi|müteselsil kefil|kefaletname"),
-    ("senet_gks", r"genel kredi sözleşmesi|bono|emre muharrer senet|kredi sözleşmesi"),
+    # Bono yalnızca başlık satırından: kredi sözleşmesi metni teminat olarak bonoyu anabilir
+    ("bono", r"(?m)^[ \t]*(?:bono|emre (?:yazılı|muharrer) senet)\b"),
+    ("senet_gks", r"genel kredi sözleşmesi|kredi sözleşmesi"),
 ]
 _PERSONAL_GUARANTEE = r"garanti sözleşmesi|taahhütname|kişisel güvence|şahsi teminat"
 _LEGAL_ENTITY = r"(?:\ba\.ş\.|\bltd\b\.?|limited şirketi|anonim şirketi).{0,80}(?:garantör|garanti eden|taahhüt eden)|teminat mektubu"

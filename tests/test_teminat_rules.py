@@ -18,6 +18,8 @@ EKSPERTIZ = ("GAYRİMENKUL DEĞERLEME RAPORU\nRapor Tarihi: 10.01.2024\nDeğerle
              "Değerleme Uzmanı: Ece Tan\nLisans No: 400123\nPiyasa Değeri: 2.400.000,00 TL\n")
 DASK = ("ZORUNLU DEPREM SİGORTASI POLİÇESİ\nPoliçe No: 12345678\nBaşlangıç Tarihi: 01.02.2024\n"
         "Bitiş Tarihi: 01.02.2025\nTapu İşlem Tarihi: 05.02.2024\n")
+BONO = ("BONO\nDüzenleyen: Deniz Kaya\nLehtar: Örnek Bankası A.Ş.\nTutarı: 50.000,00 TL\nVade: 12.09.2024\n"
+        "Ödeme Yeri: İstanbul\nDüzenlenme Tarihi: 12.03.2024\nDüzenlenme Yeri: İstanbul\nİmza: (imzalı)\n")
 
 
 def run(doc_type, text, answers=None):
@@ -43,6 +45,15 @@ def run(doc_type, text, answers=None):
      {"6305-11-dask-baslangic": "karşılanmadı"}),
     ("dask", DASK.replace("Bitiş Tarihi: 01.02.2025", "Bitiş Tarihi: 01.02.2024"), {"6305-11-dask-bitis": "karşılanmadı"}),
     ("dask", DASK.replace("Tapu İşlem Tarihi: 05.02.2024\n", ""), {"6305-11-dask-baslangic": "belirsiz"}),
+    ("bono", BONO, {"TTK776-bono-bedel": "karşılandı", "TTK776-bono-lehtar": "karşılandı",
+                    "TTK776-bono-duzenleme-tarihi": "karşılandı", "TTK776-bono-imza": "karşılandı"}),
+    ("bono", BONO.replace("Örnek Bankası A.Ş.", "……"), {"TTK776-bono-lehtar": "karşılanmadı"}),
+    ("bono", BONO.replace("Düzenlenme Tarihi: 12.03.2024", "Düzenlenme Tarihi: ../../...."),
+     {"TTK776-bono-duzenleme-tarihi": "karşılanmadı"}),
+    ("bono", BONO.replace("İmza: (imzalı)\n", ""), {"TTK776-bono-imza": "belirsiz"}),
+    # TTK 777/2-4: vade, ödeme ve düzenlenme yeri eksikliği bonoyu geçersiz kılmaz → bu alanlara kural yok
+    ("bono", BONO.replace("Vade: 12.09.2024", "Vade: ……").replace("Ödeme Yeri: İstanbul", "Ödeme Yeri: ……"),
+     {"TTK776-bono-bedel": "karşılandı", "TTK776-bono-duzenleme-tarihi": "karşılandı"}),
 ])
 def test_collateral_rules(doc_type, text, expected):
     got = run(doc_type, text)
