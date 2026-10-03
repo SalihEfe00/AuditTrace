@@ -79,7 +79,7 @@ def _rule_fields(rule: Rule) -> List[str]:
     names = [check.get(k) for k in ("field", "before", "after") if check.get(k)]
     if isinstance(check.get("applies_if"), dict):
         names.insert(0, check["applies_if"]["field"])
-    names += [e.condition_field for e in rule.exceptions]
+    names += [n for e in rule.exceptions for n, _ in e.conditions]
     return names
 
 

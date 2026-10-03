@@ -8,10 +8,13 @@ Katalog bir JSON veri dosyasıdır (`mufettis/rules/catalog/*.json`); kod kural 
   (madde metninden birebir alıntı; boşluk / satır sonu farkı yok sayılır)
 - `check`: kontrol türü (CHECK_TYPES) ve alanları; `human` dışındaki türler belge alanı adlandırır
 - `result_class`: otomatik / kısmen / belirsiz / manuel
-- `norm_type` (yükümlülük / yasak / izin), `obligor` (yükümlü taraf)
+- `norm_type` (yükümlülük / yasak / izin / hukuki_sonuç: kanunun kendiliğinden bağladığı sonuç, ör. kefaletin
+  adi kefalet sayılması), `obligor` (yükümlü taraf)
 - `absence_is_violation`: öğe **boş** (etiket var, değer yok) ise ihlal mi (M9.2), yoksa yalnızca belirsizlik mi
-- `exceptions`: istisna kuralları; her biri koşul alanı + dayanak. İstisna koşulu sağlanıyorsa ya da
-  bilinmiyorsa kural "karşılanmadı" demez (M9.0)
+- `exceptions`: istisna kuralları; her biri koşul alanı + dayanak, isteğe bağlı `also` (birlikte sağlanması
+  gereken ek koşullar). İstisna koşulu sağlanıyorsa ya da bilinmiyorsa kural "karşılanmadı" demez (M9.0)
+- `check.applies_if`: kural yalnızca koşul alanı `values` değerlerindeyse, `above` eşiğinin üstündeyse ya da
+  `present: true` ile doluysa uygulanır (boşsa uygulanmaz, bulunamadıysa belirsiz)
 - `validity`: kuralın yazıldığı madde metninin geçerlilik aralığı (`from`, `to` ya da null); olay tarihi bu
   aralıkta değilse kural uygulanmaz, eski metne göre yazılmış kural aranır (M7)
 - `finding`: eksik öğeyi adlandıran bulgu metni ("eş rızası: ad soyad, imza, tarih boş")
@@ -42,7 +45,7 @@ CHECK_TYPES = {
     "human",           # yalnızca müfettişin yapabileceği kontrol; kontrol maddesi üretir
 }
 RESULT_CLASSES = {"otomatik", "kısmen", "belirsiz", "manuel"}
-NORM_TYPES = {"yükümlülük", "yasak", "izin"}
+NORM_TYPES = {"yükümlülük", "yasak", "izin", "hukuki_sonuç"}
 OBLIGORS = {"banka", "kefil", "eş", "borçlu", "alacaklı", "rehin_veren", "taraflar"}
 
 # Belge türü → kuralların adlandırabileceği alanlar (M9.3 alanları; tür eklendikçe genişler).
@@ -81,6 +84,11 @@ class Exception_:
     condition_values: tuple
     basis: Basis
     note: str = ""
+    also: tuple = ()  # ((alan, değerler), ...): istisna yalnızca bunlar da sağlanırsa uygulanır
+
+    @property
+    def conditions(self) -> tuple:
+        return ((self.condition_field, self.condition_values),) + self.also
 
 
 @dataclass(frozen=True)
@@ -170,8 +178,11 @@ def parse_rule(raw: Dict, article_text: Optional[Callable[[str, str], Optional[s
     elif check["type"] != "text_pattern" and not _check_fields(check):
         problems.append("kontrol bir belge alanı adlandırmıyor")
     cond = check.get("applies_if")
-    if cond is not None and (not isinstance(cond, dict) or ("values" in cond) == ("above" in cond)):
-        problems.append("applies_if: alan ve ya 'values' (değer listesi) ya 'above' (sayısal eşik) olmalı")
+    if cond is not None and (not isinstance(cond, dict)
+                             or sum(k in cond for k in ("values", "above", "present")) != 1
+                             or cond.get("present", True) is not True):
+        problems.append("applies_if: alan ve 'values' (değer listesi), 'above' (sayısal eşik) ya da "
+                        "'present: true' (dolu) koşullarından biri olmalı")
     for f in _check_fields(check):
         if f not in fields:
             problems.append(f"bilinmeyen alan: {f}")
@@ -188,14 +199,18 @@ def parse_rule(raw: Dict, article_text: Optional[Callable[[str, str], Optional[s
         where = f"istisna {ex.get('id') or i}"
         ex_basis = _basis(ex.get("basis"), where, problems)
         cond = ex.get("condition") or {}
-        if cond.get("field") not in fields:
-            problems.append(f"{where}: bilinmeyen koşul alanı: {cond.get('field')}")
-        if not cond.get("values"):
-            problems.append(f"{where}: koşul değeri yok")
+        also = ex.get("also") or []
+        for c in [cond] + list(also):
+            if c.get("field") not in fields:
+                problems.append(f"{where}: bilinmeyen koşul alanı: {c.get('field')}")
+            if not c.get("values"):
+                problems.append(f"{where}: koşul değeri yok")
         if ex_basis:
             exceptions.append(Exception_(id=str(ex.get("id") or i), condition_field=str(cond.get("field")),
                                          condition_values=tuple(cond.get("values") or ()), basis=ex_basis,
-                                         note=str(ex.get("note") or "")))
+                                         note=str(ex.get("note") or ""),
+                                         also=tuple((str(c.get("field")), tuple(c.get("values") or ()))
+                                                    for c in also)))
     validity = raw.get("validity") or {}
     try:
         valid_from, valid_to = _date(validity.get("from")), _date(validity.get("to"))

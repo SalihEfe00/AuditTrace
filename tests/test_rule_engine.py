@@ -11,6 +11,7 @@ SPOUSE = RULES["TBK584-es-rizasi"]
 HAND = RULES["TBK583-azami-tutar-el-yazisi"]
 TODAY = dt.date(2024, 5, 1)
 F = FieldValue.filled
+AMOUNT = F(500000.0, "s.2")
 
 
 def spouse(**fields):
@@ -36,8 +37,18 @@ def test_field_not_found_is_unknown_never_met():
 
 
 def test_exception_applies():
-    r = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("esnaf_sanatkar"))
+    r = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("esnaf_sanatkar"), kredi_turu=F("ticari"))
     assert r.status == EXEMPT and "584/3" in r.reason
+    assert spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("kooperatif_kredisi")).status == EXEMPT
+
+
+def test_business_capacity_alone_is_not_the_exception():
+    """TBK 584/3: şirket ortağı / esnaf olmak yetmez, kefalet işletmeyle ilgili olmalı (M9.7)."""
+    personal = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("sirket_ortagi_yoneticisi"),
+                      kredi_turu=F("tüketici"))
+    assert personal.status == NOT_MET
+    unknown = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("sirket_ortagi_yoneticisi"))
+    assert unknown.status == UNKNOWN and "kredi_turu" in unknown.reason
 
 
 def test_unknown_exception_condition_blocks_not_met():
@@ -56,10 +67,20 @@ def test_event_date_outside_rule_text_validity():
 
 
 def test_field_value_check_and_inspector_declaration():
-    met = evaluate_rule(HAND, {"el_yazisi_azami_tutar": F("var", "elle giriş", INSPECTOR)}, event_date=TODAY)
+    met = evaluate_rule(HAND, {"azami_tutar": AMOUNT, "el_yazisi_azami_tutar": F("var", "elle giriş", INSPECTOR)},
+                        event_date=TODAY)
     assert met.status == MET and met.evidence[0][4] == INSPECTOR
-    assert evaluate_rule(HAND, {"el_yazisi_azami_tutar": F("yok")}, event_date=TODAY).status == NOT_MET
-    assert evaluate_rule(HAND, {}, event_date=TODAY).status == UNKNOWN
+    assert evaluate_rule(HAND, {"azami_tutar": AMOUNT, "el_yazisi_azami_tutar": F("yok")},
+                         event_date=TODAY).status == NOT_MET
+    assert evaluate_rule(HAND, {"azami_tutar": AMOUNT}, event_date=TODAY).status == UNKNOWN
+
+
+def test_handwriting_rule_needs_the_element_itself():
+    """Tutar hiç yoksa yalnızca varlık kuralı bulgu verir; el yazısı kuralı ikinci bulgu üretmez (M9.7)."""
+    fields = {"azami_tutar": FieldValue(EMPTY), "el_yazisi_azami_tutar": F("yok")}
+    assert evaluate_rule(HAND, fields, event_date=TODAY).status == NOT_APPLICABLE
+    assert evaluate_rule(RULES["TBK583-azami-miktar-belirtilmis"], fields, event_date=TODAY).status == NOT_MET
+    assert evaluate_rule(HAND, {"el_yazisi_azami_tutar": F("yok")}, event_date=TODAY).status == UNKNOWN
 
 
 def _rule(check, **extra):

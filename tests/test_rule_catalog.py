@@ -59,6 +59,7 @@ def test_quote_match_ignores_line_breaks_and_case_but_not_words():
     (lambda r: r["check"].update(type="sezgi"), "bilinmeyen kontrol türü"),
     (lambda r: r["check"].update(applies_if={"field": "kredi_turu"}), "applies_if"),
     (lambda r: r["check"].update(applies_if={"field": "kredi_turu", "values": ["x"], "above": 1}), "applies_if"),
+    (lambda r: r["check"].update(applies_if={"field": "kredi_turu", "present": False}), "applies_if"),
 ])
 def test_broken_rule_is_rejected(mutate, message):
     raw = copy.deepcopy(_rules()[0])
@@ -70,6 +71,10 @@ def test_broken_rule_is_rejected(mutate, message):
 def test_exception_needs_known_condition_field_and_basis(tmp_path):
     raw = copy.deepcopy(_rules()[1])
     raw["exceptions"][0]["condition"]["field"] = "meslek"
+    with pytest.raises(CatalogError, match="bilinmeyen koşul alanı"):
+        parse_rule(raw, lookup)
+    raw = copy.deepcopy(_rules()[1])
+    raw["exceptions"][0]["also"] = [{"field": "meslek", "values": ["x"]}]
     with pytest.raises(CatalogError, match="bilinmeyen koşul alanı"):
         parse_rule(raw, lookup)
 

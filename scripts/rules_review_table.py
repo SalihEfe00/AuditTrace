@@ -35,6 +35,8 @@ def describe_check(check: dict) -> str:
         return text
     if "above" in cond:
         return text + f"; yalnızca {cond['field']} > {cond['above']:,}".replace(",", ".")
+    if cond.get("present"):
+        return text + f"; yalnızca {cond['field']} doluysa"
     return text + f"; yalnızca {cond['field']} ∈ {cond['values']}"
 
 
@@ -44,7 +46,7 @@ def main(out: str) -> int:
     for r in rules:
         ref = f"{r.basis.law} md. {r.basis.article}" + (f"/{r.basis.paragraph}" if r.basis.paragraph else "")
         exc = "<br>".join(f"<b>{html.escape(e.id)}</b> ({e.basis.law} md. {e.basis.article}/{e.basis.paragraph}): "
-                          f"{html.escape(e.condition_field)} ∈ {html.escape(str(list(e.condition_values)))}<br>"
+                          f"{' ve '.join(f'{html.escape(n)} ∈ {html.escape(str(list(v)))}' for n, v in e.conditions)}<br>"
                           f"<i>“{html.escape(e.basis.quote)}”</i>" for e in r.exceptions) or "—"
         valid = f"{r.valid_from or '…'} → {r.valid_to or 'bugün'}"
         rows.append(

@@ -134,7 +134,10 @@ def evaluate_rule(rule: Rule, fields: Dict[str, FieldValue], text: str = "",
     if cond:
         fv = _get(fields, cond["field"])
         evidence = evidence + (_ev(cond["field"], fv),)
-        holds = _condition_holds(cond, fv) if fv.state == FILLED else None
+        if cond.get("present"):
+            holds = {FILLED: True, EMPTY: False}.get(fv.state)  # boşsa varlık kuralı zaten bulgu verir
+        else:
+            holds = _condition_holds(cond, fv) if fv.state == FILLED else None
         if holds is None:
             return result(UNKNOWN, f"kuralın uygulanıp uygulanmadığı bilinmiyor: {cond['field']} {fv.state}",
                           finding=f"{rule.finding} (önce {cond['field']} belirlenmeli)", ev=evidence)
@@ -148,11 +151,15 @@ def evaluate_rule(rule: Rule, fields: Dict[str, FieldValue], text: str = "",
     # Karşılanmadı demeden önce istisna: koşulu sağlanıyorsa istisna, bilinmiyorsa belirsiz.
     unknown_exception = None
     for ex in rule.exceptions:
-        fv = _get(fields, ex.condition_field)
-        evidence = evidence + (_ev(ex.condition_field, fv),)
-        if fv.state == FILLED and _norm(fv.value) in {_norm(v) for v in ex.condition_values}:
+        # Bütün koşullar sağlanırsa istisna; biri sağlanmıyorsa istisna yok; yoksa bilinmiyor.
+        states = []
+        for name, values in ex.conditions:
+            fv = _get(fields, name)
+            evidence = evidence + (_ev(name, fv),)
+            states.append(None if fv.state != FILLED else _norm(fv.value) in {_norm(v) for v in values})
+        if all(states):
             return result(EXEMPT, f"istisna {ex.id} ({_ref(ex.basis)})", finding="", ev=evidence)
-        if fv.state != FILLED:
+        if False not in states:
             unknown_exception = ex
     if outcome is False:
         status, reason = NOT_MET, "kontrol sağlanmadı"
@@ -166,7 +173,7 @@ def evaluate_rule(rule: Rule, fields: Dict[str, FieldValue], text: str = "",
                           ev=evidence)
     if unknown_exception is not None:
         return result(UNKNOWN, f"{reason}; ama istisna {unknown_exception.id} koşulu bilinmiyor "
-                               f"({unknown_exception.condition_field})",
+                               f"({', '.join(n for n, _ in unknown_exception.conditions)})",
                       finding=f"{rule.finding}; istisna kontrol edilmeli: {unknown_exception.note or unknown_exception.id}",
                       ev=evidence)
     return result(status, reason, ev=evidence)
