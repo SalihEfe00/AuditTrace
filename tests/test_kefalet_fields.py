@@ -80,7 +80,7 @@ def test_block1_rules_end_to_end():
     assert _status("5070-md5-e-imza-kefalet", CONTRACT + "İmza Türü: Elektronik imza\n") == UNKNOWN  # güvenli mi?
     assert _status("5070-md5-e-imza-kefalet", CONTRACT + "İmza Türü: Basit elektronik imza\n") == MET
     assert _status("TBK14-kefil-imzasi", CONTRACT + "İmza Türü: Basit elektronik imza\n") == NOT_MET
-    assert _status("TBK14-kefil-imzasi", CONTRACT + "İmza Türü: Güvenli elektronik imza\n") == "uygulanmaz"
+    assert _status("TBK14-kefil-imzasi", CONTRACT + "İmza Türü: Güvenli elektronik imza\n") == MET  # güvenli e-imza imzadır (TBK 15); yasağı 5070 kuralı bildirir
     assert _status("TBK14-kefil-imzasi", CONTRACT + "İmza Türü: Islak imza\n") == MET
     assert _status("TBK14-kefil-imzasi", CONTRACT) == UNKNOWN  # imza bulunamadı ≠ imza yok
     assert _status("6502-4-adi-kefalet", CONTRACT + "Kredi Türü: Bireysel ihtiyaç kredisi\n") == NOT_MET
@@ -93,7 +93,7 @@ def test_block1_rules_end_to_end():
     assert _status("TBK583-muteselsil-el-yazisi", CONTRACT, el_yazisi_kefalet_turu="yok") == UNKNOWN  # kredi türü?
     assert _status("TBK583-muteselsil-el-yazisi", CONTRACT, el_yazisi_kefalet_turu="yok", kredi_turu="ticari") == NOT_MET
     assert _status("TBK583-muteselsil-el-yazisi", CONTRACT, el_yazisi_kefalet_turu="yok",
-                   kredi_turu="tüketici") == "istisna"  # 6502 md. 4/6 kuralı tek bulgu verir
+                   kredi_turu="tüketici") == "uygulanmaz"  # kefalet kanunen adi; 6502 kuralı tek bulgu
     assert _status("TBK583-azami-miktar-belirtilmis", CONTRACT.replace("250.000,00 TL", "………")) == NOT_MET
 
 

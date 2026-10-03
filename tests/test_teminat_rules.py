@@ -30,7 +30,7 @@ def run(doc_type, text, answers=None):
 @pytest.mark.parametrize("doc_type, text, expected", [
     ("ipotek", IPOTEK, {"TMK851-ipotek-tutari": "karşılandı", "TMK856-tapu-tescili": "karşılandı"}),
     ("ipotek", IPOTEK.replace("1.500.000,00 TL", "……………"), {"TMK851-ipotek-tutari": "karşılanmadı"}),
-    ("ipotek", IPOTEK.replace("Yevmiye No: 4521", "Yevmiye No: ……"), {"TMK856-tapu-tescili": "karşılanmadı"}),
+    ("ipotek", IPOTEK.replace("Yevmiye No: 4521", "Yevmiye No: ……"), {"TMK856-tapu-tescili": "belirsiz"}),
     ("ipotek", IPOTEK.replace("Yevmiye No: 4521\n", ""), {"TMK856-tapu-tescili": "belirsiz"}),
     ("rehin", REHIN, {"6750-4-sicil-tescili": "karşılandı", "6750-4-azami-miktar": "karşılandı",
                       "6750-4-imza-onayi": "karşılandı"}),
@@ -147,3 +147,15 @@ def test_every_question_targets_a_catalog_field():
     from mufettis.rules.catalog import DOCUMENT_FIELDS
     known = set().union(*DOCUMENT_FIELDS.values())
     assert set(QUESTIONS) <= known
+
+
+def test_registry_and_signature_blanks_are_asked_and_inspector_no_counts():
+    """M9.4d: belgede yevmiye / sicil numarası ya da bono düzenlenme yeri boş olması hukuken yok demek değildir:
+    belirsiz, müfettiş 'yok' derse karşılanmadı (TTK 777/4: yer, düzenleyenin adı yanında da yazılı olabilir)."""
+    blank = IPOTEK.replace("Yevmiye No: 4521", "Yevmiye No: ……")
+    assert run("ipotek", blank)["TMK856-tapu-tescili"] == "belirsiz"
+    assert run("ipotek", blank, {"yevmiye_no": ""})["TMK856-tapu-tescili"] == "karşılanmadı"
+    bono = "BONO\nDüzenleyen: Ali Veli\nLehtar: Örnek Bankası A.Ş.\nTutarı: 10.000 TL\nDüzenlenme Tarihi: 01.02.2024\nDüzenlenme Yeri: ……\n"
+    assert run("bono", bono)["TTK776-bono-duzenleme-yeri"] == "belirsiz"
+    assert run("bono", bono, {"duzenleme_yeri": "var"})["TTK776-bono-duzenleme-yeri"] == "karşılandı"
+    assert run("bono", bono, {"duzenleme_yeri": ""})["TTK776-bono-duzenleme-yeri"] == "karşılanmadı"

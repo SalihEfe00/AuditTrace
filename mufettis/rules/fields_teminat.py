@@ -13,7 +13,7 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
     "ipotek": {
         "malik": [r"(?:taşınmaz )?malik(?:i)?", r"ipotek veren"],
         "tasinmaz": [r"taşınmaz(?:ın)?(?: bilgileri| niteliği)?", r"ada ?/ ?parsel", r"ada parsel"],
-        "ipotek_tutari": [r"(?:tescil edilen )?ipotek (?:tutarı|bedeli|miktarı)"],
+        "ipotek_tutari": [r"(?:tescil edilen |tesis olunan )?ipotek (?:tutarı|bedeli|miktarı)"],
         "derece": [r"(?:ipotek )?derece(?:si)?(?: ?/ ?sıra)?"],
         "tescil_tarihi": [r"(?:tescil|yevmiye) tarihi"],
         "yevmiye_no": [r"yevmiye (?:no|numarası)"],
@@ -22,20 +22,20 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
     "rehin": {
         "rehin_veren": [r"rehin veren"],
         "rehin_konusu": [r"rehin(?:in)? konusu(?: taşınır| cinsi| mal(?:ın)? cinsi)?", r"rehinli (?:taşınır|varlık)"],
-        "rehin_tutari": [r"rehin (?:tutarı|bedeli|miktarı)", r"azam[iî] (?:rehin )?tutar[ıi]?"],
+        "rehin_tutari": [r"rehin (?:tutarı|bedeli|miktarı)", r"azam[iî] (?:rehin |teminat )?(?:tutar[ıi]?|miktar[ıi]?)"],
         "sicil_tescil_tarihi": [r"(?:sicil )?tescil tarihi", r"rehinli taşınır sicili kayıt tarihi"],
         "sicil_no": [r"(?:rts |rehinli taşınır )?sicil(?:i)? (?:kayıt )?(?:no|numarası)", r"kayıt (?:no|numarası)"],
         "imza_onayi": [r"imza onayı", r"onay şekli"],
         "sozlesme_tarihi": [r"(?:rehin )?sözleşme(?:nin)? tarihi", r"düzenleme tarihi"],
     },
     "ekspertiz": {
-        "rapor_tarihi": [r"(?:rapor|ekspertiz) tarihi", r"(?:rapor )?tanzim tarihi", r"değerleme tarihi"],
+        "rapor_tarihi": [r"(?:rapor|ekspertiz) tarihi", r"(?:rapor )?(?:tanzim|düzenleme|düzenlenme) tarihi", r"değerleme tarihi"],
         # Md. 14 nihai değer ister: "Nihai Değer" etiketi varsa o okunur, yoksa piyasa / pazar değeri
         "deger": [r"(?:takdir edilen )?nihai değer(?:i)?", r"(?:piyasa|pazar|tespit edilen) değer(?:i)?",
                   r"değer(?:i)?", r"değerleme sonucu"],
         "degerleme_kurulusu": [r"değerleme (?:kuruluşu|şirketi)", r"ekspertiz (?:firması|şirketi)"],
         "eksper": [r"(?:sorumlu )?(?:değerleme uzmanı|eksper)"],
-        "lisans_no": [r"(?:eksper |uzman |değerleme uzmanı )?lisans (?:no|numarası|bilgisi)"],
+        "lisans_no": [r"(?:spk |eksper |uzman |değerleme uzmanı )?lisans (?:sicil )?(?:no|numarası|bilgisi)"],
     },
     "dask": {
         "police_no": [r"poliçe (?:no|numarası|ref\.?)"],

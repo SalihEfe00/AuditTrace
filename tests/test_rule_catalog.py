@@ -10,6 +10,8 @@ from mufettis.rules.catalog import CATALOG_DIR, CatalogError, load_catalog, pars
 TBK = {
     "14": "MADDE 14- Yazılı şekilde yapılması öngörülen sözleşmelerde borç altına girenlerin\nimzalarının "
           "bulunması zorunludur.",
+    "581": "MADDE 581- Kefalet sözleşmesi, kefilin alacaklıya karşı, borçlunun borcunu ifa\netmemesinin sonuçlarından "
+           "kişisel olarak sorumlu olmayı üstlendiği sözleşmedir.",
     "583": "MADDE 583- Kefalet sözleşmesi, yazılı şekilde yapılmadıkça ve kefilin sorumlu \nolacağı azamî miktar ile "
            "kefalet tarihi belirtilmedikçe geçerli olmaz. Kefilin, sorumlu olduğu \nazamî miktarı, kefalet tarihini ve "
            "müteselsil kefil olması durumunda, bu sıfatla veya bu \nanlama gelen herhangi bir ifadeyle yükümlülük altına "

@@ -32,7 +32,7 @@ LABELS: Dict[str, List[str]] = {
     "imza_turu": [r"imza türü", r"imza şekli"],
     "ayrilik_durumu": [r"ayrılık (?:kararı|durumu)", r"ayrı yaşama"],
     "kefil_ticari_sifat": [r"(?:kefil(?:in)? )?(?:ticari )?sıfat(?:ı)?", r"(?:kefil(?:in)? )?mesle(?:k|ki|ği)"],
-    "kredi_turu": [r"kredi(?:nin)? (?:türü|cinsi|tipi)", r"kullandırılan kredi"],
+    "kredi_turu": [r"kredi(?:nin)? (?:türü|cinsi|tipi|ürünü)", r"kullandırılan kredi"],
 }
 
 CONVERT = {

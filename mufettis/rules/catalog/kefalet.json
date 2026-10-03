@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Kefalet sözleşmesi kuralları (M9.5 blok 1): TBK 583 (şekil, azami miktar, tarih, el yazısı), TBK 14 (kefil imzası), TBK 584 (eş rızası, zamanı, 584/1 ayrılık ve 584/3 istisnaları), 5070 md. 5/2 (güvenli e-imza), 6502 md. 4/6 (tüketici işleminde adi kefalet). Alıntılar madde metninden birebir; M9.7 hukuki gözden geçirmeden geçti (M9.7a, M9.7b).",
+  "description": "Kefalet sözleşmesi kuralları (M9.5 blok 1): TBK 581 (kefil üçüncü kişi), TBK 583 (şekil, azami miktar, tarih, el yazısı), TBK 14 (kefil imzası), TBK 584 (eş rızası, zamanı, 584/1 ayrılık ve 584/3 istisnaları), 5070 md. 5/2 (güvenli e-imza), 6502 md. 4/6 (tüketici işleminde adi kefalet). Alıntılar madde metninden birebir; M9.7 hukuki gözden geçirmeden geçti (M9.7a, M9.7b).",
   "rules": [
     {
       "id": "TBK583-azami-tutar-el-yazisi",
@@ -240,7 +240,8 @@
             "paragraph": "6",
             "quote": "her ne isim altında olursa olsun adi kefalet sayılır"
           },
-          "note": "Tüketici kredisinde kefalet kanunen adi kefalettir (6502 md. 4/6, 28.05.2014'ten); müteselsillik sorunu 6502-4-adi-kefalet kuralında tek bulgu olarak raporlanır."
+          "note": "Tüketici kredisinde kefalet kanunen adi kefalet sayılır (6502 md. 4/6, 28.05.2014'ten): müteselsillik doğmaz, el yazısı şartı konusuz kalır (uygulanmaz); durum 6502-4-adi-kefalet kuralında tek bulgu olarak raporlanır.",
+          "result": "uygulanmaz"
         }
       ],
       "validity": {
@@ -269,7 +270,7 @@
         }
       },
       "finding": "Müteselsil kefalet kaydı kefilin el yazısıyla belirtilmemiş görünüyor: müteselsillik sonucu doğmayıp kefalet adi kefalet olarak değerlendirilebilir",
-      "rationale": "Kural yalnızca müteselsil kefalette uygulanır; adi kefalette el yazısıyla sıfat şartı yok. Sıfat el yazısıyla yazılmamışsa kefalet tümden düşmez, adi kefalet hükmünde kalır (yargı kararlarındaki yerleşik görüş; korpusta içtihat yok, M9.7 hukuki gözden geçirmede teyit edildi). Tüketici kredisinde kural istisna verir: kefalet zaten adi sayılır, bulguyu 6502-4-adi-kefalet kuralı verir (aynı olay için iki bulgu yok). Bilinen sınır: istisnanın kendi geçerlilik tarihi tutulmuyor; 28.05.2014 öncesi tüketici kredisi olaylarında elle bakılmalı."
+      "rationale": "Kural yalnızca müteselsil kefalette uygulanır; adi kefalette el yazısıyla sıfat şartı yok. Sıfat el yazısıyla yazılmamışsa kefalet tümden düşmez, adi kefalet hükmünde kalır (yargı kararlarındaki yerleşik görüş; korpusta içtihat yok, M9.7 hukuki gözden geçirmede teyit edildi). Tüketici kredisinde kural uygulanmaz: kefalet zaten adi sayılır, bulguyu 6502-4-adi-kefalet kuralı verir (aynı olay için iki bulgu yok). Bilinen sınır: istisnanın kendi geçerlilik tarihi tutulmuyor; 28.05.2014 öncesi tüketici kredisi olaylarında elle bakılmalı."
     },
     {
       "document_type": "kefalet_sozlesmesi",
@@ -375,7 +376,7 @@
     {
       "id": "TBK14-kefil-imzasi",
       "document_type": "kefalet_sozlesmesi",
-      "title": "Kefalet sözleşmesi kefilin el yazısıyla attığı imzayı taşıyor (yazılı şekil)",
+      "title": "Kefalet sözleşmesi kefilin imzasını taşıyor (yazılı şekil)",
       "basis": {
         "law": "6098",
         "article": "14",
@@ -386,16 +387,9 @@
         "type": "field_value",
         "field": "imza_turu",
         "expected": [
-          "ıslak"
-        ],
-        "applies_if": {
-          "field": "imza_turu",
-          "values": [
-            "ıslak",
-            "diger_elektronik",
-            "imzasiz"
-          ]
-        }
+          "ıslak",
+          "guvenli_e_imza"
+        ]
       },
       "result_class": "kısmen",
       "norm_type": "yükümlülük",
@@ -406,8 +400,8 @@
         "from": "2012-07-01",
         "to": null
       },
-      "finding": "Kefilin el yazısıyla imzası yok (imzasız ya da güvenli olmayan elektronik imza): yazılı şekil sağlanmamış, kefalet geçersiz olabilir",
-      "rationale": "Kefalet yazılı şekle tabi (TBK 583/1); yazılı şekil borç altına girenin imzasını ister (TBK 14/1), imza el yazısıyla atılır (TBK 15/1; güvenli e-imza el yazısına denk ama teminatta 5070 md. 5/2 yasaklar, o durumu 5070 kuralı bildirir ve bu kural uygulanmaz). İmzanın varlığı taranmış metinden güvenle okunmaz: 'belgede bulunamadı' imzasızlık sayılmaz, belirsiz kalır ve müfettişe sorulur."
+      "finding": "Kefilin imzası yok ya da güvenli olmayan elektronik imza: yazılı şekil sağlanmamış, kefalet geçersiz olabilir",
+      "rationale": "Kefalet yazılı şekle tabi (TBK 583/1); yazılı şekil borç altına girenin imzasını ister (TBK 14/1), imza el yazısıyla atılır, güvenli elektronik imza da el yazısıyla atılmış imzanın sonuçlarını doğurur (TBK 15/1). Güvenli e-imzada imza VARDIR (bu kural karşılanır); kefalette bu imza türünün yasak olduğunu 5070 kuralı bildirir (tek olay, tek bulgu). İmzanın varlığı taranmış metinden güvenle okunmaz: 'belgede görünmüyor' imzasızlık sayılmaz, belirsiz kalır ve müfettişe sorulur."
     },
     {
       "document_type": "kefalet_sozlesmesi",
@@ -576,6 +570,33 @@
       },
       "finding": "Eşin rızası kefalet sözleşmesinden sonra verilmiş",
       "rationale": "Olay tarihi 1.7.2012 ile 11.4.2013 (6455 sayılı Kanunun Resmî Gazete tarihi) arasındaysa 584'ün ek fıkrası yoktu: ticari / esnaf istisnası uygulanmaz. Birinci fıkra metni aynı. Rıza tarihi bilinmiyorsa belirsiz (tarihin yokluğu tek başına ihlal sayılmaz; rızanın kendisi TBK584-es-rizasi kuralında).. Karşılaştırılan tarih kefalet tarihidir (kefalet sözleşmesinin kurulması); ana kredi sözleşmesinin tarihi değil."
+    },
+    {
+      "id": "TBK581-kefil-ucuncu-kisi",
+      "document_type": "kefalet_sozlesmesi",
+      "title": "Kefil, asıl borçludan başka bir kişi",
+      "basis": {
+        "law": "6098",
+        "article": "581",
+        "paragraph": "1",
+        "quote": "Kefalet sözleşmesi, kefilin alacaklıya karşı, borçlunun borcunu ifa etmemesinin sonuçlarından kişisel olarak sorumlu olmayı üstlendiği sözleşmedir."
+      },
+      "check": {
+        "type": "fields_differ",
+        "field": "kefil",
+        "other": "borclu"
+      },
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": "2012-07-01",
+        "to": null
+      },
+      "finding": "Kefil ile asıl borçlu aynı kişi: kimse kendi borcuna kefil olamaz, bu kefalet ek bir güvence sağlamaz",
+      "rationale": "Kefalet, kefilin BAŞKASININ (borçlunun) borcundan sorumlu olmayı üstlenmesidir (TBK 581). Esnafın şahıs işletmesi tüzel kişi değildir: işletmenin kredisinin borçlusu esnafın kendisidir, aynı kişinin kefaleti teminat değildir. Ad ya da unvan biri ötekinin içinde geçiyorsa aynı kişi sayılır ('Arslan Kuaförlüğü - Selim Arslan' / 'Selim Arslan'); biri yazmıyorsa belirsiz."
     }
   ]
 }

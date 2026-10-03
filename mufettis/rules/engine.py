@@ -78,6 +78,14 @@ def _passes(rule: Rule, fields: Dict[str, FieldValue], text: str) -> Optional[bo
         if fv.state != FILLED:
             return None
         return _norm(fv.value) in {_norm(v) for v in check.get("expected", [])}
+    if kind == "fields_differ":
+        # İki alan aynı kişiyi mi gösteriyor (ör. kefil ile asıl borçlu): biri ötekinin içinde geçiyorsa aynı sayılır
+        # ("Arslan Kuaförlüğü - Selim Arslan" ile "Selim Arslan")
+        a, b = _get(fields, check["field"]), _get(fields, check["other"])
+        if a.state != FILLED or b.state != FILLED:
+            return None
+        x, y = _norm(a.value), _norm(b.value)
+        return not (x and y and (x in y or y in x))
     if kind == "date_order":
         a, b = _get(fields, check["before"]), _get(fields, check["after"])
         if a.state != FILLED or b.state != FILLED:
@@ -115,14 +123,14 @@ def _condition_holds(cond: Dict, fv: FieldValue) -> Optional[bool]:
 
 
 def _missing_fields(rule: Rule, fields: Dict[str, FieldValue]) -> List[str]:
-    names = [rule.check.get(k) for k in ("field", "before", "after") if rule.check.get(k)]
+    names = [rule.check.get(k) for k in ("field", "other", "before", "after") if rule.check.get(k)]
     return [n for n in names if _get(fields, n).state != FILLED]
 
 
 def evaluate_rule(rule: Rule, fields: Dict[str, FieldValue], text: str = "",
                   event_date: Optional[dt.date] = None) -> RuleResult:
     basis = _ref(rule.basis)
-    used = [k for k in ("field", "before", "after") if rule.check.get(k)]
+    used = [k for k in ("field", "other", "before", "after") if rule.check.get(k)]
     evidence = tuple(_ev(rule.check[k], _get(fields, rule.check[k])) for k in used)
 
     def result(status, reason, finding=rule.finding, ev=evidence):
@@ -158,7 +166,8 @@ def evaluate_rule(rule: Rule, fields: Dict[str, FieldValue], text: str = "",
             evidence = evidence + (_ev(name, fv),)
             states.append(None if fv.state != FILLED else _norm(fv.value) in {_norm(v) for v in values})
         if all(states):
-            return result(EXEMPT, f"istisna {ex.id} ({_ref(ex.basis)})", finding="", ev=evidence)
+            status = NOT_APPLICABLE if getattr(ex, "result", "istisna") == "uygulanmaz" else EXEMPT
+            return result(status, f"istisna {ex.id} ({_ref(ex.basis)})", finding="", ev=evidence)
         if False not in states:
             unknown_exception = ex
     if outcome is False:

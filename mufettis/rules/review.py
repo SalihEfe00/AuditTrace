@@ -57,11 +57,11 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     Question("kefalet_turu", "Kefalet türü nedir?", (("müteselsil", "müteselsil"), ("adi", "adi"))),
     # Kefalet dışı teminat belgeleri (M9.6)
     Question("ipotek_tutari", "İpotek tutarı (üst sınır) belgede yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
-    Question("yevmiye_no", "İpoteğin tapu tescili (yevmiye numarası) belgelenmiş mi?",
-             (("evet", "var"), ("hayır / boş", ""))),
+    Question("yevmiye_no", "İpotek tapu kütüğüne tescil edilmiş mi? (tapu kaydına / tescil belgesine bakarak)",
+             (("evet, tescil var", "var"), ("hayır, tescil yok", ""))),
     Question("rehin_tutari", "Rehnin azami miktarı sözleşmede yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
-    Question("sicil_no", "Rehin Rehinli Taşınır Siciline tescil edilmiş mi (sicil numarası)?",
-             (("evet", "var"), ("hayır / boş", ""))),
+    Question("sicil_no", "Rehin Rehinli Taşınır Siciline tescil edilmiş mi? (sicil kaydına bakarak)",
+             (("evet, kayıt var", "var"), ("hayır, kayıt yok", ""))),
     Question("imza_onayi", "Rehin sözleşmesindeki imzalar nasıl onaylanmış?",
              (("noter onayı", "noter"), ("sicil yetkilisi huzurunda", "sicil_yetkilisi"),
               ("güvenli elektronik imza", "guvenli_e_imza"), ("onaysız", "yok"))),
@@ -78,12 +78,14 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     Question("duzenleme_tarihi", "Senedin düzenlenme tarihi nedir? (yazılı değilse 'yok')", (("yok / boş", ""),),
              kind="date"),
     Question("imza", "Senette düzenleyenin imzası var mı?", (("var", "var"), ("yok", ""))),
+    Question("duzenleme_yeri", "Bonoda düzenlenme yeri yazmıyor: düzenleyenin adının yanında bir yer (il / ilçe) yazılı mı?",
+             (("evet, yazılı", "var"), ("hayır, hiçbir yer yok", ""))),
 ]}
 
 
 def _rule_fields(rule: Rule) -> List[str]:
     check = rule.check
-    names = [check.get(k) for k in ("field", "before", "after") if check.get(k)]
+    names = [check.get(k) for k in ("field", "other", "before", "after") if check.get(k)]
     if isinstance(check.get("applies_if"), dict):
         names.insert(0, check["applies_if"]["field"])
     names += [n for e in rule.exceptions for n, _ in e.conditions]

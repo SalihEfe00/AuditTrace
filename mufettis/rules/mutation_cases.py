@@ -50,6 +50,7 @@ CASES: List[Case] = [
     Case("m00-kusursuz", BASE, {"TBK584-es-rizasi": "karşılandı", "TBK584-riza-zamani": "karşılandı",
                                 "TBK583-azami-miktar-belirtilmis": "karşılandı", "TBK583-kefalet-tarihi": "karşılandı",
                                 "5070-md5-e-imza-kefalet": "karşılandı", "TBK14-kefil-imzasi": "karşılandı",
+                                "TBK581-kefil-ucuncu-kisi": "karşılandı",
                                 "6502-4-adi-kefalet": "uygulanmaz"},
          basis="TBK 14/1, 583/1, 584/1, 5070 md. 5; ticari kredi → 6502 md. 4/6 uygulanmaz"),
     Case("m01-riza-bos", _swap("Eşin rızası: Ayşe Veli (imzalı)", "Eşin rızası: ……………"),
@@ -88,7 +89,7 @@ CASES: List[Case] = [
     Case("m10-muteselsil-matbu", BASE, {"TBK583-muteselsil-el-yazisi": "karşılanmadı"},
          answers={"el_yazisi_kefalet_turu": "yok"}, basis="TBK 583/1: müteselsil sıfat kefilin el yazısıyla"),
     Case("m11-e-imza", _swap("İmza Türü: Islak imza", "İmza Türü: Güvenli elektronik imza"),
-         {"5070-md5-e-imza-kefalet": "karşılanmadı", "TBK14-kefil-imzasi": "uygulanmaz"},
+         {"5070-md5-e-imza-kefalet": "karşılanmadı", "TBK14-kefil-imzasi": "karşılandı"},
          basis="5070 md. 5/2: teminat sözleşmesi güvenli e-imzayla kurulamaz; tek bulgu"),
     Case("m11b-e-imza-turu-yok", _swap("İmza Türü: Islak imza", "İmza Türü: Elektronik imza"),
          {"5070-md5-e-imza-kefalet": "belirsiz", "TBK14-kefil-imzasi": "belirsiz"},
@@ -99,7 +100,7 @@ CASES: List[Case] = [
     Case("m11d-imzasiz", _swap("İmza Türü: Islak imza", "İmza Türü: İmzasız"),
          {"TBK14-kefil-imzasi": "karşılanmadı"}, basis="TBK 14/1: yazılı şekil borç altına girenin imzasını ister"),
     Case("m12-tuketici-muteselsil", _swap("Kredi Türü: Ticari kredi", "Kredi Türü: Bireysel ihtiyaç kredisi"),
-         {"6502-4-adi-kefalet": "karşılanmadı", "TBK583-muteselsil-el-yazisi": "istisna"},
+         {"6502-4-adi-kefalet": "karşılanmadı", "TBK583-muteselsil-el-yazisi": "uygulanmaz"},
          answers={"el_yazisi_kefalet_turu": "yok"},
          basis="6502 md. 4/6: tüketici işleminde şahsi teminat adi kefalet; müteselsil el yazısı bulgusu tekrarlanmaz"),
     Case("m13-tuketici-adi", _swap("Kredi Türü: Ticari kredi", "Kredi Türü: Bireysel ihtiyaç kredisi").replace(
@@ -110,6 +111,9 @@ CASES: List[Case] = [
                                                  "Sözleşme Tarihi: 01.03.2024\nKefalet Tarihi: 12.03.2024\n"),
          {"TBK584-riza-zamani": "karşılandı"},
          basis="TBK 584/1: rıza kefalet sözleşmesinin kurulmasına göre; ana sözleşme tarihi değil"),
+    Case("m15-kefil-borclu-ayni", _swap("Kefil Adı Soyadı: Ali Veli", "Kefil Adı Soyadı: Deniz Kaya"),
+         {"TBK581-kefil-ucuncu-kisi": "karşılanmadı"},
+         basis="TBK 581: kefil başkasının borcunu üstlenir; kimse kendi borcuna kefil olamaz"),
 ]
 
 

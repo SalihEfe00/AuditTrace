@@ -36,11 +36,11 @@
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
       "obligor": "banka",
-      "absence_is_violation": true,
+      "absence_is_violation": false,
       "exceptions": [],
       "validity": {"from": null, "to": null},
-      "finding": "Yevmiye numarası boş: ipoteğin tapuya tescil edildiği belgelenmemiş",
-      "rationale": "Taşınmaz rehni tescille doğar (TMK 856/1); tescilsiz akit tablosu teminat sağlamaz. Yevmiye numarası tescil işleminin belgedeki izidir; alan bulunamazsa sonuç belirsiz kalır ve müfettişe sorulur."
+      "finding": "İpoteğin tapuya tescil edildiği belgelenmemiş (yevmiye numarası yok)",
+      "rationale": "Taşınmaz rehni tescille doğar (TMK 856/1); tescilsiz akit tablosu teminat sağlamaz. Yevmiye numarası tescilin belgedeki izidir, ama belgede boş olması tapu kütüğünde kayıt olmadığını kanıtlamaz (M9.4d: belgede yok ≠ hukuken yok): boş ya da bulunamadıysa belirsiz, müfettişe sorulur; müfettiş tapu kaydına bakıp 'tescil yok' derse karşılanmadı."
     },
     {
       "id": "6750-4-sicil-tescili",
@@ -56,11 +56,11 @@
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
       "obligor": "banka",
-      "absence_is_violation": true,
+      "absence_is_violation": false,
       "exceptions": [],
       "validity": {"from": "2017-01-01", "to": null},
-      "finding": "Sicil / kayıt numarası boş: rehnin sicile tescil edildiği belgelenmemiş",
-      "rationale": "6750 md. 4/1: rehin hakkı sözleşmenin sicile tescili ile kurulur. 6750 yürürlüğünden (1.1.2017) önceki rehinler eski mevzuata (TMK teslimli rehin, 1447) tabidir; o dönem için kural uygulanmaz."
+      "finding": "Rehnin sicile tescil edildiği belgelenmemiş (sicil / kayıt numarası yok)",
+      "rationale": "6750 md. 4/1: rehin hakkı sözleşmenin sicile tescili ile kurulur. Sözleşmede sicil numarasının boş olması sicilde kayıt olmadığını kanıtlamaz (M9.4d): belirsiz, müfettişe sorulur; müfettiş sicile bakıp 'kayıt yok' derse karşılanmadı. 6750 yürürlüğünden (1.1.2017) önceki rehinler eski mevzuata (TMK teslimli rehin, 1447) tabidir; o dönem için kural uygulanmaz."
     },
     {
       "id": "6750-4-azami-miktar",
@@ -285,6 +285,21 @@
       "validity": {"from": "2012-07-01", "to": null},
       "finding": "Düzenleyenin imzası yok: senet bono sayılmaz (TTK 777/1)",
       "rationale": "TTK 776/1-g. İmzanın varlığı taranmış belgede metne yansımaz: imza yeri boş görünse de 'karşılanmadı' denmez, belirsiz kalır ve müfettişe sorulur (M9.4c; kefil imzasıyla aynı ilke)."
+    },
+    {
+      "id": "TTK776-bono-duzenleme-yeri",
+      "document_type": "bono",
+      "title": "Bonoda düzenlenme yeri ya da düzenleyenin adı yanında bir yer yazılı",
+      "basis": {"law": "6102", "article": "776", "paragraph": "1", "quote": "Düzenlenme tarihini ve yerini"},
+      "check": {"type": "field_present", "field": "duzenleme_yeri"},
+      "result_class": "kısmen",
+      "norm_type": "yükümlülük",
+      "obligor": "borçlu",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {"from": "2012-07-01", "to": null},
+      "finding": "Düzenlenme yeri yok ve düzenleyenin adı yanında da yer yazılı değil: senet bono sayılmaz (TTK 777/1, 777/4)",
+      "rationale": "TTK 776/1-f düzenlenme yerini ister; 777/4: yer gösterilmemişse düzenleyenin adının yanında yazılı yerde düzenlenmiş sayılır. Bu yüzden düzenlenme yeri satırı boşsa karşılanmadı denmez: müfettişe 'düzenleyenin adı yanında bir yer yazılı mı' sorulur; 'hiçbir yer yok' derse karşılanmadı (M9.4d, kullanıcının üçüncü gözden geçirmesi)."
     }
   ]
 }

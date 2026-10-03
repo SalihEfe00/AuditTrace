@@ -80,8 +80,11 @@ def score(manifest, cases_dir: Path, key: dict, holdout: bool) -> dict:
             text = (cases_dir / ("holdout" if case["holdout"] else "gelistirme") / f"{case['id']}.txt").read_text(
                 encoding="utf-8")
             got = run_case(text, entry, key.get("defaults", {}), rules, answer=(mode == "müfettiş"))
+            expected = entry["expected"]
+            if mode == "belge":  # müfettiş bilgisi gerektiren karar belgeden verilemez: anahtar ayrıca yazar
+                expected = {**expected, **entry.get("expected_document", {})}
             checks = [("belge türü", entry["doc_type"], got["doc_type"])]
-            checks += [(rid, want, got["results"].get(rid, "(yok)")) for rid, want in entry["expected"].items()]
+            checks += [(rid, want, got["results"].get(rid, "(yok)")) for rid, want in expected.items()]
             if entry.get("no_violation"):
                 bad = sorted(r for r, s in got["results"].items() if s == NOT_MET)
                 checks.append(("ihlal yok", "-", ", ".join(bad) or "-"))

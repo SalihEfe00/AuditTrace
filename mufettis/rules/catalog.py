@@ -40,6 +40,7 @@ CHECK_TYPES = {
     "field_present",   # alan dolu mu
     "field_value",     # alan değeri beklenen değerlerden mi
     "date_order",      # bir tarih alanı diğerinden önce / aynı anda mı
+    "fields_differ",   # iki alan farklı kişiyi mi gösteriyor (kefil ≠ asıl borçlu)
     "threshold",       # sayısal alan eşiğin altında / üstünde mi
     "text_pattern",    # belgede kalıp geçiyor mu
     "human",           # yalnızca müfettişin yapabileceği kontrol; kontrol maddesi üretir
@@ -87,6 +88,9 @@ class Exception_:
     basis: Basis
     note: str = ""
     also: tuple = ()  # ((alan, değerler), ...): istisna yalnızca bunlar da sağlanırsa uygulanır
+    # "istisna": kural geçerli ama kanun bu durumu muaf tutar; "uygulanmaz": kanun durumu başka bir hükme bağlar ve
+    # kural konusuz kalır (ör. tüketici kredisinde kefalet zaten adi sayılır, müteselsillik el yazısı sorulmaz)
+    result: str = "istisna"
 
     @property
     def conditions(self) -> tuple:
@@ -147,7 +151,7 @@ def _basis(raw: Dict, where: str, problems: List[str]) -> Optional[Basis]:
 
 def _check_fields(check: Dict) -> List[str]:
     out = [check.get("field")] if check.get("field") else []
-    out += [f for f in (check.get("before"), check.get("after")) if f]
+    out += [f for f in (check.get("other"), check.get("before"), check.get("after")) if f]
     if isinstance(check.get("applies_if"), dict):  # kural yalnızca bu alan şu değerlerdeyse / eşiğin üstündeyse uygulanır
         out.append(check["applies_if"].get("field"))
     return out
@@ -202,6 +206,8 @@ def parse_rule(raw: Dict, article_text: Optional[Callable[[str, str], Optional[s
         ex_basis = _basis(ex.get("basis"), where, problems)
         cond = ex.get("condition") or {}
         also = ex.get("also") or []
+        if ex.get("result", "istisna") not in ("istisna", "uygulanmaz"):
+            problems.append(f"{where}: sonuç 'istisna' ya da 'uygulanmaz' olmalı")
         for c in [cond] + list(also):
             if c.get("field") not in fields:
                 problems.append(f"{where}: bilinmeyen koşul alanı: {c.get('field')}")
@@ -210,7 +216,7 @@ def parse_rule(raw: Dict, article_text: Optional[Callable[[str, str], Optional[s
         if ex_basis:
             exceptions.append(Exception_(id=str(ex.get("id") or i), condition_field=str(cond.get("field")),
                                          condition_values=tuple(cond.get("values") or ()), basis=ex_basis,
-                                         note=str(ex.get("note") or ""),
+                                         note=str(ex.get("note") or ""), result=str(ex.get("result") or "istisna"),
                                          also=tuple((str(c.get("field")), tuple(c.get("values") or ()))
                                                     for c in also)))
     validity = raw.get("validity") or {}
