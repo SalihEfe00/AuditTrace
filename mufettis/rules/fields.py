@@ -18,21 +18,35 @@ from mufettis.rules.engine import EMPTY, NOT_FOUND, FieldValue
 
 _BLANK = re.compile(r"^[\s.…_\-–:/|]*$")
 _PLACEHOLDER = re.compile(r"(?:ad[ıi] ?soyad[ıi]|imza|tarih|kaşe)\s*[:：]?[\s.…_/]*")
+# Doldurma yerinin yanındaki birim boş değeri doldurmaz: "…………… TL", "____ ₺", "........ (TL)" (M9.4c)
+_UNIT = re.compile(r"\(?\s*(?:tl|₺|türk lirası|try)\s*\)?", re.I)
 # Etiketten sonra iki nokta ya da doldurma yeri gelmeli; tek başına başlık satırı ("EŞ RIZASI") etiket değildir.
-_LABEL_END = r"[ \t]*(?:\([^)\n]*\))?[ \t]*(?:[:：]|(?=[.…_]{3,}))"
+# Etiketten sonra açıklama ("Bedel (Tutar):", "Rehin Tutarı / Azami Miktar (TL):") gelebilir (M9.4c): parantez ya da
+# eğik çizgiyle eklenen kısa nitelemeler etiketin parçası sayılır.
+_LABEL_END = r"[ \t]*(?:(?:\([^)\n]*\)|/[^:：\n]{1,40})[ \t]*)*(?:[:：]|(?=[.…_]{3,}))"
 
 _DATE = re.compile(r"\b(\d{1,2})[./-](\d{1,2})[./-](\d{4})\b")
+_ISO_DATE = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
+_MONTHS = ["ocak", "şubat", "mart", "nisan", "mayıs", "haziran", "temmuz", "ağustos", "eylül", "ekim", "kasım", "aralık"]
+_WORD_DATE = re.compile(r"\b(\d{1,2})\s+(" + "|".join(_MONTHS) + r")\s+(\d{4})\b")
 _AMOUNT = re.compile(r"(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:,\d{1,2})?)\s*(?:TL|₺|türk lirası)", re.I)
 
 
 def as_date(raw: str) -> Optional[dt.date]:
-    m = _DATE.search(raw)
-    if not m:
-        return None
+    """GG.AA.YYYY (/ ya da -), YYYY-AA-GG ya da "12 Mart 2024"."""
     try:
-        return dt.date(int(m.group(3)), int(m.group(2)), int(m.group(1)))
+        m = _DATE.search(raw)
+        if m:
+            return dt.date(int(m.group(3)), int(m.group(2)), int(m.group(1)))
+        m = _ISO_DATE.search(raw)
+        if m:
+            return dt.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        m = _WORD_DATE.search(turkish_lower(raw))
+        if m:
+            return dt.date(int(m.group(3)), _MONTHS.index(m.group(2)) + 1, int(m.group(1)))
     except ValueError:
         return None
+    return None
 
 
 def as_amount(raw: str) -> Optional[str]:
@@ -40,16 +54,28 @@ def as_amount(raw: str) -> Optional[str]:
     return m.group(1).replace(".", "").replace(",", ".") if m else None
 
 
-def one_of(choices: List[Tuple[str, str]]) -> Callable[[str], Optional[str]]:
-    """Değeri (kalıp, normal değer) listesinden ilk eşleşene çevirir."""
-    def convert(raw: str) -> Optional[str]:
+# Dönüştürücü değeri tanıdı ama karar için yetersiz bulduysa (ör. "elektronik imza", güvenli mi belli değil) bunu
+# döndürür: alan "bulunamadı" kalır, konumu not edilir ve kural belirsiz der (tanınmayan ham değer gibi
+# "karşılanmadı"ya gitmez).
+UNDECIDED = object()
+
+
+def one_of(choices: List[Tuple[str, str]]) -> Callable[[str], object]:
+    """Değeri (kalıp, normal değer) listesinden ilk eşleşene çevirir. Hiçbiri eşleşmezse UNDECIDED: tanınmayan
+    kategori değeri ("Rotatif kredi") ham metin olarak kalsaydı kural onu "uygulanmaz" ya da "karşılanmadı" sayardı;
+    alan bulunamadı kalır ve müfettişe sorulur (M9.4c)."""
+    def convert(raw: str) -> object:
         low = turkish_lower(raw)
-        return next((value for pattern, value in choices if re.search(pattern, low)), None)
+        return next((value for pattern, value in choices if re.search(pattern, low)), UNDECIDED)
     return convert
 
 
 def _line_value(text: str, low: str, label: str) -> Optional[Tuple[str, str]]:
     m = re.search(r"(?m)^[ \t]*(?:[-•*\d.)]+\s*)?" + label + _LABEL_END + r"[ \t]*(.*)$", low)
+    if not m:
+        # Aynı satırda birden çok etiket ("... Sicil No: Tescil Tarihi: 17.08.2021, Sicil No: X"): virgül / noktalı
+        # virgülden ya da önceki etiketin iki noktasından sonra gelen etiket, değeri bir sonraki virgüle kadar (M9.4c).
+        m = re.search(r"(?m)(?:[,;]|[:：])[ \t]*" + label + r"[ \t]*[:：][ \t]*([^,;\n]*)", low)
     if not m:
         return None
     line_no = low.count("\n", 0, m.start()) + 1
@@ -58,13 +84,12 @@ def _line_value(text: str, low: str, label: str) -> Optional[Tuple[str, str]]:
 
 
 def is_blank(raw: str) -> bool:
-    return bool(_BLANK.match(raw)) or bool(_PLACEHOLDER.fullmatch(turkish_lower(raw)))
-
-
-# Dönüştürücü değeri tanıdı ama karar için yetersiz bulduysa (ör. "elektronik imza", güvenli mi belli değil) bunu
-# döndürür: alan "bulunamadı" kalır, konumu not edilir ve kural belirsiz der (tanınmayan ham değer gibi
-# "karşılanmadı"ya gitmez).
-UNDECIDED = object()
+    if _BLANK.match(raw) or _PLACEHOLDER.fullmatch(turkish_lower(raw)):
+        return True
+    if re.match(r"^\W*(?:boş|doldurulmamış|imzalanmamış|imza yok)\b", turkish_lower(raw)):
+        return True  # "(BOŞ - İMZA VE METİN DOLDURULMAMIŞTIR)"
+    # Doldurma yeri ve yalnızca birim ("…… TL")
+    return bool(re.search(r"[.…_]{2,}", raw)) and bool(_BLANK.match(_UNIT.sub("", raw)))
 
 
 def extract_labeled_fields(text: str, labels: Dict[str, List[str]],

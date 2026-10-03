@@ -166,7 +166,10 @@ def evaluate_rule(rule: Rule, fields: Dict[str, FieldValue], text: str = "",
     else:
         missing = _missing_fields(rule, fields)
         empty = [n for n in missing if _get(fields, n).state == EMPTY]
-        if empty and rule.absence_is_violation and len(empty) == len(missing):
+        # Belgedeki boşluk güvenilmezse (absence_is_violation false: ör. imza metne yansımaz) yalnızca müfettişin
+        # "yok" beyanı ihlal sayılır.
+        stated = all(_get(fields, n).source == INSPECTOR for n in empty)
+        if empty and (rule.absence_is_violation or stated) and len(empty) == len(missing):
             status, reason = NOT_MET, "boş alan: " + ", ".join(empty)
         else:
             return result(UNKNOWN, "alan bulunamadı: " + ", ".join(missing) if missing else "karar verilemedi",

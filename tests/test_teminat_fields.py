@@ -24,9 +24,13 @@ def test_mortgage_fields():
 
 
 def test_dask_and_appraisal_fields_and_unparsed_value_stays_filled():
-    dask = extract_teminat_fields("dask", "Poliçe No: 12345678\nBitiş Tarihi: 3 Mart 2025\nDain-i Mürtehin: ____")
+    dask = extract_teminat_fields("dask", "Poliçe No: 12345678\nBitiş Tarihi: Mart ayı sonu\nDain-i Mürtehin: ____\n"
+                                          "Başlangıç Tarihi: 3 Mart 2024\nTapu İşlem Tarihi: 2024-03-05")
     assert dask["police_no"].value == "12345678"
-    assert dask["bitis_tarihi"].state == FILLED and dask["bitis_tarihi"].value == "3 Mart 2025"
+    assert dask["bitis_tarihi"].state == FILLED and dask["bitis_tarihi"].value == "Mart ayı sonu"
+    # Yazıyla ve ISO biçiminde tarih okunur (M9.4c)
+    import datetime as dt
+    assert dask["baslangic_tarihi"].value == dt.date(2024, 3, 3) and dask["islem_tarihi"].value == dt.date(2024, 3, 5)
     assert dask["dain_murtehin"].state == EMPTY
     exp = extract_teminat_fields("ekspertiz", "Rapor Tarihi: 10.01.2024\nPiyasa Değeri: 2.000.000 TL\n"
                                               "Değerleme Kuruluşu: Örnek Değerleme A.Ş.")

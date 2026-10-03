@@ -13,7 +13,7 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
     "ipotek": {
         "malik": [r"(?:taşınmaz )?malik(?:i)?", r"ipotek veren"],
         "tasinmaz": [r"taşınmaz(?:ın)?(?: bilgileri| niteliği)?", r"ada ?/ ?parsel", r"ada parsel"],
-        "ipotek_tutari": [r"ipotek (?:tutarı|bedeli|miktarı)"],
+        "ipotek_tutari": [r"(?:tescil edilen )?ipotek (?:tutarı|bedeli|miktarı)"],
         "derece": [r"(?:ipotek )?derece(?:si)?(?: ?/ ?sıra)?"],
         "tescil_tarihi": [r"(?:tescil|yevmiye) tarihi"],
         "yevmiye_no": [r"yevmiye (?:no|numarası)"],
@@ -21,27 +21,29 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
     },
     "rehin": {
         "rehin_veren": [r"rehin veren"],
-        "rehin_konusu": [r"rehin(?:in)? konusu(?: taşınır)?", r"rehinli (?:taşınır|varlık)"],
+        "rehin_konusu": [r"rehin(?:in)? konusu(?: taşınır| cinsi| mal(?:ın)? cinsi)?", r"rehinli (?:taşınır|varlık)"],
         "rehin_tutari": [r"rehin (?:tutarı|bedeli|miktarı)", r"azam[iî] (?:rehin )?tutar[ıi]?"],
         "sicil_tescil_tarihi": [r"(?:sicil )?tescil tarihi", r"rehinli taşınır sicili kayıt tarihi"],
-        "sicil_no": [r"(?:sicil|kayıt) (?:no|numarası)"],
+        "sicil_no": [r"(?:rts |rehinli taşınır )?sicil(?:i)? (?:kayıt )?(?:no|numarası)", r"kayıt (?:no|numarası)"],
         "imza_onayi": [r"imza onayı", r"onay şekli"],
         "sozlesme_tarihi": [r"(?:rehin )?sözleşme(?:nin)? tarihi", r"düzenleme tarihi"],
     },
     "ekspertiz": {
-        "rapor_tarihi": [r"(?:rapor|değerleme|ekspertiz) tarihi"],
-        "deger": [r"(?:piyasa |tespit edilen )?değer(?:i)?", r"değerleme sonucu"],
+        "rapor_tarihi": [r"(?:rapor|ekspertiz) tarihi", r"(?:rapor )?tanzim tarihi", r"değerleme tarihi"],
+        # Md. 14 nihai değer ister: "Nihai Değer" etiketi varsa o okunur, yoksa piyasa / pazar değeri
+        "deger": [r"(?:takdir edilen )?nihai değer(?:i)?", r"(?:piyasa|pazar|tespit edilen) değer(?:i)?",
+                  r"değer(?:i)?", r"değerleme sonucu"],
         "degerleme_kurulusu": [r"değerleme (?:kuruluşu|şirketi)", r"ekspertiz (?:firması|şirketi)"],
         "eksper": [r"(?:sorumlu )?(?:değerleme uzmanı|eksper)"],
-        "lisans_no": [r"lisans (?:no|numarası)"],
+        "lisans_no": [r"(?:eksper |uzman |değerleme uzmanı )?lisans (?:no|numarası|bilgisi)"],
     },
     "dask": {
-        "police_no": [r"poliçe (?:no|numarası)"],
-        "baslangic_tarihi": [r"(?:poliçe )?başlangıç tarihi"],
-        "bitis_tarihi": [r"(?:poliçe )?bitiş tarihi", r"vade (?:sonu|bitiş)"],
+        "police_no": [r"poliçe (?:no|numarası|ref\.?)"],
+        "baslangic_tarihi": [r"(?:poliçe |sigorta )?başla(?:ngıç|ngıcı|ma)(?: tarihi)?", r"yürürlük (?:tarihi|başla(?:ngıcı|ngıç)(?: tarihi)?)"],
+        "bitis_tarihi": [r"(?:poliçe |sigorta )?bitiş(?:i)?(?: tarihi)?", r"vade (?:sonu|bitiş)(?: tarihi)?"],
         "sigortali": [r"sigortalı(?: adı soyadı)?"],
         "dain_murtehin": [r"da[iı]n[- ]?i? ?mürtehin", r"rehin alacaklısı"],
-        "islem_tarihi": [r"tapu işlem tarihi"],
+        "islem_tarihi": [r"tapu (?:işlem|ipotek tescil|tescil) (?:tarihi|günü)"],
     },
     "senet_gks": {
         "borclu": [r"borçlu(?: adı soyadı| unvanı)?", r"kredi kullanan"],
@@ -53,7 +55,7 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
     "bono": {
         "duzenleyen": [r"düzenleyen(?: adı soyadı| unvanı)?", r"borçlu(?: adı soyadı)?"],
         "lehtar": [r"lehtar", r"alacaklı"],
-        "tutar": [r"(?:senet )?(?:tutarı|bedeli)", r"meblağ"],
+        "tutar": [r"(?:senet |bono )?(?:tutar|bedel)(?:ı|i)?(?: \(rakamla\))?", r"meblağ"],
         "vade_tarihi": [r"vade(?: tarihi)?", r"ödeme günü"],
         "odeme_yeri": [r"ödeme yeri"],
         "duzenleme_tarihi": [r"(?:düzenleme|düzenlenme|tanzim) tarihi"],
@@ -67,7 +69,7 @@ _DATES = {"sozlesme_tarihi", "tescil_tarihi", "sicil_tescil_tarihi", "rapor_tari
 _AMOUNTS = {"ipotek_tutari", "rehin_tutari", "deger", "tutar"}
 _CONVERT = {f: as_date for f in _DATES}
 _CONVERT.update({f: as_amount for f in _AMOUNTS})
-_CONVERT["imza_onayi"] = one_of([(r"noter", "noter"), (r"sicil yetkilisi", "sicil_yetkilisi"),
+_CONVERT["imza_onayi"] = one_of([(r"noter", "noter"), (r"sicil(?:i)? yetkilisi", "sicil_yetkilisi"),
                                   (r"güvenli elektronik imza", "guvenli_e_imza"),
                                   (r"elektronik imza|e-imza", UNDECIDED)])  # güvenli mi belli değil
 _CONVERT["derece"] = one_of([(r"\b1\b|birinci", "1"), (r"\b2\b|ikinci", "2"), (r"\b3\b|üçüncü", "3")])

@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Teminat belgesinin türü (M9.3 / M9.5): metnin başlığından ve ayırt edici ifadelerinden, belirlenimci.
+"""Teminat belgesinin türü (M9.3 / M9.5 / M9.4c): başlık + belgeye özgü etiketlerden puanlama, belirlenimci.
+
+İlk sürüm yalnızca birkaç sabit ifadeye bakıyordu; kullanıcı vakalarında "KEFİL SÖZLEŞMESİ", "MENKUL REHİN
+MUKAVELESİ", başlıksız değerleme özeti ve taranmış (OCR bozuk) belgeler tanınmadı. Şimdi her tür için:
+
+- başlık puanı: ilk satırlarda türün adı (3 puan; bono yalnızca başlıktan tanınır)
+- gövde puanı: metinde türe özgü ifade (1 puan)
+- etiket puanı: o türe özgü etiketli alanlardan kaçı belgede var (alan başına 1 puan)
+
+En yüksek puanlı tür seçilir (en az 2 puan). Eşleştirme, taranmış metindeki tipik karışmalara (ş→s, ı→i, $→ş,
+harf arasında 1→i) karşı Türkçe harfleri sadeleştirilmiş kopya üzerinde yapılır.
 
 TBK 603: kefaletin şekline ve eşin rızasına ilişkin hükümler, gerçek kişilerin başka ad altında verdiği kişisel
 güvence sözleşmelerine de uygulanır. Bu yüzden gerçek kişinin "garanti sözleşmesi", "taahhütname", "kişisel
@@ -14,19 +24,39 @@ from typing import Optional
 
 from mufettis.analysis.turkish_text import turkish_lower
 
-# (tür, ayırt edici kalıp); sıra önemli: daha özgül olan önce
-_PATTERNS = [
-    ("dask", r"zorunlu deprem sigortası|\bdask\b"),
-    ("ekspertiz", r"(?:ekspertiz|değerleme) raporu|gayrimenkul değerleme"),
-    ("ipotek", r"ipotek (?:akit tablosu|sözleşmesi|belgesi)|resmi senet.{0,40}ipotek"),
-    ("rehin", r"(?:taşınır )?rehin sözleşmesi|rehinli taşınır sicili"),
-    ("kefalet_sozlesmesi", r"kefalet sözleşmesi|müteselsil kefil|kefaletname"),
-    # Bono yalnızca başlık satırından: kredi sözleşmesi metni teminat olarak bonoyu anabilir
-    ("bono", r"(?m)^[ \t]*(?:bono|emre (?:yazılı|muharrer) senet)\b"),
-    ("senet_gks", r"genel kredi sözleşmesi|kredi sözleşmesi"),
-]
-_PERSONAL_GUARANTEE = r"garanti sözleşmesi|taahhütname|kişisel güvence|şahsi teminat"
-_LEGAL_ENTITY = r"(?:\ba\.ş\.|\bltd\b\.?|limited şirketi|anonim şirketi).{0,80}(?:garantör|garanti eden|taahhüt eden)|teminat mektubu"
+_FOLD = str.maketrans("şığüöçâîû$", "siguocaius")
+
+
+def _fold(text: str) -> str:
+    """Küçük harf + Türkçe harfleri sadeleştir + harf arasındaki 1/0 karışmalarını düzelt (yalnızca tür tanıma için)."""
+    low = turkish_lower(text).translate(_FOLD)
+    low = re.sub(r"(?<=[a-z])1(?=[a-z])|(?<=[a-z])1\b", "i", low)
+    return re.sub(r"(?<=[a-z])0(?=[a-z])", "o", low)
+
+
+# tür → (başlık kalıbı, gövde kalıbı, türe özgü etiket kalıpları); hepsi sadeleştirilmiş metinde
+_TYPES = {
+    "dask": (r"deprem sigorta|\bdask\b", r"zorunlu deprem|\bdask\b",
+             [r"police (?:no|numarasi|ref)", r"dain[- ]?i? ?murtehin", r"tapu islem tarihi", r"baslangic", r"bitis"]),
+    "ekspertiz": (r"ekspertiz|degerleme rapor|gayrimenkul degerleme|degerleme ozet",
+                  r"degerleme (?:raporu|uzmani|kurulusu)|ekspertiz",
+                  [r"degerleme (?:kurulusu|sirketi)", r"(?:sorumlu )?degerleme uzmani|eksper", r"lisans (?:no|numarasi)",
+                   r"rapor (?:tarihi|no)", r"(?:piyasa|nihai) deger"]),
+    "ipotek": (r"ipotek", r"ipotek (?:akit tablosu|sozlesmesi|belgesi|resmi senedi)|resmi senet.{0,40}ipotek",
+               [r"ipotek (?:tutari|bedeli|miktari)", r"yevmiye", r"derece", r"ada", r"parsel"]),
+    "rehin": (r"rehin", r"(?:tasinir |menkul )?rehin (?:sozlesmesi|mukavelesi)|rehinli tasinir sicili",
+              [r"rehin veren", r"rehin(?:in)? konusu", r"rehin (?:tutari|bedeli|miktari)", r"sicil(?:i)? (?:kayit )?no",
+               r"imza onayi"]),
+    "kefalet_sozlesmesi": (r"kefalet|kefil|kefaletname", r"kefalet sozlesmesi|muteselsil kefil|kefaletname",
+                           [r"kefil(?:in)? ad", r"azami (?:kefalet|sorumluluk)|kefalet (?:tutari|limiti)",
+                            r"kefalet(?:in)? (?:turu|sekli)", r"es(?:in)? (?:rizasi|muvafakat)", r"medeni (?:hal|durum)"]),
+    "bono": (r"^(?:bono|emre (?:yazili|muharrer) senet)\b", None,
+             [r"lehtar", r"duzenleyen", r"odeme yeri", r"duzen(?:le|len)me yeri"]),
+    "senet_gks": (r"(?:genel )?kredi sozlesmesi", r"genel kredi sozlesmesi", []),
+}
+_ORDER = list(_TYPES)  # eşitlikte önce gelen (daha özgül) seçilir
+_PERSONAL_GUARANTEE = r"garanti sozlesmesi|taahhutname|kisisel guvence|sahsi teminat"
+_LEGAL_ENTITY = r"(?:\ba\.s\.|\bltd\b\.?|limited sirketi|anonim sirketi).{0,80}(?:garantor|garanti eden|taahhut eden)|teminat mektubu"
 
 
 @dataclass(frozen=True)
@@ -36,12 +66,30 @@ class DocType:
     reason: str = ""
 
 
+def _label_hits(text: str, patterns) -> int:
+    return sum(bool(re.search(r"(?m)^[ \t]*(?:[-•*\d.)]+\s*)?" + p + r"[^:\n]{0,40}[:：]", text)) for p in patterns)
+
+
 def detect_collateral_type(text: str) -> DocType:
-    head = turkish_lower((text or "")[:3000])
-    for doc_type, pattern in _PATTERNS:
-        m = re.search(pattern, head)
-        if m:
-            return DocType(doc_type, False, f"ifade: {m.group(0)}")
+    head = _fold((text or "")[:4000])
+    # Başlık: ilk satırlardan "etiket: değer" ya da madde olmayan kısa satırlar (gövde cümlesi başlık sayılmaz)
+    lines = [ln.strip(" *=#-_|[]") for ln in head.splitlines()[:8]]
+    title = "\n".join(ln for ln in lines if ln and ":" not in ln and len(ln) <= 100)
+    scores = {}
+    for kind, (title_pat, body_pat, labels) in _TYPES.items():
+        score = 0
+        if re.search(title_pat, title, re.M):
+            score += 3
+        if body_pat and re.search(body_pat, head):
+            score += 1
+        score += _label_hits(head, labels)
+        scores[kind] = score
+    # Bono yalnızca başlıktan; kredi sözleşmesi metni teminat olarak bonoyu anabilir.
+    if not re.search(_TYPES["bono"][0], title, re.M):
+        scores["bono"] = 0
+    best = max(_ORDER, key=lambda k: (scores[k], -_ORDER.index(k)))
+    if scores[best] >= 2:
+        return DocType(best, False, f"puan {scores[best]} (başlık / ifade / etiket)")
     m = re.search(_PERSONAL_GUARANTEE, head)
     if m and not re.search(_LEGAL_ENTITY, head):
         return DocType("kefalet_sozlesmesi", True,

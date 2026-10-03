@@ -280,11 +280,11 @@
       "result_class": "kısmen",
       "norm_type": "yükümlülük",
       "obligor": "borçlu",
-      "absence_is_violation": true,
+      "absence_is_violation": false,
       "exceptions": [],
       "validity": {"from": "2012-07-01", "to": null},
       "finding": "Düzenleyenin imzası yok: senet bono sayılmaz (TTK 777/1)",
-      "rationale": "TTK 776/1-g. İmzanın varlığı taranmış belgede her zaman metne yansımaz: sınıf 'kısmen', bilinmiyorsa müfettişe sorulur."
+      "rationale": "TTK 776/1-g. İmzanın varlığı taranmış belgede metne yansımaz: imza yeri boş görünse de 'karşılanmadı' denmez, belirsiz kalır ve müfettişe sorulur (M9.4c; kefil imzasıyla aynı ilke)."
     }
   ]
 }
