@@ -21,6 +21,7 @@ CHECK_TEXT = {
     "field_present": "alan dolu mu: {field}",
     "field_value": "{field} ∈ {expected}",
     "date_order": "{before} ≤ {after}",
+    "fields_differ": "{field} ≠ {other} (aynı kişi değil)",
     "threshold": "{field} eşik",
     "text_pattern": "metinde kalıp: {pattern}",
     "human": "müfettiş: {instruction}",
@@ -29,7 +30,7 @@ CHECK_TEXT = {
 
 def describe_check(check: dict) -> str:
     text = CHECK_TEXT[check["type"]].format(**{k: check.get(k, "") for k in
-                                               ("field", "expected", "before", "after", "pattern", "instruction")})
+                                               ("field", "other", "expected", "before", "after", "pattern", "instruction")})
     cond = check.get("applies_if")
     if not cond:
         return text
