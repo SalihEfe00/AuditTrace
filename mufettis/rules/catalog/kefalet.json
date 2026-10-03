@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "description": "Kefalet sözleşmesi kuralları (M9.5 blok 1). M9.1'de biçimi gösteren ilk iki kural; M9.5 TBK 581–603, TKS Yönetmeliği md. 28 ve 5070 md. 5/2 ile tamamlar. Alıntılar madde metninden birebir.",
+  "rules": [
+    {
+      "id": "TBK583-azami-tutar-el-yazisi",
+      "document_type": "kefalet_sozlesmesi",
+      "title": "Kefilin sorumlu olacağı azami miktar kefilin el yazısıyla yazılmış",
+      "basis": {
+        "law": "6098",
+        "article": "583",
+        "paragraph": "1",
+        "quote": "Kefilin, sorumlu olduğu azamî miktarı, kefalet tarihini ve müteselsil kefil olması durumunda, bu sıfatla veya bu anlama gelen herhangi bir ifadeyle yükümlülük altına girdiğini kefalet sözleşmesinde kendi el yazısıyla belirtmesi şarttır."
+      },
+      "check": {"type": "field_value", "field": "el_yazisi_azami_tutar", "expected": ["var"]},
+      "result_class": "kısmen",
+      "norm_type": "yükümlülük",
+      "obligor": "kefil",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {"from": "2012-07-01", "to": null},
+      "finding": "Azami tutar kefilin el yazısıyla yazılmamış (kefalet geçersiz olabilir)",
+      "rationale": "Şekil şartı; eksikse kefalet geçerli olmaz (TBK 583/1 birinci cümle). El yazısı olup olmadığı taranmış belgede her zaman anlaşılamaz: sonuç sınıfı 'kısmen', emin olunamayan durumda alan 'belirsiz' kalır ve müfettişe sorulur (M9.3 elle giriş)."
+    },
+    {
+      "id": "TBK584-es-rizasi",
+      "document_type": "kefalet_sozlesmesi",
+      "title": "Evli kefil için eşin yazılı rızası, sözleşmeden önce ya da en geç kurulma anında",
+      "basis": {
+        "law": "6098",
+        "article": "584",
+        "paragraph": "1",
+        "quote": "Eşlerden biri mahkemece verilmiş bir ayrılık kararı olmadıkça veya yasal olarak ayrı yaşama hakkı doğmadıkça, ancak diğerinin yazılı rızasıyla kefil olabilir; bu rızanın sözleşmenin kurulmasından önce ya da en geç kurulması anında verilmiş olması şarttır."
+      },
+      "check": {"type": "field_present", "field": "es_rizasi", "applies_if": {"field": "kefil_medeni_hal", "values": ["evli"]}},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "kefil",
+      "absence_is_violation": true,
+      "exceptions": [
+        {
+          "id": "ticari-esnaf-5570-kooperatif",
+          "condition": {"field": "kefil_ticari_sifat", "values": ["tacir_isletme_sahibi", "sirket_ortagi_yoneticisi", "esnaf_sanatkar", "5570_kredisi", "kooperatif_kredisi"]},
+          "basis": {
+            "law": "6098",
+            "article": "584",
+            "paragraph": "3",
+            "quote": "verilecek kefaletler için eşin rızası aranmaz."
+          },
+          "note": "Ek fıkra 28/3/2013-6455/77: ticari işletme sahibi, şirket ortağı / yöneticisinin işletmeyle ilgili kefaleti, esnaf ve sanatkârın mesleki kefaleti, 5570 sayılı Kanun kredileri, kooperatif kredileri."
+        }
+      ],
+      "validity": {"from": "2013-04-11", "to": null},
+      "finding": "Eş rızası yok ya da boş (ad soyad, imza, tarih); kefil evli ve istisna kapsamı görünmüyor",
+      "rationale": "Rıza yoksa kefalet geçersiz. Kefil evli değilse ya da medeni hali bilinmiyorsa kural 'karşılanmadı' demez. İstisna (584/3) koşulu sağlanıyor ya da bilinmiyorsa 'karşılanmadı' denmez. Geçerlilik başlangıcı 6455 sayılı Kanunun Resmî Gazete tarihi (ek fıkra); M9.5'te olay tarihi için önceki metin kuralı ayrıca yazılır ve tarih doğrulanır."
+    }
+  ]
+}
