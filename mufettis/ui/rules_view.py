@@ -15,6 +15,7 @@ except Exception:  # pragma: no cover
     st = None
 
 from mufettis.rules.catalog import load_catalog
+from mufettis.rules.doctype import detect_collateral_type
 from mufettis.rules.engine import EXEMPT, MANUAL, MET, NOT_APPLICABLE, NOT_MET, UNKNOWN, evaluate
 from mufettis.rules.fields_kefalet import extract_kefalet_fields
 from mufettis.rules.review import UNKNOWN_ANSWER, apply_answers, pending_questions
@@ -29,6 +30,12 @@ def render_collateral_check(text: str, event_date: Optional[dt.date] = None) -> 
         if not (text or "").strip():
             st.caption("Kontrol için önce belge metnini girin.")
             return
+        doc_type = detect_collateral_type(text)
+        if doc_type.document_type != "kefalet_sozlesmesi":
+            st.caption(f"Belge kefalet sözleşmesi olarak tanınmadı ({doc_type.reason}).")
+            return
+        if doc_type.via_603:
+            st.info(f"Kişisel güvence belgesi: {doc_type.reason}")
         rules = load_catalog()
         fields = extract_kefalet_fields(text)
         # Cevaplar belgeye bağlı: metin değişince eski beyanlar yeni belgeye taşınmaz.
