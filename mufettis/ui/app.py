@@ -4,6 +4,7 @@ from __future__ import annotations
 import html
 import json
 import logging
+import os
 import unittest
 from typing import Optional
 
@@ -202,6 +203,15 @@ def run_streamlit() -> None:
         stale = staleness_message(last_update)
         if stale:
             st.warning(stale)
+        from mufettis.config import BASE_DIR
+        from mufettis.corpus.currency import running_update, start_update
+        busy = running_update(DATA_DIR)
+        if busy:
+            st.caption(f"Mevzuat güncellemesi sürüyor (süreç {busy}).")
+        elif st.button("Mevzuatı güncelle (internet gerekir)",
+                       help="Son 7 günün Resmî Gazetesi taranır; değişen belgeler resmî kaynaktan yeniden indirilir."):
+            ok, message = start_update(DATA_DIR, BASE_DIR, production=not os.environ.get("MUFETTIS_DATA_DIR"))
+            (st.success if ok else st.error)(message)
         if st.button("Self-test çalıştır"):
             result = run_self_tests()
             render_self_test_result(result)
