@@ -44,6 +44,26 @@ def test_typed_amount_triggers_second_report_check():
     assert "📝 **manuel kontrol** — `BDDK-DHY20-iki-rapor`" in _markdown(at)
 
 
+def test_kefalet_handwriting_answer_and_answers_bound_to_document():
+    from mufettis.rules.mutation_cases import BASE
+    at = _app(BASE).run()
+    assert "❔ **belirsiz** — `TBK583-muteselsil-el-yazisi`" in _markdown(at)
+    radio = next(r for r in at.radio if "'Müteselsil kefil' ibaresi" in r.label)
+    radio.set_value("hayır").run()
+    assert "❌ **karşılanmadı** — `TBK583-muteselsil-el-yazisi`" in _markdown(at)
+    # Başka belge: önceki belgenin beyanı taşınmaz
+    at2 = _app(BASE.replace("Ali Veli", "Can Demir")).run()
+    assert "❔ **belirsiz** — `TBK583-muteselsil-el-yazisi`" in _markdown(at2)
+
+
+def test_personal_guarantee_under_another_name_follows_kefalet_rules():
+    at = _app("TAAHHÜTNAME\nBen Ali Veli, Deniz Kaya'nın kredi borcunu ödemeyi taahhüt ederim.\n"
+              "Azami Tutar: ……………").run()
+    assert not at.exception
+    assert any("TBK 603" in i.value for i in at.info)
+    assert "`TBK583-azami-miktar-belirtilmis`" in _markdown(at)
+
+
 def test_unrecognised_document_is_not_checked():
     at = _app("Müşteri şikâyeti: kartımdan ücret kesildi.").run()
     assert not at.exception and not at.radio
