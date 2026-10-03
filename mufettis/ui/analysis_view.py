@@ -326,6 +326,10 @@ def render_analysis_page(
         help="En az 15 karakter içeren metin girilmelidir.",
     )
 
+    # M9: teminat belgesi kuralları (belirsiz alanlar müfettişe sorulur)
+    from mufettis.ui.rules_view import render_collateral_check
+    render_collateral_check(doc_text)
+
     use_llm = st.checkbox(
         "Yerel dil modeliyle kanıt doğrulaması (Ollama)",
         value=False,
