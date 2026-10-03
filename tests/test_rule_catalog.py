@@ -19,8 +19,16 @@ TBK = {
 }
 
 
+OTHER = {
+    ("5070", "5"): "Madde 5- Güvenli elektronik imza, elle atılan imza ile aynı hukukî sonucu doğurur.\nKanunların resmî "
+                   "şekle ... dışındaki teminat sözleşmeleri, güvenli elektronik imza ile gerçekleştirilemez.23",
+    ("7.5.20767", "28"): "MADDE 28 –\n (1) Tüketici kredisi\nsözleşmelerinde tüketicinin edimlerine karşılık olarak alınan "
+                         "şahsi teminatlar,\nher ne isim altında olursa olsun adi kefalet sayılır.",
+}
+
+
 def lookup(law, article):
-    return TBK.get(article) if law == "6098" else None
+    return TBK.get(article) if law == "6098" else OTHER.get((law, article))
 
 
 def _rules():

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Kefalet sözleşmesi kuralları (M9.5 blok 1). M9.1'de biçimi gösteren ilk iki kural; M9.5 TBK 581–603, TKS Yönetmeliği md. 28 ve 5070 md. 5/2 ile tamamlar. Alıntılar madde metninden birebir.",
+  "description": "Kefalet sözleşmesi kuralları (M9.5 blok 1): TBK 583 (şekil, azami miktar, tarih, el yazısı), TBK 584 (eş rızası, zamanı, 584/3 istisnaları), 5070 md. 5/2 (e-imza), TKS Yönetmeliği md. 28. Alıntılar madde metninden birebir; M9.7 hukuki gözden geçirmeden geçecek.",
   "rules": [
     {
       "id": "TBK583-azami-tutar-el-yazisi",
@@ -12,13 +12,22 @@
         "paragraph": "1",
         "quote": "Kefilin, sorumlu olduğu azamî miktarı, kefalet tarihini ve müteselsil kefil olması durumunda, bu sıfatla veya bu anlama gelen herhangi bir ifadeyle yükümlülük altına girdiğini kefalet sözleşmesinde kendi el yazısıyla belirtmesi şarttır."
       },
-      "check": {"type": "field_value", "field": "el_yazisi_azami_tutar", "expected": ["var"]},
+      "check": {
+        "type": "field_value",
+        "field": "el_yazisi_azami_tutar",
+        "expected": [
+          "var"
+        ]
+      },
       "result_class": "kısmen",
       "norm_type": "yükümlülük",
       "obligor": "kefil",
       "absence_is_violation": true,
       "exceptions": [],
-      "validity": {"from": "2012-07-01", "to": null},
+      "validity": {
+        "from": "2012-07-01",
+        "to": null
+      },
       "finding": "Azami tutar kefilin el yazısıyla yazılmamış (kefalet geçersiz olabilir)",
       "rationale": "Şekil şartı; eksikse kefalet geçerli olmaz (TBK 583/1 birinci cümle). El yazısı olup olmadığı taranmış belgede her zaman anlaşılamaz: sonuç sınıfı 'kısmen', emin olunamayan durumda alan 'belirsiz' kalır ve müfettişe sorulur (M9.3 elle giriş)."
     },
@@ -32,7 +41,16 @@
         "paragraph": "1",
         "quote": "Eşlerden biri mahkemece verilmiş bir ayrılık kararı olmadıkça veya yasal olarak ayrı yaşama hakkı doğmadıkça, ancak diğerinin yazılı rızasıyla kefil olabilir; bu rızanın sözleşmenin kurulmasından önce ya da en geç kurulması anında verilmiş olması şarttır."
       },
-      "check": {"type": "field_present", "field": "es_rizasi", "applies_if": {"field": "kefil_medeni_hal", "values": ["evli"]}},
+      "check": {
+        "type": "field_present",
+        "field": "es_rizasi",
+        "applies_if": {
+          "field": "kefil_medeni_hal",
+          "values": [
+            "evli"
+          ]
+        }
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
       "obligor": "kefil",
@@ -40,7 +58,16 @@
       "exceptions": [
         {
           "id": "ticari-esnaf-5570-kooperatif",
-          "condition": {"field": "kefil_ticari_sifat", "values": ["tacir_isletme_sahibi", "sirket_ortagi_yoneticisi", "esnaf_sanatkar", "5570_kredisi", "kooperatif_kredisi"]},
+          "condition": {
+            "field": "kefil_ticari_sifat",
+            "values": [
+              "tacir_isletme_sahibi",
+              "sirket_ortagi_yoneticisi",
+              "esnaf_sanatkar",
+              "5570_kredisi",
+              "kooperatif_kredisi"
+            ]
+          },
           "basis": {
             "law": "6098",
             "article": "584",
@@ -50,9 +77,247 @@
           "note": "Ek fıkra 28/3/2013-6455/77: ticari işletme sahibi, şirket ortağı / yöneticisinin işletmeyle ilgili kefaleti, esnaf ve sanatkârın mesleki kefaleti, 5570 sayılı Kanun kredileri, kooperatif kredileri."
         }
       ],
-      "validity": {"from": "2013-04-11", "to": null},
+      "validity": {
+        "from": "2013-04-11",
+        "to": null
+      },
       "finding": "Eş rızası yok ya da boş (ad soyad, imza, tarih); kefil evli ve istisna kapsamı görünmüyor",
       "rationale": "Rıza yoksa kefalet geçersiz. Kefil evli değilse ya da medeni hali bilinmiyorsa kural 'karşılanmadı' demez. İstisna (584/3) koşulu sağlanıyor ya da bilinmiyorsa 'karşılanmadı' denmez. Geçerlilik başlangıcı 6455 sayılı Kanunun Resmî Gazete tarihi (ek fıkra); M9.5'te olay tarihi için önceki metin kuralı ayrıca yazılır ve tarih doğrulanır."
+    },
+    {
+      "document_type": "kefalet_sozlesmesi",
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "kefil",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {
+        "from": "2012-07-01",
+        "to": null
+      },
+      "id": "TBK583-azami-miktar-belirtilmis",
+      "title": "Kefilin sorumlu olacağı azami miktar sözleşmede belirtilmiş",
+      "basis": {
+        "law": "6098",
+        "article": "583",
+        "paragraph": "1",
+        "quote": "Kefalet sözleşmesi, yazılı şekilde yapılmadıkça ve kefilin sorumlu olacağı azamî miktar ile kefalet tarihi belirtilmedikçe geçerli olmaz."
+      },
+      "check": {
+        "type": "field_present",
+        "field": "azami_tutar"
+      },
+      "finding": "Azami kefalet tutarı belirtilmemiş (kefalet geçersiz olabilir)",
+      "rationale": "Şekil şartı: azami miktar belirtilmedikçe kefalet geçerli olmaz. Alan boşsa karşılanmadı, etiketi hiç yoksa belirsiz."
+    },
+    {
+      "document_type": "kefalet_sozlesmesi",
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "kefil",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {
+        "from": "2012-07-01",
+        "to": null
+      },
+      "id": "TBK583-kefalet-tarihi",
+      "title": "Kefalet tarihi sözleşmede belirtilmiş",
+      "basis": {
+        "law": "6098",
+        "article": "583",
+        "paragraph": "1",
+        "quote": "Kefalet sözleşmesi, yazılı şekilde yapılmadıkça ve kefilin sorumlu olacağı azamî miktar ile kefalet tarihi belirtilmedikçe geçerli olmaz."
+      },
+      "check": {
+        "type": "field_present",
+        "field": "sozlesme_tarihi"
+      },
+      "finding": "Kefalet tarihi belirtilmemiş (kefalet geçersiz olabilir)",
+      "rationale": "Şekil şartı: kefalet tarihi belirtilmedikçe kefalet geçerli olmaz."
+    },
+    {
+      "document_type": "kefalet_sozlesmesi",
+      "result_class": "kısmen",
+      "norm_type": "yükümlülük",
+      "obligor": "kefil",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {
+        "from": "2012-07-01",
+        "to": null
+      },
+      "id": "TBK583-tarih-el-yazisi",
+      "title": "Kefalet tarihi kefilin el yazısıyla yazılmış",
+      "basis": {
+        "law": "6098",
+        "article": "583",
+        "paragraph": "1",
+        "quote": "Kefilin, sorumlu olduğu azamî miktarı, kefalet tarihini ve müteselsil kefil olması durumunda, bu sıfatla veya bu anlama gelen herhangi bir ifadeyle yükümlülük altına girdiğini kefalet sözleşmesinde kendi el yazısıyla belirtmesi şarttır."
+      },
+      "check": {
+        "type": "field_value",
+        "field": "el_yazisi_tarih",
+        "expected": [
+          "var"
+        ]
+      },
+      "finding": "Kefalet tarihi kefilin el yazısıyla yazılmamış (kefalet geçersiz olabilir)",
+      "rationale": "El yazısı taranmış metinden anlaşılmaz; alan müfettişe sorulur (müfettiş beyanı)."
+    },
+    {
+      "document_type": "kefalet_sozlesmesi",
+      "result_class": "kısmen",
+      "norm_type": "yükümlülük",
+      "obligor": "kefil",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {
+        "from": "2012-07-01",
+        "to": null
+      },
+      "id": "TBK583-muteselsil-el-yazisi",
+      "title": "Müteselsil kefil sıfatı kefilin el yazısıyla yazılmış",
+      "basis": {
+        "law": "6098",
+        "article": "583",
+        "paragraph": "1",
+        "quote": "Kefilin, sorumlu olduğu azamî miktarı, kefalet tarihini ve müteselsil kefil olması durumunda, bu sıfatla veya bu anlama gelen herhangi bir ifadeyle yükümlülük altına girdiğini kefalet sözleşmesinde kendi el yazısıyla belirtmesi şarttır."
+      },
+      "check": {
+        "type": "field_value",
+        "field": "el_yazisi_kefalet_turu",
+        "expected": [
+          "var"
+        ],
+        "applies_if": {
+          "field": "kefalet_turu",
+          "values": [
+            "müteselsil"
+          ]
+        }
+      },
+      "finding": "Müteselsil kefil sıfatı kefilin el yazısıyla yazılmamış (müteselsillik geçersiz olabilir)",
+      "rationale": "Kural yalnızca müteselsil kefalette uygulanır; adi kefalette el yazısıyla sıfat şartı yok."
+    },
+    {
+      "document_type": "kefalet_sozlesmesi",
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "kefil",
+      "absence_is_violation": false,
+      "exceptions": [
+        {
+          "id": "ticari-esnaf-5570-kooperatif",
+          "condition": {
+            "field": "kefil_ticari_sifat",
+            "values": [
+              "tacir_isletme_sahibi",
+              "sirket_ortagi_yoneticisi",
+              "esnaf_sanatkar",
+              "5570_kredisi",
+              "kooperatif_kredisi"
+            ]
+          },
+          "basis": {
+            "law": "6098",
+            "article": "584",
+            "paragraph": "3",
+            "quote": "verilecek kefaletler için eşin rızası aranmaz."
+          },
+          "note": "Ek fıkra 28/3/2013-6455/77: ticari işletme sahibi, şirket ortağı / yöneticisinin işletmeyle ilgili kefaleti, esnaf ve sanatkârın mesleki kefaleti, 5570 sayılı Kanun kredileri, kooperatif kredileri."
+        }
+      ],
+      "validity": {
+        "from": "2013-04-11",
+        "to": null
+      },
+      "id": "TBK584-riza-zamani",
+      "title": "Eşin rızası sözleşmeden önce ya da en geç kurulma anında verilmiş",
+      "basis": {
+        "law": "6098",
+        "article": "584",
+        "paragraph": "1",
+        "quote": "Eşlerden biri mahkemece verilmiş bir ayrılık kararı olmadıkça veya yasal olarak ayrı yaşama hakkı doğmadıkça, ancak diğerinin yazılı rızasıyla kefil olabilir; bu rızanın sözleşmenin kurulmasından önce ya da en geç kurulması anında verilmiş olması şarttır."
+      },
+      "check": {
+        "type": "date_order",
+        "before": "es_rizasi_tarihi",
+        "after": "sozlesme_tarihi",
+        "allow_equal": true,
+        "applies_if": {
+          "field": "kefil_medeni_hal",
+          "values": [
+            "evli"
+          ]
+        }
+      },
+      "finding": "Eşin rızası kefalet sözleşmesinden sonra verilmiş",
+      "rationale": "Rıza tarihi bilinmiyorsa belirsiz (tarihin yokluğu tek başına ihlal sayılmaz; rızanın kendisi TBK584-es-rizasi kuralında)."
+    },
+    {
+      "document_type": "kefalet_sozlesmesi",
+      "result_class": "otomatik",
+      "norm_type": "yasak",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "id": "5070-md5-e-imza-kefalet",
+      "title": "Kefalet sözleşmesi güvenli elektronik imzayla kurulmamış",
+      "basis": {
+        "law": "5070",
+        "article": "5",
+        "paragraph": "2",
+        "quote": "güvenli elektronik imza ile gerçekleştirilemez"
+      },
+      "check": {
+        "type": "field_value",
+        "field": "imza_turu",
+        "expected": [
+          "ıslak"
+        ]
+      },
+      "finding": "Kefalet (teminat sözleşmesi) e-imzayla atılmış: güvenli elektronik imzayla kurulamaz",
+      "rationale": "Teminat sözleşmeleri güvenli e-imzayla yapılamaz (banka teminat mektubu ve sigorta kefalet senedi istisnası kefil-banka kefaletine uygulanmaz). İmza türü yazmıyorsa belirsiz."
+    },
+    {
+      "document_type": "kefalet_sozlesmesi",
+      "result_class": "otomatik",
+      "norm_type": "yasak",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "id": "TKS28-adi-kefalet",
+      "title": "Tüketici kredisinde şahsi teminat adi kefalet sayılır",
+      "basis": {
+        "law": "7.5.20767",
+        "article": "28",
+        "paragraph": "1",
+        "quote": "Tüketici kredisi sözleşmelerinde tüketicinin edimlerine karşılık olarak alınan şahsi teminatlar, her ne isim altında olursa olsun adi kefalet sayılır."
+      },
+      "check": {
+        "type": "field_value",
+        "field": "kefalet_turu",
+        "expected": [
+          "adi"
+        ],
+        "applies_if": {
+          "field": "kredi_turu",
+          "values": [
+            "tüketici"
+          ]
+        }
+      },
+      "finding": "Tüketici kredisine müteselsil kefalet yazılmış: kefalet adi kefalet sayılır, kefile doğrudan başvurulamaz",
+      "rationale": "Hüküm kefaleti geçersiz kılmaz, türünü adi kefalete çevirir; bulgu takip riskini gösterir. Geçerlilik başlangıcı M9.5 gözden geçirmede yönetmeliğin yürürlük tarihiyle doldurulur."
     }
   ]
 }

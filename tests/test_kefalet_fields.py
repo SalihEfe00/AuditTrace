@@ -51,3 +51,26 @@ def test_spouse_consent_rule_end_to_end():
 
 def test_missing_label_is_not_found():
     assert extract_kefalet_fields("Kefil: Ali Veli\n").get("es_rizasi") is None
+
+
+def _status(rule_id, text, **extra):
+    from mufettis.rules.engine import FieldValue
+    rule = next(r for r in load_catalog() if r.id == rule_id)
+    fields = extract_kefalet_fields(text)
+    fields.update({k: FieldValue.filled(v, "elle giriş", "müfettiş beyanı") for k, v in extra.items()})
+    return evaluate_rule(rule, fields, event_date=dt.date(2024, 3, 12)).status
+
+
+def test_block1_rules_end_to_end():
+    assert _status("5070-md5-e-imza-kefalet", CONTRACT + "İmza Türü: Güvenli elektronik imza\n") == NOT_MET
+    assert _status("5070-md5-e-imza-kefalet", CONTRACT + "İmza Türü: Islak imza\n") == MET
+    assert _status("5070-md5-e-imza-kefalet", CONTRACT) == UNKNOWN
+    assert _status("TKS28-adi-kefalet", CONTRACT + "Kredi Türü: Bireysel ihtiyaç kredisi\n") == NOT_MET
+    assert _status("TKS28-adi-kefalet", CONTRACT + "Kredi Türü: Ticari kredi\n") == "uygulanmaz"
+    late = CONTRACT.replace("Rıza Tarihi: ....../....../........", "Rıza Tarihi: 15.03.2024")
+    assert _status("TBK584-riza-zamani", late, kefil_ticari_sifat="yok") == NOT_MET
+    same = CONTRACT.replace("Rıza Tarihi: ....../....../........", "Rıza Tarihi: 12.03.2024")
+    assert _status("TBK584-riza-zamani", same, kefil_ticari_sifat="yok") == MET
+    assert _status("TBK583-muteselsil-el-yazisi", CONTRACT) == UNKNOWN  # el yazısı müfettişe sorulur
+    assert _status("TBK583-muteselsil-el-yazisi", CONTRACT, el_yazisi_kefalet_turu="yok") == NOT_MET
+    assert _status("TBK583-azami-miktar-belirtilmis", CONTRACT.replace("250.000,00 TL", "………")) == NOT_MET

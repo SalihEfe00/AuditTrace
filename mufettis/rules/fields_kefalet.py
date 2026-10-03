@@ -26,6 +26,7 @@ LABELS: Dict[str, List[str]] = {
     "kefil_medeni_hal": [r"(?:kefilin )?medeni hal[iı]?"],
     "imza_turu": [r"imza türü"],
     "kefil_ticari_sifat": [r"kefil(?:in)? (?:ticari )?sıfatı", r"kefil(?:in)? mesleği"],
+    "kredi_turu": [r"kredi(?:nin)? türü", r"kredi cinsi"],
 }
 
 CONVERT = {
@@ -34,6 +35,8 @@ CONVERT = {
     "azami_tutar": as_amount,
     "kefalet_turu": one_of([(r"müteselsil", "müteselsil"), (r"\badi\b", "adi")]),
     "kefil_medeni_hal": one_of([(r"evli", "evli"), (r"bek[aâ]r", "bekar"), (r"boşanmış", "boşanmış"), (r"\bdul\b", "dul")]),
+    "kredi_turu": one_of([(r"tüketici|bireysel|ihtiyaç|konut|taşıt", "tüketici"),
+                          (r"ticari|kurumsal|işletme|kobi", "ticari")]),
     "imza_turu": one_of([(r"elektronik|e-imza", "e-imza"), (r"ıslak", "ıslak")]),
     # TBK 584/3 istisnasının koşul değerleri (katalogdaki kefil_ticari_sifat değerleri)
     "kefil_ticari_sifat": one_of([
