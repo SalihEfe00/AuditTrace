@@ -89,7 +89,11 @@ def pending_questions(rules: Iterable[Rule], results: Iterable[RuleResult],
     by_id = {r.id: r for r in rules}
     out, seen = [], set()
     for res in results:
-        if res.status != UNKNOWN or res.rule_id not in by_id:
+        if res.rule_id not in by_id:
+            continue
+        # Müfettişin cevapladığı kural karara bağlansa da soru kalır: cevap değiştirilebilsin.
+        answered = any(getattr(fields.get(n), "source", None) == INSPECTOR for n in _rule_fields(by_id[res.rule_id]))
+        if res.status != UNKNOWN and not answered:
             continue
         for name in _rule_fields(by_id[res.rule_id]):
             fv = fields.get(name)

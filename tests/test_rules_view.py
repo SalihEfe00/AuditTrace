@@ -29,8 +29,12 @@ def test_pledge_question_answer_changes_result():
     assert any("taşınır rehni" in c.value for c in at.caption)
     assert "❔ **belirsiz** — `6750-4-imza-onayi`" in _markdown(at)
     radio = next(r for r in at.radio if "imzalar nasıl onaylanmış" in r.label)
-    radio.set_value("onaysız").run()
+    radio.set_value("noter onayı").run()
     assert not at.exception
+    assert "✅ **karşılandı** — `6750-4-imza-onayi`" in _markdown(at)
+    # Karara bağlanan kuralın sorusu kalır; müfettiş cevabını değiştirebilir
+    radio = next(r for r in at.radio if "imzalar nasıl onaylanmış" in r.label)
+    radio.set_value("onaysız").run()
     assert "❌ **karşılanmadı** — `6750-4-imza-onayi`" in _markdown(at)
 
 
