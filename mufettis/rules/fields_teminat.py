@@ -25,6 +25,7 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
         "rehin_tutari": [r"rehin (?:tutarı|bedeli|miktarı)", r"azam[iî] (?:rehin )?tutar[ıi]?"],
         "sicil_tescil_tarihi": [r"(?:sicil )?tescil tarihi", r"rehinli taşınır sicili kayıt tarihi"],
         "sicil_no": [r"(?:sicil|kayıt) (?:no|numarası)"],
+        "imza_onayi": [r"imza onayı", r"onay şekli"],
     },
     "ekspertiz": {
         "rapor_tarihi": [r"(?:rapor|değerleme|ekspertiz) tarihi"],
@@ -39,6 +40,7 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
         "bitis_tarihi": [r"(?:poliçe )?bitiş tarihi", r"vade (?:sonu|bitiş)"],
         "sigortali": [r"sigortalı(?: adı soyadı)?"],
         "dain_murtehin": [r"da[iı]n[- ]?i? ?mürtehin", r"rehin alacaklısı"],
+        "islem_tarihi": [r"tapu işlem tarihi"],
     },
     "senet_gks": {
         "borclu": [r"borçlu(?: adı soyadı| unvanı)?", r"kredi kullanan"],
@@ -50,10 +52,12 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
 }
 
 _DATES = {"tescil_tarihi", "sicil_tescil_tarihi", "rapor_tarihi", "baslangic_tarihi", "bitis_tarihi",
-          "duzenleme_tarihi", "vade_tarihi"}
+          "duzenleme_tarihi", "vade_tarihi", "islem_tarihi"}
 _AMOUNTS = {"ipotek_tutari", "rehin_tutari", "deger", "tutar"}
 _CONVERT = {f: as_date for f in _DATES}
 _CONVERT.update({f: as_amount for f in _AMOUNTS})
+_CONVERT["imza_onayi"] = one_of([(r"noter", "noter"), (r"sicil yetkilisi", "sicil_yetkilisi"),
+                                  (r"güvenli elektronik imza|e-imza", "guvenli_e_imza")])
 _CONVERT["derece"] = one_of([(r"\b1\b|birinci", "1"), (r"\b2\b|ikinci", "2"), (r"\b3\b|üçüncü", "3")])
 
 

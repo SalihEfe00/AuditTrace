@@ -45,6 +45,19 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     Question("imza_turu", "Kefil sözleşmeyi nasıl imzalamış?", (("ıslak imza", "ıslak"), ("elektronik imza", "e-imza"))),
     Question("kredi_turu", "Kefalet hangi tür krediye verilmiş?", (("tüketici / bireysel", "tüketici"), ("ticari", "ticari"))),
     Question("kefalet_turu", "Kefalet türü nedir?", (("müteselsil", "müteselsil"), ("adi", "adi"))),
+    # Kefalet dışı teminat belgeleri (M9.6)
+    Question("ipotek_tutari", "İpotek tutarı (üst sınır) belgede yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
+    Question("yevmiye_no", "İpoteğin tapu tescili (yevmiye numarası) belgelenmiş mi?",
+             (("evet", "var"), ("hayır / boş", ""))),
+    Question("rehin_tutari", "Rehnin azami miktarı sözleşmede yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
+    Question("sicil_no", "Rehin Rehinli Taşınır Siciline tescil edilmiş mi (sicil numarası)?",
+             (("evet", "var"), ("hayır / boş", ""))),
+    Question("imza_onayi", "Rehin sözleşmesindeki imzalar nasıl onaylanmış?",
+             (("noter onayı", "noter"), ("sicil yetkilisi huzurunda", "sicil_yetkilisi"),
+              ("güvenli elektronik imza", "guvenli_e_imza"), ("onaysız", "yok"))),
+    Question("lisans_no", "Değerleme uzmanının lisans numarası raporda var mı?", (("var", "var"), ("yok / boş", ""))),
+    Question("rapor_tarihi", "Değerleme raporunun tarihi yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
+    Question("deger", "Raporda nihai değer takdiri var mı?", (("var", "var"), ("yok / boş", ""))),
 ]}
 
 

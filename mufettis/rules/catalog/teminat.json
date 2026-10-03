@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "description": "Kefalet dışı teminat kuralları (M9.6): ipotek (TMK 851, 856), taşınır rehni (6750 md. 4), ekspertiz raporu (BDDK Değerleme Hizmeti Yönetmeliği md. 14), DASK (6305 md. 11/2). Alıntılar madde metninden birebir; M9.7 hukuki gözden geçirmeden geçecek.",
+  "rules": [
+    {
+      "id": "TMK851-ipotek-tutari",
+      "document_type": "ipotek",
+      "title": "İpotek, Türk parası (ya da kredi kuruluşu için yabancı para) ile gösterilen belli bir miktar için kurulmuş",
+      "basis": {
+        "law": "4721",
+        "article": "851",
+        "paragraph": "1",
+        "quote": "Taşınmaz rehni, miktarı Türk parası ile gösterilen belli bir alacak için kurulabilir."
+      },
+      "check": {"type": "field_present", "field": "ipotek_tutari"},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "taraflar",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {"from": null, "to": null},
+      "finding": "İpotek tutarı (üst sınır) belgede boş",
+      "rationale": "Belirlilik ilkesi: rehin miktarı gösterilmeden taşınmaz rehni kurulamaz; alacak belli değilse üst sınır belirtilir (TMK 851/1). Yabancı para ipoteği 851/2 ile mümkün, yine miktar gösterilir."
+    },
+    {
+      "id": "TMK856-tapu-tescili",
+      "document_type": "ipotek",
+      "title": "İpotek tapu kütüğüne tescil edilmiş (yevmiye numarası var)",
+      "basis": {
+        "law": "4721",
+        "article": "856",
+        "paragraph": "1",
+        "quote": "Taşınmaz rehni tapu kütüğüne tescil ile kurulur."
+      },
+      "check": {"type": "field_present", "field": "yevmiye_no"},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {"from": null, "to": null},
+      "finding": "Yevmiye numarası boş: ipoteğin tapuya tescil edildiği belgelenmemiş",
+      "rationale": "Taşınmaz rehni tescille doğar (TMK 856/1); tescilsiz akit tablosu teminat sağlamaz. Yevmiye numarası tescil işleminin belgedeki izidir; alan bulunamazsa sonuç belirsiz kalır ve müfettişe sorulur."
+    },
+    {
+      "id": "6750-4-sicil-tescili",
+      "document_type": "rehin",
+      "title": "Taşınır rehni Rehinli Taşınır Siciline tescil edilmiş",
+      "basis": {
+        "law": "6750",
+        "article": "4",
+        "paragraph": "1",
+        "quote": "Sicile tescil edilmesiyle kurulur."
+      },
+      "check": {"type": "field_present", "field": "sicil_no"},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {"from": "2017-01-01", "to": null},
+      "finding": "Sicil / kayıt numarası boş: rehnin sicile tescil edildiği belgelenmemiş",
+      "rationale": "6750 md. 4/1: rehin hakkı sözleşmenin sicile tescili ile kurulur. 6750 yürürlüğünden (1.1.2017) önceki rehinler eski mevzuata (TMK teslimli rehin, 1447) tabidir; o dönem için kural uygulanmaz."
+    },
+    {
+      "id": "6750-4-azami-miktar",
+      "document_type": "rehin",
+      "title": "Rehin sözleşmesinde rehnin azami miktarı yazılı",
+      "basis": {
+        "law": "6750",
+        "article": "4",
+        "paragraph": "6",
+        "quote": "ödenecek para cinsi ve rehnin azami miktarı"
+      },
+      "check": {"type": "field_present", "field": "rehin_tutari"},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "taraflar",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {"from": "2017-01-01", "to": null},
+      "finding": "Rehnin azami miktarı sözleşmede boş",
+      "rationale": "6750 md. 4/6-b: borcun miktarı, belirli değilse rehnin güvence teşkil ettiği miktar, para cinsi ve rehnin azami miktarı sözleşmede zorunlu unsurdur."
+    },
+    {
+      "id": "6750-4-imza-onayi",
+      "document_type": "rehin",
+      "title": "Rehin sözleşmesinde imzalar noterce onaylı, sicil yetkilisi huzurunda atılmış ya da güvenli e-imzalı",
+      "basis": {
+        "law": "6750",
+        "article": "4",
+        "paragraph": "4",
+        "quote": "tarafların imzalarının noterce onaylanması veya sözleşmenin Sicil yetkilisinin huzurunda imzalanması şarttır."
+      },
+      "check": {"type": "field_value", "field": "imza_onayi", "expected": ["noter", "sicil_yetkilisi", "guvenli_e_imza"]},
+      "result_class": "kısmen",
+      "norm_type": "yükümlülük",
+      "obligor": "taraflar",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {"from": "2017-01-01", "to": null},
+      "finding": "Rehin sözleşmesindeki imzaların onay şekli 6750 md. 4/3-4'e uygun değil (noter / sicil yetkilisi / güvenli e-imza yok)",
+      "rationale": "Yazılı sözleşme noter onayı ya da sicil yetkilisi huzurunda imza (md. 4/4), elektronik sözleşme güvenli e-imza (md. 4/3) olmadan sicile tescil edilemez. Onay şekli taranmış belgede her zaman anlaşılamaz: sınıf 'kısmen', bilinmiyorsa müfettişe sorulur."
+    },
+    {
+      "id": "BDDK-DHY14-lisans-no",
+      "document_type": "ekspertiz",
+      "title": "Değerleme raporunda değerleme uzmanının lisans numarası var",
+      "basis": {
+        "law": "7.5.23228",
+        "article": "14",
+        "paragraph": "3",
+        "quote": "Değerlemeyi yapan değerleme uzmanı veya uzmanlarının ad ve soyadları, imzaları ve lisans numaraları"
+      },
+      "check": {"type": "field_present", "field": "lisans_no"},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {"from": null, "to": null},
+      "finding": "Değerleme uzmanının lisans numarası raporda boş",
+      "rationale": "Bankalarca alınan değerleme raporunun asgari unsurlarından (md. 14/3-a-2); lisans numarası olmayan rapor, lisanslı uzman şartının sağlandığını göstermez."
+    },
+    {
+      "id": "BDDK-DHY14-rapor-tarihi",
+      "document_type": "ekspertiz",
+      "title": "Değerleme raporunun tarihi yazılı",
+      "basis": {
+        "law": "7.5.23228",
+        "article": "14",
+        "paragraph": "3",
+        "quote": "Raporun tarihi ve sayısı"
+      },
+      "check": {"type": "field_present", "field": "rapor_tarihi"},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {"from": null, "to": null},
+      "finding": "Değerleme raporunun tarihi boş",
+      "rationale": "Md. 14/3-a-1 asgari unsur; rapor tarihi olmadan değerin kredi kullandırım tarihindeki güncelliği denetlenemez."
+    },
+    {
+      "id": "BDDK-DHY14-nihai-deger",
+      "document_type": "ekspertiz",
+      "title": "Değerleme raporunda nihai değer takdiri var",
+      "basis": {
+        "law": "7.5.23228",
+        "article": "14",
+        "paragraph": "3",
+        "quote": "Nihai değer takdiri"
+      },
+      "check": {"type": "field_present", "field": "deger"},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {"from": null, "to": null},
+      "finding": "Raporda nihai değer boş",
+      "rationale": "Md. 14/3-e-2: sonuç bölümünde nihai değer takdiri zorunlu; teminat değeri ve limit hesabı bu değere dayanır."
+    },
+    {
+      "id": "6305-11-dask-baslangic",
+      "document_type": "dask",
+      "title": "Tapu işlemi (ipotek tescili) tarihinde DASK poliçesi başlamış",
+      "basis": {
+        "law": "6305",
+        "article": "11",
+        "paragraph": "2",
+        "quote": "zorunlu deprem sigortasının yaptırıldığı ve işlem tarihi itibarıyla geçerli olduğu belgelenmedikçe yapamaz."
+      },
+      "check": {"type": "date_order", "before": "baslangic_tarihi", "after": "islem_tarihi", "allow_equal": true},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {"from": "2012-08-18", "to": null},
+      "finding": "DASK poliçesi tapu işlemi tarihinden sonra başlıyor: işlem tarihinde geçerli poliçe yok",
+      "rationale": "6305 md. 11/2: sigortaya tabi binalarda tapu tescil işlemi (ipotek tescili dahil) işlem tarihinde geçerli DASK belgelenmeden yapılamaz. İşlem tarihi poliçede yoksa müfettişe sorulur."
+    },
+    {
+      "id": "6305-11-dask-bitis",
+      "document_type": "dask",
+      "title": "Tapu işlemi (ipotek tescili) tarihinde DASK poliçesi sona ermemiş",
+      "basis": {
+        "law": "6305",
+        "article": "11",
+        "paragraph": "2",
+        "quote": "zorunlu deprem sigortasının yaptırıldığı ve işlem tarihi itibarıyla geçerli olduğu belgelenmedikçe yapamaz."
+      },
+      "check": {"type": "date_order", "before": "islem_tarihi", "after": "bitis_tarihi", "allow_equal": true},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {"from": "2012-08-18", "to": null},
+      "finding": "DASK poliçesi tapu işlemi tarihinden önce sona ermiş: işlem tarihinde geçerli poliçe yok",
+      "rationale": "6305 md. 11/2, bkz. 6305-11-dask-baslangic."
+    }
+  ]
+}

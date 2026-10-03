@@ -6,7 +6,7 @@ from mufettis.rules.catalog import load_catalog, parse_rule
 from mufettis.rules.engine import (EMPTY, EXEMPT, FILLED, INSPECTOR, MANUAL, MET, NOT_APPLICABLE, NOT_FOUND,
                                    NOT_MET, UNKNOWN, FieldValue, evaluate, evaluate_rule)
 
-RULES = {r.id: r for r in load_catalog()}
+RULES = {r.id: r for r in load_catalog() if r.document_type == "kefalet_sozlesmesi"}
 SPOUSE = RULES["TBK584-es-rizasi"]
 HAND = RULES["TBK583-azami-tutar-el-yazisi"]
 TODAY = dt.date(2024, 5, 1)
@@ -95,4 +95,5 @@ def test_empty_without_absence_violation_stays_unknown():
 def test_evaluate_filters_by_document_type():
     out = evaluate(load_catalog(), "kefalet_sozlesmesi", {}, event_date=TODAY)
     assert {r.rule_id for r in out} == set(RULES) and all(r.status != MET for r in out)
-    assert evaluate(load_catalog(), "ipotek", {}) == []
+    assert evaluate(load_catalog(), "senet_gks", {}) == []
+    assert {r.rule_id for r in evaluate(load_catalog(), "ipotek", {})} == {"TMK851-ipotek-tutari", "TMK856-tapu-tescili"}

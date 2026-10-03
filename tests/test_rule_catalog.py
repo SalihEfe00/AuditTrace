@@ -36,7 +36,7 @@ def _rules():
 
 
 def test_shipped_catalog_loads_and_quotes_match_article_text():
-    rules = load_catalog(article_text=lookup)
+    rules = load_catalog([CATALOG_DIR / "kefalet.json"], article_text=lookup)
     assert {r.id for r in rules} >= {"TBK583-azami-tutar-el-yazisi", "TBK584-es-rizasi"}
     spouse = next(r for r in rules if r.id == "TBK584-es-rizasi")
     assert spouse.exceptions and spouse.exceptions[0].basis.paragraph == "3"

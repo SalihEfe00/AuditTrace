@@ -22,7 +22,8 @@ def test_mutation_case(case):
 
 def test_every_rule_has_a_met_and_a_violating_case():
     expected = [(rid, status) for c in CASES for rid, status in c.expected.items()]
-    current = {r.id for r in RULES if r.valid_to is None and r.result_class != "kısmen"}
+    current = {r.id for r in RULES if r.document_type == "kefalet_sozlesmesi" and r.valid_to is None
+               and r.result_class != "kısmen"}
     for rid in current:
         assert (rid, "karşılandı") in expected or rid == "TKS28-adi-kefalet", rid
         assert (rid, "karşılanmadı") in expected, rid

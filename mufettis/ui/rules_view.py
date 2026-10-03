@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Teminat uygunluk kontrolü bölümü (M9): kefalet sözleşmesi kuralları, belirsiz alanlar için müfettişe soru.
+"""Teminat uygunluk kontrolü bölümü (M9): kefalet, ipotek, rehin, ekspertiz, DASK kuralları; belirsiz alanlar için
+müfettişe soru.
 
 Mantık arayüzden bağımsız modüllerde (mufettis.rules.*); burada yalnızca çizim ve oturum durumu.
 """
@@ -18,31 +19,36 @@ from mufettis.rules.catalog import load_catalog
 from mufettis.rules.doctype import detect_collateral_type
 from mufettis.rules.engine import EXEMPT, MANUAL, MET, NOT_APPLICABLE, NOT_MET, UNKNOWN, evaluate
 from mufettis.rules.fields_kefalet import extract_kefalet_fields
+from mufettis.rules.fields_teminat import extract_teminat_fields
 from mufettis.rules.review import UNKNOWN_ANSWER, apply_answers, pending_questions
 
+TYPE_NAMES = {"kefalet_sozlesmesi": "kefalet sözleşmesi", "ipotek": "ipotek", "rehin": "taşınır rehni",
+              "ekspertiz": "ekspertiz / değerleme raporu", "dask": "DASK poliçesi"}
 ICON = {MET: "✅", NOT_MET: "❌", UNKNOWN: "❔", MANUAL: "📝", EXEMPT: "➖", NOT_APPLICABLE: "➖"}
 
 
 def render_collateral_check(text: str, event_date: Optional[dt.date] = None) -> None:
     if st is None:
         return
-    with st.expander("Teminat uygunluk kontrolü — kefalet sözleşmesi (TBK 583–584, 5070, TKS md. 28)"):
+    with st.expander("Teminat uygunluk kontrolü — kefalet, ipotek, rehin, ekspertiz, DASK"):
         if not (text or "").strip():
             st.caption("Kontrol için önce belge metnini girin.")
             return
         doc_type = detect_collateral_type(text)
-        if doc_type.document_type != "kefalet_sozlesmesi":
-            st.caption(f"Belge kefalet sözleşmesi olarak tanınmadı ({doc_type.reason}).")
+        kind = doc_type.document_type
+        if kind not in TYPE_NAMES:
+            st.caption(f"Belge kurallı bir teminat belgesi olarak tanınmadı ({doc_type.reason}).")
             return
+        st.caption(f"Belge türü: {TYPE_NAMES[kind]} ({doc_type.reason})")
         if doc_type.via_603:
             st.info(f"Kişisel güvence belgesi: {doc_type.reason}")
         rules = load_catalog()
-        fields = extract_kefalet_fields(text)
+        fields = extract_kefalet_fields(text) if kind == "kefalet_sozlesmesi" else extract_teminat_fields(kind, text)
         # Cevaplar belgeye bağlı: metin değişince eski beyanlar yeni belgeye taşınmaz.
         doc_key = hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]
         answers = st.session_state.setdefault(f"rules_answers_{doc_key}", {})
         fields = apply_answers(fields, answers)
-        results = evaluate(rules, "kefalet_sozlesmesi", fields, text=text, event_date=event_date or dt.date.today())
+        results = evaluate(rules, kind, fields, text=text, event_date=event_date or dt.date.today())
         questions = pending_questions(rules, results, fields)
         if questions:
             st.markdown("**Belgeden anlaşılamayanlar** — cevaplarınız *müfettiş beyanı* olarak kanıta yazılır:")
