@@ -193,6 +193,15 @@ def run_streamlit() -> None:
             BackgroundUpdateScheduler._instance.stop()
         health = check_disk_health()
         st.write(f"Disk: {'OK' if health.get('ok') else 'HATA'} | Boş: {health.get('free_gb','?')} GB")
+        # M6.16: korpusun güncelliği; eskiyse sonuçların hangi tarihteki mevzuata göre olduğu söylenir.
+        from mufettis.config import DATA_DIR
+        from mufettis.corpus.currency import last_corpus_update, staleness_message
+        last_update = last_corpus_update(DATA_DIR)
+        st.write(f"Mevzuat korpusu son güncelleme: {last_update:%d.%m.%Y %H:%M}" if last_update else
+                 "Mevzuat korpusu son güncelleme: bilinmiyor")
+        stale = staleness_message(last_update)
+        if stale:
+            st.warning(stale)
         if st.button("Self-test çalıştır"):
             result = run_self_tests()
             render_self_test_result(result)
