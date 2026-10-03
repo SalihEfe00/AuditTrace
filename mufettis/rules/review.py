@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional, Tuple
 
 from mufettis.rules.catalog import Rule
-from mufettis.rules.fields import as_amount
+from mufettis.rules.fields import as_amount, as_date
 from mufettis.rules.engine import EMPTY, FILLED, INSPECTOR, UNKNOWN, FieldValue, RuleResult
 
 UNKNOWN_ANSWER = "bilinmiyor"
@@ -23,7 +23,7 @@ class Question:
     field: str
     text: str
     options: Tuple[Tuple[str, str], ...]  # (gösterilen, alan değeri); "" değeri = boş (öğe yok)
-    kind: str = "choice"                  # "choice": seçenekler; "amount": müfettiş tutarı yazar (TL)
+    kind: str = "choice"                  # "choice": seçenekler; "amount" / "date": müfettiş tutarı (TL) / tarihi yazar
 
 
 QUESTIONS: Dict[str, Question] = {q.field: q for q in [
@@ -43,7 +43,8 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     Question("es_rizasi", "Eşin yazılı rızası (ad soyad, imza) belgede var mı?",
              (("var", "var"), ("yok / boş", ""))),
     Question("azami_tutar", "Azami kefalet tutarı sözleşmede yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
-    Question("sozlesme_tarihi", "Kefalet tarihi sözleşmede yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
+    Question("sozlesme_tarihi", "Sözleşmedeki kefalet tarihi nedir? (yazılı değilse 'yok')", (("yok / boş", ""),), kind="date"),
+    Question("es_rizasi_tarihi", "Eşin rızası hangi tarihte verilmiş?", (), kind="date"),
     Question("imza_turu", "Kefil sözleşmeyi nasıl imzalamış?", (("ıslak imza", "ıslak"), ("elektronik imza", "e-imza"))),
     Question("kredi_turu", "Kefalet hangi tür krediye verilmiş?", (("tüketici / bireysel", "tüketici"), ("ticari", "ticari"))),
     Question("kefalet_turu", "Kefalet türü nedir?", (("müteselsil", "müteselsil"), ("adi", "adi"))),
@@ -58,12 +59,17 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
              (("noter onayı", "noter"), ("sicil yetkilisi huzurunda", "sicil_yetkilisi"),
               ("güvenli elektronik imza", "guvenli_e_imza"), ("onaysız", "yok"))),
     Question("lisans_no", "Değerleme uzmanının lisans numarası raporda var mı?", (("var", "var"), ("yok / boş", ""))),
-    Question("rapor_tarihi", "Değerleme raporunun tarihi yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
+    Question("rapor_tarihi", "Değerleme raporunun tarihi nedir? (yazılı değilse 'yok')", (("yok / boş", ""),), kind="date"),
+    Question("baslangic_tarihi", "DASK poliçesinin başlangıç tarihi nedir?", (), kind="date"),
+    Question("bitis_tarihi", "DASK poliçesinin bitiş tarihi nedir?", (), kind="date"),
+    Question("islem_tarihi", "Tapu işleminin (ipotek tescilinin) tarihi nedir? (ipotek belgesindeki yevmiye tarihi)", (),
+             kind="date"),
     Question("deger", "Rapordaki nihai değer kaç TL? (raporda değer yoksa 'yok' seçin)", (("yok / boş", ""),),
              kind="amount"),
     Question("tutar", "Senette bedel yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
     Question("lehtar", "Bonoda lehtarın (alacaklının) adı yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
-    Question("duzenleme_tarihi", "Senedin düzenlenme tarihi yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
+    Question("duzenleme_tarihi", "Senedin düzenlenme tarihi nedir? (yazılı değilse 'yok')", (("yok / boş", ""),),
+             kind="date"),
     Question("imza", "Senette düzenleyenin imzası var mı?", (("var", "var"), ("yok", ""))),
 ]}
 
@@ -109,6 +115,8 @@ def apply_answers(fields: Dict[str, FieldValue], answers: Dict[str, Optional[str
         if q is not None and q.kind == "amount":
             # Müfettiş birimi yazmayabilir ("12.500.000"); okunamayan tutar ham metin kalır → eşik kuralı belirsiz
             value = as_amount(value) or as_amount(value + " TL") or value
+        elif q is not None and q.kind == "date":
+            value = as_date(value) or value  # okunamayan tarih ham metin kalır → tarih sırası kuralı belirsiz
         out[name] = FieldValue.filled(value, note, INSPECTOR)
     return out
 

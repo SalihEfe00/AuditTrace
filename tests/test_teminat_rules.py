@@ -92,6 +92,25 @@ def test_inspector_typed_value_drives_the_threshold_rule(typed, expected):
     assert run("ekspertiz", text, {"deger": typed})["BDDK-DHY20-iki-rapor"] == expected
 
 
+@pytest.mark.parametrize("typed, expected", [
+    ("05.02.2024", "karşılandı"), ("20.01.2024", "karşılanmadı"), ("şubat başı", "belirsiz"),
+])
+def test_inspector_typed_date_resolves_dask_rule(typed, expected):
+    text = DASK.replace("Tapu İşlem Tarihi: 05.02.2024\n", "")
+    fields = extract_teminat_fields("dask", text)
+    results = evaluate(RULES, "dask", fields, event_date=DAY)
+    assert any(q.field == "islem_tarihi" and q.kind == "date" for q in pending_questions(RULES, results, fields))
+    assert run("dask", text, {"islem_tarihi": typed})["6305-11-dask-baslangic"] == expected
+
+
+def test_every_date_order_field_can_be_asked_as_a_date():
+    for rule in RULES:
+        for key in ("before", "after"):
+            name = rule.check.get(key)
+            if name:
+                assert name in QUESTIONS and QUESTIONS[name].kind == "date", (rule.id, name)
+
+
 def test_choice_questions_offer_every_value_a_rule_decides_on():
     """Müfettişin seçebileceği değerler, kuralın beklediği / koşul olarak aradığı değerlerin hepsini kapsamalı;
     yoksa soru cevaplansa da kural karar veremez."""

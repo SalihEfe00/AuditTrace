@@ -54,11 +54,12 @@ def render_collateral_check(text: str, event_date: Optional[dt.date] = None) -> 
             st.markdown("**Belgeden anlaşılamayanlar** — cevaplarınız *müfettiş beyanı* olarak kanıta yazılır:")
             for q in questions:
                 labels = [UNKNOWN_ANSWER] + [shown for shown, _ in q.options]
-                if q.kind == "amount":
-                    labels.append("tutarı yazacağım")
+                if q.kind != "choice":
+                    labels.append("yazacağım")
                 choice = st.radio(q.text, labels, horizontal=True, key=f"rules_q_{doc_key}_{q.field}")
-                if choice == "tutarı yazacağım":
-                    typed = st.text_input("Tutar (TL)", key=f"rules_qa_{doc_key}_{q.field}").strip()
+                if choice == "yazacağım":
+                    hint = "Tutar (TL)" if q.kind == "amount" else "Tarih (GG.AA.YYYY)"
+                    typed = st.text_input(hint, key=f"rules_qa_{doc_key}_{q.field}").strip()
                     value = typed or None
                 else:
                     value = dict(q.options).get(choice) if choice != UNKNOWN_ANSWER else None
