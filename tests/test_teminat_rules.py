@@ -80,6 +80,40 @@ def test_inspector_answers_resolve_unknown_signature_approval():
     assert run("rehin", text, {"imza_onayi": "sicil_yetkilisi"})["6750-4-imza-onayi"] == "karşılandı"
 
 
+@pytest.mark.parametrize("typed, expected", [
+    ("12.500.000", "manuel kontrol"), ("12.500.000,00 TL", "manuel kontrol"), ("950.000", "uygulanmaz"),
+    ("on iki milyon", "belirsiz"),
+])
+def test_inspector_typed_value_drives_the_threshold_rule(typed, expected):
+    text = EKSPERTIZ.replace("Piyasa Değeri: 2.400.000,00 TL\n", "")
+    fields = extract_teminat_fields("ekspertiz", text)
+    results = evaluate(RULES, "ekspertiz", fields, event_date=DAY)
+    assert any(q.field == "deger" and q.kind == "amount" for q in pending_questions(RULES, results, fields))
+    assert run("ekspertiz", text, {"deger": typed})["BDDK-DHY20-iki-rapor"] == expected
+
+
+def test_choice_questions_offer_every_value_a_rule_decides_on():
+    """Müfettişin seçebileceği değerler, kuralın beklediği / koşul olarak aradığı değerlerin hepsini kapsamalı;
+    yoksa soru cevaplansa da kural karar veremez."""
+    gaps = []
+    for rule in RULES:
+        wanted = []
+        check = rule.check
+        if check["type"] == "field_value":
+            wanted.append((check["field"], check["expected"]))
+        cond = check.get("applies_if")
+        if cond and "values" in cond:
+            wanted.append((cond["field"], cond["values"]))
+        wanted += [(ex.condition_field, ex.condition_values) for ex in rule.exceptions]
+        for name, values in wanted:
+            q = QUESTIONS.get(name)
+            if q is None or q.kind != "choice":
+                continue
+            offered = {v for _, v in q.options}
+            gaps += [(rule.id, name, v) for v in values if v not in offered]
+    assert not gaps
+
+
 def test_every_question_targets_a_catalog_field():
     from mufettis.rules.catalog import DOCUMENT_FIELDS
     known = set().union(*DOCUMENT_FIELDS.values())

@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional, Tuple
 
 from mufettis.rules.catalog import Rule
+from mufettis.rules.fields import as_amount
 from mufettis.rules.engine import EMPTY, FILLED, INSPECTOR, UNKNOWN, FieldValue, RuleResult
 
 UNKNOWN_ANSWER = "bilinmiyor"
@@ -22,6 +23,7 @@ class Question:
     field: str
     text: str
     options: Tuple[Tuple[str, str], ...]  # (gösterilen, alan değeri); "" değeri = boş (öğe yok)
+    kind: str = "choice"                  # "choice": seçenekler; "amount": müfettiş tutarı yazar (TL)
 
 
 QUESTIONS: Dict[str, Question] = {q.field: q for q in [
@@ -57,7 +59,8 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
               ("güvenli elektronik imza", "guvenli_e_imza"), ("onaysız", "yok"))),
     Question("lisans_no", "Değerleme uzmanının lisans numarası raporda var mı?", (("var", "var"), ("yok / boş", ""))),
     Question("rapor_tarihi", "Değerleme raporunun tarihi yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
-    Question("deger", "Raporda nihai değer takdiri var mı?", (("var", "var"), ("yok / boş", ""))),
+    Question("deger", "Rapordaki nihai değer kaç TL? (raporda değer yoksa 'yok' seçin)", (("yok / boş", ""),),
+             kind="amount"),
     Question("tutar", "Senette bedel yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
     Question("lehtar", "Bonoda lehtarın (alacaklının) adı yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
     Question("duzenleme_tarihi", "Senedin düzenlenme tarihi yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
@@ -99,7 +102,14 @@ def apply_answers(fields: Dict[str, FieldValue], answers: Dict[str, Optional[str
     for name, value in answers.items():
         if value is None or value == UNKNOWN_ANSWER:
             continue
-        out[name] = FieldValue(EMPTY, None, note, INSPECTOR) if value == "" else FieldValue.filled(value, note, INSPECTOR)
+        if value == "":
+            out[name] = FieldValue(EMPTY, None, note, INSPECTOR)
+            continue
+        q = QUESTIONS.get(name)
+        if q is not None and q.kind == "amount":
+            # Müfettiş birimi yazmayabilir ("12.500.000"); okunamayan tutar ham metin kalır → eşik kuralı belirsiz
+            value = as_amount(value) or as_amount(value + " TL") or value
+        out[name] = FieldValue.filled(value, note, INSPECTOR)
     return out
 
 
