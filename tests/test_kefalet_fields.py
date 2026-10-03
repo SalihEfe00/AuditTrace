@@ -74,3 +74,13 @@ def test_block1_rules_end_to_end():
     assert _status("TBK583-muteselsil-el-yazisi", CONTRACT) == UNKNOWN  # el yazısı müfettişe sorulur
     assert _status("TBK583-muteselsil-el-yazisi", CONTRACT, el_yazisi_kefalet_turu="yok") == NOT_MET
     assert _status("TBK583-azami-miktar-belirtilmis", CONTRACT.replace("250.000,00 TL", "………")) == NOT_MET
+
+
+def test_pre_2013_text_has_no_trade_exception():
+    from mufettis.rules.engine import FieldValue
+    rules = {r.id: r for r in load_catalog()}
+    fields = extract_kefalet_fields(CONTRACT + "Kefilin mesleği: Esnaf\n")
+    old_date = dt.date(2013, 1, 15)
+    assert evaluate_rule(rules["TBK584-es-rizasi-2013-oncesi"], fields, event_date=old_date).status == NOT_MET
+    assert evaluate_rule(rules["TBK584-es-rizasi"], fields, event_date=old_date).status == "uygulanmaz"
+    assert evaluate_rule(rules["TBK584-es-rizasi-2013-oncesi"], fields, event_date=dt.date(2024, 3, 12)).status == "uygulanmaz"

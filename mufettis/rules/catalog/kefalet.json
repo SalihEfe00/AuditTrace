@@ -318,6 +318,72 @@
       },
       "finding": "Tüketici kredisine müteselsil kefalet yazılmış: kefalet adi kefalet sayılır, kefile doğrudan başvurulamaz",
       "rationale": "Hüküm kefaleti geçersiz kılmaz, türünü adi kefalete çevirir; bulgu takip riskini gösterir. Geçerlilik başlangıcı M9.5 gözden geçirmede yönetmeliğin yürürlük tarihiyle doldurulur."
+    },
+    {
+      "id": "TBK584-es-rizasi-2013-oncesi",
+      "document_type": "kefalet_sozlesmesi",
+      "title": "Evli kefil için eşin yazılı rızası, sözleşmeden önce ya da en geç kurulma anında (6455 öncesi metin: 584/3 istisnası yok)",
+      "basis": {
+        "law": "6098",
+        "article": "584",
+        "paragraph": "1",
+        "quote": "Eşlerden biri mahkemece verilmiş bir ayrılık kararı olmadıkça veya yasal olarak ayrı yaşama hakkı doğmadıkça, ancak diğerinin yazılı rızasıyla kefil olabilir; bu rızanın sözleşmenin kurulmasından önce ya da en geç kurulması anında verilmiş olması şarttır."
+      },
+      "check": {
+        "type": "field_present",
+        "field": "es_rizasi",
+        "applies_if": {
+          "field": "kefil_medeni_hal",
+          "values": [
+            "evli"
+          ]
+        }
+      },
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "kefil",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {
+        "from": "2012-07-01",
+        "to": "2013-04-11"
+      },
+      "finding": "Eş rızası yok ya da boş (ad soyad, imza, tarih); kefil evli ve istisna kapsamı görünmüyor",
+      "rationale": "Olay tarihi 1.7.2012 ile 11.4.2013 (6455 sayılı Kanunun Resmî Gazete tarihi) arasındaysa 584'ün ek fıkrası yoktu: ticari / esnaf istisnası uygulanmaz. Birinci fıkra metni aynı. Rıza yoksa kefalet geçersiz."
+    },
+    {
+      "document_type": "kefalet_sozlesmesi",
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "kefil",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": "2012-07-01",
+        "to": "2013-04-11"
+      },
+      "id": "TBK584-riza-zamani-2013-oncesi",
+      "title": "Eşin rızası sözleşmeden önce ya da en geç kurulma anında verilmiş (6455 öncesi metin: 584/3 istisnası yok)",
+      "basis": {
+        "law": "6098",
+        "article": "584",
+        "paragraph": "1",
+        "quote": "Eşlerden biri mahkemece verilmiş bir ayrılık kararı olmadıkça veya yasal olarak ayrı yaşama hakkı doğmadıkça, ancak diğerinin yazılı rızasıyla kefil olabilir; bu rızanın sözleşmenin kurulmasından önce ya da en geç kurulması anında verilmiş olması şarttır."
+      },
+      "check": {
+        "type": "date_order",
+        "before": "es_rizasi_tarihi",
+        "after": "sozlesme_tarihi",
+        "allow_equal": true,
+        "applies_if": {
+          "field": "kefil_medeni_hal",
+          "values": [
+            "evli"
+          ]
+        }
+      },
+      "finding": "Eşin rızası kefalet sözleşmesinden sonra verilmiş",
+      "rationale": "Olay tarihi 1.7.2012 ile 11.4.2013 (6455 sayılı Kanunun Resmî Gazete tarihi) arasındaysa 584'ün ek fıkrası yoktu: ticari / esnaf istisnası uygulanmaz. Birinci fıkra metni aynı. Rıza tarihi bilinmiyorsa belirsiz (tarihin yokluğu tek başına ihlal sayılmaz; rızanın kendisi TBK584-es-rizasi kuralında).."
     }
   ]
 }
