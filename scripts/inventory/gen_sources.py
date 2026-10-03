@@ -158,6 +158,10 @@ def clean_title(title):
     return t
 
 
+# Kurum sayfasındaki simge / görsel bağlantısı belge değildir (TBB "Bireysel Sözleşmeler Tebliği" sayfasında
+# katalog sayfa başlığını favicon.ico bağlantısıyla kaydetmişti; asıl tebliğ ayrı kayıt).
+NOT_A_DOCUMENT = re.compile(r"\.(?:ico|png|jpe?g|gif|svg|webp)(?:[?#]|$)", re.I)
+
 GENERATED = ("M6.15", "K1.8")  # bu önekle başlayan gerekçeler her çalıştırmada yeniden üretilir
 
 
@@ -182,6 +186,9 @@ def main(write=False, keep_all=False):
         if not code and not url:
             sourceless.append({"title": item["title"], "sources": item["sources"], "urls": item.get("urls"),
                                "reason": item["reason"]})
+            continue
+        if url and NOT_A_DOCUMENT.search(url):
+            skipped["belge değil (simge / görsel)"] += 1
             continue
         key = code or url
         if key in existing or turkish_lower(re.sub(r"\s+", " ", item["title"])) in existing_titles:
@@ -229,7 +236,7 @@ def main(write=False, keep_all=False):
                 existing.add(entry.get("code") or entry.get("url"))
                 new.append(entry)
         for key, entry in previous.items():  # dondurulmuş: envanterden artık çıkmasa da listede kalır
-            if key not in existing:
+            if key not in existing and not NOT_A_DOCUMENT.search(entry.get("url") or ""):
                 existing.add(key)
                 new.append(entry)
                 skipped["Seçenek A: dondurulmuş kayıt korundu"] += 1
