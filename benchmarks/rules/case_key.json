@@ -139,7 +139,7 @@
     "kredi_turu": "ticari",
     "kefalet_isletmeyle_ilgili": "evet"
    },
-   "note": "TBK 584/3: esnafın mesleki faaliyetiyle ilgili olarak BAŞKASININ kredisine verdiği kefalet (kefil borçluyla aynı kişiyse kefalet yoktur, TBK 581)",
+   "note": "TBK 584/3: esnaf ve sanatkârlar siciline kayıtlı esnafın mesleki faaliyetiyle ilgili olarak BAŞKASININ kredisine verdiği kefalet",
    "expected_document": {
     "TBK584-es-rizasi": "belirsiz"
    }
@@ -290,10 +290,10 @@
    "doc_type": "kefalet_sozlesmesi",
    "expected": {
     "5070-md5-e-imza-kefalet": "belirsiz",
-    "TBK14-kefil-imzasi": "belirsiz"
+    "TBK14-kefil-imzasi": "karşılanmadı"
    },
    "facts": {},
-   "note": "e-imzanın türü yazmıyor: sistem tahmin etmemeli"
+   "note": "türü yazmayan e-imza: güvenliyse 5070 yasağı, değilse yazılı şekil eksik; iki durumda da geçerli imza şekli yok (5070 dayanağı müfettişe sorulur)"
   },
   "18": {
    "doc_type": "kefalet_sozlesmesi",
@@ -623,7 +623,7 @@
     "kefalet_isletmeyle_ilgili": "evet",
     "es_rizasi": ""
    },
-   "note": "15.03.2013: 584/3 istisnası henüz yok",
+   "note": "15.03.2013: evli esnaf, mesleğiyle ilgili olarak başkasının ticari kredisine kefil; 584/3 istisnası henüz yok",
    "expected_document": {
     "TBK584-es-rizasi-2013-oncesi": "belirsiz"
    }

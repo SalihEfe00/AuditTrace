@@ -77,6 +77,8 @@ def _passes(rule: Rule, fields: Dict[str, FieldValue], text: str) -> Optional[bo
         fv = _get(fields, check["field"])
         if fv.state != FILLED:
             return None
+        if _norm(fv.value) in {_norm(v) for v in check.get("undecided", [])}:
+            return None  # bu değer bu kural için karar vermeye yetmez (ör. türü yazmayan e-imza, 5070 için)
         return _norm(fv.value) in {_norm(v) for v in check.get("expected", [])}
     if kind == "fields_differ":
         # İki alan aynı kişiyi mi gösteriyor (ör. kefil ile asıl borçlu): biri ötekinin içinde geçiyorsa aynı sayılır

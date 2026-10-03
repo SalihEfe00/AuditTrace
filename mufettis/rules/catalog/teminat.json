@@ -182,9 +182,9 @@
       "obligor": "banka",
       "absence_is_violation": false,
       "exceptions": [],
-      "validity": {"from": "2022-09-17", "to": null},
+      "validity": {"from": "2022-10-17", "to": null},
       "finding": "On milyon TL üzeri değerlemede ikinci rapor kontrol edilmeli",
-      "rationale": "Md. 20/2 (RG 17.9.2022 değişik metin): ikinci rapor tek belgeden görülemez, kural müfettişe kontrol maddesi üretir; eşik sayısal koşulla (applies_if above) yalnızca 10 milyon TL üstünde devreye girer. Kurul tutar ve oranları değiştirebilir (md. 20/3): eşik değişirse kural yeni metne göre yazılır."
+      "rationale": "Md. 20/2 (RG 17.9.2022 değişik metin; değişiklik yönetmeliği 'yayımı tarihinden bir ay sonra yürürlüğe girer': yürürlük 17.10.2022, M9.4e): ikinci rapor tek belgeden görülemez, kural müfettişe kontrol maddesi üretir; eşik sayısal koşulla (applies_if above) yalnızca 10 milyon TL üstünde devreye girer. Kurul tutar ve oranları değiştirebilir (md. 20/3): eşik değişirse kural yeni metne göre yazılır."
     },
     {
       "id": "6305-11-dask-baslangic",

@@ -38,7 +38,7 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     Question("kefil_ticari_sifat", "Kefil, kefalet verdiği işle ilgili olarak hangi sıfatta?",
              (("tacir / ticari işletme sahibi", "tacir_isletme_sahibi"),
               ("şirket ortağı / yöneticisi (şirket kredisi)", "sirket_ortagi_yoneticisi"),
-              ("esnaf / sanatkâr (mesleki)", "esnaf_sanatkar"), ("5570 sayılı Kanun kredisi", "5570_kredisi"),
+              ("esnaf ve sanatkârlar siciline kayıtlı esnaf / sanatkâr (mesleki)", "esnaf_sanatkar"), ("5570 sayılı Kanun kredisi", "5570_kredisi"),
               ("kooperatif kredisi", "kooperatif_kredisi"), ("hiçbiri", "yok"))),
     Question("es_rizasi", "Eşin yazılı rızası (ad soyad, imza) belgede var mı?",
              (("var", "var"), ("yok / boş", ""))),
@@ -56,7 +56,8 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     Question("kredi_turu", "Kefalet hangi tür krediye verilmiş?", (("tüketici / bireysel", "tüketici"), ("ticari", "ticari"))),
     Question("kefalet_turu", "Kefalet türü nedir?", (("müteselsil", "müteselsil"), ("adi", "adi"))),
     # Kefalet dışı teminat belgeleri (M9.6)
-    Question("ipotek_tutari", "İpotek tutarı (üst sınır) belgede yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
+    Question("ipotek_tutari", "İpotekle güvence altına alınan tutar (belli alacak ya da üst sınır) belgede yazılı mı?",
+             (("yazılı", "var"), ("yok / boş", ""))),
     Question("yevmiye_no", "İpotek tapu kütüğüne tescil edilmiş mi? (tapu kaydına / tescil belgesine bakarak)",
              (("evet, tescil var", "var"), ("hayır, tescil yok", ""))),
     Question("rehin_tutari", "Rehnin azami miktarı sözleşmede yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),

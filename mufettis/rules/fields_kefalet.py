@@ -47,7 +47,8 @@ CONVERT = {
     # 5070 md. 5/2 yalnızca güvenli elektronik imzayı yasaklar; türü yazmayan "elektronik imza" karar için yetersiz
     "imza_turu": one_of([(r"güvenli elektronik|nitelikli elektronik", "guvenli_e_imza"),
                          (r"basit elektronik|güvenli olmayan|ekrana|tablet", "diger_elektronik"),
-                         (r"elektronik|e-imza", UNDECIDED), (r"ıslak", "ıslak"), (r"imzasız|imza yok", "imzasiz")]),
+                         # türü yazmayan e-imza: güvenliyse 5070 yasağı, değilse yazılı şekil eksik (M9.4e)
+                         (r"elektronik|e-imza", "e_imza"), (r"ıslak", "ıslak"), (r"imzasız|imza yok", "imzasiz")]),
     "ayrilik_durumu": one_of([(r"mahkeme|ayrılık kararı", "mahkeme_ayrilik_karari"),
                               (r"ayrı yaşama hakkı", "yasal_ayri_yasama"), (r"\byok\b", "yok")]),
     # TBK 584/3 istisnasının koşul değerleri (katalogdaki kefil_ticari_sifat değerleri)
@@ -124,9 +125,8 @@ def _guarantor_signature(text: str, out: Dict[str, FieldValue]) -> None:
     müfettişin (TBK 14 kuralı belirsiz kalır ve sorulur). Elektronik imzada imza yerinin boş olması olağandır."""
     sign = extract_labeled_fields(text, {"s": [r"kefil(?:in)? imzası", r"kefil imza"]}).get("s")
     current = out.get("imza_turu")
-    electronic = current is not None and current.value in ("guvenli_e_imza", "diger_elektronik")
-    if sign is not None and sign.state == EMPTY and not electronic and \
-            not (current is not None and current.state == NOT_FOUND and "elektronik" in current.location.lower()):
+    electronic = current is not None and current.value in ("guvenli_e_imza", "diger_elektronik", "e_imza")
+    if sign is not None and sign.state == EMPTY and not electronic:
         out["imza_turu"] = FieldValue(NOT_FOUND, None, f"{sign.location} (kefil imza yeri boş görünüyor)")
 
 

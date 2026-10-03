@@ -400,8 +400,8 @@
         "from": "2012-07-01",
         "to": null
       },
-      "finding": "Kefilin imzası yok ya da güvenli olmayan elektronik imza: yazılı şekil sağlanmamış, kefalet geçersiz olabilir",
-      "rationale": "Kefalet yazılı şekle tabi (TBK 583/1); yazılı şekil borç altına girenin imzasını ister (TBK 14/1), imza el yazısıyla atılır, güvenli elektronik imza da el yazısıyla atılmış imzanın sonuçlarını doğurur (TBK 15/1). Güvenli e-imzada imza VARDIR (bu kural karşılanır); kefalette bu imza türünün yasak olduğunu 5070 kuralı bildirir (tek olay, tek bulgu). İmzanın varlığı taranmış metinden güvenle okunmaz: 'belgede görünmüyor' imzasızlık sayılmaz, belirsiz kalır ve müfettişe sorulur."
+      "finding": "Kefilin ıslak imzası yok (imzasız, güvenli olmayan ya da türü belirsiz elektronik imza): kefalet için geçerli imza şekli sağlanmamış",
+      "rationale": "Kefalet yazılı şekle tabi (TBK 583/1); yazılı şekil borç altına girenin imzasını ister (TBK 14/1), imza el yazısıyla atılır, güvenli elektronik imza da el yazısıyla atılmış imzanın sonuçlarını doğurur (TBK 15/1). Güvenli e-imzada imza VARDIR (bu kural karşılanır); kefalette bu imza türünün yasak olduğunu 5070 kuralı bildirir (tek olay, tek bulgu). İmzanın varlığı taranmış metinden güvenle okunmaz: 'belgede görünmüyor' imzasızlık sayılmaz, belirsiz kalır ve müfettişe sorulur. Türü yazmayan elektronik imzada sonuç yine karşılanmadı (M9.4e): güvenliyse kefalette 5070 yasağı, değilse yazılı şekil eksik; iki durumda da geçerli imza şekli yok. Müfettiş türünü belirtirse bulgunun dayanağı netleşir (güvenli → bu kural karşılanır, 5070 bulgu verir)."
     },
     {
       "document_type": "kefalet_sozlesmesi",
@@ -429,10 +429,13 @@
           "ıslak",
           "diger_elektronik",
           "imzasiz"
+        ],
+        "undecided": [
+          "e_imza"
         ]
       },
       "finding": "Kefalet (teminat sözleşmesi) güvenli elektronik imzayla atılmış: 5070 md. 5/2 gereği bu yolla kurulamaz",
-      "rationale": "Yasak yalnızca güvenli elektronik imza içindir (banka teminat mektubu ve sigorta kefalet senedi istisnası kefil-banka kefaletine uygulanmaz). Islak imza, imzasızlık ya da güvenli olmayan elektronik imza bu kuralın konusu değil: TBK14-kefil-imzasi kuralı denetler. Türü yazmayan \"elektronik imza\" belirsiz kalır ve müfettişe sorulur. Geçerlilik başlangıcı: Kanun 23.01.2004 Resmî Gazete'de yayımlandı, md. 25 gereği altı ay sonra yürürlükte; teminat sözleşmeleri yasağı ilk metinde de vardı (md. 5 sonradan 6728 ve 7349 ile değişti, istisnalar eklendi)."
+      "rationale": "Yasak yalnızca güvenli elektronik imza içindir (banka teminat mektubu ve sigorta kefalet senedi istisnası kefil-banka kefaletine uygulanmaz). Islak imza, imzasızlık ya da güvenli olmayan elektronik imza bu kuralın konusu değil: TBK14-kefil-imzasi kuralı denetler. Türü yazmayan \"elektronik imza\" bu kural için belirsiz kalır (güvenli mi, müfettişe sorulur); ıslak imza olmadığı için TBK14 kuralı yine de sorun bildirir. Geçerlilik başlangıcı: Kanun 23.01.2004 Resmî Gazete'de yayımlandı, md. 25 gereği altı ay sonra yürürlükte; teminat sözleşmeleri yasağı ilk metinde de vardı (md. 5 sonradan 6728 ve 7349 ile değişti, istisnalar eklendi)."
     },
     {
       "document_type": "kefalet_sozlesmesi",
