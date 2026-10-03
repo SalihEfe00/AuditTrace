@@ -138,7 +138,7 @@ def _basis(raw: Dict, where: str, problems: List[str]) -> Optional[Basis]:
 def _check_fields(check: Dict) -> List[str]:
     out = [check.get("field")] if check.get("field") else []
     out += [f for f in (check.get("before"), check.get("after")) if f]
-    if isinstance(check.get("applies_if"), dict):  # kural yalnızca bu alan şu değerlerdeyse uygulanır
+    if isinstance(check.get("applies_if"), dict):  # kural yalnızca bu alan şu değerlerdeyse / eşiğin üstündeyse uygulanır
         out.append(check["applies_if"].get("field"))
     return out
 
@@ -169,6 +169,9 @@ def parse_rule(raw: Dict, article_text: Optional[Callable[[str, str], Optional[s
             problems.append("insan kontrolünde talimat yok")
     elif check["type"] != "text_pattern" and not _check_fields(check):
         problems.append("kontrol bir belge alanı adlandırmıyor")
+    cond = check.get("applies_if")
+    if cond is not None and (not isinstance(cond, dict) or ("values" in cond) == ("above" in cond)):
+        problems.append("applies_if: alan ve ya 'values' (değer listesi) ya 'above' (sayısal eşik) olmalı")
     for f in _check_fields(check):
         if f not in fields:
             problems.append(f"bilinmeyen alan: {f}")

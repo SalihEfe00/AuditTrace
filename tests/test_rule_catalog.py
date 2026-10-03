@@ -57,6 +57,8 @@ def test_quote_match_ignores_line_breaks_and_case_but_not_words():
     (lambda r: r.update(fazla="x"), "bilinmeyen anahtar"),
     (lambda r: r.update(absence_is_violation="evet"), "absence_is_violation"),
     (lambda r: r["check"].update(type="sezgi"), "bilinmeyen kontrol türü"),
+    (lambda r: r["check"].update(applies_if={"field": "kredi_turu"}), "applies_if"),
+    (lambda r: r["check"].update(applies_if={"field": "kredi_turu", "values": ["x"], "above": 1}), "applies_if"),
 ])
 def test_broken_rule_is_rejected(mutate, message):
     raw = copy.deepcopy(_rules()[0])

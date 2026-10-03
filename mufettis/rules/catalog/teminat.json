@@ -163,6 +163,30 @@
       "rationale": "Md. 14/3-e-2: sonuç bölümünde nihai değer takdiri zorunlu; teminat değeri ve limit hesabı bu değere dayanır."
     },
     {
+      "id": "BDDK-DHY20-iki-rapor",
+      "document_type": "ekspertiz",
+      "title": "On milyon TL üzeri gayrimenkul için farklı kuruluşlardan ikinci değerleme raporu",
+      "basis": {
+        "law": "7.5.23228",
+        "article": "20",
+        "paragraph": "2",
+        "quote": "On milyon TL üzerinde değere sahip gayrimenkuller için 30 gün içerisinde farklı değerleme kuruluşlarına iki adet değerleme raporu yaptırılır."
+      },
+      "check": {
+        "type": "human",
+        "instruction": "Değer 10 milyon TL'nin üzerinde: 30 gün içinde farklı bir değerleme kuruluşundan ikinci rapor alınmış mı, iki değer arasındaki fark %10'u aşıyorsa üçüncü rapor var mı, esas alınan değer ortalamaya göre hesaplanmış mı kontrol edin",
+        "applies_if": {"field": "deger", "above": 10000000}
+      },
+      "result_class": "manuel",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {"from": "2022-09-17", "to": null},
+      "finding": "On milyon TL üzeri değerlemede ikinci rapor kontrol edilmeli",
+      "rationale": "Md. 20/2 (RG 17.9.2022 değişik metin): ikinci rapor tek belgeden görülemez, kural müfettişe kontrol maddesi üretir; eşik sayısal koşulla (applies_if above) yalnızca 10 milyon TL üstünde devreye girer. Kurul tutar ve oranları değiştirebilir (md. 20/3): eşik değişirse kural yeni metne göre yazılır."
+    },
+    {
       "id": "6305-11-dask-baslangic",
       "document_type": "dask",
       "title": "Tapu işlemi (ipotek tescili) tarihinde DASK poliçesi başlamış",

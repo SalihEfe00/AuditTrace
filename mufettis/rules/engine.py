@@ -103,6 +103,17 @@ def _passes(rule: Rule, fields: Dict[str, FieldValue], text: str) -> Optional[bo
     return None
 
 
+def _condition_holds(cond: Dict, fv: FieldValue) -> Optional[bool]:
+    """applies_if koşulu: değer listesinde mi ('values') ya da sayısal eşiğin üstünde mi ('above');
+    sayı okunamazsa None (bilinmiyor)."""
+    if "above" in cond:
+        try:
+            return float(fv.value) > float(cond["above"])
+        except (TypeError, ValueError):
+            return None
+    return _norm(fv.value) in {_norm(v) for v in cond["values"]}
+
+
 def _missing_fields(rule: Rule, fields: Dict[str, FieldValue]) -> List[str]:
     names = [rule.check.get(k) for k in ("field", "before", "after") if rule.check.get(k)]
     return [n for n in names if _get(fields, n).state != FILLED]
@@ -119,17 +130,18 @@ def evaluate_rule(rule: Rule, fields: Dict[str, FieldValue], text: str = "",
 
     if not rule.applies_on(event_date):
         return result(NOT_APPLICABLE, "kural olay tarihindeki metne göre yazılmamış", finding="")
-    if rule.check["type"] == "human":
-        return result(MANUAL, "insan kontrolü", finding=rule.check["instruction"])
     cond = rule.check.get("applies_if")
     if cond:
         fv = _get(fields, cond["field"])
         evidence = evidence + (_ev(cond["field"], fv),)
-        if fv.state != FILLED:
+        holds = _condition_holds(cond, fv) if fv.state == FILLED else None
+        if holds is None:
             return result(UNKNOWN, f"kuralın uygulanıp uygulanmadığı bilinmiyor: {cond['field']} {fv.state}",
                           finding=f"{rule.finding} (önce {cond['field']} belirlenmeli)", ev=evidence)
-        if _norm(fv.value) not in {_norm(v) for v in cond["values"]}:
+        if not holds:
             return result(NOT_APPLICABLE, f"{cond['field']}={fv.value}", finding="", ev=evidence)
+    if rule.check["type"] == "human":
+        return result(MANUAL, "insan kontrolü", finding=rule.check["instruction"], ev=evidence)
     outcome = _passes(rule, fields, text)
     if outcome is True:
         return result(MET, "olumlu kanıt", ev=evidence)

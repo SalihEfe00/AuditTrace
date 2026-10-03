@@ -31,7 +31,11 @@ def describe_check(check: dict) -> str:
     text = CHECK_TEXT[check["type"]].format(**{k: check.get(k, "") for k in
                                                ("field", "expected", "before", "after", "pattern", "instruction")})
     cond = check.get("applies_if")
-    return text + (f"; yalnızca {cond['field']} ∈ {cond['values']}" if cond else "")
+    if not cond:
+        return text
+    if "above" in cond:
+        return text + f"; yalnızca {cond['field']} > {cond['above']:,}".replace(",", ".")
+    return text + f"; yalnızca {cond['field']} ∈ {cond['values']}"
 
 
 def main(out: str) -> int:
