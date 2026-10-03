@@ -100,10 +100,21 @@ def render_mevzuat_admin(
         "RAG içinde gerçekten indekslenmiş güncel belgeleri kaynak, belge ve chunk bazında gösterir. "
         "Bu bölüm yalnızca okur; indeksleme yapmaz."
     )
-    inventory = build_rag_inventory(rag)
-    if not inventory.get("available"):
+    # Envanter bütün parçaları okur (365 bin parçada dakikalar sürer). Streamlit görünmeyen sekmeleri de her
+    # etkileşimde çalıştırdığından burada kendiliğinden hesaplanmaz: düğmeyle hesaplanır, sonuç oturumda saklanır.
+    inventory = st.session_state.get("rag_inventory")
+    label = "Envanteri yenile" if inventory else "Envanteri hesapla (birkaç dakika sürebilir)"
+    if st.button(label, key="rag_inventory_build"):
+        with st.spinner("RAG envanteri çıkarılıyor..."):
+            inventory = build_rag_inventory(rag)
+        st.session_state["rag_inventory"] = inventory
+        st.session_state["rag_inventory_at"] = dt.datetime.now().strftime("%d.%m.%Y %H:%M")
+    if inventory is None:
+        st.caption("Envanter henüz hesaplanmadı.")
+    elif not inventory.get("available"):
         st.warning(inventory.get("error", "RAG envanteri kullanılamıyor."))
     else:
+        st.caption(f"Envanter hesaplanma zamanı: {st.session_state.get('rag_inventory_at', '?')}")
         ic1, ic2, ic3, ic4 = st.columns(4)
         ic1.metric("Belge", f"{inventory['total_documents']:,}")
         ic2.metric("Chunk", f"{inventory['total_chunks']:,}")
