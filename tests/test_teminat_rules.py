@@ -80,6 +80,16 @@ def test_inspector_answers_resolve_unknown_signature_approval():
     assert run("rehin", text, {"imza_onayi": "sicil_yetkilisi"})["6750-4-imza-onayi"] == "karşılandı"
 
 
+def test_unspecified_electronic_signature_is_not_assumed_secure():
+    """6750 md. 4/3 güvenli e-imza ister; türü yazmayan "e-imza" karar için yetersiz → belirsiz, müfettişe sorulur."""
+    text = REHIN.replace("İmza Onayı: Noter onaylı", "İmza Onayı: E-imza ile imzalandı")
+    fields = extract_teminat_fields("rehin", text)
+    assert fields["imza_onayi"].state == "bulunamadı" and "yetersiz" in fields["imza_onayi"].location
+    assert run("rehin", text)["6750-4-imza-onayi"] == "belirsiz"
+    secure = REHIN.replace("İmza Onayı: Noter onaylı", "İmza Onayı: Güvenli elektronik imza")
+    assert run("rehin", secure)["6750-4-imza-onayi"] == "karşılandı"
+
+
 @pytest.mark.parametrize("typed, expected", [
     ("12.500.000", "manuel kontrol"), ("12.500.000,00 TL", "manuel kontrol"), ("950.000", "uygulanmaz"),
     ("on iki milyon", "belirsiz"),

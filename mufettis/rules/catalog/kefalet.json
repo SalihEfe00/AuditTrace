@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Kefalet sözleşmesi kuralları (M9.5 blok 1): TBK 583 (şekil, azami miktar, tarih, el yazısı), TBK 584 (eş rızası, zamanı, 584/3 istisnaları), 5070 md. 5/2 (e-imza), TKS Yönetmeliği md. 28. Alıntılar madde metninden birebir; M9.7 hukuki gözden geçirmeden geçecek.",
+  "description": "Kefalet sözleşmesi kuralları (M9.5 blok 1): TBK 583 (şekil, azami miktar, tarih, el yazısı), TBK 14 (kefil imzası), TBK 584 (eş rızası, zamanı, 584/1 ayrılık ve 584/3 istisnaları), 5070 md. 5/2 (güvenli e-imza), 6502 md. 4/6 (tüketici işleminde adi kefalet). Alıntılar madde metninden birebir; M9.7 hukuki gözden geçirmeden geçti (M9.7a, M9.7b).",
   "rules": [
     {
       "id": "TBK583-azami-tutar-el-yazisi",
@@ -61,6 +61,23 @@
       "absence_is_violation": true,
       "exceptions": [
         {
+          "id": "ayrilik-karari-ayri-yasama",
+          "condition": {
+            "field": "ayrilik_durumu",
+            "values": [
+              "mahkeme_ayrilik_karari",
+              "yasal_ayri_yasama"
+            ]
+          },
+          "basis": {
+            "law": "6098",
+            "article": "584",
+            "paragraph": "1",
+            "quote": "mahkemece verilmiş bir ayrılık kararı olmadıkça veya yasal olarak ayrı yaşama hakkı doğmadıkça"
+          },
+          "note": "TBK 584/1: eşler hakkında mahkemece verilmiş ayrılık kararı ya da yasal ayrı yaşama hakkı varsa eş rızası aranmaz."
+        },
+        {
           "id": "ticari-sirket-esnaf",
           "condition": {
             "field": "kefil_ticari_sifat",
@@ -76,6 +93,12 @@
               "values": [
                 "ticari"
               ]
+            },
+            {
+              "field": "kefalet_isletmeyle_ilgili",
+              "values": [
+                "evet"
+              ]
             }
           ],
           "basis": {
@@ -84,7 +107,7 @@
             "paragraph": "3",
             "quote": "verilecek kefaletler için eşin rızası aranmaz."
           },
-          "note": "Ek fıkra 28/3/2013-6455/77: ticari işletme sahibi, şirket ortağı / yöneticisinin kefaleti yalnızca \"işletme veya şirketle ilgili olarak\", esnaf ve sanatkârınki \"mesleki faaliyetleri ile ilgili olarak\" verildiyse; sıfat tek başına yetmez, kefalet verilen kredi ticari olmalı (bireysel krediye kefalette eş rızası aranır)."
+          "note": "Ek fıkra 28/3/2013-6455/77: ticari işletme sahibi, şirket ortağı / yöneticisinin kefaleti yalnızca \"işletme veya şirketle ilgili olarak\", esnaf ve sanatkârınki \"mesleki faaliyetleri ile ilgili olarak\" verildiyse. Sıfat da kredinin ticari olması da tek başına yetmez: kefaletin işletmeyle ilgisi ayrıca sorulur."
         },
         {
           "id": "5570-kooperatif",
@@ -109,7 +132,7 @@
         "to": null
       },
       "finding": "Eş rızası yok ya da boş (ad soyad, imza, tarih); kefil evli ve 584/3 istisnası uygulanmıyor",
-      "rationale": "Rıza yoksa kefalet geçersiz. Kefil evli değilse ya da medeni hali bilinmiyorsa kural 'karşılanmadı' demez. İstisna (584/3) koşulu sağlanıyor ya da bilinmiyorsa 'karşılanmadı' denmez; tacir / şirket ortağı / esnaf istisnası için kefilin sıfatı yetmez, kefalet işletmeyle ilgili olmalı (kredi türü ticari). Geçerlilik başlangıcı 6455 sayılı Kanunun Resmî Gazete tarihi (ek fıkra); M9.5'te olay tarihi için önceki metin kuralı ayrıca yazılır ve tarih doğrulanır."
+      "rationale": "Rıza yoksa kefalet geçersiz. Kefil evli değilse ya da medeni hali bilinmiyorsa kural 'karşılanmadı' demez. İstisna (584/3) koşulu sağlanıyor ya da bilinmiyorsa 'karşılanmadı' denmez; tacir / şirket ortağı / esnaf istisnası için kefilin sıfatı yetmez: kredi ticari ve kefalet işletmeyle ilgili olmalı. 584/1'deki ayrılık kararı / yasal ayrı yaşama hakkı da istisnadır. Geçerlilik başlangıcı 6455 sayılı Kanunun Resmî Gazete tarihi (ek fıkra); M9.5'te olay tarihi için önceki metin kuralı ayrıca yazılır ve tarih doğrulanır."
     },
     {
       "document_type": "kefalet_sozlesmesi",
@@ -158,7 +181,7 @@
       },
       "check": {
         "type": "field_present",
-        "field": "sozlesme_tarihi"
+        "field": "kefalet_tarihi"
       },
       "finding": "Kefalet tarihi belirtilmemiş (kefalet geçersiz olabilir)",
       "rationale": "Şekil şartı: kefalet tarihi belirtilmedikçe kefalet geçerli olmaz."
@@ -189,12 +212,12 @@
           "var"
         ],
         "applies_if": {
-          "field": "sozlesme_tarihi",
+          "field": "kefalet_tarihi",
           "present": true
         }
       },
       "finding": "Kefalet tarihi kefilin el yazısıyla yazılmamış (kefalet geçersiz olabilir)",
-      "rationale": "El yazısı taranmış metinden anlaşılmaz; alan müfettişe sorulur (müfettiş beyanı). Yalnızca sozlesme_tarihi doluysa uygulanır: öğe boşsa eksikliği varlık kuralı bildirir, el yazısı kuralı ikinci bulgu üretmez."
+      "rationale": "El yazısı taranmış metinden anlaşılmaz; alan müfettişe sorulur (müfettiş beyanı). Yalnızca kefalet_tarihi doluysa uygulanır: öğe boşsa eksikliği varlık kuralı bildirir, el yazısı kuralı ikinci bulgu üretmez."
     },
     {
       "document_type": "kefalet_sozlesmesi",
@@ -202,7 +225,24 @@
       "norm_type": "yükümlülük",
       "obligor": "kefil",
       "absence_is_violation": true,
-      "exceptions": [],
+      "exceptions": [
+        {
+          "id": "tuketici-kredisi-adi-kefalet",
+          "condition": {
+            "field": "kredi_turu",
+            "values": [
+              "tüketici"
+            ]
+          },
+          "basis": {
+            "law": "6502",
+            "article": "4",
+            "paragraph": "6",
+            "quote": "her ne isim altında olursa olsun adi kefalet sayılır"
+          },
+          "note": "Tüketici kredisinde kefalet kanunen adi kefalettir (6502 md. 4/6, 28.05.2014'ten); müteselsillik sorunu 6502-4-adi-kefalet kuralında tek bulgu olarak raporlanır."
+        }
+      ],
       "validity": {
         "from": "2012-07-01",
         "to": null
@@ -228,8 +268,8 @@
           ]
         }
       },
-      "finding": "Müteselsil kefil sıfatı kefilin el yazısıyla yazılmamış: müteselsillik geçersiz, kefalet adi kefalet olarak ayakta kalabilir (banka önce asıl borçluya başvurmak zorunda)",
-      "rationale": "Kural yalnızca müteselsil kefalette uygulanır; adi kefalette el yazısıyla sıfat şartı yok. Sıfat el yazısıyla yazılmamışsa kefalet tümden düşmez, adi kefalet hükmünde kalır (yargı kararlarındaki yerleşik görüş; korpusta içtihat yok, M9.7 hukuki gözden geçirmede teyit edildi)."
+      "finding": "Müteselsil kefalet kaydı kefilin el yazısıyla belirtilmemiş görünüyor: müteselsillik sonucu doğmayıp kefalet adi kefalet olarak değerlendirilebilir",
+      "rationale": "Kural yalnızca müteselsil kefalette uygulanır; adi kefalette el yazısıyla sıfat şartı yok. Sıfat el yazısıyla yazılmamışsa kefalet tümden düşmez, adi kefalet hükmünde kalır (yargı kararlarındaki yerleşik görüş; korpusta içtihat yok, M9.7 hukuki gözden geçirmede teyit edildi). Tüketici kredisinde kural istisna verir: kefalet zaten adi sayılır, bulguyu 6502-4-adi-kefalet kuralı verir (aynı olay için iki bulgu yok). Bilinen sınır: istisnanın kendi geçerlilik tarihi tutulmuyor; 28.05.2014 öncesi tüketici kredisi olaylarında elle bakılmalı."
     },
     {
       "document_type": "kefalet_sozlesmesi",
@@ -238,6 +278,23 @@
       "obligor": "kefil",
       "absence_is_violation": false,
       "exceptions": [
+        {
+          "id": "ayrilik-karari-ayri-yasama",
+          "condition": {
+            "field": "ayrilik_durumu",
+            "values": [
+              "mahkeme_ayrilik_karari",
+              "yasal_ayri_yasama"
+            ]
+          },
+          "basis": {
+            "law": "6098",
+            "article": "584",
+            "paragraph": "1",
+            "quote": "mahkemece verilmiş bir ayrılık kararı olmadıkça veya yasal olarak ayrı yaşama hakkı doğmadıkça"
+          },
+          "note": "TBK 584/1: eşler hakkında mahkemece verilmiş ayrılık kararı ya da yasal ayrı yaşama hakkı varsa eş rızası aranmaz."
+        },
         {
           "id": "ticari-sirket-esnaf",
           "condition": {
@@ -254,6 +311,12 @@
               "values": [
                 "ticari"
               ]
+            },
+            {
+              "field": "kefalet_isletmeyle_ilgili",
+              "values": [
+                "evet"
+              ]
             }
           ],
           "basis": {
@@ -262,7 +325,7 @@
             "paragraph": "3",
             "quote": "verilecek kefaletler için eşin rızası aranmaz."
           },
-          "note": "Ek fıkra 28/3/2013-6455/77: ticari işletme sahibi, şirket ortağı / yöneticisinin kefaleti yalnızca \"işletme veya şirketle ilgili olarak\", esnaf ve sanatkârınki \"mesleki faaliyetleri ile ilgili olarak\" verildiyse; sıfat tek başına yetmez, kefalet verilen kredi ticari olmalı (bireysel krediye kefalette eş rızası aranır)."
+          "note": "Ek fıkra 28/3/2013-6455/77: ticari işletme sahibi, şirket ortağı / yöneticisinin kefaleti yalnızca \"işletme veya şirketle ilgili olarak\", esnaf ve sanatkârınki \"mesleki faaliyetleri ile ilgili olarak\" verildiyse. Sıfat da kredinin ticari olması da tek başına yetmez: kefaletin işletmeyle ilgisi ayrıca sorulur."
         },
         {
           "id": "5570-kooperatif",
@@ -297,7 +360,7 @@
       "check": {
         "type": "date_order",
         "before": "es_rizasi_tarihi",
-        "after": "sozlesme_tarihi",
+        "after": "kefalet_tarihi",
         "allow_equal": true,
         "applies_if": {
           "field": "kefil_medeni_hal",
@@ -307,7 +370,44 @@
         }
       },
       "finding": "Eşin rızası kefalet sözleşmesinden sonra verilmiş",
-      "rationale": "Rıza tarihi bilinmiyorsa belirsiz (tarihin yokluğu tek başına ihlal sayılmaz; rızanın kendisi TBK584-es-rizasi kuralında)."
+      "rationale": "Rıza tarihi bilinmiyorsa belirsiz (tarihin yokluğu tek başına ihlal sayılmaz; rızanın kendisi TBK584-es-rizasi kuralında). Karşılaştırılan tarih kefalet tarihidir (kefalet sözleşmesinin kurulması); ana kredi sözleşmesinin tarihi değil."
+    },
+    {
+      "id": "TBK14-kefil-imzasi",
+      "document_type": "kefalet_sozlesmesi",
+      "title": "Kefalet sözleşmesi kefilin el yazısıyla attığı imzayı taşıyor (yazılı şekil)",
+      "basis": {
+        "law": "6098",
+        "article": "14",
+        "paragraph": "1",
+        "quote": "Yazılı şekilde yapılması öngörülen sözleşmelerde borç altına girenlerin imzalarının bulunması zorunludur."
+      },
+      "check": {
+        "type": "field_value",
+        "field": "imza_turu",
+        "expected": [
+          "ıslak"
+        ],
+        "applies_if": {
+          "field": "imza_turu",
+          "values": [
+            "ıslak",
+            "diger_elektronik",
+            "imzasiz"
+          ]
+        }
+      },
+      "result_class": "kısmen",
+      "norm_type": "yükümlülük",
+      "obligor": "kefil",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": "2012-07-01",
+        "to": null
+      },
+      "finding": "Kefilin el yazısıyla imzası yok (imzasız ya da güvenli olmayan elektronik imza): yazılı şekil sağlanmamış, kefalet geçersiz olabilir",
+      "rationale": "Kefalet yazılı şekle tabi (TBK 583/1); yazılı şekil borç altına girenin imzasını ister (TBK 14/1), imza el yazısıyla atılır (TBK 15/1; güvenli e-imza el yazısına denk ama teminatta 5070 md. 5/2 yasaklar, o durumu 5070 kuralı bildirir ve bu kural uygulanmaz). İmzanın varlığı taranmış metinden güvenle okunmaz: 'belgede bulunamadı' imzasızlık sayılmaz, belirsiz kalır ve müfettişe sorulur."
     },
     {
       "document_type": "kefalet_sozlesmesi",
@@ -332,11 +432,13 @@
         "type": "field_value",
         "field": "imza_turu",
         "expected": [
-          "ıslak"
+          "ıslak",
+          "diger_elektronik",
+          "imzasiz"
         ]
       },
-      "finding": "Kefalet (teminat sözleşmesi) e-imzayla atılmış: güvenli elektronik imzayla kurulamaz",
-      "rationale": "Teminat sözleşmeleri güvenli e-imzayla yapılamaz (banka teminat mektubu ve sigorta kefalet senedi istisnası kefil-banka kefaletine uygulanmaz). İmza türü yazmıyorsa belirsiz. Geçerlilik başlangıcı: Kanun 23.01.2004 Resmî Gazete'de yayımlandı, md. 25 gereği altı ay sonra yürürlükte; teminat sözleşmeleri yasağı ilk metinde de vardı (md. 5 sonradan 6728 ve 7349 ile değişti, istisnalar eklendi)."
+      "finding": "Kefalet (teminat sözleşmesi) güvenli elektronik imzayla atılmış: 5070 md. 5/2 gereği bu yolla kurulamaz",
+      "rationale": "Yasak yalnızca güvenli elektronik imza içindir (banka teminat mektubu ve sigorta kefalet senedi istisnası kefil-banka kefaletine uygulanmaz). Islak imza, imzasızlık ya da güvenli olmayan elektronik imza bu kuralın konusu değil: TBK14-kefil-imzasi kuralı denetler. Türü yazmayan \"elektronik imza\" belirsiz kalır ve müfettişe sorulur. Geçerlilik başlangıcı: Kanun 23.01.2004 Resmî Gazete'de yayımlandı, md. 25 gereği altı ay sonra yürürlükte; teminat sözleşmeleri yasağı ilk metinde de vardı (md. 5 sonradan 6728 ve 7349 ile değişti, istisnalar eklendi)."
     },
     {
       "document_type": "kefalet_sozlesmesi",
@@ -346,16 +448,16 @@
       "absence_is_violation": false,
       "exceptions": [],
       "validity": {
-        "from": "2015-11-22",
+        "from": "2014-05-28",
         "to": null
       },
-      "id": "TKS28-adi-kefalet",
+      "id": "6502-4-adi-kefalet",
       "title": "Tüketici kredisinde şahsi teminat adi kefalet sayılır",
       "basis": {
-        "law": "7.5.20767",
-        "article": "28",
-        "paragraph": "1",
-        "quote": "Tüketici kredisi sözleşmelerinde tüketicinin edimlerine karşılık olarak alınan şahsi teminatlar, her ne isim altında olursa olsun adi kefalet sayılır."
+        "law": "6502",
+        "article": "4",
+        "paragraph": "6",
+        "quote": "Tüketici işlemlerinde, tüketicinin edimlerine karşılık olarak alınan şahsi teminatlar, her ne isim altında olursa olsun adi kefalet sayılır."
       },
       "check": {
         "type": "field_value",
@@ -370,8 +472,8 @@
           ]
         }
       },
-      "finding": "Tüketici kredisine müteselsil kefalet yazılmış: kefalet adi kefalet sayılır, kefile doğrudan başvurulamaz",
-      "rationale": "Hüküm kefaleti geçersiz kılmaz ve bir yasak koymaz: şahsi teminatı kendiliğinden adi kefalete çevirir (norm türü hukuki sonuç); bulgu takip riskini gösterir. Dayanak Tüketici Kredisi Sözleşmeleri Yönetmeliği md. 28/1 (6502 sayılı Kanunda bu cümle yok; 6502 md. 27 erken ödeme). Geçerlilik başlangıcı: Yönetmelik 22.05.2015 Resmî Gazete'de (29363) yayımlandı, md. 31 gereği altı ay sonra yürürlükte."
+      "finding": "Tüketici kredisine müteselsil kefalet yazılmış: kefalet kanunen adi kefalet sayılır; kural olarak asıl borçluya başvurulmadan kefil takip edilemez (TBK 585'teki doğrudan başvuru halleri saklı)",
+      "rationale": "Hüküm kefaleti geçersiz kılmaz ve bir yasak koymaz: şahsi teminatı kendiliğinden adi kefalete çevirir (norm türü hukuki sonuç); bulgu takip riskini gösterir. Dayanak 6502 md. 4/6 (tüketici işlemleri); aynı cümle Tüketici Kredisi Sözleşmeleri Yönetmeliği md. 28/1'de de var (22.11.2015'ten). 6502 md. 27 erken ödemedir, dayanak değildir. Geçerlilik başlangıcı: 6502 md. 87 gereği yayımdan (28.11.2013) altı ay sonra."
     },
     {
       "id": "TBK584-es-rizasi-2013-oncesi",
@@ -397,7 +499,25 @@
       "norm_type": "yükümlülük",
       "obligor": "kefil",
       "absence_is_violation": true,
-      "exceptions": [],
+      "exceptions": [
+        {
+          "id": "ayrilik-karari-ayri-yasama",
+          "condition": {
+            "field": "ayrilik_durumu",
+            "values": [
+              "mahkeme_ayrilik_karari",
+              "yasal_ayri_yasama"
+            ]
+          },
+          "basis": {
+            "law": "6098",
+            "article": "584",
+            "paragraph": "1",
+            "quote": "mahkemece verilmiş bir ayrılık kararı olmadıkça veya yasal olarak ayrı yaşama hakkı doğmadıkça"
+          },
+          "note": "TBK 584/1: eşler hakkında mahkemece verilmiş ayrılık kararı ya da yasal ayrı yaşama hakkı varsa eş rızası aranmaz."
+        }
+      ],
       "validity": {
         "from": "2012-07-01",
         "to": "2013-04-11"
@@ -411,7 +531,25 @@
       "norm_type": "yükümlülük",
       "obligor": "kefil",
       "absence_is_violation": false,
-      "exceptions": [],
+      "exceptions": [
+        {
+          "id": "ayrilik-karari-ayri-yasama",
+          "condition": {
+            "field": "ayrilik_durumu",
+            "values": [
+              "mahkeme_ayrilik_karari",
+              "yasal_ayri_yasama"
+            ]
+          },
+          "basis": {
+            "law": "6098",
+            "article": "584",
+            "paragraph": "1",
+            "quote": "mahkemece verilmiş bir ayrılık kararı olmadıkça veya yasal olarak ayrı yaşama hakkı doğmadıkça"
+          },
+          "note": "TBK 584/1: eşler hakkında mahkemece verilmiş ayrılık kararı ya da yasal ayrı yaşama hakkı varsa eş rızası aranmaz."
+        }
+      ],
       "validity": {
         "from": "2012-07-01",
         "to": "2013-04-11"
@@ -427,7 +565,7 @@
       "check": {
         "type": "date_order",
         "before": "es_rizasi_tarihi",
-        "after": "sozlesme_tarihi",
+        "after": "kefalet_tarihi",
         "allow_equal": true,
         "applies_if": {
           "field": "kefil_medeni_hal",
@@ -437,7 +575,7 @@
         }
       },
       "finding": "Eşin rızası kefalet sözleşmesinden sonra verilmiş",
-      "rationale": "Olay tarihi 1.7.2012 ile 11.4.2013 (6455 sayılı Kanunun Resmî Gazete tarihi) arasındaysa 584'ün ek fıkrası yoktu: ticari / esnaf istisnası uygulanmaz. Birinci fıkra metni aynı. Rıza tarihi bilinmiyorsa belirsiz (tarihin yokluğu tek başına ihlal sayılmaz; rızanın kendisi TBK584-es-rizasi kuralında).."
+      "rationale": "Olay tarihi 1.7.2012 ile 11.4.2013 (6455 sayılı Kanunun Resmî Gazete tarihi) arasındaysa 584'ün ek fıkrası yoktu: ticari / esnaf istisnası uygulanmaz. Birinci fıkra metni aynı. Rıza tarihi bilinmiyorsa belirsiz (tarihin yokluğu tek başına ihlal sayılmaz; rızanın kendisi TBK584-es-rizasi kuralında).. Karşılaştırılan tarih kefalet tarihidir (kefalet sözleşmesinin kurulması); ana kredi sözleşmesinin tarihi değil."
     }
   ]
 }

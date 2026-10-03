@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Dict, List
 
 from mufettis.rules.engine import FieldValue
-from mufettis.rules.fields import as_amount, as_date, extract_labeled_fields, one_of
+from mufettis.rules.fields import UNDECIDED, as_amount, as_date, extract_labeled_fields, one_of
 
 DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
     "ipotek": {
@@ -67,7 +67,8 @@ _AMOUNTS = {"ipotek_tutari", "rehin_tutari", "deger", "tutar"}
 _CONVERT = {f: as_date for f in _DATES}
 _CONVERT.update({f: as_amount for f in _AMOUNTS})
 _CONVERT["imza_onayi"] = one_of([(r"noter", "noter"), (r"sicil yetkilisi", "sicil_yetkilisi"),
-                                  (r"güvenli elektronik imza|e-imza", "guvenli_e_imza")])
+                                  (r"güvenli elektronik imza", "guvenli_e_imza"),
+                                  (r"elektronik imza|e-imza", UNDECIDED)])  # güvenli mi belli değil
 _CONVERT["derece"] = one_of([(r"\b1\b|birinci", "1"), (r"\b2\b|ikinci", "2"), (r"\b3\b|üçüncü", "3")])
 
 

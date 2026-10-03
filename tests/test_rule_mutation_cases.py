@@ -25,5 +25,5 @@ def test_every_rule_has_a_met_and_a_violating_case():
     current = {r.id for r in RULES if r.document_type == "kefalet_sozlesmesi" and r.valid_to is None
                and r.result_class != "kısmen"}
     for rid in current:
-        assert (rid, "karşılandı") in expected or rid == "TKS28-adi-kefalet", rid
+        assert (rid, "karşılandı") in expected or rid == "6502-4-adi-kefalet", rid
         assert (rid, "karşılanmadı") in expected, rid

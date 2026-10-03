@@ -14,7 +14,7 @@ import re
 from typing import Callable, Dict, List, Optional, Tuple
 
 from mufettis.analysis.turkish_text import turkish_lower
-from mufettis.rules.engine import EMPTY, FieldValue
+from mufettis.rules.engine import EMPTY, NOT_FOUND, FieldValue
 
 _BLANK = re.compile(r"^[\s.…_\-–:/|]*$")
 _PLACEHOLDER = re.compile(r"(?:ad[ıi] ?soyad[ıi]|imza|tarih|kaşe)\s*[:：]?[\s.…_/]*")
@@ -61,6 +61,12 @@ def is_blank(raw: str) -> bool:
     return bool(_BLANK.match(raw)) or bool(_PLACEHOLDER.fullmatch(turkish_lower(raw)))
 
 
+# Dönüştürücü değeri tanıdı ama karar için yetersiz bulduysa (ör. "elektronik imza", güvenli mi belli değil) bunu
+# döndürür: alan "bulunamadı" kalır, konumu not edilir ve kural belirsiz der (tanınmayan ham değer gibi
+# "karşılanmadı"ya gitmez).
+UNDECIDED = object()
+
+
 def extract_labeled_fields(text: str, labels: Dict[str, List[str]],
                            convert: Optional[Dict[str, Callable[[str], object]]] = None) -> Dict[str, FieldValue]:
     """Alan adı → FieldValue (etiketi bulunmayan alan yok). `convert` alanın değerini normalleştirir; tanınmayan
@@ -81,9 +87,12 @@ def extract_labeled_fields(text: str, labels: Dict[str, List[str]],
             else:
                 fn = convert.get(field)
                 value = fn(raw) if fn else raw
-                out[field] = FieldValue.filled(value if value is not None else raw, where)
+                if value is UNDECIDED:
+                    out[field] = FieldValue(NOT_FOUND, None, f"{where} (değer karar için yetersiz)")
+                else:
+                    out[field] = FieldValue.filled(value if value is not None else raw, where)
             break
     return out
 
 
-__all__ = ["extract_labeled_fields", "as_date", "as_amount", "one_of", "is_blank"]
+__all__ = ["UNDECIDED", "extract_labeled_fields", "as_date", "as_amount", "one_of", "is_blank"]

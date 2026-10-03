@@ -15,7 +15,8 @@ AMOUNT = F(500000.0, "s.2")
 
 
 def spouse(**fields):
-    base = {"kefil_medeni_hal": F("evli", "s.1"), "kefil_ticari_sifat": F("yok", "s.1")}
+    base = {"kefil_medeni_hal": F("evli", "s.1"), "kefil_ticari_sifat": F("yok", "s.1"),
+            "ayrilik_durumu": F("yok", "elle giriş", INSPECTOR)}
     base.update(fields)
     return evaluate_rule(SPOUSE, base, event_date=TODAY)
 
@@ -37,8 +38,12 @@ def test_field_not_found_is_unknown_never_met():
 
 
 def test_exception_applies():
-    r = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("esnaf_sanatkar"), kredi_turu=F("ticari"))
+    r = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("esnaf_sanatkar"), kredi_turu=F("ticari"),
+               kefalet_isletmeyle_ilgili=F("evet"))
     assert r.status == EXEMPT and "584/3" in r.reason
+    sep = spouse(es_rizasi=FieldValue(EMPTY), ayrilik_durumu=F("yasal_ayri_yasama"))
+    assert sep.status == EXEMPT and "584/1" in sep.reason
+    assert spouse(es_rizasi=FieldValue(EMPTY), ayrilik_durumu=FieldValue(NOT_FOUND)).status == UNKNOWN
     assert spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("kooperatif_kredisi")).status == EXEMPT
 
 
@@ -49,6 +54,13 @@ def test_business_capacity_alone_is_not_the_exception():
     assert personal.status == NOT_MET
     unknown = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("sirket_ortagi_yoneticisi"))
     assert unknown.status == UNKNOWN and "kredi_turu" in unknown.reason
+    # Ticari kredi de tek başına yetmez: kefaletin işletmeyle ilgisi ayrıca sorulur
+    commercial = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("sirket_ortagi_yoneticisi"),
+                        kredi_turu=F("ticari"))
+    assert commercial.status == UNKNOWN and "kefalet_isletmeyle_ilgili" in commercial.reason
+    unrelated = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("sirket_ortagi_yoneticisi"),
+                       kredi_turu=F("ticari"), kefalet_isletmeyle_ilgili=F("hayir"))
+    assert unrelated.status == NOT_MET
 
 
 def test_unknown_exception_condition_blocks_not_met():

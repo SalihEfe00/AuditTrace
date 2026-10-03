@@ -8,6 +8,8 @@ from mufettis.rules.catalog import CATALOG_DIR, CatalogError, load_catalog, pars
 
 # TBK 583 / 584 metninden (PDF satır sonlarıyla, korpustaki gibi)
 TBK = {
+    "14": "MADDE 14- Yazılı şekilde yapılması öngörülen sözleşmelerde borç altına girenlerin\nimzalarının "
+          "bulunması zorunludur.",
     "583": "MADDE 583- Kefalet sözleşmesi, yazılı şekilde yapılmadıkça ve kefilin sorumlu \nolacağı azamî miktar ile "
            "kefalet tarihi belirtilmedikçe geçerli olmaz. Kefilin, sorumlu olduğu \nazamî miktarı, kefalet tarihini ve "
            "müteselsil kefil olması durumunda, bu sıfatla veya bu \nanlama gelen herhangi bir ifadeyle yükümlülük altına "
@@ -22,6 +24,8 @@ TBK = {
 OTHER = {
     ("5070", "5"): "Madde 5- Güvenli elektronik imza, elle atılan imza ile aynı hukukî sonucu doğurur.\nKanunların resmî "
                    "şekle ... dışındaki teminat sözleşmeleri, güvenli elektronik imza ile gerçekleştirilemez.23",
+    ("6502", "4"): "(6) Tüketici işlemlerinde, tüketicinin edimlerine karşılık olarak alınan şahsi teminatlar,\n"
+                   "her ne isim altında olursa olsun adi kefalet sayılır.",
     ("7.5.20767", "28"): "MADDE 28 –\n (1) Tüketici kredisi\nsözleşmelerinde tüketicinin edimlerine karşılık olarak alınan "
                          "şahsi teminatlar,\nher ne isim altında olursa olsun adi kefalet sayılır.",
 }
@@ -39,7 +43,7 @@ def test_shipped_catalog_loads_and_quotes_match_article_text():
     rules = load_catalog([CATALOG_DIR / "kefalet.json"], article_text=lookup)
     assert {r.id for r in rules} >= {"TBK583-azami-tutar-el-yazisi", "TBK584-es-rizasi"}
     spouse = next(r for r in rules if r.id == "TBK584-es-rizasi")
-    assert spouse.exceptions and spouse.exceptions[0].basis.paragraph == "3"
+    assert [e.basis.paragraph for e in spouse.exceptions] == ["1", "3", "3"]
     assert spouse.applies_on(dt.date(2024, 1, 1)) and not spouse.applies_on(dt.date(2012, 8, 1))
 
 

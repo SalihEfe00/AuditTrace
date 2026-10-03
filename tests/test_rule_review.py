@@ -28,7 +28,7 @@ def test_questions_cover_only_fields_needed_by_unknown_rules():
 def test_answers_become_inspector_evidence_and_change_results():
     rules = load_catalog()
     fields = extract_kefalet_fields(TEXT)
-    answered = apply_answers(fields, {"kefil_ticari_sifat": "yok", "el_yazisi_azami_tutar": "var",
+    answered = apply_answers(fields, {"kefil_ticari_sifat": "yok", "el_yazisi_azami_tutar": "var", "ayrilik_durumu": "yok",
                                       "imza_turu": "bilinmiyor", "es_rizasi": None})
     assert answered["kefil_ticari_sifat"].source == INSPECTOR and "imza_turu" not in answered
     by_id = {r.rule_id: r for r in evaluate(rules, "kefalet_sozlesmesi", answered, event_date=DAY)}

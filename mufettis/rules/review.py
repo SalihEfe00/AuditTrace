@@ -43,9 +43,16 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     Question("es_rizasi", "Eşin yazılı rızası (ad soyad, imza) belgede var mı?",
              (("var", "var"), ("yok / boş", ""))),
     Question("azami_tutar", "Azami kefalet tutarı sözleşmede yazılı mı?", (("yazılı", "var"), ("yok / boş", ""))),
-    Question("sozlesme_tarihi", "Sözleşmedeki kefalet tarihi nedir? (yazılı değilse 'yok')", (("yok / boş", ""),), kind="date"),
+    Question("kefalet_tarihi", "Sözleşmedeki kefalet tarihi nedir? (yazılı değilse 'yok')", (("yok / boş", ""),), kind="date"),
     Question("es_rizasi_tarihi", "Eşin rızası hangi tarihte verilmiş?", (), kind="date"),
-    Question("imza_turu", "Kefil sözleşmeyi nasıl imzalamış?", (("ıslak imza", "ıslak"), ("elektronik imza", "e-imza"))),
+    Question("imza_turu", "Kefil sözleşmeyi nasıl imzalamış?",
+             (("ıslak imza", "ıslak"), ("güvenli elektronik imza", "guvenli_e_imza"),
+              ("başka elektronik imza (güvenli değil)", "diger_elektronik"), ("kefil imzası yok", "imzasiz"))),
+    Question("ayrilik_durumu", "Kefil ile eşi hakkında mahkemece verilmiş ayrılık kararı ya da yasal ayrı yaşama hakkı var mı?",
+             (("yok", "yok"), ("mahkemece ayrılık kararı", "mahkeme_ayrilik_karari"),
+              ("yasal ayrı yaşama hakkı", "yasal_ayri_yasama"))),
+    Question("kefalet_isletmeyle_ilgili", "Kefalet, kefilin kendi işletmesi / şirketi ya da esnaf olarak mesleki faaliyetiyle "
+             "ilgili olarak mı verilmiş?", (("evet", "evet"), ("hayır", "hayir"))),
     Question("kredi_turu", "Kefalet hangi tür krediye verilmiş?", (("tüketici / bireysel", "tüketici"), ("ticari", "ticari"))),
     Question("kefalet_turu", "Kefalet türü nedir?", (("müteselsil", "müteselsil"), ("adi", "adi"))),
     # Kefalet dışı teminat belgeleri (M9.6)
