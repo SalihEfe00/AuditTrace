@@ -189,10 +189,9 @@
     "TBK584-es-rizasi": "belirsiz"
    },
    "facts": {
-    "kefil_ticari_sifat": "yok",
-    "es_rizasi": ""
+    "kefil_ticari_sifat": "yok"
    },
-   "note": "medeni hal belgede yok"
+   "note": "medeni hal belgede yok: önce medeni hal sorulur (bu testte müfettiş bilmiyor)"
   },
   "9": {
    "doc_type": "kefalet_sozlesmesi",
@@ -293,7 +292,7 @@
     "TBK14-kefil-imzasi": "karşılanmadı"
    },
    "facts": {},
-   "note": "türü yazmayan e-imza: güvenliyse 5070 yasağı, değilse yazılı şekil eksik; iki durumda da geçerli imza şekli yok (5070 dayanağı müfettişe sorulur)"
+   "note": "türü yazmayan e-imza, ıslak imza yok: güvenliyse 5070 yasağı, değilse yazılı şekil eksik; geçerli imza şekli yok (5070 dayanağı müfettişe sorulur)"
   },
   "18": {
    "doc_type": "kefalet_sozlesmesi",
