@@ -34,7 +34,17 @@ LABELS: Dict[str, List[str]] = {
     "es_rizasi_tarihi": [r"(?:eş(?:in)? )?rıza tarihi", r"muvafakat tarihi"],
     "kefil_medeni_hal": [r"(?:kefilin )?medeni hal[iı]?"],
     "imza_turu": [r"imza türü"],
+    "kefil_ticari_sifat": [r"kefil(?:in)? (?:ticari )?sıfatı", r"kefil(?:in)? mesleği"],
 }
+
+# TBK 584/3 istisnasının koşul değerleri (katalogdaki kefil_ticari_sifat değerleri)
+_TRADE_STATUS = [
+    (r"esnaf|sanatkâr|sanatkar", "esnaf_sanatkar"),
+    (r"ortak|yönetici|müdür|yönetim kurulu", "sirket_ortagi_yoneticisi"),
+    (r"tacir|işletme sahibi|ticari işletme", "tacir_isletme_sahibi"),
+    (r"kooperatif", "kooperatif_kredisi"),
+    (r"\byok\b|bireysel|ücretli|çalışan|memur|emekli|ev hanımı|öğrenci", "yok"),
+]
 
 _DATE = re.compile(r"\b(\d{1,2})[./-](\d{1,2})[./-](\d{4})\b")
 _AMOUNT = re.compile(r"(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:,\d{1,2})?)\s*(?:TL|₺|türk lirası)", re.I)
@@ -73,6 +83,9 @@ def _value_for(field: str, raw: str):
             if key in low:
                 return "bekar" if key == "bekâr" else key
         return None
+    if field == "kefil_ticari_sifat":
+        low = turkish_lower(raw)
+        return next((value for pattern, value in _TRADE_STATUS if re.search(pattern, low)), None)
     if field == "imza_turu":
         low = turkish_lower(raw)
         return "e-imza" if ("elektronik" in low or "e-imza" in low) else ("ıslak" if "ıslak" in low else None)

@@ -34,9 +34,13 @@ def test_three_state_extraction():
 
 def test_spouse_consent_rule_end_to_end():
     rule = next(r for r in load_catalog() if r.id == "TBK584-es-rizasi")
-    f = extract_kefalet_fields(CONTRACT + "Kefilin ticari sıfatı: yok\n")
-    # ticari sıfat etiketi motorun alanı değil: istisna koşulu bilinmiyor → belirsiz (karşılanmadı denmez)
+    f = extract_kefalet_fields(CONTRACT)
+    # ticari sıfat yazmıyor: istisna koşulu bilinmiyor → belirsiz (karşılanmadı denmez)
     assert evaluate_rule(rule, f, event_date=dt.date(2024, 3, 12)).status == UNKNOWN
+    assert evaluate_rule(rule, extract_kefalet_fields(CONTRACT + "Kefilin mesleği: Esnaf (berber)\n"),
+                         event_date=dt.date(2024, 3, 12)).status == "istisna"
+    assert evaluate_rule(rule, extract_kefalet_fields(CONTRACT + "Kefilin mesleği: Ücretli çalışan\n"),
+                         event_date=dt.date(2024, 3, 12)).status == NOT_MET
     from mufettis.rules.engine import FieldValue
     f["kefil_ticari_sifat"] = FieldValue.filled("yok", "elle giriş", "müfettiş beyanı")
     assert evaluate_rule(rule, f, event_date=dt.date(2024, 3, 12)).status == NOT_MET
