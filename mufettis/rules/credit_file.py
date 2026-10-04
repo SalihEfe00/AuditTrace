@@ -44,6 +44,7 @@ class FileDocument:
 class FileResult:
     documents: Tuple[str, ...]      # sonucun ait olduğu belgeler (çoklu türde hangisi)
     result: RuleResult
+    missing: Tuple[str, ...] = ()   # kuralın gerektirdiği ama dosyada olmayan belge türleri
 
 
 def extract_fields(kind: str, text: str) -> Dict[str, FieldValue]:
@@ -149,7 +150,7 @@ def evaluate_file(rules: Iterable[Rule], credit_file: CreditFile, event_date: Op
             if notes and res.status == UNKNOWN:
                 res = RuleResult(res.rule_id, res.status, f"{res.finding} ({'; '.join(notes)})",
                                  res.basis, res.evidence, res.reason)
-            out.append(FileResult(tuple(d.name for d in docs), res))
+            out.append(FileResult(tuple(d.name for d in docs), res, tuple(missing)))
     return out
 
 

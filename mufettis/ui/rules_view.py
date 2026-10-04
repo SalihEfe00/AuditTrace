@@ -60,7 +60,9 @@ def render_collateral_check(text: str, event_date: Optional[dt.date] = None) -> 
             st.markdown("**Belgeden anlaşılamayanlar** — cevaplarınız *müfettiş beyanı* olarak kanıta yazılır:")
             if _questions(questions, answers, doc_key, "rules"):
                 st.rerun()
-        st.markdown("**Sonuçlar**")
+        _findings_section(rules, results, "Teminat Belgesi Kontrolü", [("belge", TYPE_NAMES[kind])], event_date,
+                          f"rules_{doc_key}")
+        st.markdown("**Kontrol listesi**")
         for res in results:
             _result_line(res)
 
@@ -101,6 +103,36 @@ def _result_line(res, documents=()):
     if shown:
         st.caption(" · ".join(f"{name}={value if value is not None else '(boş)'} [{source}; {where}]"
                               for name, _state, value, where, source in shown))
+
+
+def _findings_section(rules, results, title, documents, event_date, key):
+    """M11: önem sırasıyla bulgular (tespit, ölçüt, kanıt, sonuç sınıfı, öneri) ve DOCX çalışma kağıdı."""
+    from mufettis.exports.rules_report import create_rules_docx
+    from mufettis.rules.findings import absent_collateral, build_findings, summary
+    findings = build_findings(rules, results)
+    counts = summary(results)
+    st.markdown(f"**Bulgular ({len(findings)})** — " + ", ".join(f"{s}: {n}" for s, n in counts.items()))
+    absent = sorted({k for item in results for k in absent_collateral(item)})
+    notes = ["Dosyada olmayan teminat türleri (kuralları bulgu sayılmadı; teminat varsa belgesini ekleyin): "
+             + ", ".join(FILE_TYPE_NAMES.get(k, k) for k in absent)] if absent else []
+    for note in notes:
+        st.caption(note)
+    for i, f in enumerate(findings, 1):
+        with st.container(border=True):
+            st.markdown(f"{ICON.get(f.status, '•')} **{i}. {f.title}** — *{f.status}*"
+                        + (f" [{', '.join(f.documents)}]" if f.documents else ""))
+            st.markdown(f"**Tespit:** {f.detection}  \n**Ölçüt:** {f.criterion} — “{f.quote}”  \n"
+                        f"**Sonuç sınıfı:** {f.result_class}  \n**Öneri:** {f.recommendation}")
+            if f.evidence:
+                st.caption("Kanıt: " + " · ".join(f.evidence))
+    try:
+        data = create_rules_docx(title, documents, findings, counts, event_date, notes=notes)
+    except RuntimeError as exc:
+        st.caption(f"DOCX oluşturulamadı: {exc}")
+        return
+    st.download_button("📄 Çalışma kağıdını indir (DOCX)", data, file_name=f"{title.replace(' ', '_')}.docx",
+                       mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                       key=f"{key}_docx")
 
 
 def _uploaded_texts():
@@ -210,12 +242,17 @@ def render_credit_file_check(items=None, event_date: Optional[dt.date] = None, a
                         "(aynı türden birden çok belge varsa cevap hepsine uygulanır):")
             if _questions(questions, answers, file_key, "credit_file"):
                 st.rerun()
-        st.markdown("**Belgeler arası kurallar**")
-        for fr in results:
-            _result_line(fr.result, fr.documents)
         own = [(d, evaluate(rules, d.kind, d.fields, text=d.text, event_date=document_event_date(d.kind, d.fields)[0]))
                for d in documents if d.kind]
         own = [(d, res) for d, res in own if res]
+        from mufettis.rules.credit_file import FileResult
+        everything = list(results) + [FileResult((d.name,), r) for d, res in own for r in res]
+        _findings_section(rules, everything, "Kredi Dosyası Kontrolü",
+                          [(d.name, FILE_TYPE_NAMES.get(d.kind, "tanınmadı")) for d in documents], event_date,
+                          f"credit_file_{file_key}")
+        st.markdown("**Belgeler arası kurallar**")
+        for fr in results:
+            _result_line(fr.result, fr.documents)
         if own:
             st.markdown("**Belgelerin kendi kuralları** (sorular belgenin tek başına kontrolünde)")
             for doc, res in own:

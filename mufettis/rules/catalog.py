@@ -179,7 +179,8 @@ def _check_fields(check: Dict) -> List[str]:
 
 
 KNOWN_KEYS = {"id", "document_type", "title", "basis", "check", "result_class", "norm_type", "obligor",
-              "absence_is_violation", "exceptions", "validity", "finding", "rationale"}
+              "absence_is_violation", "exceptions", "validity", "finding", "rationale",
+              "recommendation"}  # isteğe bağlı: bulgunun önerisi (M11; yoksa genel öneri)
 
 
 def parse_rule(raw: Dict, article_text: Optional[Callable[[str, str], Optional[str]]] = None) -> Rule:
