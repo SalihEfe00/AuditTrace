@@ -98,3 +98,8 @@ def test_third_holdout_classes():
     assert extract_teminat_fields("ekspertiz", two)["lisans_no"].state == EMPTY
     both = two.replace("……………", "401890")
     assert extract_teminat_fields("ekspertiz", both)["lisans_no"].state == FILLED
+
+
+def test_pledge_amount_label_variants():
+    for label in ("Azami Güvence Tutarı", "Azami Güvence Limiti (TL)"):
+        assert extract_teminat_fields("rehin", f"{label}: 7.400.000,00 TL\n")["rehin_tutari"].state == FILLED

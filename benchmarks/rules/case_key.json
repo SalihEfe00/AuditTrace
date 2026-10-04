@@ -29,7 +29,11 @@
    "expected": {
     "TBK583-kefalet-tarihi": "karşılandı"
    },
-   "note": "kefalet tarihi dolu (17.10.2023); boş olan ana sözleşme tarihi"
+   "note": "kefalet tarihi dolu (17.10.2023); boş olan ana sözleşme tarihi",
+   "fields": {
+    "kefalet_tarihi": "dolu"
+   },
+   "facts": {}
   },
   "p6_chatgpt_2": {
    "expected": {
@@ -48,7 +52,13 @@
    "expected": {
     "5070-md5-e-imza-kefalet": "karşılanmadı"
    },
-   "note": "kusursuz istendi ama güvenli elektronik imzayla imzalanmış"
+   "note": "kusursuz istendi ama güvenli elektronik imzayla imzalanmış",
+   "facts": {
+    "imza_turu": "guvenli_e_imza"
+   },
+   "fields": {
+    "imza_turu": "guvenli_e_imza"
+   }
   },
   "p1_gemini_7": {
    "expected": {
@@ -103,27 +113,49 @@
    "expected": {
     "TBK583-kefalet-tarihi": "karşılandı"
    },
-   "note": "gizli set: kefalet tarihi dolu; boş olan ana kredi sözleşmesinin tarihi (TBK 583 kefalet tarihini arar)"
+   "note": "gizli set: kefalet tarihi dolu; boş olan ana kredi sözleşmesinin tarihi (TBK 583 kefalet tarihini arar)",
+   "fields": {
+    "kefalet_tarihi": "dolu"
+   },
+   "facts": {}
   },
   "s2_p9_copilot_2": {
    "no_violation": false,
    "expected": {
     "5070-md5-e-imza-kefalet": "karşılanmadı"
    },
-   "note": "gizli set 2: kusursuz istendi ama güvenli elektronik imza yazılmış (kefalet güvenli e-imzayla kurulamaz)"
+   "note": "gizli set 2: kusursuz istendi ama güvenli elektronik imza yazılmış (kefalet güvenli e-imzayla kurulamaz)",
+   "facts": {
+    "imza_turu": "guvenli_e_imza"
+   },
+   "fields": {
+    "imza_turu": "guvenli_e_imza"
+   }
   },
   "s2_p9_grok_2": {
    "no_violation": false,
    "expected": {
     "TBK14-kefil-imzasi": "karşılanmadı"
    },
-   "note": "gizli set 2: kusursuz istendi ama türü yazmayan elektronik imza yazılmış (geçerli imza şekli yok)"
+   "note": "gizli set 2: kusursuz istendi ama türü yazmayan elektronik imza yazılmış (geçerli imza şekli yok)",
+   "facts": {
+    "imza_turu": "e_imza"
+   },
+   "fields": {
+    "imza_turu": "e_imza"
+   }
   },
   "s3_p5_grok_36": {
    "expected": {
     "BDDK-DHY20-iki-rapor": "uygulanmaz"
    },
    "note": "gizli set 3: rapor 18.09.2022 tarihli; iki rapor şartı 17.10.2022 yürürlüklü"
+  },
+  "s2_p4_chatgpt_7": {
+   "fields": {
+    "imza_onayi": "noter"
+   },
+   "note": "gizli set 2: sicil yetkilisi istendi ama noter onayı yazılmış (kural yine karşılanır)"
   }
  },
  "types": {
@@ -136,7 +168,11 @@
     "kefil_ticari_sifat": "yok"
    },
    "no_violation": true,
-   "note": "kusursuz, evli, rıza aynı gün"
+   "note": "kusursuz, evli, rıza aynı gün",
+   "fields": {
+    "es_rizasi": "dolu",
+    "kefil_medeni_hal": "evli"
+   }
   },
   "2": {
    "doc_type": "kefalet_sozlesmesi",
@@ -150,6 +186,10 @@
    "note": "TBK 584/1: evli, rıza boş",
    "expected_document": {
     "TBK584-es-rizasi": "belirsiz"
+   },
+   "fields": {
+    "es_rizasi": "boş",
+    "kefil_medeni_hal": "evli"
    }
   },
   "3": {
@@ -160,7 +200,11 @@
    "facts": {
     "kefil_ticari_sifat": "yok"
    },
-   "note": "rıza bölümü yok: rıza ayrı belgede olabilir, belgeden karar verilemez"
+   "note": "rıza bölümü yok: rıza ayrı belgede olabilir, belgeden karar verilemez",
+   "fields": {
+    "es_rizasi": "bulunamadı",
+    "kefil_medeni_hal": "evli"
+   }
   },
   "4": {
    "doc_type": "kefalet_sozlesmesi",
@@ -175,6 +219,11 @@
    "note": "TBK 584/3: esnaf ve sanatkârlar siciline kayıtlı esnafın mesleki faaliyetiyle ilgili olarak BAŞKASININ kredisine verdiği kefalet",
    "expected_document": {
     "TBK584-es-rizasi": "belirsiz"
+   },
+   "fields": {
+    "es_rizasi": "boş",
+    "kefil_medeni_hal": "evli",
+    "kefil_ticari_sifat": "esnaf_sanatkar"
    }
   },
   "5": {
@@ -190,6 +239,11 @@
    "note": "TBK 584/3: şirket ortağının şirketle ilgili kefaleti",
    "expected_document": {
     "TBK584-es-rizasi": "belirsiz"
+   },
+   "fields": {
+    "es_rizasi": "boş",
+    "kefil_medeni_hal": "evli",
+    "kefil_ticari_sifat": "sirket_ortagi_yoneticisi"
    }
   },
   "6": {
@@ -206,6 +260,11 @@
    "note": "TBK 584/3 dışı: şirket ortağı ama bireysel krediye kefil",
    "expected_document": {
     "TBK584-es-rizasi": "belirsiz"
+   },
+   "fields": {
+    "es_rizasi": "boş",
+    "kefil_medeni_hal": "evli",
+    "kredi_turu": "tüketici"
    }
   },
   "7": {
@@ -214,7 +273,11 @@
     "TBK584-es-rizasi": "uygulanmaz"
    },
    "facts": {},
-   "note": "bekâr"
+   "note": "bekâr",
+   "fields": {
+    "es_rizasi": "boş",
+    "kefil_medeni_hal": "bekar"
+   }
   },
   "8": {
    "doc_type": "kefalet_sozlesmesi",
@@ -224,7 +287,11 @@
    "facts": {
     "kefil_ticari_sifat": "yok"
    },
-   "note": "medeni hal belgede yok: önce medeni hal sorulur (bu testte müfettiş bilmiyor)"
+   "note": "medeni hal belgede yok: önce medeni hal sorulur (bu testte müfettiş bilmiyor)",
+   "fields": {
+    "es_rizasi": "boş",
+    "kefil_medeni_hal": "bilinmiyor"
+   }
   },
   "9": {
    "doc_type": "kefalet_sozlesmesi",
@@ -234,7 +301,12 @@
    "facts": {
     "es_rizasi": ""
    },
-   "note": "meslek yok: 584/3 istisnası bilinmiyor"
+   "note": "meslek yok: 584/3 istisnası bilinmiyor",
+   "fields": {
+    "es_rizasi": "boş",
+    "kefil_medeni_hal": "evli",
+    "kefil_ticari_sifat": "bilinmiyor"
+   }
   },
   "10": {
    "doc_type": "kefalet_sozlesmesi",
@@ -249,6 +321,10 @@
    "note": "TBK 584/1: mahkemece ayrılık kararı ya da yasal ayrı yaşama hakkı",
    "expected_document": {
     "TBK584-es-rizasi": "belirsiz"
+   },
+   "fields": {
+    "es_rizasi": "boş",
+    "kefil_medeni_hal": "evli"
    }
   },
   "11": {
@@ -264,7 +340,14 @@
     "kredi_turu": "ticari"
    },
    "no_violation": true,
-   "note": "kusursuz"
+   "note": "kusursuz",
+   "fields": {
+    "kredi_turu": "ticari",
+    "kefalet_turu": "müteselsil",
+    "imza_turu": "ıslak",
+    "azami_tutar": "dolu",
+    "kefalet_tarihi": "dolu"
+   }
   },
   "12": {
    "doc_type": "kefalet_sozlesmesi",
@@ -274,7 +357,10 @@
    "facts": {
     "azami_tutar": ""
    },
-   "note": "TBK 583/1"
+   "note": "TBK 583/1",
+   "fields": {
+    "azami_tutar": "boş"
+   }
   },
   "13": {
    "doc_type": "kefalet_sozlesmesi",
@@ -284,7 +370,10 @@
    "facts": {
     "kefalet_tarihi": ""
    },
-   "note": "TBK 583/1"
+   "note": "TBK 583/1",
+   "fields": {
+    "kefalet_tarihi": "boş"
+   }
   },
   "14": {
    "doc_type": "kefalet_sozlesmesi",
@@ -294,7 +383,13 @@
    "facts": {
     "kefil_ticari_sifat": "yok"
    },
-   "note": "rıza kefalet tarihiyle aynı gün; kredi tarihi daha önce"
+   "note": "rıza kefalet tarihiyle aynı gün; kredi tarihi daha önce",
+   "fields": {
+    "kefalet_tarihi": "dolu",
+    "es_rizasi": "dolu",
+    "es_rizasi_tarihi": "dolu",
+    "kefil_medeni_hal": "evli"
+   }
   },
   "15": {
    "doc_type": "kefalet_sozlesmesi",
@@ -307,6 +402,11 @@
    "note": "TBK 584/1: rıza sonradan",
    "expected_document": {
     "TBK584-riza-zamani": "belirsiz"
+   },
+   "fields": {
+    "kefalet_tarihi": "dolu",
+    "es_rizasi_tarihi": "dolu",
+    "kefil_medeni_hal": "evli"
    }
   },
   "16": {
@@ -316,7 +416,10 @@
     "TBK14-kefil-imzasi": "karşılandı"
    },
    "facts": {},
-   "note": "5070 md. 5/2; güvenli e-imza imzadır (TBK 15), sorun yalnızca türü: tek bulgu"
+   "note": "5070 md. 5/2; güvenli e-imza imzadır (TBK 15), sorun yalnızca türü: tek bulgu",
+   "fields": {
+    "imza_turu": "guvenli_e_imza"
+   }
   },
   "17": {
    "doc_type": "kefalet_sozlesmesi",
@@ -325,7 +428,10 @@
     "TBK14-kefil-imzasi": "karşılanmadı"
    },
    "facts": {},
-   "note": "türü yazmayan e-imza, ıslak imza yok: güvenliyse 5070 yasağı, değilse yazılı şekil eksik; geçerli imza şekli yok (5070 dayanağı müfettişe sorulur)"
+   "note": "türü yazmayan e-imza, ıslak imza yok: güvenliyse 5070 yasağı, değilse yazılı şekil eksik; geçerli imza şekli yok (5070 dayanağı müfettişe sorulur)",
+   "fields": {
+    "imza_turu": "e_imza"
+   }
   },
   "18": {
    "doc_type": "kefalet_sozlesmesi",
@@ -350,7 +456,11 @@
     "kredi_turu": "tüketici",
     "el_yazisi_kefalet_turu": "yok"
    },
-   "note": "6502 md. 4/6; tek bulgu"
+   "note": "6502 md. 4/6; tek bulgu",
+   "fields": {
+    "kredi_turu": "tüketici",
+    "kefalet_turu": "müteselsil"
+   }
   },
   "20": {
    "doc_type": "kefalet_sozlesmesi",
@@ -360,7 +470,11 @@
    "facts": {
     "kredi_turu": "tüketici"
    },
-   "note": "adi kefalet"
+   "note": "adi kefalet",
+   "fields": {
+    "kredi_turu": "tüketici",
+    "kefalet_turu": "adi"
+   }
   },
   "21": {
    "doc_type": "kefalet_sozlesmesi",
@@ -374,6 +488,9 @@
    "note": "TBK 583/1 (ticari kredi varsayımı; tüketici kredisiyse istisna)",
    "expected_document": {
     "TBK583-muteselsil-el-yazisi": "belirsiz"
+   },
+   "fields": {
+    "kefalet_turu": "müteselsil"
    }
   },
   "22": {
@@ -384,7 +501,12 @@
    },
    "facts": {},
    "no_violation": true,
-   "note": "kusursuz"
+   "note": "kusursuz",
+   "fields": {
+    "ipotek_tutari": "dolu",
+    "yevmiye_no": "dolu",
+    "tescil_tarihi": "dolu"
+   }
   },
   "23": {
    "doc_type": "ipotek",
@@ -394,7 +516,10 @@
    "facts": {
     "ipotek_tutari": ""
    },
-   "note": "TMK 851/1"
+   "note": "TMK 851/1",
+   "fields": {
+    "ipotek_tutari": "boş"
+   }
   },
   "24": {
    "doc_type": "ipotek",
@@ -407,6 +532,9 @@
    "note": "TMK 856: belgede yevmiye no boş → müfettişe sorulur; tapu kaydında tescil yoksa bulgu",
    "expected_document": {
     "TMK856-tapu-tescili": "belirsiz"
+   },
+   "fields": {
+    "yevmiye_no": "boş"
    }
   },
   "25": {
@@ -415,7 +543,10 @@
     "TMK856-tapu-tescili": "belirsiz"
    },
    "facts": {},
-   "note": "satır yok: belgeden karar verilemez"
+   "note": "satır yok: belgeden karar verilemez",
+   "fields": {
+    "yevmiye_no": "bulunamadı"
+   }
   },
   "26": {
    "doc_type": "rehin",
@@ -428,7 +559,12 @@
     "imza_onayi": "noter"
    },
    "no_violation": true,
-   "note": "kusursuz"
+   "note": "kusursuz",
+   "fields": {
+    "imza_onayi": "noter",
+    "sicil_no": "dolu",
+    "rehin_tutari": "dolu"
+   }
   },
   "27": {
    "doc_type": "rehin",
@@ -438,7 +574,10 @@
    "facts": {
     "rehin_tutari": ""
    },
-   "note": "6750 md. 4"
+   "note": "6750 md. 4",
+   "fields": {
+    "rehin_tutari": "boş"
+   }
   },
   "28": {
    "doc_type": "rehin",
@@ -448,7 +587,10 @@
    "facts": {
     "imza_onayi": "yok"
    },
-   "note": "6750 md. 4/4"
+   "note": "6750 md. 4/4",
+   "fields": {
+    "imza_onayi": "boş"
+   }
   },
   "29": {
    "doc_type": "rehin",
@@ -461,6 +603,9 @@
    "note": "6750 md. 4/1: belgede sicil no boş → müfettişe sorulur; sicilde kayıt yoksa bulgu",
    "expected_document": {
     "6750-4-sicil-tescili": "belirsiz"
+   },
+   "fields": {
+    "sicil_no": "boş"
    }
   },
   "30": {
@@ -473,7 +618,11 @@
    "facts": {
     "imza_onayi": "sicil_yetkilisi"
    },
-   "note": "sicil yetkilisi huzurunda"
+   "note": "sicil yetkilisi huzurunda",
+   "fields": {
+    "imza_onayi": "sicil_yetkilisi",
+    "sicil_no": "dolu"
+   }
   },
   "31": {
    "doc_type": "rehin",
@@ -491,7 +640,10 @@
     "6750-4-imza-onayi": "uygulanmaz"
    },
    "facts": {},
-   "note": "2016: 6750 yürürlükte değil (1.1.2017)"
+   "note": "2016: 6750 yürürlükte değil (1.1.2017)",
+   "fields": {
+    "sozlesme_tarihi": "dolu"
+   }
   },
   "33": {
    "doc_type": "ekspertiz",
@@ -503,7 +655,12 @@
    },
    "facts": {},
    "no_violation": true,
-   "note": "kusursuz, < 10 milyon TL"
+   "note": "kusursuz, < 10 milyon TL",
+   "fields": {
+    "rapor_tarihi": "dolu",
+    "lisans_no": "dolu",
+    "deger": "dolu"
+   }
   },
   "34": {
    "doc_type": "ekspertiz",
@@ -513,7 +670,10 @@
    "facts": {
     "lisans_no": ""
    },
-   "note": "BDDK Yön. md. 14"
+   "note": "BDDK Yön. md. 14",
+   "fields": {
+    "lisans_no": "boş"
+   }
   },
   "35": {
    "doc_type": "ekspertiz",
@@ -523,7 +683,10 @@
    "facts": {
     "rapor_tarihi": ""
    },
-   "note": "BDDK Yön. md. 14"
+   "note": "BDDK Yön. md. 14",
+   "fields": {
+    "rapor_tarihi": "boş"
+   }
   },
   "36": {
    "doc_type": "ekspertiz",
@@ -531,7 +694,10 @@
     "BDDK-DHY20-iki-rapor": "manuel kontrol"
    },
    "facts": {},
-   "note": "md. 20: 10 milyon TL üstü, ikinci rapor müfettişçe aranır"
+   "note": "md. 20: 10 milyon TL üstü, ikinci rapor müfettişçe aranır",
+   "fields": {
+    "deger": "dolu"
+   }
   },
   "37": {
    "doc_type": "ekspertiz",
@@ -541,7 +707,10 @@
    "facts": {
     "deger": ""
    },
-   "note": "BDDK Yön. md. 14"
+   "note": "BDDK Yön. md. 14",
+   "fields": {
+    "deger": "boş"
+   }
   },
   "38": {
    "doc_type": "dask",
@@ -551,7 +720,12 @@
    },
    "facts": {},
    "no_violation": true,
-   "note": "tapu işlemi poliçe süresinde"
+   "note": "tapu işlemi poliçe süresinde",
+   "fields": {
+    "islem_tarihi": "dolu",
+    "baslangic_tarihi": "dolu",
+    "bitis_tarihi": "dolu"
+   }
   },
   "39": {
    "doc_type": "dask",
@@ -559,7 +733,12 @@
     "6305-11-dask-baslangic": "karşılanmadı"
    },
    "facts": {},
-   "note": "6305 md. 11: poliçe sonradan başlıyor"
+   "note": "6305 md. 11: poliçe sonradan başlıyor",
+   "fields": {
+    "islem_tarihi": "dolu",
+    "baslangic_tarihi": "dolu",
+    "bitis_tarihi": "dolu"
+   }
   },
   "40": {
    "doc_type": "dask",
@@ -567,7 +746,12 @@
     "6305-11-dask-bitis": "karşılanmadı"
    },
    "facts": {},
-   "note": "poliçe işlemden önce bitmiş"
+   "note": "poliçe işlemden önce bitmiş",
+   "fields": {
+    "islem_tarihi": "dolu",
+    "baslangic_tarihi": "dolu",
+    "bitis_tarihi": "dolu"
+   }
   },
   "41": {
    "doc_type": "dask",
@@ -576,7 +760,10 @@
     "6305-11-dask-bitis": "belirsiz"
    },
    "facts": {},
-   "note": "DASK poliçesinde tapu işlem tarihi yazmaz (ipotek / tapu belgesindedir); tarih yoksa müfettişe 'tapu işlem tarihi nedir' sorulur"
+   "note": "DASK poliçesinde tapu işlem tarihi yazmaz (ipotek / tapu belgesindedir); tarih yoksa müfettişe 'tapu işlem tarihi nedir' sorulur",
+   "fields": {
+    "islem_tarihi": "bulunamadı"
+   }
   },
   "42": {
    "doc_type": "bono",
@@ -591,7 +778,12 @@
     "imza": "var"
    },
    "no_violation": true,
-   "note": "kusursuz"
+   "note": "kusursuz",
+   "fields": {
+    "tutar": "dolu",
+    "lehtar": "dolu",
+    "duzenleme_tarihi": "dolu"
+   }
   },
   "43": {
    "doc_type": "bono",
@@ -601,7 +793,10 @@
    "facts": {
     "lehtar": ""
    },
-   "note": "TTK 776"
+   "note": "TTK 776",
+   "fields": {
+    "lehtar": "boş"
+   }
   },
   "44": {
    "doc_type": "bono",
@@ -611,7 +806,10 @@
    "facts": {
     "duzenleme_tarihi": ""
    },
-   "note": "TTK 776"
+   "note": "TTK 776",
+   "fields": {
+    "duzenleme_tarihi": "boş"
+   }
   },
   "45": {
    "doc_type": "bono",
@@ -625,7 +823,11 @@
     "imza": "var"
    },
    "no_violation": true,
-   "note": "tuzak: vade ve ödeme yeri eksikliği bonoyu bozmaz (TTK 777/2-3)"
+   "note": "tuzak: vade ve ödeme yeri eksikliği bonoyu bozmaz (TTK 777/2-3)",
+   "fields": {
+    "vade_tarihi": "boş",
+    "odeme_yeri": "boş"
+   }
   },
   "46": {
    "doc_type": "bono",
@@ -635,7 +837,10 @@
    "facts": {
     "tutar": ""
    },
-   "note": "TTK 776"
+   "note": "TTK 776",
+   "fields": {
+    "tutar": "boş"
+   }
   },
   "47": {
    "doc_type": "senet_gks",
@@ -658,6 +863,11 @@
    "note": "15.03.2013: evli esnaf, mesleğiyle ilgili olarak başkasının ticari kredisine kefil; 584/3 istisnası henüz yok",
    "expected_document": {
     "TBK584-es-rizasi-2013-oncesi": "belirsiz"
+   },
+   "fields": {
+    "es_rizasi": "boş",
+    "kefil_medeni_hal": "evli",
+    "kefil_ticari_sifat": "esnaf_sanatkar"
    }
   },
   "48b": {
@@ -675,6 +885,11 @@
    "note": "15.05.2013: 584/3 (6455)",
    "expected_document": {
     "TBK584-es-rizasi": "belirsiz"
+   },
+   "fields": {
+    "es_rizasi": "boş",
+    "kefil_medeni_hal": "evli",
+    "kefil_ticari_sifat": "esnaf_sanatkar"
    }
   },
   "49a": {
@@ -692,6 +907,11 @@
    "note": "15.03.2013",
    "expected_document": {
     "TBK584-es-rizasi-2013-oncesi": "belirsiz"
+   },
+   "fields": {
+    "es_rizasi": "boş",
+    "kefil_medeni_hal": "evli",
+    "kefil_ticari_sifat": "sirket_ortagi_yoneticisi"
    }
   },
   "49b": {
@@ -709,6 +929,11 @@
    "note": "15.05.2013",
    "expected_document": {
     "TBK584-es-rizasi": "belirsiz"
+   },
+   "fields": {
+    "es_rizasi": "boş",
+    "kefil_medeni_hal": "evli",
+    "kefil_ticari_sifat": "sirket_ortagi_yoneticisi"
    }
   },
   "50": {
@@ -722,7 +947,11 @@
     "imza_turu": "ıslak"
    },
    "no_violation": true,
-   "note": "gürültülü ama kusursuz"
+   "note": "gürültülü ama kusursuz",
+   "fields": {
+    "azami_tutar": "dolu",
+    "kefalet_tarihi": "dolu"
+   }
   },
   "51": {
    "doc_type": "kefalet_sozlesmesi",
@@ -730,7 +959,10 @@
     "TBK583-azami-miktar-belirtilmis": "karşılandı"
    },
    "facts": {},
-   "note": "aynı alan iki kez, biri boş biri dolu: tutar belirtilmiş"
+   "note": "aynı alan iki kez, biri boş biri dolu: tutar belirtilmiş",
+   "fields": {
+    "azami_tutar": "dolu"
+   }
   },
   "52": {
    "doc_type": "kefalet_sozlesmesi",
@@ -744,6 +976,10 @@
    "note": "gürültülü; evli, rıza boş, ücretli",
    "expected_document": {
     "TBK584-es-rizasi": "belirsiz"
+   },
+   "fields": {
+    "es_rizasi": "boş",
+    "kefil_medeni_hal": "evli"
    }
   },
   "53": {
@@ -754,7 +990,10 @@
    "facts": {
     "azami_tutar": ""
    },
-   "note": "gürültülü; tutar boş"
+   "note": "gürültülü; tutar boş",
+   "fields": {
+    "azami_tutar": "boş"
+   }
   }
  }
 }

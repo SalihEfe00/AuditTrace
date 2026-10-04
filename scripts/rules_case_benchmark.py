@@ -24,7 +24,7 @@ sys.path.insert(0, str(ROOT))
 
 from mufettis.rules.catalog import load_catalog  # noqa: E402
 from mufettis.rules.doctype import detect_collateral_type  # noqa: E402
-from mufettis.rules.engine import NOT_MET, evaluate  # noqa: E402
+from mufettis.rules.engine import EMPTY, FILLED, NOT_FOUND, NOT_MET, FieldValue, evaluate  # noqa: E402
 from mufettis.rules.event_date import document_event_date  # noqa: E402
 from mufettis.rules.fields_kefalet import extract_kefalet_fields  # noqa: E402
 from mufettis.rules.fields_teminat import DOCUMENT_LABELS, extract_teminat_fields  # noqa: E402
@@ -55,13 +55,62 @@ def run_case(text: str, key_entry: dict, defaults: dict, rules, answer: bool) ->
         if not new:
             break
         answers.update(new)
-    out.update(results={r.rule_id: r.status for r in results}, asked=sorted(answers), event_date=str(day))
+    out.update(results={r.rule_id: r.status for r in results}, asked=sorted(answers), event_date=str(day),
+               fields=fields)
     return out
+
+
+# --- Katmanlı ölçüm (M9.3 / M9.0 eki a): hata alan okumasından mı, kural motorundan mı? -------------------------
+_STATES = (FILLED, EMPTY, NOT_FOUND)
+UNKNOWN_FIELD = "bilinmiyor"  # "formda yazmıyor": satır hiç yok ya da boş; ikisi de bilinmeyen sayılır
+PLACEHOLDER = "(dolu)"
+
+
+def field_layer(fields: dict, truth: dict) -> list:
+    """(alan, beklenen, okunan, sonuç) — sonuç: doğru / güvenli (bulunamadı: müfettişe sorulur) / yanlış."""
+    rows = []
+    for name, want in truth.items():
+        fv = fields.get(name) or FieldValue(NOT_FOUND)
+        # durum beklenen alanda durum, değer beklenen (kategori) alanda dolu ise değer karşılaştırılır
+        if want == UNKNOWN_FIELD:
+            got = fv.state if fv.state != FILLED else str(fv.value)
+            verdict = "doğru" if fv.state in (EMPTY, NOT_FOUND) else "yanlış"
+            rows.append((name, want, got, verdict))
+            continue
+        got = fv.state if want in _STATES or fv.state != FILLED else str(fv.value)
+        verdict = "doğru" if got == want else ("güvenli" if fv.state == NOT_FOUND else "yanlış")
+        rows.append((name, want, got, verdict))
+    return rows
+
+
+def engine_layer(text: str, kind: str, fields: dict, truth: dict, facts: dict, rules) -> dict:
+    """Doğru alanlar verildiğinde motorun kararı: okunan alanların üstüne gerçek alan durumları ve bütün müfettiş
+    bilgileri yazılır. Dolu ama değeri bilinmeyen alanda okunan değer kalır (okunamadıysa yer tutucu)."""
+    fixed = dict(fields)
+    for name, want in truth.items():
+        if want in (NOT_FOUND, UNKNOWN_FIELD):
+            fixed.pop(name, None)
+        elif want == EMPTY:
+            fixed[name] = FieldValue(EMPTY, None, "anahtar")
+        elif want == FILLED:
+            if name not in fixed or fixed[name].state != FILLED:
+                fixed[name] = FieldValue.filled(PLACEHOLDER, "anahtar")
+        else:
+            fixed[name] = FieldValue.filled(want, "anahtar")
+    # Gerçek alan değeri önce gelir; gerçekte boş alanda müfettişin "yok" beyanı da işlenir (sicil / tapu gibi
+    # belgedeki boşluğun tek başına ihlal sayılmadığı kurallar beyanla karar verir).
+    fixed = apply_answers(fixed, {k: v for k, v in facts.items() if k not in truth or truth[k] == EMPTY})
+    day, _src = document_event_date(kind, fixed)
+    # (sonuç, yer tutucu kullanıldı mı): okunamayan değerin yerine konan yer tutucuyla verilemeyen karar alan kaynaklıdır
+    return {r.rule_id: (r.status, any(e[2] == PLACEHOLDER for e in r.evidence))
+            for r in evaluate(rules, kind, fixed, text=text, event_date=day)}
 
 
 def score(manifest, cases_dir: Path, key: dict, holdout: bool) -> dict:
     rules = load_catalog()
-    report = {"modes": {}, "failures": []}
+    report = {"modes": {}, "failures": [], "field_failures": [], "engine_failures": []}
+    layers = {"alan": collections.Counter(), "motor": collections.Counter(),
+              "alan_by_field": collections.defaultdict(collections.Counter)}
     for mode in ("belge", "müfettiş"):
         tally = collections.Counter()
         by_type = collections.defaultdict(collections.Counter)
@@ -76,10 +125,28 @@ def score(manifest, cases_dir: Path, key: dict, holdout: bool) -> dict:
             override = key.get("case_overrides", {}).get(case["id"])
             if override:  # türüne uymayan vaka: beklenen sonuç vakanın gerçek içeriğinden
                 entry = {**entry, "expected": {**entry["expected"], **override.get("expected", {})},
-                         "no_violation": override.get("no_violation", entry.get("no_violation"))}
+                         "no_violation": override.get("no_violation", entry.get("no_violation")),
+                         "facts": {**entry.get("facts", {}), **override.get("facts", {})}}
             text = (cases_dir / ("holdout" if case["holdout"] else "gelistirme") / f"{case['id']}.txt").read_text(
                 encoding="utf-8")
             got = run_case(text, entry, key.get("defaults", {}), rules, answer=(mode == "müfettiş"))
+            if mode == "müfettiş" and got["doc_type"] == entry["doc_type"]:  # katmanlar bir kez, türü doğru vakada
+                truth = {**entry.get("fields", {}), **(override or {}).get("fields", {})}
+                for name, want, have, verdict in field_layer(got["fields"], truth):
+                    layers["alan"][verdict] += 1
+                    layers["alan_by_field"][name][verdict] += 1
+                    if verdict != "doğru":
+                        report["field_failures"].append({"case": case["id"], "type": case["type"], "field": name,
+                                                         "expected": want, "got": have, "verdict": verdict})
+                facts = {**key.get("defaults", {}).get(got["doc_type"], {}), **entry.get("facts", {})}
+                fixed = engine_layer(text, got["doc_type"], got["fields"], truth, facts, rules)
+                for rid, want in entry["expected"].items():
+                    have, placeholder = fixed.get(rid, ("(yok)", False))
+                    verdict = "doğru" if have == want else ("alan kaynaklı" if placeholder else "yanlış")
+                    layers["motor"][verdict] += 1
+                    if verdict != "doğru":
+                        report["engine_failures"].append({"case": case["id"], "type": case["type"], "check": rid,
+                                                          "expected": want, "got": have, "verdict": verdict})
             expected = entry["expected"]
             if mode == "belge":  # müfettiş bilgisi gerektiren karar belgeden verilemez: anahtar ayrıca yazar
                 expected = {**expected, **entry.get("expected_document", {})}
@@ -99,6 +166,8 @@ def score(manifest, cases_dir: Path, key: dict, holdout: bool) -> dict:
                                                "event_date": got["event_date"]})
         report["modes"][mode] = {"total": dict(tally), "by_type": {t: dict(c) for t, c in sorted(by_type.items())},
                                  "by_ai": {a: dict(c) for a, c in sorted(by_ai.items())}}
+    report["layers"] = {"alan": dict(layers["alan"]), "motor": dict(layers["motor"]),
+                        "alan_by_field": {f: dict(c) for f, c in sorted(layers["alan_by_field"].items())}}
     return report
 
 
@@ -119,6 +188,12 @@ def main(argv=None) -> int:
               + (f", anahtarsız vaka {t['anahtarsız']}" if t.get("anahtarsız") else ""))
         print("   yapay zekaya göre: " + "; ".join(f"{ai} {c.get('doğru', 0)}/{c.get('doğru', 0) + c.get('yanlış', 0)}"
                                                 for ai, c in m["by_ai"].items()))
+    lay = report["layers"]
+    al, mo = lay["alan"], lay["motor"]
+    print(f"[katman: alan] {sum(al.values())} alan: doğru {al.get('doğru', 0)}, güvenli (bulunamadı, müfettişe sorulur) "
+          f"{al.get('güvenli', 0)}, yanlış {al.get('yanlış', 0)}")
+    print(f"[katman: motor] doğru alanlarla {sum(mo.values())} karar: doğru {mo.get('doğru', 0)}, "
+          f"alan kaynaklı (değer okunamadı) {mo.get('alan kaynaklı', 0)}, yanlış {mo.get('yanlış', 0)}")
     if a.out:
         Path(a.out).write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
     return 0

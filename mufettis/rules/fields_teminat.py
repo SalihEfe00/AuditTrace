@@ -22,7 +22,7 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
     "rehin": {
         "rehin_veren": [r"rehin veren"],
         "rehin_konusu": [r"rehin(?:in)? konusu(?: taşınır| cinsi| mal(?:ın)? cinsi)?", r"rehinli (?:taşınır|varlık)"],
-        "rehin_tutari": [r"rehin (?:tutarı|bedeli|miktarı)", r"azam[iî] (?:rehin |teminat )?(?:tutar[ıi]?|miktar[ıi]?)"],
+        "rehin_tutari": [r"rehin (?:tutarı|bedeli|miktarı)", r"azam[iî] (?:rehin |teminat |güvence )?(?:tutar[ıi]?|miktar[ıi]?|limiti?)"],
         "sicil_tescil_tarihi": [r"(?:rts |sicil )?tescil tarihi", r"rehinli taşınır sicili kayıt tarihi"],
         "sicil_no": [r"(?:rts |rehinli taşınır )?sicil(?:i)? (?:kayıt )?(?:no|numarası)", r"kayıt (?:no|numarası)"],
         "imza_onayi": [r"imza onayı", r"onay şekli"],
