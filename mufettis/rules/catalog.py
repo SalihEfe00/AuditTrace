@@ -71,7 +71,7 @@ DOCUMENT_FIELDS: Dict[str, set] = {
               "sozlesme_tarihi"},
     "ekspertiz": {"rapor_tarihi", "inceleme_tarihi", "deger", "degerleme_kurulusu", "eksper", "lisans_no"},
     "dask": {"police_no", "baslangic_tarihi", "bitis_tarihi", "sigortali", "dain_murtehin", "islem_tarihi"},
-    "senet_gks": {"borclu", "tutar", "duzenleme_tarihi", "vade_tarihi", "imza"},
+    "senet_gks": {"borclu", "tutar", "duzenleme_tarihi", "vade_tarihi", "imza", "musteri_imzalayan"},
     "bono": {"duzenleyen", "lehtar", "tutar", "vade_tarihi", "odeme_yeri", "duzenleme_tarihi", "duzenleme_yeri", "imza"},
     # Kredi dosyasının teminat dışı belgeleri (M10.1)
     "kredi_onay": {"borclu", "onaylanan_tutar", "onay_tarihi", "onay_mercii", "teminat_sarti"},

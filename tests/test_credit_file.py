@@ -131,7 +131,7 @@ def test_internal_control_rule_must_be_conditioned_on_the_approval():
 
 def test_signer_is_authorized_in_signature_circular():
     """M10.3: müşteri adına imzalayan imza sirkülerinde yetkili mi (Tedbirler Yön. md. 7/3); müşterek yetkide iki imza."""
-    rules = [r for r in load_catalog() if r.id.startswith("MASAK-7-")]
+    rules = [r for r in load_catalog() if r.id in ("MASAK-7-imzalayan-yetkili", "MASAK-7-musterek-imza")]
 
     def run(signer, authorized, how=None):
         sirk = f"İMZA SİRKÜLERİ\nŞirket Unvanı: Örnek Ltd.\nYetkili: {authorized}\n" + (f"Yetki Şekli: {how}\n" if how else "")
@@ -152,3 +152,24 @@ def test_signer_is_authorized_in_signature_circular():
     # bankanın onaylayan personeli müşteri imzası sayılmaz
     f = CreditFile.from_texts([("k", KULLANDIRIM + "Onaylayan Personel: Zeki Banka\n")])
     assert "musteri_imzalayan" not in f.by_kind()["kullandirim"][0].fields
+
+
+def test_signature_authority_on_loan_agreement_and_authority_term():
+    """M10.3 kalan: GKS imzalayanı da yetkili olmalı; yetki süresi kullandırım / GKS tarihinde bitmemiş olmalı."""
+    rules = [r for r in load_catalog() if r.id.startswith("MASAK-7-")]
+    gks = "GENEL KREDİ SÖZLEŞMESİ\nBorçlu Unvanı: Örnek Ltd.\nSözleşme Tarihi: 10.03.2024\nŞirket Yetkilisi: {}\n"
+
+    def run(signer, term):
+        sirk = f"İMZA SİRKÜLERİ\nŞirket Unvanı: Örnek Ltd.\nYetkili: Ali Veli\nYetki Şekli: Münferit\nYetki Süresi: {term}\n"
+        f = CreditFile.from_texts([("g", gks.format(signer)), ("k", KULLANDIRIM), ("s", sirk)])
+        return {r.result.rule_id: r.result.status for r in evaluate_file(rules, f)}
+    got = run("Ali Veli", "31.12.2024 tarihine kadar")
+    assert got["MASAK-7-gks-imzalayan-yetkili"] == MET and got["MASAK-7-gks-musterek-imza"] == MET
+    assert got["MASAK-7-yetki-suresi-kullandirim"] == MET and got["MASAK-7-yetki-suresi-gks"] == MET
+    assert run("Can Er", "Süresiz")["MASAK-7-gks-imzalayan-yetkili"] == NOT_MET
+    # yetki 12.03.2024'te bitmiş: GKS (10.03) içinde, kullandırım (15.03) dışında
+    late = run("Ali Veli", "12.03.2024")
+    assert late["MASAK-7-yetki-suresi-gks"] == MET and late["MASAK-7-yetki-suresi-kullandirim"] == NOT_MET
+    assert run("Ali Veli", "Süresiz (azledilinceye kadar)")["MASAK-7-yetki-suresi-kullandirim"] == "uygulanmaz"
+    # başlangıç + süre: başlangıç tarihi bitiş sanılmaz
+    assert run("Ali Veli", "01.01.2021 tarihinden itibaren 3 yıl")["MASAK-7-yetki-suresi-kullandirim"] == UNKNOWN

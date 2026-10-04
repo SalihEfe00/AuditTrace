@@ -232,7 +232,7 @@
         "to": null
       },
       "id": "MASAK-7-musterek-imza",
-      "title": "Müşterek imza yetkisinde en az iki yetkili imzalamış",
+      "title": "Müşterek imza yetkisinde en az iki yetkili imzalamış (kullandırım talimatı)",
       "check": {
         "type": "joint_signature",
         "field": "kullandirim.musteri_imzalayan",
@@ -241,6 +241,153 @@
       },
       "finding": "İmza sirkülerine göre yetki müşterek; kullandırım talimatında en az iki yetkilinin imzası görünmüyor",
       "rationale": "Temsil şekli imza sirkülerinde tescillidir (6102 md. 373/1; anonim şirkette esas sözleşmede aksi yoksa temsil çift imzayladır, md. 370/1) ve temsil yetkisi bu belgeyle teyit edilir (Tedbirler Yön. md. 7/3). İki ayrı yetkili imzaladıysa yetki şekli bilinmese de karşılanır; tek yetkili imzaladıysa karar yetki şekline bağlıdır, şekil okunamazsa belirsiz kalır."
+    },
+    {
+      "document_type": "kredi_dosyasi",
+      "basis": {
+        "law": "21.5.200713012",
+        "article": "7",
+        "paragraph": "3",
+        "quote": "temsil yetkileri ise tescile dair belgeler üzerinden teyit edilir"
+      },
+      "result_class": "kısmen",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "id": "MASAK-7-gks-imzalayan-yetkili",
+      "title": "Genel kredi sözleşmesini müşteri adına imzalayan imza sirkülerinde yetkili",
+      "check": {
+        "type": "names_within",
+        "field": "senet_gks.musteri_imzalayan",
+        "other": "imza_sirkuleri.yetkili"
+      },
+      "finding": "Genel kredi sözleşmesini müşteri adına imzalayan kişi imza sirkülerinde yetkili olarak görünmüyor (vekâletnameyle imzalandıysa noter onaylı vekâletname kontrol edilmeli)",
+      "rationale": "Tüzel kişiyi temsile yetkili kişilerin temsil yetkisi tescile dair belgeler (imza sirküleri) üzerinden teyit edilir (Tedbirler Yön. md. 7/3); temsile yetkililer ve temsil şekilleri ticaret siciline tescil edilir (6102 md. 373/1) ve şirket adına işlemi temsile yetkili olanlar yapar (6102 md. 371/1). Ad eşleşmesi Türkçe harfler sadeleştirilerek yapılır; ikinci adın yazılmaması eşleşmeyi bozmaz. Vekil eliyle imza (md. 14/1-c, noter onaylı vekâletname) belgeden okunmaz: bulguda kontrol edilmesi istenir. İmzanın kendisinin sirkülerdeki imzayla aynılığı insan kontrolüdür. Şirket dışı (gerçek kişi) borçluda imza sirküleri olmaz; kural 'dosyada yok' gerekçesiyle belirsiz kalır."
+    },
+    {
+      "document_type": "kredi_dosyasi",
+      "basis": {
+        "law": "21.5.200713012",
+        "article": "7",
+        "paragraph": "3",
+        "quote": "temsil yetkileri ise tescile dair belgeler üzerinden teyit edilir"
+      },
+      "result_class": "kısmen",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "id": "MASAK-7-gks-musterek-imza",
+      "title": "Müşterek imza yetkisinde en az iki yetkili imzalamış (genel kredi sözleşmesi)",
+      "check": {
+        "type": "joint_signature",
+        "field": "senet_gks.musteri_imzalayan",
+        "other": "imza_sirkuleri.yetkili",
+        "joint": "imza_sirkuleri.yetki_sekli"
+      },
+      "finding": "İmza sirkülerine göre yetki müşterek; genel kredi sözleşmesinde en az iki yetkilinin imzası görünmüyor",
+      "rationale": "Temsil şekli imza sirkülerinde tescillidir (6102 md. 373/1; anonim şirkette esas sözleşmede aksi yoksa temsil çift imzayladır, md. 370/1) ve temsil yetkisi bu belgeyle teyit edilir (Tedbirler Yön. md. 7/3). İki ayrı yetkili imzaladıysa yetki şekli bilinmese de karşılanır; tek yetkili imzaladıysa karar yetki şekline bağlıdır, şekil okunamazsa belirsiz kalır."
+    },
+    {
+      "document_type": "kredi_dosyasi",
+      "basis": {
+        "law": "21.5.200713012",
+        "article": "7",
+        "paragraph": "3",
+        "quote": "temsil yetkileri ise tescile dair belgeler üzerinden teyit edilir"
+      },
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "id": "MASAK-7-yetki-suresi-kullandirim",
+      "title": "İmza yetkisi kullandırım tarihinde geçerli",
+      "check": {
+        "type": "date_order",
+        "before": "kullandirim.kullandirim_tarihi",
+        "after": "imza_sirkuleri.yetki_suresi",
+        "allow_equal": true
+      },
+      "exceptions": [
+        {
+          "id": "suresiz",
+          "condition": {
+            "field": "imza_sirkuleri.yetki_suresi",
+            "values": [
+              "süresiz"
+            ]
+          },
+          "basis": {
+            "law": "21.5.200713012",
+            "article": "7",
+            "paragraph": "3",
+            "quote": "temsil yetkileri ise tescile dair belgeler üzerinden teyit edilir"
+          },
+          "result": "uygulanmaz",
+          "note": "imza sirkülerinde yetki süresiz (azledilinceye kadar)"
+        }
+      ],
+      "finding": "İmza sirkülerindeki yetki süresi kullandırım tarihinden önce bitmiş; güncel sirküler / sicil kaydı istenmeli",
+      "rationale": "Temsil yetkisi tescile dair belgelerle teyit edilir (Tedbirler Yön. md. 7/3); süresi bitmiş yetkiyi gösteren sirküler işlem tarihindeki yetkiyi kanıtlamaz. Yalnızca açık bitiş tarihi kullanılır: 'başlangıçtan itibaren 3 yıl' gibi yazımdan bitiş hesaplanmaz (müfettişe sorulur); süresiz yetkide kural uygulanmaz. Bitiş günü yapılan işlem geçerli sayılır."
+    },
+    {
+      "document_type": "kredi_dosyasi",
+      "basis": {
+        "law": "21.5.200713012",
+        "article": "7",
+        "paragraph": "3",
+        "quote": "temsil yetkileri ise tescile dair belgeler üzerinden teyit edilir"
+      },
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "id": "MASAK-7-yetki-suresi-gks",
+      "title": "İmza yetkisi genel kredi sözleşmesinin imza tarihinde geçerli",
+      "check": {
+        "type": "date_order",
+        "before": "senet_gks.duzenleme_tarihi",
+        "after": "imza_sirkuleri.yetki_suresi",
+        "allow_equal": true
+      },
+      "exceptions": [
+        {
+          "id": "suresiz",
+          "condition": {
+            "field": "imza_sirkuleri.yetki_suresi",
+            "values": [
+              "süresiz"
+            ]
+          },
+          "basis": {
+            "law": "21.5.200713012",
+            "article": "7",
+            "paragraph": "3",
+            "quote": "temsil yetkileri ise tescile dair belgeler üzerinden teyit edilir"
+          },
+          "result": "uygulanmaz",
+          "note": "imza sirkülerinde yetki süresiz (azledilinceye kadar)"
+        }
+      ],
+      "finding": "İmza sirkülerindeki yetki süresi genel kredi sözleşmesinin imza tarihinden önce bitmiş; güncel sirküler / sicil kaydı istenmeli",
+      "rationale": "Temsil yetkisi tescile dair belgelerle teyit edilir (Tedbirler Yön. md. 7/3); süresi bitmiş yetkiyi gösteren sirküler işlem tarihindeki yetkiyi kanıtlamaz. Yalnızca açık bitiş tarihi kullanılır: 'başlangıçtan itibaren 3 yıl' gibi yazımdan bitiş hesaplanmaz (müfettişe sorulur); süresiz yetkide kural uygulanmaz. Bitiş günü yapılan işlem geçerli sayılır."
     }
   ]
 }

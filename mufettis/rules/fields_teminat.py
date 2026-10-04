@@ -4,8 +4,10 @@ poliçesi, senet / genel kredi sözleşmesi. Ortak üç durumlu etiket çıkarı
 """
 from __future__ import annotations
 
+import re
 from typing import Dict, List
 
+from mufettis.analysis.turkish_text import turkish_lower
 from mufettis.rules.engine import FieldValue
 from mufettis.rules.fields import UNDECIDED, as_amount, as_date, as_money, extract_labeled_fields, one_of
 
@@ -94,6 +96,9 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
     },
 }
 
+# Genel kredi sözleşmesini müşteri adına imzalayan (M10.3): kullandırım talimatıyla aynı etiketler
+DOCUMENT_LABELS["senet_gks"]["musteri_imzalayan"] = DOCUMENT_LABELS["kullandirim"]["musteri_imzalayan"]
+
 _DATES = {"sozlesme_tarihi", "tescil_tarihi", "sicil_tescil_tarihi", "rapor_tarihi", "inceleme_tarihi", "baslangic_tarihi", "bitis_tarihi",
           "duzenleme_tarihi", "vade_tarihi", "islem_tarihi", "onay_tarihi", "kullandirim_tarihi"}
 _AMOUNTS = {"ipotek_tutari", "rehin_tutari", "deger", "tutar"}
@@ -117,6 +122,21 @@ _CONVERT["yetki_sekli"] = one_of([  # ikisi birden ("münferiden veya müşterek
     (_JOINT + r"|iki(?:si)? (?:yetkili|imza)", "müşterek"),
     (_SOLE, "münferit"),
 ])
+
+
+def _authority_end(raw: str) -> object:
+    """İmza yetkisinin bitişi (M10.3): bitiş tarihi, "süresiz" ya da UNDECIDED. "01.01.2024'ten itibaren 3 yıl" gibi
+    başlangıç + süre yazımında tarih bitiş sanılmaz (hesap yapılmaz, müfettişe sorulur)."""
+    low = turkish_lower(raw)
+    if re.search(r"süresiz|sınırsız|azl|aksi (?:karar|bildirim)", low):
+        return "süresiz"
+    date = as_date(raw)
+    if date and (re.search(r"kadar|bitiş|sona er", low) or not re.search(r"\b(?:yıl|ay|gün)\b|itibaren|başla", low)):
+        return date
+    return UNDECIDED
+
+
+_CONVERT["yetki_suresi"] = _authority_end
 _CONVERT["derece"] = one_of([(r"\b1\b|birinci", "1"), (r"\b2\b|ikinci", "2"), (r"\b3\b|üçüncü", "3")])
 
 

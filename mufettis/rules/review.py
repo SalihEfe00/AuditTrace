@@ -80,6 +80,8 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     # İmza yetkisi (M10.3)
     Question("musteri_imzalayan", "Belgeyi müşteri adına kim imzalamış? (ad soyad; birden çok ise virgülle)", (), kind="text"),
     Question("yetkili", "İmza sirkülerinde şirketi temsile yetkili kişiler kimler? (ad soyad; virgülle)", (), kind="text"),
+    Question("yetki_suresi", "İmza sirkülerine göre imza yetkisi hangi tarihe kadar geçerli?", (("süresiz", "süresiz"),),
+             kind="date"),
     Question("yetki_sekli", "İmza sirkülerine göre yetkililer nasıl imza atar?",
              (("münferit (tek başına)", "münferit"), ("müşterek (en az iki yetkili birlikte)", "müşterek"))),
     Question("teminat_sarti", "Kredi onayında teminatın kullandırımdan önce tesis edilmesi şartı var mı?",
