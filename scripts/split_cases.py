@@ -48,6 +48,15 @@ def _warnings(text: str) -> list:
     return out
 
 
+def _title_only(text: str) -> str:
+    """Kısa başlık metni (≤3 anlamlı satır) ya da boş; prompt süsleri ("═══", "P6 — ...") başlık sayılmaz."""
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    if len(lines) > 3:
+        return ""
+    lines = [ln for ln in lines if not re.match(r"^\s*(?:[═=\-_*#]{3,}|P\d+\s*[—–-])", ln)]
+    return "\n".join(lines)
+
+
 def split_file(path: Path):
     # "P1_chatgpt", ikinci partide "P1.2_chatgpt" / "p2_2_gemini": prompt numarasından sonraki parti eki atılır
     m = re.match(r"(?i)^(p\d+)(?:[._]\d+)?_(.+)$", path.stem)
@@ -55,8 +64,18 @@ def split_file(path: Path):
     text = path.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
     parts = SPLIT.split(text)
     cases = []
+    # Bazı yapay zekalar vakanın başlığını ayraçtan ÖNCE yazar ("BONO\n=== VAKA 1 ===\n..."): son "Tür:" satırından
+    # sonra kalan metin bir sonraki vakanın başıdır. Dosya başındaki kısa metin (≤3 satır) de ilk vakanın başlığıdır.
+    # Tür satırı vakanın başında olabilir: o zaman ardından gelen uzun gövde taşınmaz (yalnızca kısa başlık taşınır).
+    lead = _title_only(parts[0])
     for k in range(1, len(parts), 2):
-        label, body = parts[k], parts[k + 1]
+        label, body = parts[k], lead + "\n" + parts[k + 1] if lead else parts[k + 1]
+        lead = ""
+        last = list(TYPE_LINE.finditer(body))
+        if last and k + 2 < len(parts):
+            tail = _title_only(body[last[-1].end():])
+            if tail:
+                body, lead = body[:last[-1].end()], tail
         types = TYPE_LINE.findall(body)
         warn = []
         if types:

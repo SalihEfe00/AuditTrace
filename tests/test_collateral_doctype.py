@@ -15,6 +15,12 @@ from mufettis.rules.doctype import detect_collateral_type
     ("GENEL KREDİ SÖZLEŞMESİ\nMadde 9: Borçlu teminat olarak bono verecektir.", "senet_gks", False),
     ("BONO\nVade: 12.09.2024\nDüzenleyen: Deniz Kaya", "bono", False),
     ("Emre Yazılı Senet\nTutarı: 50.000 TL", "bono", False),
+    # Başlıksız bono: düzenleyenin ödeme vaadi + bono etiketleri
+    ("Düzenleyen (Borçlu): Deniz Kaya\nLehtar (Alacaklı): Örnek Bankası A.Ş.\nVade Tarihi: 15.12.2026\n"
+     "Ödeme Vaadi: İşbu bonoda belirtilen bedeli vade tarihinde lehtarın emrine ödeyeceğim.", "bono", False),
+    # Vaat yoksa bono etiketleri tek başına yetmez; kredi sözleşmesindeki bono maddesi vaat değildir
+    ("Düzenleyen: Deniz Kaya\nLehtar: Örnek Bankası A.Ş.", None, False),
+    ("Madde 9: Borçlu, bankanın emrine ödenmek üzere bono verecektir.\nDüzenleyen: Deniz Kaya", None, False),
     ("Müşteri şikâyeti: kartımdan ücret kesildi.", None, False),
 ])
 def test_detect_collateral_type(text, expected, via_603):

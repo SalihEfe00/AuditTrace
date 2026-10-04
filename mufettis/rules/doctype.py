@@ -4,7 +4,7 @@
 İlk sürüm yalnızca birkaç sabit ifadeye bakıyordu; kullanıcı vakalarında "KEFİL SÖZLEŞMESİ", "MENKUL REHİN
 MUKAVELESİ", başlıksız değerleme özeti ve taranmış (OCR bozuk) belgeler tanınmadı. Şimdi her tür için:
 
-- başlık puanı: ilk satırlarda türün adı (3 puan; bono yalnızca başlıktan tanınır)
+- başlık puanı: ilk satırlarda türün adı (3 puan; bono başlıktan ya da başlık yoksa ödeme vaadi + etiketlerden)
 - gövde puanı: metinde türe özgü ifade (1 puan)
 - etiket puanı: o türe özgü etiketli alanlardan kaçı belgede var (alan başına 1 puan)
 
@@ -54,6 +54,7 @@ _TYPES = {
              [r"lehtar", r"duzenleyen", r"odeme yeri", r"duzen(?:le|len)me yeri"]),
     "senet_gks": (r"(?:genel )?kredi sozlesmesi", r"genel kredi sozlesmesi", []),
 }
+_BONO_PROMISE = r"emrine.{0,80}odeyecegi[mz]|odeyecegi[mz].{0,40}emrine|kayitsiz sartsiz.{0,60}odeyecegi[mz]"
 _ORDER = list(_TYPES)  # eşitlikte önce gelen (daha özgül) seçilir
 _PERSONAL_GUARANTEE = r"garanti sozlesmesi|taahhutname|kisisel guvence|sahsi teminat"
 _LEGAL_ENTITY = r"(?:\ba\.s\.|\bltd\b\.?|limited sirketi|anonim sirketi).{0,80}(?:garantor|garanti eden|taahhut eden)|teminat mektubu"
@@ -84,9 +85,11 @@ def detect_collateral_type(text: str) -> DocType:
             score += 1
         score += _label_hits(head, labels)
         scores[kind] = score
-    # Bono yalnızca başlıktan; kredi sözleşmesi metni teminat olarak bonoyu anabilir.
+    # Kredi sözleşmesi metni teminat olarak bonoyu anabilir: başlık yoksa bono ancak düzenleyenin birinci ağızdan
+    # ödeme vaadi ("... emrine ödeyeceğim") ve bono etiketleriyle tanınır (başlığı taranmamış / ayrı sayfada bono).
     if not re.search(_TYPES["bono"][0], title, re.M):
-        scores["bono"] = 0
+        promise = re.search(_BONO_PROMISE, head)
+        scores["bono"] = scores["bono"] + 1 if promise and scores["bono"] >= 1 else 0
     best = max(_ORDER, key=lambda k: (scores[k], -_ORDER.index(k)))
     if scores[best] >= 2:
         return DocType(best, False, f"puan {scores[best]} (başlık / ifade / etiket)")
