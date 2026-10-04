@@ -100,6 +100,31 @@ def test_third_holdout_classes():
     assert extract_teminat_fields("ekspertiz", both)["lisans_no"].state == FILLED
 
 
+def test_blank_guarantor_statement_box_means_no_handwritten_joint_liability():
+    """M9.4a: banka şablonunda matbu "MÜTESELSİL KEFİL" başlığı + boş kefil beyanı kutusu (sentetik)."""
+    blank = "MÜTESELSİL KEFİL\nKefalet Tutarı : …………\nMüteselsil Kefalet Beyanı: ..........\nİmza\n"
+    f = extract_kefalet_fields(blank)
+    assert f["kefalet_turu"].value == "müteselsil" and f["el_yazisi_kefalet_turu"].value == "yok"
+    assert extract_kefalet_fields("Kefil Beyanı :\n\nKefil İmzası : ____\n")["el_yazisi_kefalet_turu"].value == "yok"
+    # beyan alt satırda yazılı ya da altındaki satır etiket değil: karar verilmez, müfettişe sorulur
+    below = "KEFİLİN EL YAZISIYLA BEYANI:\n\"2.500.000 TL azami tutara kadar müteselsil kefil sıfatıyla kefilim.\"\n"
+    assert "el_yazisi_kefalet_turu" not in extract_kefalet_fields(below)
+    assert "el_yazisi_kefalet_turu" not in extract_kefalet_fields("Kefil Beyanı :\n\nKefil Kaşe\nve İmzası :\n")
+    # iki kefilden birinin kutusu boş: o kefil için el yazısı ifade yok
+    two = "Müteselsil Kefalet Beyanı: ..........\nMüteselsil Kefalet Beyanı: Müteselsil kefil olduğumu kabul ederim.\n"
+    assert extract_kefalet_fields(two)["el_yazisi_kefalet_turu"].value == "yok"
+    assert "el_yazisi_kefalet_turu" not in extract_kefalet_fields("Kefil Beyanı: Müteselsil kefilim.\n")
+
+
+def test_colonless_form_date_mask():
+    """M9.4a: banka şablonu "Sözleşme Tarihi      /   /" (iki noktasız, kalıba elle yazılan tarih)."""
+    def read(v):
+        return extract_teminat_fields("senet_gks", f"GENEL KREDİ SÖZLEŞMESİ\nSözleşme Tarihi{v}\n")["duzenleme_tarihi"]
+    assert read("               /   /    ").state == EMPTY
+    assert read("    12 / 03 / 2024").value == dt.date(2024, 3, 12)
+    assert "duzenleme_tarihi" not in extract_teminat_fields("senet_gks", "Sözleşme Tarihi itibariyle borçlu...\n")
+
+
 def test_pledge_amount_label_variants():
     for label in ("Azami Güvence Tutarı", "Azami Güvence Limiti (TL)"):
         assert extract_teminat_fields("rehin", f"{label}: 7.400.000,00 TL\n")["rehin_tutari"].state == FILLED

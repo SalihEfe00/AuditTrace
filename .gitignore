@@ -12,3 +12,6 @@ mevzuat_deposu/
 *.bak 
 launcher.log
 launcher_output.log
+
+# Banka şablonları (telif): yerelde tutulur, repoya girmez (M9.4a)
+benchmarks/rules/scans/sablon/*.pdf

@@ -26,7 +26,9 @@ _UNIT = re.compile(r"\(?\s*(?:tl|₺|türk lirası|try)\s*\)?", re.I)
 # eğik çizgiyle eklenen kısa nitelemeler etiketin parçası sayılır.
 _LABEL_END = r"[ \t]*(?:(?:\([^)\n]*\)|/[^:：\n]{1,40})[ \t]*)*(?:[:：]|(?=[.…_]{3,}))"
 
-_DATE = re.compile(r"\b(\d{1,2})[./-](\d{1,2})[./-](\d{4})\b")
+# Form kalıbına elle yazılan tarih "12 / 03 / 2024" (M9.4a): yalnızca eğik çizginin çevresinde boşluk
+_SEP = r"(?:[./-]|[ \t]+/[ \t]*|/[ \t]+)"
+_DATE = re.compile(r"\b(\d{1,2})" + _SEP + r"(\d{1,2})" + _SEP + r"(\d{4})\b")
 _ISO_DATE = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
 _MONTHS = ["ocak", "şubat", "mart", "nisan", "mayıs", "haziran", "temmuz", "ağustos", "eylül", "ekim", "kasım", "aralık"]
 _WORD_DATE = re.compile(r"\b(\d{1,2})\s+(" + "|".join(_MONTHS) + r")\s+(\d{4})\b")
@@ -82,6 +84,9 @@ def _line_value(text: str, low: str, label: str, every: bool = False) -> Optiona
         # virgülden, önceki etiketin iki noktasından ya da sütun boşluğundan sonra gelen etiket, değeri bir sonraki
         # virgüle kadar (M9.4c, M9.4h).
         m = re.search(r"(?m)(?:[,;]|[:：]|[ \t]{2,}|(?<=[_…])[ \t])[ \t]*" + label + r"[ \t]*[:：][ \t]*([^,;\n]*)", low)
+    if not m:
+        # İki noktasız form satırı: etiket, sütun boşluğu ve tarih kalıbı ("Sözleşme Tarihi      /   /", M9.4a)
+        m = re.search(r"(?m)^[ \t]*" + label + r"[ \t]{3,}([\d \t.]*/[\d \t./]*)$", low)
     if not m:
         return None
     line_no = low.count("\n", 0, m.start()) + 1

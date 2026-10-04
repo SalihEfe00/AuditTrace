@@ -2,7 +2,8 @@
 """Kefalet sözleşmesi alanları (M9.3): ortak etiket çıkarıcıyla (mufettis.rules.fields) üç durumlu çıkarım.
 
 El yazısı olup olmadığı metinden anlaşılmaz: `el_yazisi_*` alanları burada çıkarılmaz (bulunamadı kalır) ve
-arayüz müfettişe sorar (müfettiş beyanı, M9.3 kullanıcı kararı). Belirlenimci; yalnızca düzenli ifadeler.
+arayüz müfettişe sorar (müfettiş beyanı, M9.3 kullanıcı kararı); tek istisna formdaki boş kefil beyanı kutusu.
+Belirlenimci; yalnızca düzenli ifadeler.
 """
 from __future__ import annotations
 
@@ -11,7 +12,7 @@ from typing import Dict, List
 
 from mufettis.analysis.turkish_text import turkish_lower
 from mufettis.rules.engine import EMPTY, FILLED, NOT_FOUND, FieldValue
-from mufettis.rules.fields import UNDECIDED, as_amount, as_date, extract_labeled_fields, one_of
+from mufettis.rules.fields import UNDECIDED, as_amount, as_date, extract_labeled_fields, is_blank, one_of
 
 # alan → etiket kalıpları (küçük harfe çevrilmiş metinde; Türkçe ekler tolere edilir)
 LABELS: Dict[str, List[str]] = {
@@ -84,7 +85,33 @@ def extract_kefalet_fields(text: str) -> Dict[str, FieldValue]:
             out["kefalet_turu"] = FieldValue.filled("müteselsil", f"satır {line}: müteselsil kefil")
     _consent(text, out)
     _guarantor_signature(text, out)
+    _blank_handwriting_box(text, out)
     return out
+
+
+# Formdaki "kefil beyanı" kutusu (M9.4a, banka şablonları): kutu boşsa el yazısıyla müteselsillik ifadesi yoktur.
+# Kutu doluysa yazının el yazısı olup olmadığı metinden anlaşılmaz: alan bulunamadı kalır, müfettişe sorulur.
+# Beyan çoğu zaman etiketin alt satırlarına yazılır: kutu yalnızca satırda boşluk işareti (nokta / çizgi) varsa ya da
+# etiketten sonraki ilk dolu satır yeni bir etiketse boş sayılır; emin olunamayan durumda müfettişe sorulur.
+_STATEMENT_BOX = re.compile(r"^[ \t]*(?:müteselsil )?kef(?:il|alet)(?:in)? (?:el yazısı(?:yla)? )?beyanı[ \t]*[:：](.*)$",
+                            re.MULTILINE)
+
+
+def _blank_handwriting_box(text: str, out: Dict[str, FieldValue]) -> None:
+    if "el_yazisi_kefalet_turu" in out:
+        return
+    low = turkish_lower(text or "")
+    for m in _STATEMENT_BOX.finditer(low):
+        value = m.group(1)
+        if not is_blank(value):
+            continue
+        if not value.strip():
+            following = [ln for ln in low[m.end():].split("\n")[1:] if ln.strip()]
+            if following and not re.search(r"[:：]", following[0]):
+                continue  # alt satırdaki yazı beyan olabilir
+        line = low.count("\n", 0, m.start()) + 1
+        out["el_yazisi_kefalet_turu"] = FieldValue.filled("yok", f"satır {line}: kefil beyanı kutusu boş")
+        return
 
 
 # Eş rızası bölümünün parçaları (M9.4c): bölümde eşin adı matbu basılı olabilir; rıza, beyan / imza / tarihle verilir.
