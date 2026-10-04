@@ -265,13 +265,26 @@ class TestLoadReranker(unittest.TestCase):
 
         from mufettis.rag.reranker import MIN_SCORES
 
+        from unittest.mock import patch
+
         name = next(iter(MIN_SCORES))
         with tempfile.TemporaryDirectory() as tmp:
-            for model_name, expected in ((name, MIN_SCORES[name]), ("ayarsiz-model", None)):
-                model_dir = Path(tmp) / model_name
-                model_dir.mkdir()
-                (model_dir / "config.json").write_text("{}", encoding="utf-8")
-                self.assertEqual(load_reranker(model_dir).min_score, expected)
+            # Veri klasöründeki korpus kalibrasyonu (reranker_calibration.json, M6.1) eşiği değiştirir: test boş
+            # bir veri klasörüyle modelin kendi eşiğini, ardından kalibrasyon dosyasının üstün geldiğini denetler
+            data = Path(tmp) / "veri"
+            data.mkdir()
+            with patch("mufettis.config.DATA_DIR", data):
+                for model_name, expected in ((name, MIN_SCORES[name]), ("ayarsiz-model", None)):
+                    model_dir = Path(tmp) / model_name
+                    model_dir.mkdir()
+                    (model_dir / "config.json").write_text("{}", encoding="utf-8")
+                    self.assertEqual(load_reranker(model_dir).min_score, expected)
+                (data / "reranker_calibration.json").write_text(f'{{"{name}": {{"min_score": -1.5}}}}',
+                                                                encoding="utf-8")
+                other = Path(tmp) / "kopya" / name  # aynı adlı başka klasör: önbellekteki örnek yeniden kurulur
+                other.mkdir(parents=True)
+                (other / "config.json").write_text("{}", encoding="utf-8")
+                self.assertEqual(load_reranker(other).min_score, -1.5)
 
 
 if __name__ == "__main__":

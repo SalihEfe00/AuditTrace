@@ -48,6 +48,7 @@ from mufettis.extraction.pdf import (
 from mufettis.extraction.text_repair import normalize_extracted_text, repair_extracted_spacing
 from mufettis.harvesting.resmi_gazete import ResmiGazeteScraper
 from mufettis.importers.bootstrapper import RegulationBootstrapper, should_offer_bootstrap
+from mufettis.legal.parser import extract_legal_identifier
 from mufettis.legal.parser import (
     classify_legal_structure,
     extract_legal_metadata,
@@ -266,6 +267,13 @@ class TestV1380FinalE2ERegression(unittest.TestCase):
 
     @classmethod
     def _build_semantic_query(cls) -> str:
+        # Anlamsal sorgu kanun numarası / kanun adı içermemeli: "2499 sayılı Sermaye Piyasası Kanunu" geçen sorgu
+        # tasarım gereği yalnızca o kanunun parçalarında aranır ve bu BDDK belgesini bulmaz (test hangi gerçek PDF'i
+        # seçtiğine göre kırılıyordu).
+        def clean(query: str) -> bool:
+            return (len(query.split()) >= 3 and not extract_legal_identifier(query)
+                    and not cls.rag.named_law_number(query))
+
         lowered = cls.normalized.lower()
         for marker in (
             "idari para cezaları",
@@ -275,19 +283,19 @@ class TestV1380FinalE2ERegression(unittest.TestCase):
             "sermaye",
             "risk",
         ):
-            pos = lowered.find(marker)
-            if pos >= 0:
+            for match in re.finditer(re.escape(marker), lowered):
+                pos = match.start()
                 snippet = cls.normalized[max(0, pos - 30):pos + 110]
                 terms = re.findall(r"[0-9A-Za-zÇĞİÖŞÜçğıöşü]{4,}", snippet)
                 query = " ".join(terms[:8]).strip()
-                if len(query.split()) >= 3:
+                if clean(query):
                     return query
-        parts = [
-            x.strip()
-            for x in cls.normalized.splitlines()
-            if len(re.sub(r"\s+", "", x)) >= 25
-        ]
-        return " ".join(re.findall(r"[0-9A-Za-zÇĞİÖŞÜçğıöşü]{4,}", parts[0])[:8]) if parts else "BDDK belge"
+        for line in cls.normalized.splitlines():
+            if len(re.sub(r"\s+", "", line)) >= 25:
+                query = " ".join(re.findall(r"[0-9A-Za-zÇĞİÖŞÜçğıöşü]{4,}", line)[:8])
+                if clean(query):
+                    return query
+        return "BDDK belge"
 
     @classmethod
     def tearDownClass(cls):
