@@ -71,6 +71,11 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     Question("baslangic_tarihi", "DASK poliçesinin başlangıç tarihi nedir?", (), kind="date"),
     Question("bitis_tarihi", "DASK poliçesinin bitiş tarihi nedir?", (), kind="date"),
     Question("tescil_tarihi", "İpoteğin tapuya tescil (yevmiye) tarihi nedir?", (), kind="date"),
+    Question("sicil_tescil_tarihi", "Rehnin Rehinli Taşınır Siciline tescil tarihi nedir?", (), kind="date"),
+    # Kredi dosyası (M10.2)
+    Question("kullandirim_tarihi", "Kredinin kullandırım tarihi nedir?", (), kind="date"),
+    Question("teminat_sarti", "Kredi onayında teminatın kullandırımdan önce tesis edilmesi şartı var mı?",
+             (("evet, kullandırımdan önce", "kullandirim_oncesi"), ("hayır / sonra da olabilir", "kullandirim_sonrasi"))),
     Question("islem_tarihi", "Tapu işleminin (ipotek tescilinin) tarihi nedir? (ipotek belgesindeki yevmiye tarihi)", (),
              kind="date"),
     Question("deger", "Rapordaki nihai değer kaç TL? (raporda değer yoksa 'yok' seçin)", (("yok / boş", ""),),

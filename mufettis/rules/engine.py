@@ -20,7 +20,7 @@ import re
 from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional
 
-from mufettis.rules.catalog import Rule
+from mufettis.rules.catalog import INTERNAL_BASIS, Rule
 
 FILLED, EMPTY, NOT_FOUND = "dolu", "boş", "bulunamadı"
 MET, NOT_MET, UNKNOWN, MANUAL, EXEMPT, NOT_APPLICABLE = (
@@ -51,6 +51,8 @@ class RuleResult:
 
 
 def _ref(b) -> str:
+    if b.law == INTERNAL_BASIS:  # kanun değil, bankanın kendi kredi onay şartı (M10.2)
+        return f"kredi onayındaki şart (iç kontrol): {b.article}"
     return f"{b.law} md. {b.article}" + (f"/{b.paragraph}" if b.paragraph else "")
 
 

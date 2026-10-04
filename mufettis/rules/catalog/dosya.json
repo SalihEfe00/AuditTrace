@@ -12,13 +12,21 @@
         "paragraph": "2",
         "quote": "zorunlu deprem sigortasının yaptırıldığı ve işlem tarihi itibarıyla geçerli olduğu belgelenmedikçe yapamaz."
       },
-      "check": {"type": "date_order", "before": "dask.baslangic_tarihi", "after": "ipotek.tescil_tarihi", "allow_equal": true},
+      "check": {
+        "type": "date_order",
+        "before": "dask.baslangic_tarihi",
+        "after": "ipotek.tescil_tarihi",
+        "allow_equal": true
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
       "obligor": "banka",
       "absence_is_violation": false,
       "exceptions": [],
-      "validity": {"from": "2012-08-18", "to": null},
+      "validity": {
+        "from": "2012-08-18",
+        "to": null
+      },
       "finding": "DASK poliçesi ipoteğin tescil tarihinden sonra başlıyor: tescil günü geçerli poliçe yok",
       "rationale": "6305 md. 11/2, tek belge kuralı 6305-11-dask-baslangic ile aynı dayanak. Orada işlem tarihi poliçeye yazılan tarihtir; dosyada ipotek belgesinin kendi tescil tarihiyle karşılaştırılır (poliçedeki işlem tarihi yazılmamış ya da yanlış olabilir). Poliçe ile ipotek aynı taşınmaza mı ait, eşleştirme belgeden yapılmaz: dosyada birden çok DASK ya da ipotek varsa kural belirsiz olur, eşleştirme elle yapılır."
     },
@@ -32,15 +40,122 @@
         "paragraph": "2",
         "quote": "zorunlu deprem sigortasının yaptırıldığı ve işlem tarihi itibarıyla geçerli olduğu belgelenmedikçe yapamaz."
       },
-      "check": {"type": "date_order", "before": "ipotek.tescil_tarihi", "after": "dask.bitis_tarihi", "allow_equal": true},
+      "check": {
+        "type": "date_order",
+        "before": "ipotek.tescil_tarihi",
+        "after": "dask.bitis_tarihi",
+        "allow_equal": true
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
       "obligor": "banka",
       "absence_is_violation": false,
       "exceptions": [],
-      "validity": {"from": "2012-08-18", "to": null},
+      "validity": {
+        "from": "2012-08-18",
+        "to": null
+      },
       "finding": "DASK poliçesi ipoteğin tescil tarihinden önce sona ermiş: tescil günü geçerli poliçe yok",
       "rationale": "6305 md. 11/2, bkz. 6305-11-dask-ipotek-baslangic."
+    },
+    {
+      "id": "ONAY-teminat-once-ipotek",
+      "document_type": "kredi_dosyasi",
+      "title": "İpotek kullandırımdan önce (ya da aynı gün) tescil edilmiş",
+      "basis": {
+        "law": "kredi_onayi",
+        "article": "teminat şartı",
+        "quote": "teminatlar kullandırımdan önce tesis edilecektir"
+      },
+      "check": {
+        "type": "date_order",
+        "before": "ipotek.tescil_tarihi",
+        "after": "kullandirim.kullandirim_tarihi",
+        "allow_equal": true,
+        "applies_if": {
+          "field": "kredi_onay.teminat_sarti",
+          "values": [
+            "kullandirim_oncesi"
+          ]
+        }
+      },
+      "result_class": "otomatik",
+      "norm_type": "iç_kontrol",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "finding": "İpotek kullandırım tarihinden sonra tescil edilmiş: kredi onaydaki teminat şartı yerine gelmeden kullandırılmış",
+      "rationale": "Kanunda teminatın kullandırımdan önce tesisini genel olarak isteyen bir hüküm korpusta yok (M10.2 araması); şart bankanın kendi kredi onayından gelir (kullanıcı kararı 2026-10-04). Bu yüzden: dayanak onaydaki şarttır, bulgu kanun ihlali değil iç kontrol bulgusudur ve kural yalnızca onay belgesinde şart okunursa (ya da müfettiş onaylarsa) uygulanır. Aynı gün tesis ve kullandırım şartı karşılar (saat belgelerde yok); dosyada birden çok teminat belgesi varsa her biri ayrı değerlendirilir."
+    },
+    {
+      "id": "ONAY-teminat-once-rehin",
+      "document_type": "kredi_dosyasi",
+      "title": "Taşınır rehni kullandırımdan önce (ya da aynı gün) sicile tescil edilmiş",
+      "basis": {
+        "law": "kredi_onayi",
+        "article": "teminat şartı",
+        "quote": "teminatlar kullandırımdan önce tesis edilecektir"
+      },
+      "check": {
+        "type": "date_order",
+        "before": "rehin.sicil_tescil_tarihi",
+        "after": "kullandirim.kullandirim_tarihi",
+        "allow_equal": true,
+        "applies_if": {
+          "field": "kredi_onay.teminat_sarti",
+          "values": [
+            "kullandirim_oncesi"
+          ]
+        }
+      },
+      "result_class": "otomatik",
+      "norm_type": "iç_kontrol",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "finding": "Rehin kullandırım tarihinden sonra sicile tescil edilmiş: kredi onaydaki teminat şartı yerine gelmeden kullandırılmış",
+      "rationale": "Kanunda teminatın kullandırımdan önce tesisini genel olarak isteyen bir hüküm korpusta yok (M10.2 araması); şart bankanın kendi kredi onayından gelir (kullanıcı kararı 2026-10-04). Bu yüzden: dayanak onaydaki şarttır, bulgu kanun ihlali değil iç kontrol bulgusudur ve kural yalnızca onay belgesinde şart okunursa (ya da müfettiş onaylarsa) uygulanır. Aynı gün tesis ve kullandırım şartı karşılar (saat belgelerde yok); dosyada birden çok teminat belgesi varsa her biri ayrı değerlendirilir."
+    },
+    {
+      "id": "ONAY-teminat-once-kefalet",
+      "document_type": "kredi_dosyasi",
+      "title": "Kefalet kullandırımdan önce (ya da aynı gün) verilmiş",
+      "basis": {
+        "law": "kredi_onayi",
+        "article": "teminat şartı",
+        "quote": "teminatlar kullandırımdan önce tesis edilecektir"
+      },
+      "check": {
+        "type": "date_order",
+        "before": "kefalet_sozlesmesi.kefalet_tarihi",
+        "after": "kullandirim.kullandirim_tarihi",
+        "allow_equal": true,
+        "applies_if": {
+          "field": "kredi_onay.teminat_sarti",
+          "values": [
+            "kullandirim_oncesi"
+          ]
+        }
+      },
+      "result_class": "otomatik",
+      "norm_type": "iç_kontrol",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "finding": "Kefalet tarihi kullandırım tarihinden sonra: kredi onaydaki teminat şartı yerine gelmeden kullandırılmış",
+      "rationale": "Kanunda teminatın kullandırımdan önce tesisini genel olarak isteyen bir hüküm korpusta yok (M10.2 araması); şart bankanın kendi kredi onayından gelir (kullanıcı kararı 2026-10-04). Bu yüzden: dayanak onaydaki şarttır, bulgu kanun ihlali değil iç kontrol bulgusudur ve kural yalnızca onay belgesinde şart okunursa (ya da müfettiş onaylarsa) uygulanır. Aynı gün tesis ve kullandırım şartı karşılar (saat belgelerde yok); dosyada birden çok teminat belgesi varsa her biri ayrı değerlendirilir."
     }
   ]
 }

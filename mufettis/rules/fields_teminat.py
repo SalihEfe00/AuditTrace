@@ -72,6 +72,9 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
         "onay_tarihi": [r"(?:onay|karar|tahsis|komite) tarihi"],
         "onay_mercii": [r"onay (?:mercii|makamı|yetkisi)", r"onaylayan(?: (?:merci|komite|yetkili))?",
                         r"karar (?:mercii|organı)"],
+        # Onaydaki teminat zamanlaması şartı (M10.2 iç kontrol): kural yalnızca bu şart okunursa uygulanır
+        "teminat_sarti": [r"teminat (?:şartı|koşulu|şartları|koşulları)", r"kullandırım (?:şartı|koşulu|şartları|koşulları)",
+                          r"kullandırım öncesi (?:şartlar|koşullar)"],
     },
     "kullandirim": {
         "borclu": [r"(?:müşteri|borçlu|kredi kullanan)(?: adı soyadı| unvanı)?"],
@@ -96,6 +99,12 @@ _CONVERT.update({f: as_amount for f in _AMOUNTS})
 _CONVERT["imza_onayi"] = one_of([(r"noter", "noter"), (r"sicil(?:i)? yetkilisi", "sicil_yetkilisi"),
                                   (r"güvenli elektronik imza", "guvenli_e_imza"),
                                   (r"elektronik imza|e-imza", UNDECIDED)])  # güvenli mi belli değil
+_CONVERT["teminat_sarti"] = one_of([
+    (r"(?:kullandırım|kullandırılma)\w*\s+(?:öncesi|önce)|tesis edil\w*\s+sonra\s+kullandır|"
+     r"(?:alınmadan|tesis edilmeden)\s+kullandır", "kullandirim_oncesi"),
+    (r"kullandırım\w*\s+sonra|eş zamanlı|kullandırımla birlikte", "kullandirim_sonrasi"),
+    (r".", UNDECIDED),  # şart başka bir şey söylüyor: tahmin edilmez, müfettişe sorulur
+])
 _CONVERT["derece"] = one_of([(r"\b1\b|birinci", "1"), (r"\b2\b|ikinci", "2"), (r"\b3\b|üçüncü", "3")])
 
 

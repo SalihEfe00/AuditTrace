@@ -79,3 +79,33 @@ def test_dask_policy_valid_on_mortgage_registration_day():
     # iki ipotek, tek poliçe: hangi taşınmazın poliçesi olduğu belgeden bilinmez
     two = run(ip, ("ip2.pdf", IPOTEK.format("20.03.2024")), ("d.pdf", DASK.format("01.03.2024", "01.03.2025")))
     assert set(two.values()) == {UNKNOWN}
+
+
+def test_collateral_before_disbursement_is_an_internal_control_from_the_approval():
+    """M10.2 (kullanıcı kararı): kanuni dayanak yok; şart kredi onayından okunursa iç kontrol bulgusu."""
+    rules = [r for r in load_catalog() if r.id.startswith("ONAY-teminat-once")]
+    cond = ONAY + "Teminat Şartı: Teminatlar kullandırımdan önce tesis edilecektir.\n"
+
+    def run(*docs):
+        return {r.documents: (r.result.status, r.result.basis) for r in evaluate_file(rules, CreditFile.from_texts(docs))
+                if r.result.rule_id == "ONAY-teminat-once-ipotek"}
+    kul = ("kul.pdf", KULLANDIRIM)  # kullandırım 15.03.2024
+    [(status, basis)] = run(("onay.pdf", cond), ("ip.pdf", IPOTEK.format("15.03.2024")), kul).values()
+    assert status == MET and "iç kontrol" in basis
+    assert list(run(("onay.pdf", cond), ("ip.pdf", IPOTEK.format("20.03.2024")), kul).values())[0][0] == NOT_MET
+    # onayda şart yok: kural uygulanmaz; onay dosyada yok: belirsiz (müfettişe sorulur)
+    later = ONAY + "Teminat Şartı: Teminatlar kullandırımdan sonra 30 gün içinde tesis edilecektir.\n"
+    assert list(run(("onay.pdf", later), ("ip.pdf", IPOTEK.format("20.03.2024")), kul).values())[0][0] == "uygulanmaz"
+    assert list(run(("ip.pdf", IPOTEK.format("20.03.2024")), kul).values())[0][0] == UNKNOWN
+
+
+def test_internal_control_rule_must_be_conditioned_on_the_approval():
+    import pytest
+
+    from mufettis.rules.catalog import CatalogError
+    raw = dict(_rule().raw, basis={"law": "kredi_onayi", "article": "teminat şartı", "quote": "x"},
+               norm_type="iç_kontrol")
+    with pytest.raises(CatalogError, match="applies_if kredi_onay"):
+        parse_rule(raw)
+    with pytest.raises(CatalogError, match="iç_kontrol"):
+        parse_rule(dict(raw, norm_type="yükümlülük"))
