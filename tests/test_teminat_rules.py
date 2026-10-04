@@ -5,7 +5,7 @@ import pytest
 from mufettis.rules.catalog import load_catalog
 from mufettis.rules.engine import evaluate
 from mufettis.rules.fields_teminat import extract_teminat_fields
-from mufettis.rules.review import QUESTIONS, apply_answers, pending_questions
+from mufettis.rules.review import QUESTIONS, apply_answers, pending_questions, question
 
 RULES = load_catalog()
 DAY = dt.date(2024, 3, 12)
@@ -118,7 +118,7 @@ def test_every_date_order_field_can_be_asked_as_a_date():
         for key in ("before", "after"):
             name = rule.check.get(key)
             if name:
-                assert name in QUESTIONS and QUESTIONS[name].kind == "date", (rule.id, name)
+                assert question(name) is not None and question(name).kind == "date", (rule.id, name)
 
 
 def test_choice_questions_offer_every_value_a_rule_decides_on():
@@ -135,7 +135,7 @@ def test_choice_questions_offer_every_value_a_rule_decides_on():
             wanted.append((cond["field"], cond["values"]))
         wanted += [(ex.condition_field, ex.condition_values) for ex in rule.exceptions]
         for name, values in wanted:
-            q = QUESTIONS.get(name)
+            q = question(name)
             if q is None or q.kind != "choice":
                 continue
             offered = {v for _, v in q.options}

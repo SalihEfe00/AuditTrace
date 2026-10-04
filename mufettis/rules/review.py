@@ -70,6 +70,7 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     Question("rapor_tarihi", "Değerleme raporunun tarihi nedir? (yazılı değilse 'yok')", (("yok / boş", ""),), kind="date"),
     Question("baslangic_tarihi", "DASK poliçesinin başlangıç tarihi nedir?", (), kind="date"),
     Question("bitis_tarihi", "DASK poliçesinin bitiş tarihi nedir?", (), kind="date"),
+    Question("tescil_tarihi", "İpoteğin tapuya tescil (yevmiye) tarihi nedir?", (), kind="date"),
     Question("islem_tarihi", "Tapu işleminin (ipotek tescilinin) tarihi nedir? (ipotek belgesindeki yevmiye tarihi)", (),
              kind="date"),
     Question("deger", "Rapordaki nihai değer kaç TL? (raporda değer yoksa 'yok' seçin)", (("yok / boş", ""),),
@@ -82,6 +83,18 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     Question("duzenleme_yeri", "Bonoda düzenlenme yeri yazmıyor: düzenleyenin adının yanında bir yer (il / ilçe) yazılı mı?",
              (("evet, yazılı", "var"), ("hayır, hiçbir yer yok", ""))),
 ]}
+
+
+def question(name: str) -> Optional[Question]:
+    """Alanın sorusu. Kredi dosyası alanı ("dask.baslangic_tarihi", M10.1) belge türündeki aynı alanın sorusunu
+    kullanır; soru hangi belgeyi sorduğunu söyler."""
+    if name in QUESTIONS:
+        return QUESTIONS[name]
+    kind, _, base = name.partition(".")
+    q = QUESTIONS.get(base) if base else None
+    if q is None:
+        return None
+    return Question(name, f"[{kind}] {q.text}", q.options, q.kind)
 
 
 def _rule_fields(rule: Rule) -> List[str]:
@@ -108,10 +121,11 @@ def pending_questions(rules: Iterable[Rule], results: Iterable[RuleResult],
         for name in _rule_fields(by_id[res.rule_id]):
             fv = fields.get(name)
             # Müfettişin önceki cevabı soruyu kaldırmaz (değiştirebilsin); belgede dolu olan alan sorulmaz.
-            if name in seen or name not in QUESTIONS or (fv is not None and fv.state == FILLED and fv.source != INSPECTOR):
+            q = question(name)
+            if name in seen or q is None or (fv is not None and fv.state == FILLED and fv.source != INSPECTOR):
                 continue
             seen.add(name)
-            out.append(QUESTIONS[name])
+            out.append(q)
     return out
 
 
@@ -125,7 +139,7 @@ def apply_answers(fields: Dict[str, FieldValue], answers: Dict[str, Optional[str
         if value == "":
             out[name] = FieldValue(EMPTY, None, note, INSPECTOR)
             continue
-        q = QUESTIONS.get(name)
+        q = question(name)
         if q is not None and q.kind == "amount":
             # Müfettiş birimi yazmayabilir ("12.500.000"); okunamayan tutar ham metin kalır → eşik kuralı belirsiz
             value = as_amount(value) or as_amount(value + " TL") or value
@@ -135,4 +149,4 @@ def apply_answers(fields: Dict[str, FieldValue], answers: Dict[str, Optional[str
     return out
 
 
-__all__ = ["Question", "QUESTIONS", "pending_questions", "apply_answers", "UNKNOWN_ANSWER"]
+__all__ = ["Question", "QUESTIONS", "question", "pending_questions", "apply_answers", "UNKNOWN_ANSWER"]
