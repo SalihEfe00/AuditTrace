@@ -43,9 +43,13 @@ CHECK_TYPES = {
     "fields_differ",   # iki alan farklı kişiyi mi gösteriyor (kefil ≠ asıl borçlu)
     "threshold",       # sayısal alan eşiğin altında / üstünde mi
     "amount_not_above",  # para birimli tutar ("1000 TRY") öbür tutarı aşmıyor mu; birim farklıysa karar yok
+    "names_within",    # alandaki her kişi öbür alanın kişi listesinde mi (imzalayan ↔ imza sirküleri yetkilileri)
+    "joint_signature",  # yetki şekli (joint alanı) müşterekse en az iki yetkili imzalamış mı
     "text_pattern",    # belgede kalıp geçiyor mu
     "human",           # yalnızca müfettişin yapabileceği kontrol; kontrol maddesi üretir
 }
+# Kontrolün belge alanı adlandıran anahtarları (joint: imza yetkisinin şekli, M10.3)
+FIELD_KEYS = ("field", "other", "before", "after", "joint")
 RESULT_CLASSES = {"otomatik", "kısmen", "belirsiz", "manuel"}
 NORM_TYPES = {"yükümlülük", "yasak", "izin", "hukuki_sonuç", "iç_kontrol"}
 # Kanun değil, bankanın kendi kredi onayındaki şart (M10.2, kullanıcı kararı 2026-10-04): alıntı korpusta aranmaz,
@@ -71,7 +75,7 @@ DOCUMENT_FIELDS: Dict[str, set] = {
     "bono": {"duzenleyen", "lehtar", "tutar", "vade_tarihi", "odeme_yeri", "duzenleme_tarihi", "duzenleme_yeri", "imza"},
     # Kredi dosyasının teminat dışı belgeleri (M10.1)
     "kredi_onay": {"borclu", "onaylanan_tutar", "onay_tarihi", "onay_mercii", "teminat_sarti"},
-    "kullandirim": {"borclu", "kullandirilan_tutar", "kullandirim_tarihi", "imzalayan"},
+    "kullandirim": {"borclu", "kullandirilan_tutar", "kullandirim_tarihi", "imzalayan", "musteri_imzalayan"},
     "imza_sirkuleri": {"unvan", "yetkili", "yetki_sekli", "yetki_suresi", "duzenleme_tarihi"},
 }
 # Kredi dosyası (M10.1): belgeler arası kurallar alanı "<belge türü>.<alan>" diye adlandırır
@@ -162,7 +166,7 @@ def _basis(raw: Dict, where: str, problems: List[str]) -> Optional[Basis]:
 
 def _check_fields(check: Dict) -> List[str]:
     out = [check.get("field")] if check.get("field") else []
-    out += [f for f in (check.get("other"), check.get("before"), check.get("after")) if f]
+    out += [check[k] for k in FIELD_KEYS[1:] if check.get(k)]
     if isinstance(check.get("applies_if"), dict):  # kural yalnızca bu alan şu değerlerdeyse / eşiğin üstündeyse uygulanır
         out.append(check["applies_if"].get("field"))
     return out
@@ -285,4 +289,4 @@ def load_catalog(paths: Optional[Iterable[Path]] = None,
 
 
 __all__ = ["Rule", "Basis", "CatalogError", "load_catalog", "parse_rule", "quote_in_text", "CATALOG_DIR",
-           "CHECK_TYPES", "RESULT_CLASSES", "NORM_TYPES", "OBLIGORS", "DOCUMENT_FIELDS"]
+           "CHECK_TYPES", "FIELD_KEYS", "RESULT_CLASSES", "NORM_TYPES", "OBLIGORS", "DOCUMENT_FIELDS"]

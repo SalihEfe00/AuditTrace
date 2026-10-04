@@ -80,7 +80,10 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
         "borclu": [r"(?:müşteri|borçlu|kredi kullanan)(?: adı soyadı| unvanı)?"],
         "kullandirilan_tutar": [r"kullandırılan (?:tutar|kredi(?: tutarı)?|limit)", r"kullandırım tutarı"],
         "kullandirim_tarihi": [r"kullandırım tarihi", r"(?:valör|işlem) tarihi"],
-        "imzalayan": [r"(?:onaylayan|imzalayan|yetkili)(?: personel| adı soyadı)?"],
+        # Müşteri adına imzalayan (M10.3: imza sirküleri yetkilisi mi); bankanın onaylayan personelinden ayrı
+        "musteri_imzalayan": [r"(?:müşteri|firma|şirket|borçlu) (?:adına )?(?:imzalayan|yetkilisi|temsilcisi)(?: adı soyadı)?",
+                              r"talimat(?:ı)? veren(?: adı soyadı)?", r"müşteri imzası adı soyadı"],
+        "imzalayan": [r"(?:onaylayan|imzalayan|banka yetkilisi)(?: personel| adı soyadı)?"],
     },
     "imza_sirkuleri": {
         "unvan": [r"(?:şirket|firma)?(?: unvanı)", r"ticaret unvanı"],
@@ -106,6 +109,13 @@ _CONVERT["teminat_sarti"] = one_of([
      r"(?:alınmadan|tesis edilmeden)\s+kullandır", "kullandirim_oncesi"),
     (r"kullandırım\w*\s+sonra|eş zamanlı|kullandırımla birlikte", "kullandirim_sonrasi"),
     (r".", UNDECIDED),  # şart başka bir şey söylüyor: tahmin edilmez, müfettişe sorulur
+])
+# İmza yetkisinin şekli (M10.3): müşterek ise en az iki yetkilinin imzası gerekir
+_SOLE, _JOINT = r"(?:münferi[td]|tek başına|tek imza|ayrı ayrı)", r"(?:müşterek|birlikte|çift imza)"
+_CONVERT["yetki_sekli"] = one_of([  # ikisi birden ("münferiden veya müştereken", kişiye göre değişen) → müfettişe sorulur
+    (_SOLE + r".*" + _JOINT + "|" + _JOINT + r".*" + _SOLE, UNDECIDED),
+    (_JOINT + r"|iki(?:si)? (?:yetkili|imza)", "müşterek"),
+    (_SOLE, "münferit"),
 ])
 _CONVERT["derece"] = one_of([(r"\b1\b|birinci", "1"), (r"\b2\b|ikinci", "2"), (r"\b3\b|üçüncü", "3")])
 

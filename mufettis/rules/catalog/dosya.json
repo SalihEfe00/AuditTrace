@@ -186,6 +186,61 @@
       },
       "finding": "Kullandırılan tutar kredi onayındaki tutarı aşıyor",
       "rationale": "Onaylanan tutarın aşılmaması bankanın kendi kredi onayından gelir (iç kontrol, M10.2 kararıyla aynı ilke). Onaydan az kullandırım (kısmi kullandırım) bulgu değildir; plandaki 'eşit mi' yerine 'aşmıyor mu' kontrol edilir. Para birimi farklıysa (dövize endeksli kredi, kur farkı) belgeden karar verilmez, belirsiz kalır. Birden çok kullandırım belgesinin toplamı v1'de toplanmaz: her belge ayrı karşılaştırılır."
+    },
+    {
+      "document_type": "kredi_dosyasi",
+      "basis": {
+        "law": "21.5.200713012",
+        "article": "7",
+        "paragraph": "3",
+        "quote": "temsil yetkileri ise tescile dair belgeler üzerinden teyit edilir"
+      },
+      "result_class": "kısmen",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "id": "MASAK-7-imzalayan-yetkili",
+      "title": "Kullandırım talimatını müşteri adına imzalayan imza sirkülerinde yetkili",
+      "check": {
+        "type": "names_within",
+        "field": "kullandirim.musteri_imzalayan",
+        "other": "imza_sirkuleri.yetkili"
+      },
+      "finding": "Kullandırım talimatını müşteri adına imzalayan kişi imza sirkülerinde yetkili olarak görünmüyor (vekâletnameyle imzalandıysa noter onaylı vekâletname kontrol edilmeli)",
+      "rationale": "Tüzel kişiyi temsile yetkili kişilerin temsil yetkisi tescile dair belgeler (imza sirküleri) üzerinden teyit edilir (Tedbirler Yön. md. 7/3); temsile yetkililer ve temsil şekilleri ticaret siciline tescil edilir (6102 md. 373/1) ve şirket adına işlemi temsile yetkili olanlar yapar (6102 md. 371/1). Ad eşleşmesi Türkçe harfler sadeleştirilerek yapılır; ikinci adın yazılmaması eşleşmeyi bozmaz. Vekil eliyle imza (md. 14/1-c, noter onaylı vekâletname) belgeden okunmaz: bulguda kontrol edilmesi istenir. İmzanın kendisinin sirkülerdeki imzayla aynılığı insan kontrolüdür. Şirket dışı (gerçek kişi) borçluda imza sirküleri olmaz; kural 'dosyada yok' gerekçesiyle belirsiz kalır."
+    },
+    {
+      "document_type": "kredi_dosyasi",
+      "basis": {
+        "law": "21.5.200713012",
+        "article": "7",
+        "paragraph": "3",
+        "quote": "temsil yetkileri ise tescile dair belgeler üzerinden teyit edilir"
+      },
+      "result_class": "kısmen",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "id": "MASAK-7-musterek-imza",
+      "title": "Müşterek imza yetkisinde en az iki yetkili imzalamış",
+      "check": {
+        "type": "joint_signature",
+        "field": "kullandirim.musteri_imzalayan",
+        "other": "imza_sirkuleri.yetkili",
+        "joint": "imza_sirkuleri.yetki_sekli"
+      },
+      "finding": "İmza sirkülerine göre yetki müşterek; kullandırım talimatında en az iki yetkilinin imzası görünmüyor",
+      "rationale": "Temsil şekli imza sirkülerinde tescillidir (6102 md. 373/1; anonim şirkette esas sözleşmede aksi yoksa temsil çift imzayladır, md. 370/1) ve temsil yetkisi bu belgeyle teyit edilir (Tedbirler Yön. md. 7/3). İki ayrı yetkili imzaladıysa yetki şekli bilinmese de karşılanır; tek yetkili imzaladıysa karar yetki şekline bağlıdır, şekil okunamazsa belirsiz kalır."
     }
   ]
 }

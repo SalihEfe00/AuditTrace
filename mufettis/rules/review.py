@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional, Tuple
 
-from mufettis.rules.catalog import Rule
+from mufettis.rules.catalog import FIELD_KEYS, Rule
 from mufettis.rules.fields import as_amount, as_date, as_money
 from mufettis.rules.engine import EMPTY, FILLED, INSPECTOR, UNKNOWN, FieldValue, RuleResult
 
@@ -23,8 +23,8 @@ class Question:
     field: str
     text: str
     options: Tuple[Tuple[str, str], ...]  # (gösterilen, alan değeri); "" değeri = boş (öğe yok)
-    kind: str = "choice"                  # "choice": seçenekler; "amount" / "money" / "date": müfettiş tutarı (TL) /
-                                          # para birimli tutarı / tarihi yazar
+    kind: str = "choice"                  # "choice": seçenekler; "amount" / "money" / "date" / "text": müfettiş tutarı
+                                          # (TL) / para birimli tutarı / tarihi / serbest metni (ad soyad) yazar
 
 
 QUESTIONS: Dict[str, Question] = {q.field: q for q in [
@@ -77,6 +77,11 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     Question("kullandirim_tarihi", "Kredinin kullandırım tarihi nedir?", (), kind="date"),
     Question("onaylanan_tutar", "Kredi onayındaki tutar nedir (para birimiyle)?", (), kind="money"),
     Question("kullandirilan_tutar", "Kullandırılan tutar nedir (para birimiyle)?", (), kind="money"),
+    # İmza yetkisi (M10.3)
+    Question("musteri_imzalayan", "Belgeyi müşteri adına kim imzalamış? (ad soyad; birden çok ise virgülle)", (), kind="text"),
+    Question("yetkili", "İmza sirkülerinde şirketi temsile yetkili kişiler kimler? (ad soyad; virgülle)", (), kind="text"),
+    Question("yetki_sekli", "İmza sirkülerine göre yetkililer nasıl imza atar?",
+             (("münferit (tek başına)", "münferit"), ("müşterek (en az iki yetkili birlikte)", "müşterek"))),
     Question("teminat_sarti", "Kredi onayında teminatın kullandırımdan önce tesis edilmesi şartı var mı?",
              (("evet, kullandırımdan önce", "kullandirim_oncesi"), ("hayır / sonra da olabilir", "kullandirim_sonrasi"))),
     Question("islem_tarihi", "Tapu işleminin (ipotek tescilinin) tarihi nedir? (ipotek belgesindeki yevmiye tarihi)", (),
@@ -107,7 +112,7 @@ def question(name: str) -> Optional[Question]:
 
 def _rule_fields(rule: Rule) -> List[str]:
     check = rule.check
-    names = [check.get(k) for k in ("field", "other", "before", "after") if check.get(k)]
+    names = [check.get(k) for k in FIELD_KEYS if check.get(k)]
     if isinstance(check.get("applies_if"), dict):
         names.insert(0, check["applies_if"]["field"])
     names += [n for e in rule.exceptions for n, _ in e.conditions]

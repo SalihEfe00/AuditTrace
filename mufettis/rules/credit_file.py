@@ -19,14 +19,13 @@ import datetime as dt
 from dataclasses import dataclass, field
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
-from mufettis.rules.catalog import FILE_TYPE, Rule
+from mufettis.rules.catalog import FIELD_KEYS as _FIELD_KEYS, FILE_TYPE, Rule
 from mufettis.rules.doctype import detect_collateral_type
 from mufettis.rules.engine import UNKNOWN, FieldValue, RuleResult, evaluate_rule
 from mufettis.rules.event_date import document_event_date
 from mufettis.rules.fields_kefalet import extract_kefalet_fields
 from mufettis.rules.fields_teminat import DOCUMENT_LABELS, extract_teminat_fields
 
-_FIELD_KEYS = ("field", "other", "before", "after")
 # Bir kredi dosyasında doğası gereği tek olan belgeler: çoklu teminat belgesinin her biri bunlarla ayrı eşleşir
 FILE_UNIQUE = {"kredi_onay", "kullandirim", "imza_sirkuleri"}
 

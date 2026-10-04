@@ -127,3 +127,28 @@ def test_internal_control_rule_must_be_conditioned_on_the_approval():
         parse_rule(raw)
     with pytest.raises(CatalogError, match="iç_kontrol"):
         parse_rule(dict(raw, norm_type="yükümlülük"))
+
+
+def test_signer_is_authorized_in_signature_circular():
+    """M10.3: müşteri adına imzalayan imza sirkülerinde yetkili mi (Tedbirler Yön. md. 7/3); müşterek yetkide iki imza."""
+    rules = [r for r in load_catalog() if r.id.startswith("MASAK-7-")]
+
+    def run(signer, authorized, how=None):
+        sirk = f"İMZA SİRKÜLERİ\nŞirket Unvanı: Örnek Ltd.\nYetkili: {authorized}\n" + (f"Yetki Şekli: {how}\n" if how else "")
+        kul = KULLANDIRIM + f"Müşteri Adına İmzalayan: {signer}\n"
+        f = CreditFile.from_texts([("k", kul), ("s", sirk)])
+        assert f.by_kind()["kullandirim"][0].fields["musteri_imzalayan"].value == signer
+        return {r.result.rule_id: r.result.status for r in evaluate_file(rules, f)}
+    # OCR noktaları düşürse, ikinci ad yazılmasa da aynı kişi
+    assert run("ALI VELI", "Ali Rıza Veli, Ayşe Kaya", "Münferit") == {
+        "MASAK-7-imzalayan-yetkili": MET, "MASAK-7-musterek-imza": MET}
+    assert run("Can Er", "Ali Veli, Ayşe Kaya", "Münferit")["MASAK-7-imzalayan-yetkili"] == NOT_MET
+    # müşterek: tek imza bulgu, iki yetkili imza karşılar; şekil okunamazsa tek imza belirsiz
+    assert run("Ali Veli", "Ali Veli, Ayşe Kaya", "Müşterek")["MASAK-7-musterek-imza"] == NOT_MET
+    assert run("Ali Veli ve Ayşe Kaya", "Ali Veli, Ayşe Kaya", "Müşterek")["MASAK-7-musterek-imza"] == MET
+    assert run("Ali Veli", "Ali Veli, Ayşe Kaya")["MASAK-7-musterek-imza"] == UNKNOWN
+    # "münferiden veya müştereken": tahmin edilmez
+    assert run("Ali Veli", "Ali Veli, Ayşe Kaya", "Münferiden veya müştereken")["MASAK-7-musterek-imza"] == UNKNOWN
+    # bankanın onaylayan personeli müşteri imzası sayılmaz
+    f = CreditFile.from_texts([("k", KULLANDIRIM + "Onaylayan Personel: Zeki Banka\n")])
+    assert "musteri_imzalayan" not in f.by_kind()["kullandirim"][0].fields

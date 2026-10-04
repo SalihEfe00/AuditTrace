@@ -20,7 +20,8 @@ import re
 from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional
 
-from mufettis.rules.catalog import INTERNAL_BASIS, Rule
+from mufettis.analysis.turkish_text import turkish_lower
+from mufettis.rules.catalog import FIELD_KEYS, INTERNAL_BASIS, Rule
 
 FILLED, EMPTY, NOT_FOUND = "dolu", "boş", "bulunamadı"
 MET, NOT_MET, UNKNOWN, MANUAL, EXEMPT, NOT_APPLICABLE = (
@@ -68,6 +69,24 @@ def _norm(value) -> str:
     return re.sub(r"\s+", " ", str(value or "")).strip().lower()
 
 
+_ASCII = str.maketrans("çğıöşüâîû", "cgiosuaiu")
+
+
+def _people(value) -> List[frozenset]:
+    """Ad listesi ("Ali Veli, Ayşe Kaya ve Can Er") → her kişi için ad sözcükleri kümesi. Türkçe harfler sadeleşir
+    (OCR noktaları düşürebilir); tek sözcüklü parça (ad soyad değil) kişi sayılmaz."""
+    out = []
+    for part in re.split(r"[,;/&\n]|\bve\b|\bile\b", turkish_lower(str(value or "")).translate(_ASCII)):
+        words = frozenset(re.findall(r"[a-z]{2,}", part))
+        if len(words) >= 2:
+            out.append(words)
+    return out
+
+
+def _same_person(a: frozenset, b: frozenset) -> bool:
+    return a <= b or b <= a  # ikinci ad yazılmamış olabilir ("Ali Veli" ↔ "Ali Rıza Veli")
+
+
 def _passes(rule: Rule, fields: Dict[str, FieldValue], text: str) -> Optional[bool]:
     """Kontrolün kendisi: True / False, ya da karar verilemiyorsa None."""
     check = rule.check
@@ -109,6 +128,23 @@ def _passes(rule: Rule, fields: Dict[str, FieldValue], text: str) -> Optional[bo
             return float(x) <= float(y)
         except ValueError:
             return None
+    if kind in ("names_within", "joint_signature"):
+        a, b = _get(fields, check["field"]), _get(fields, check["other"])
+        if a.state != FILLED or b.state != FILLED:
+            return None
+        signers, allowed = _people(a.value), _people(b.value)
+        if not signers or not allowed:
+            return None  # ad soyad okunamadı
+        if kind == "names_within":
+            return all(any(_same_person(s, p) for p in allowed) for s in signers)
+        # müşterek yetki: en az iki ayrı yetkilinin imzası; imzalayan yetkili değilse sayılmaz
+        signed = {i for s in signers for i, p in enumerate(allowed) if _same_person(s, p)}
+        if len(signed) >= 2:
+            return True
+        joint = _get(fields, check["joint"])
+        if joint.state != FILLED:
+            return None
+        return {"münferit": True, "müşterek": False}.get(_norm(joint.value))
     if kind == "threshold":
         fv = _get(fields, check["field"])
         if fv.state != FILLED:
@@ -139,14 +175,14 @@ def _condition_holds(cond: Dict, fv: FieldValue) -> Optional[bool]:
 
 
 def _missing_fields(rule: Rule, fields: Dict[str, FieldValue]) -> List[str]:
-    names = [rule.check.get(k) for k in ("field", "other", "before", "after") if rule.check.get(k)]
+    names = [rule.check.get(k) for k in FIELD_KEYS if rule.check.get(k)]
     return [n for n in names if _get(fields, n).state != FILLED]
 
 
 def evaluate_rule(rule: Rule, fields: Dict[str, FieldValue], text: str = "",
                   event_date: Optional[dt.date] = None) -> RuleResult:
     basis = _ref(rule.basis)
-    used = [k for k in ("field", "other", "before", "after") if rule.check.get(k)]
+    used = [k for k in FIELD_KEYS if rule.check.get(k)]
     evidence = tuple(_ev(rule.check[k], _get(fields, rule.check[k])) for k in used)
 
     def result(status, reason, finding=rule.finding, ev=evidence):

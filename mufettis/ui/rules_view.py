@@ -64,7 +64,8 @@ def render_collateral_check(text: str, event_date: Optional[dt.date] = None) -> 
                     labels.append("yazacağım")
                 choice = st.radio(q.text, labels, horizontal=True, key=f"rules_q_{doc_key}_{q.field}")
                 if choice == "yazacağım":
-                    hint = {"amount": "Tutar (TL)", "money": "Tutar ve para birimi (ör. 250.000 USD)"}.get(q.kind, "Tarih (GG.AA.YYYY)")
+                    hint = {"amount": "Tutar (TL)", "money": "Tutar ve para birimi (ör. 250.000 USD)",
+                            "text": "Ad soyad (birden çok ise virgülle)"}.get(q.kind, "Tarih (GG.AA.YYYY)")
                     typed = st.text_input(hint, key=f"rules_qa_{doc_key}_{q.field}").strip()
                     value = typed or None
                 else:
