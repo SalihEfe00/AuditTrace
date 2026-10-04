@@ -16,7 +16,8 @@ from typing import Callable, Dict, List, Optional, Tuple
 from mufettis.analysis.turkish_text import turkish_lower
 from mufettis.rules.engine import EMPTY, NOT_FOUND, FieldValue
 
-_BLANK = re.compile(r"^[\s.…_\-–:/|]*$")
+# Parantez de doldurma yerinin parçası olabilir: "____ TL (__________)" (yazıyla tutar yeri, M9.4i)
+_BLANK = re.compile(r"^[\s.…_\-–:/|()\[\]]*$")
 _PLACEHOLDER = re.compile(r"(?:ad[ıi] ?soyad[ıi]|imza|tarih|kaşe)\s*[:：]?[\s.…_/]*")
 # Doldurma yerinin yanındaki birim boş değeri doldurmaz: "…………… TL", "____ ₺", "........ (TL)" (M9.4c)
 _UNIT = re.compile(r"\(?\s*(?:tl|₺|türk lirası|try)\s*\)?", re.I)
@@ -70,11 +71,12 @@ def one_of(choices: List[Tuple[str, str]]) -> Callable[[str], object]:
     return convert
 
 
-def _line_value(text: str, low: str, label: str) -> Optional[Tuple[str, str]]:
+def _line_value(text: str, low: str, label: str, every: bool = False) -> Optional[Tuple[str, str]]:
     # Aynı etiket birden çok satırda olabilir (form başında boş, sonunda dolu; OCR sütun kayması): doluyu tercih et.
+    # `every`: tekrar farklı kişileri gösteriyorsa (her uzmanın lisans no'su) biri boşsa alan boştur (M9.4i).
     found = list(re.finditer(r"(?m)^[ \t]*(?:[-•*\d.)]+\s*)?" + label + _LABEL_END + r"[ \t]*(.*)$", low))
-    m = next((x for x in found if not is_blank(_NEXT_LABEL.split(text[x.start(1):x.end(1)], maxsplit=1)[0].strip())),
-             found[0] if found else None)
+    blank = [is_blank(_NEXT_LABEL.split(text[x.start(1):x.end(1)], maxsplit=1)[0].strip()) for x in found]
+    m = next((x for x, b in zip(found, blank) if b == every), found[0] if found else None)
     if not m:
         # Aynı satırda birden çok etiket ("... Sicil No: Tescil Tarihi: 17.08.2021, Sicil No: X"): virgül / noktalı
         # virgülden, önceki etiketin iki noktasından ya da sütun boşluğundan sonra gelen etiket, değeri bir sonraki
@@ -121,9 +123,10 @@ def is_blank(raw: str) -> bool:
 
 
 def extract_labeled_fields(text: str, labels: Dict[str, List[str]],
-                           convert: Optional[Dict[str, Callable[[str], object]]] = None) -> Dict[str, FieldValue]:
+                           convert: Optional[Dict[str, Callable[[str], object]]] = None,
+                           every: frozenset = frozenset()) -> Dict[str, FieldValue]:
     """Alan adı → FieldValue (etiketi bulunmayan alan yok). `convert` alanın değerini normalleştirir; tanınmayan
-    değer ham metniyle dolu kalır."""
+    değer ham metniyle dolu kalır. `every` içindeki alanlarda etiketin her tekrarı dolu olmalıdır."""
     text = text or ""
     low = turkish_lower(text)
     assert len(low) == len(text)  # konumlar küçük harfli metinden okunur
@@ -131,7 +134,7 @@ def extract_labeled_fields(text: str, labels: Dict[str, List[str]],
     out: Dict[str, FieldValue] = {}
     for field, patterns in labels.items():
         for label in patterns:
-            hit = _line_value(text, low, label)
+            hit = _line_value(text, low, label, field in every)
             if hit is None:
                 continue
             raw, where = hit

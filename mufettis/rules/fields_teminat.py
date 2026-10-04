@@ -82,7 +82,9 @@ def extract_teminat_fields(document_type: str, text: str) -> Dict[str, FieldValu
     labels = DOCUMENT_LABELS.get(document_type)
     if labels is None:
         raise ValueError(f"bilinmeyen teminat belgesi türü: {document_type}")
-    return extract_labeled_fields(text, labels, {k: v for k, v in _CONVERT.items() if k in labels})
+    # Md. 14/3: raporu hazırlayan her uzmanın lisans numarası; "Lisans No" satırlarından biri boşsa alan boştur
+    return extract_labeled_fields(text, labels, {k: v for k, v in _CONVERT.items() if k in labels},
+                                  every=frozenset({"lisans_no"}))
 
 
 __all__ = ["extract_teminat_fields", "DOCUMENT_LABELS"]

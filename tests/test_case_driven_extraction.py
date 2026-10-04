@@ -87,3 +87,14 @@ def test_report_date_is_not_inspection_date_and_rts_dates():
     pledge = extract_teminat_fields("rehin", "Tarih: 02.11.2016\nRTS Tescil Tarihi: 07.11.2016\n")
     assert pledge["sozlesme_tarihi"].value == dt.date(2016, 11, 2)
     assert pledge["sicil_tescil_tarihi"].value == dt.date(2016, 11, 7)
+
+
+def test_third_holdout_classes():
+    """M9.4i: yazıyla tutar yeri parantezli boşluk; her uzmanın lisans numarası."""
+    assert is_blank("____________ TL (________________________)")
+    f = extract_kefalet_fields("Azami Kefalet Tutarı: ____________ TL (________________________)\n")
+    assert f["azami_tutar"].state == EMPTY
+    two = "Değerleme Uzmanı: A\nLisans No: ……………\nSorumlu Değerleme Uzmanı: B\nLisans No: 401567\n"
+    assert extract_teminat_fields("ekspertiz", two)["lisans_no"].state == EMPTY
+    both = two.replace("……………", "401890")
+    assert extract_teminat_fields("ekspertiz", both)["lisans_no"].state == FILLED

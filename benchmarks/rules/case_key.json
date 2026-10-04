@@ -118,6 +118,12 @@
     "TBK14-kefil-imzasi": "karşılanmadı"
    },
    "note": "gizli set 2: kusursuz istendi ama türü yazmayan elektronik imza yazılmış (geçerli imza şekli yok)"
+  },
+  "s3_p5_grok_36": {
+   "expected": {
+    "BDDK-DHY20-iki-rapor": "uygulanmaz"
+   },
+   "note": "gizli set 3: rapor 18.09.2022 tarihli; iki rapor şartı 17.10.2022 yürürlüklü"
   }
  },
  "types": {
