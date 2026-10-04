@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import datetime as dt
 import io
-from typing import Dict, Iterable, Optional, Sequence, Tuple
+from typing import Dict, Optional, Sequence, Tuple
 
 from mufettis.common.utils import mask_sensitive, now_iso
 from mufettis.config import APP_VERSION
