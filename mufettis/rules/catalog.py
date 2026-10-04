@@ -55,6 +55,9 @@ NORM_TYPES = {"yükümlülük", "yasak", "izin", "hukuki_sonuç", "iç_kontrol"}
 # Kanun değil, bankanın kendi kredi onayındaki şart (M10.2, kullanıcı kararı 2026-10-04): alıntı korpusta aranmaz,
 # kural yalnızca onay belgesinde şart okunursa uygulanır ve norm türü iç_kontrol olmalıdır
 INTERNAL_BASIS = "kredi_onayi"
+# İç kontrol dayanakları ve gösterimleri: kredi onayındaki şart (M10.2) ve kullanıcının girdiği yetki tablosu (M10.4)
+INTERNAL_BASES = {INTERNAL_BASIS: "kredi onayındaki şart (iç kontrol)",
+                  "yetki_tablosu": "bankanın yetki tablosu (iç kontrol, kullanıcının girdiği)"}
 OBLIGORS = {"banka", "kefil", "eş", "borçlu", "alacaklı", "rehin_veren", "taraflar"}
 
 # Belge türü → kuralların adlandırabileceği alanlar (M9.3 alanları; tür eklendikçe genişler).
@@ -81,6 +84,9 @@ DOCUMENT_FIELDS: Dict[str, set] = {
 # Kredi dosyası (M10.1): belgeler arası kurallar alanı "<belge türü>.<alan>" diye adlandırır
 FILE_TYPE = "kredi_dosyasi"
 DOCUMENT_FIELDS[FILE_TYPE] = {f"{kind}.{name}" for kind, names in DOCUMENT_FIELDS.items() for name in names}
+# Belge olmayan dosya alanı (M10.4): onay merciinin kullanıcının yetki tablosundaki tutar sınırı (mufettis.rules.authority)
+AUTHORITY_KIND = "yetki_tablosu"
+DOCUMENT_FIELDS[FILE_TYPE].add(f"{AUTHORITY_KIND}.limit")
 
 
 class CatalogError(ValueError):
@@ -240,7 +246,7 @@ def parse_rule(raw: Dict, article_text: Optional[Callable[[str, str], Optional[s
     except ValueError:
         problems.append(f"geçersiz geçerlilik tarihi: {validity}")
         valid_from = valid_to = None
-    internal = basis is not None and basis.law == INTERNAL_BASIS
+    internal = basis is not None and basis.law in INTERNAL_BASES
     if internal != (raw.get("norm_type") == "iç_kontrol"):
         problems.append("iç kontrol kuralı (dayanak kredi_onayi) ile norm türü iç_kontrol birlikte kullanılır")
     applies = check.get("applies_if")
@@ -248,7 +254,7 @@ def parse_rule(raw: Dict, article_text: Optional[Callable[[str, str], Optional[s
         problems.append("iç kontrol kuralı yalnızca kredi onayındaki şart okunursa uygulanmalı (applies_if kredi_onay.*)")
     if article_text is not None:
         for where, b in [("kural", basis)] + [(f"istisna {e.id}", e.basis) for e in exceptions]:
-            if b is None or b.law == INTERNAL_BASIS:
+            if b is None or b.law in INTERNAL_BASES:
                 continue
             text = article_text(b.law, b.article)
             if not text:

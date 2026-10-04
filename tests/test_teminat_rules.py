@@ -146,6 +146,8 @@ def test_choice_questions_offer_every_value_a_rule_decides_on():
 def test_every_question_targets_a_catalog_field():
     from mufettis.rules.catalog import DOCUMENT_FIELDS
     known = set().union(*DOCUMENT_FIELDS.values())
+    # Dosya alanı "<tür>.<alan>" sorusunu alan adından alır (review.question; ör. yetki_tablosu.limit, M10.4)
+    known |= {name.split(".", 1)[1] for name in known if "." in name}
     assert set(QUESTIONS) <= known
 
 

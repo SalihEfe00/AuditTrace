@@ -123,13 +123,38 @@ def _uploaded_texts():
     return out
 
 
-def render_credit_file_check(items=None, event_date: Optional[dt.date] = None) -> None:
+def _authority_table_editor():
+    """Yetki tablosu (M10.4): kullanıcı girer, veri klasörüne kaydedilir; kayıtlı tablo açılışta yüklenir."""
+    from mufettis.rules.authority import load_table, save_table, table_path
+    if "credit_file_authority" not in st.session_state:
+        try:
+            st.session_state["credit_file_authority"] = load_table()
+        except Exception as exc:  # bozuk dosya: tablo boş başlar, kullanıcı görür
+            st.warning(f"Kayıtlı yetki tablosu okunamadı: {exc}")
+            st.session_state["credit_file_authority"] = []
+    table = st.session_state["credit_file_authority"]
+    with st.popover("Yetki tablosu (isteğe bağlı)" + (f" — {len(table)} satır" if table else "")):
+        st.caption("Bankanın kredi yetki sınırları: onay mercii ve onaylayabileceği azami tutar (ör. 'Şube Kredi "
+                   "Komitesi' — '5.000.000 TL'). Birimsiz tutar TL sayılır. Kanun değil iç düzenlemedir; sonuç "
+                   "'iç kontrol' olarak gösterilir.")
+        rows = [{"Onay mercii": n, "Azami tutar": m} for n, m in table] or [{"Onay mercii": "", "Azami tutar": ""}]
+        edited = st.data_editor(rows, num_rows="dynamic", key="credit_file_authority_editor", use_container_width=True)
+        if st.button("Tabloyu kaydet", key="credit_file_authority_save"):
+            saved = save_table([(r.get("Onay mercii"), r.get("Azami tutar")) for r in edited])
+            st.session_state["credit_file_authority"] = saved
+            st.success(f"{len(saved)} satır kaydedildi ({table_path()}).")
+            st.rerun()
+    return table
+
+
+def render_credit_file_check(items=None, event_date: Optional[dt.date] = None, authority_table=None) -> None:
     """Kredi dosyası kontrolü (M10): birden çok belge tek dosya; belgeler türüne göre yerleşir, her belgenin kendi
     kuralları ve belgeler arası dosya kuralları çalışır, belirsiz kalanlar müfettişe sorulur. `items` (ad, metin)
-    verilirse yükleyici gösterilmez (test)."""
+    verilirse yükleyici gösterilmez (test); `authority_table` verilirse yetki tablosu düzenleyicisi gösterilmez."""
     if st is None:
         return
-    from mufettis.rules.catalog import FILE_TYPE
+    from mufettis.rules.authority import authority_fields
+    from mufettis.rules.catalog import AUTHORITY_KIND, FILE_TYPE
     from mufettis.rules.credit_file import CreditFile, evaluate_file, file_event_date, file_fields, load_document
 
     with st.expander("Kredi dosyası kontrolü — onay, teminatlar, imza sirküleri, kullandırım (birden çok belge)"):
@@ -166,12 +191,19 @@ def render_credit_file_check(items=None, event_date: Optional[dt.date] = None) -
             event_date, source = file_event_date(credit_file)
             st.caption(f"Olay tarihi: {event_date:%d.%m.%Y} ("
                        + ("dosyadan okunamadı, bugün varsayıldı" if source == "bugün" else f"dosyadaki {source}") + ")")
-        results = evaluate_file(rules, credit_file, event_date=event_date, answers=answered)
-        known = {**file_fields(credit_file), **answered}
+        if authority_table is None:
+            authority_table = _authority_table_editor()
+        results = evaluate_file(rules, credit_file, event_date=event_date, answers=answered,
+                                authority_table=authority_table)
+        approvals = credit_file.by_kind().get("kredi_onay", [])
+        virtual = authority_fields(approvals[0].fields, authority_table) if len(approvals) == 1 else {}
+        known = {**file_fields(credit_file), **virtual, **answered}
         questions = pending_questions([r for r in rules if r.document_type == FILE_TYPE], [r.result for r in results],
                                       known)
         # Dosyada olmayan belgenin alanı sorulmaz: cevap belgenin yerini tutmaz, sonuç "dosyada yok" diye kalır
         present = set(credit_file.by_kind())
+        if "kredi_onay" in present:  # tabloda olmayan merciin sınırı sorulabilir (onay belgesi varsa)
+            present.add(AUTHORITY_KIND)
         questions = [q for q in questions if q.field.split(".", 1)[0] in present]
         if questions:
             st.markdown("**Dosyadan anlaşılamayanlar** — cevaplarınız *müfettiş beyanı* olarak kanıta yazılır "

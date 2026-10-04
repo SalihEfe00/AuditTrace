@@ -84,6 +84,7 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
              kind="date"),
     Question("yetki_sekli", "İmza sirkülerine göre yetkililer nasıl imza atar?",
              (("münferit (tek başına)", "münferit"), ("müşterek (en az iki yetkili birlikte)", "müşterek"))),
+    Question("limit", "Onay merciinin yetki tablosundaki tutar sınırı nedir (para birimiyle)?", (), kind="money"),
     Question("teminat_sarti", "Kredi onayında teminatın kullandırımdan önce tesis edilmesi şartı var mı?",
              (("evet, kullandırımdan önce", "kullandirim_oncesi"), ("hayır / sonra da olabilir", "kullandirim_sonrasi"))),
     Question("islem_tarihi", "Tapu işleminin (ipotek tescilinin) tarihi nedir? (ipotek belgesindeki yevmiye tarihi)", (),

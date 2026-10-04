@@ -19,7 +19,8 @@ import datetime as dt
 from dataclasses import dataclass, field
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
-from mufettis.rules.catalog import FIELD_KEYS as _FIELD_KEYS, FILE_TYPE, Rule
+from mufettis.rules.authority import authority_fields
+from mufettis.rules.catalog import AUTHORITY_KIND, FIELD_KEYS as _FIELD_KEYS, FILE_TYPE, Rule
 from mufettis.rules.doctype import detect_collateral_type
 from mufettis.rules.engine import UNKNOWN, FieldValue, RuleResult, evaluate_rule
 from mufettis.rules.event_date import document_event_date
@@ -110,9 +111,13 @@ def file_event_date(credit_file: CreditFile, today: Optional[dt.date] = None) ->
 
 
 def evaluate_file(rules: Iterable[Rule], credit_file: CreditFile, event_date: Optional[dt.date] = None,
-                  answers: Optional[Dict[str, FieldValue]] = None) -> List[FileResult]:
-    """Dosya kurallarının sonuçları. `answers`: müfettiş beyanları ("<tür>.<alan>" → FieldValue)."""
+                  answers: Optional[Dict[str, FieldValue]] = None,
+                  authority_table: Optional[Sequence[Tuple[str, str]]] = None) -> List[FileResult]:
+    """Dosya kurallarının sonuçları. `answers`: müfettiş beyanları ("<tür>.<alan>" → FieldValue).
+    `authority_table`: kullanıcının yetki tablosu (merci, "<tutar> <birim>"; M10.4) — belge değil, dosyaya sanal alan."""
     groups = credit_file.by_kind()
+    approvals = groups.get("kredi_onay", [])
+    virtual = authority_fields(approvals[0].fields, authority_table) if len(approvals) == 1 else {}
     if event_date is None:
         event_date, _ = file_event_date(credit_file)
     out: List[FileResult] = []
@@ -133,13 +138,16 @@ def evaluate_file(rules: Iterable[Rule], credit_file: CreditFile, event_date: Op
                 res.basis, (), "çoklu belge türleri eşleştirilemedi")))
             continue
         variants = [[d] for d in groups[multi[0]]] if multi else [[]]
-        missing = [k for k in kinds if k not in groups]
+        missing = [k for k in kinds if k not in groups and k != AUTHORITY_KIND]
+        notes = [f"dosyada yok: {', '.join(missing)}"] if missing else []
+        if AUTHORITY_KIND in kinds and not virtual:
+            notes.append("onay mercii yetki tablosunda yok" if authority_table else "yetki tablosu girilmedi")
         for extra in variants:
             docs = fixed + extra
-            fields = {**_merge(docs), **(answers or {})}
+            fields = {**_merge(docs), **virtual, **(answers or {})}
             res = evaluate_rule(rule, fields, event_date=event_date)
-            if missing and res.status == UNKNOWN:
-                res = RuleResult(res.rule_id, res.status, f"{res.finding} (dosyada yok: {', '.join(missing)})",
+            if notes and res.status == UNKNOWN:
+                res = RuleResult(res.rule_id, res.status, f"{res.finding} ({'; '.join(notes)})",
                                  res.basis, res.evidence, res.reason)
             out.append(FileResult(tuple(d.name for d in docs), res))
     return out

@@ -388,6 +388,36 @@
       ],
       "finding": "İmza sirkülerindeki yetki süresi genel kredi sözleşmesinin imza tarihinden önce bitmiş; güncel sirküler / sicil kaydı istenmeli",
       "rationale": "Temsil yetkisi tescile dair belgelerle teyit edilir (Tedbirler Yön. md. 7/3); süresi bitmiş yetkiyi gösteren sirküler işlem tarihindeki yetkiyi kanıtlamaz. Yalnızca açık bitiş tarihi kullanılır: 'başlangıçtan itibaren 3 yıl' gibi yazımdan bitiş hesaplanmaz (müfettişe sorulur); süresiz yetkide kural uygulanmaz. Bitiş günü yapılan işlem geçerli sayılır."
+    },
+    {
+      "id": "YETKI-onay-siniri",
+      "document_type": "kredi_dosyasi",
+      "title": "Onaylanan tutar onay merciinin yetki sınırı içinde",
+      "basis": {
+        "law": "yetki_tablosu",
+        "article": "onay merciinin tutar sınırı",
+        "quote": "kullanıcının girdiği yetki tablosu"
+      },
+      "check": {
+        "type": "amount_not_above",
+        "field": "kredi_onay.onaylanan_tutar",
+        "other": "yetki_tablosu.limit",
+        "applies_if": {
+          "field": "kredi_onay.onay_mercii",
+          "present": true
+        }
+      },
+      "result_class": "otomatik",
+      "norm_type": "iç_kontrol",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "finding": "Onaylanan tutar onay merciinin yetki tablosundaki sınırını aşıyor (yetki aşımı)",
+      "rationale": "Kredi yetki sınırları bankanın iç düzenlemesidir (kanun değil, M10.4 kullanıcı kararı): tabloyu kullanıcı girer. Onay belgesindeki merci tablodaki satırla Türkçe harfler sadeleştirilerek eşleşir (en belirgin ad seçilir). Merci tabloda yoksa ya da tablo girilmemişse sınır bilinmez, kural belirsiz kalır ve sınır müfettişe sorulur. Para birimi farklıysa karar verilmez. Kural yalnızca onayda merci okunursa uygulanır."
     }
   ]
 }

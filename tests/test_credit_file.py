@@ -230,3 +230,33 @@ def test_file_field_variants_from_spent_holdout():
     assert open_ended["yetki_suresi"].value == "süresiz"
     onay = extract_teminat_fields("kredi_onay", ONAY + "Teminat Kriteri: Kredi serbest bırakılmadan önce ipotek tesis edilmelidir.\n")
     assert onay["teminat_sarti"].value == "kullandirim_oncesi"
+
+
+def test_authority_table_limits_the_approved_amount(tmp_path):
+    """M10.4: onaylanan tutar, onay merciinin kullanıcının yetki tablosundaki sınırını aşmamalı (iç kontrol)."""
+    from mufettis.rules.authority import load_table, match, save_table
+    path = tmp_path / "yetki.json"
+    table = save_table([("Kredi Komitesi", "10.000.000"), ("Bölge Kredi Komitesi", "750.000 TL"), ("", "5"),
+                        ("Şube", "abc")], path)
+    assert table == load_table(path) == [("Kredi Komitesi", "10000000 TRY"), ("Bölge Kredi Komitesi", "750000 TRY")]
+    assert match(table, "BOLGE KREDI KOMITESI")[0] == "Bölge Kredi Komitesi"  # en belirgin ad, OCR noktasız
+    assert match(table, "Genel Müdürlük") is None
+    rules = [r for r in load_catalog() if r.id == "YETKI-onay-siniri"]
+
+    def run(mercii, tbl):
+        f = CreditFile.from_texts([("o", ONAY.replace("Bölge Kredi Komitesi", mercii))])  # onay 1.000.000 TL
+        [r] = evaluate_file(rules, f, authority_table=tbl)
+        return r.result
+    assert run("Bölge Kredi Komitesi", table).status == NOT_MET
+    res = run("Bölge Kredi Komitesi", table)
+    assert "yetki tablosu" in res.basis and any("yetki tablosu: Bölge Kredi Komitesi" in e[3] for e in res.evidence)
+    assert run("Kredi Komitesi", table).status == MET
+    unknown = run("Genel Müdürlük", table)
+    assert unknown.status == UNKNOWN and "onay mercii yetki tablosunda yok" in unknown.finding
+    assert "yetki tablosu girilmedi" in run("Bölge Kredi Komitesi", []).finding
+    # müfettiş sınırı elle verir
+    from mufettis.rules.review import apply_answers, question
+    assert question("yetki_tablosu.limit").kind == "money"
+    f = CreditFile.from_texts([("o", ONAY)])
+    [r] = evaluate_file(rules, f, authority_table=[], answers=apply_answers({}, {"yetki_tablosu.limit": "2.000.000"}))
+    assert r.result.status == MET

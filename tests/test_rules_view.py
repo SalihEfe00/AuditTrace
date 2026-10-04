@@ -95,14 +95,14 @@ def _app_today(text):
     return AppTest.from_function(script, args=(text,), default_timeout=60)
 
 
-def _file_app(items):
-    def script(items):
+def _file_app(items, table=()):
+    def script(items, table):
         import datetime as dt
 
         from mufettis.ui.rules_view import render_credit_file_check
-        render_credit_file_check(items, event_date=dt.date(2024, 3, 15))
+        render_credit_file_check(items, event_date=dt.date(2024, 3, 15), authority_table=table)
 
-    return AppTest.from_function(script, args=(items,), default_timeout=60)
+    return AppTest.from_function(script, args=(items, list(table)), default_timeout=60)
 
 
 def test_credit_file_view_places_documents_asks_and_shows_cross_document_results():
@@ -136,3 +136,16 @@ def test_credit_file_view_does_not_ask_about_documents_missing_from_the_file():
     assert not at.exception
     assert all(r.label.startswith("[kullandirim]") for r in at.radio)
     assert "(dosyada yok: kredi_onay)" in _markdown(at)
+
+
+def test_credit_file_view_uses_authority_table():
+    onay = ("KREDİ TEKLİF VE ONAY FORMU\nMüşteri: Örnek Ltd.\nOnaylanan Limit: 1.000.000 TL\nOnay Tarihi: 01.03.2024\n"
+            "Onay Mercii: Şube Kredi Komitesi\n")
+    at = _file_app([("onay.pdf", onay)], table=[("Şube Kredi Komitesi", "500000 TRY")]).run()
+    assert not at.exception
+    assert "❌ **karşılanmadı** — `YETKI-onay-siniri`" in _markdown(at)
+    at = _file_app([("onay.pdf", onay)]).run()  # tablo yok: sınır sorulur
+    radio = next(r for r in at.radio if r.label.startswith("[yetki_tablosu]"))
+    radio.set_value("yazacağım").run()
+    next(t for t in at.text_input if "para birimi" in t.label).input("2.000.000").run()
+    assert "✅ **karşılandı** — `YETKI-onay-siniri`" in _markdown(at)
