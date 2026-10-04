@@ -49,8 +49,9 @@ def _warnings(text: str) -> list:
 
 
 def split_file(path: Path):
-    prompt = path.stem.split("_")[0].upper()
-    ai = path.stem.split("_", 1)[1].lower().replace("copliot", "copilot")
+    # "P1_chatgpt", ikinci partide "P1.2_chatgpt" / "p2_2_gemini": prompt numarasından sonraki parti eki atılır
+    m = re.match(r"(?i)^(p\d+)(?:[._]\d+)?_(.+)$", path.stem)
+    prompt, ai = m.group(1).upper(), m.group(2).lower().replace("copliot", "copilot")
     text = path.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
     parts = SPLIT.split(text)
     cases = []
@@ -75,7 +76,7 @@ def split_file(path: Path):
     return cases
 
 
-def main(src: str, out: str) -> int:
+def main(src: str, out: str, all_holdout: bool = False, tag: str = "") -> int:
     src_dir, out_dir = Path(src), Path(out)
     cases = []
     for path in sorted(src_dir.glob("*.txt"), key=lambda p: p.name.lower()):
@@ -83,7 +84,7 @@ def main(src: str, out: str) -> int:
     seen = {}
     for c in cases:
         digest = hashlib.sha1(re.sub(r"\s+", " ", c["text"]).strip().encode("utf-8")).hexdigest()
-        c["id"] = f"{c['prompt'].lower()}_{c['ai']}_{c['label']}"
+        c["id"] = f"{tag}{c['prompt'].lower()}_{c['ai']}_{c['label']}"
         c["excluded"] = digest in seen
         if c["excluded"]:
             c["warnings"].append(f"aynı metin: {seen[digest]} (atıldı)")
@@ -98,7 +99,7 @@ def main(src: str, out: str) -> int:
         group = groups[key]
         pick = set(rng.sample(range(len(group)), max(1, round(len(group) / 3))))
         for i, c in enumerate(group):
-            c["holdout"] = i in pick
+            c["holdout"] = all_holdout or i in pick
     for part in ("gelistirme", "holdout"):
         (out_dir / part).mkdir(parents=True, exist_ok=True)
     keys = ("id", "source", "ai", "prompt", "type", "document_type", "holdout", "excluded", "warnings")
@@ -115,5 +116,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("src")
     ap.add_argument("out")
+    ap.add_argument("--all-holdout", action="store_true", help="partinin tamamı gizli sınav seti (ikinci parti)")
+    ap.add_argument("--tag", default="", help="vaka kimliği öneki (ör. s2_); önceki partinin vaka düzeltmeleriyle çakışmasın")
     a = ap.parse_args()
-    raise SystemExit(main(a.src, a.out))
+    raise SystemExit(main(a.src, a.out, a.all_holdout, a.tag))
