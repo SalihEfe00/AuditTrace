@@ -57,6 +57,24 @@ def as_amount(raw: str) -> Optional[str]:
     return m.group(1).replace(".", "").replace(",", ".") if m else None
 
 
+# Para birimiyle tutar (M10.3: onaylanan ↔ kullandırılan tutar karşılaştırması); değer "1000000 TRY" biçiminde
+_CURRENCIES = (("TRY", r"tl|₺|türk lirası|try"), ("USD", r"usd|\$|abd doları|amerikan doları"),
+               ("EUR", r"eur|€|avro|euro"), ("GBP", r"gbp|£|sterlin"), ("CHF", r"chf|isviçre frangı"))
+_MONEY = re.compile(r"(?:(?P<pre>" + "|".join(p for _, p in _CURRENCIES) + r")\s*)?"
+                    r"(?P<num>\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:,\d{1,2})?)"
+                    r"(?:\s*(?P<post>" + "|".join(p for _, p in _CURRENCIES) + r"))?", re.I)
+
+
+def as_money(raw: str) -> Optional[str]:
+    """Tutar ve para birimi; birim yazılmamışsa None (birimsiz tutar karşılaştırılmaz)."""
+    for m in _MONEY.finditer(raw or ""):
+        unit = (m.group("pre") or m.group("post") or "").lower()
+        code = next((c for c, p in _CURRENCIES if re.fullmatch(p, unit)), None)
+        if code:
+            return f"{m.group('num').replace('.', '').replace(',', '.')} {code}"
+    return None
+
+
 # Dönüştürücü değeri tanıdı ama karar için yetersiz bulduysa (ör. "elektronik imza", güvenli mi belli değil) bunu
 # döndürür: alan "bulunamadı" kalır, konumu not edilir ve kural belirsiz der (tanınmayan ham değer gibi
 # "karşılanmadı"ya gitmez).

@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional, Tuple
 
 from mufettis.rules.catalog import Rule
-from mufettis.rules.fields import as_amount, as_date
+from mufettis.rules.fields import as_amount, as_date, as_money
 from mufettis.rules.engine import EMPTY, FILLED, INSPECTOR, UNKNOWN, FieldValue, RuleResult
 
 UNKNOWN_ANSWER = "bilinmiyor"
@@ -23,7 +23,8 @@ class Question:
     field: str
     text: str
     options: Tuple[Tuple[str, str], ...]  # (gösterilen, alan değeri); "" değeri = boş (öğe yok)
-    kind: str = "choice"                  # "choice": seçenekler; "amount" / "date": müfettiş tutarı (TL) / tarihi yazar
+    kind: str = "choice"                  # "choice": seçenekler; "amount" / "money" / "date": müfettiş tutarı (TL) /
+                                          # para birimli tutarı / tarihi yazar
 
 
 QUESTIONS: Dict[str, Question] = {q.field: q for q in [
@@ -74,6 +75,8 @@ QUESTIONS: Dict[str, Question] = {q.field: q for q in [
     Question("sicil_tescil_tarihi", "Rehnin Rehinli Taşınır Siciline tescil tarihi nedir?", (), kind="date"),
     # Kredi dosyası (M10.2)
     Question("kullandirim_tarihi", "Kredinin kullandırım tarihi nedir?", (), kind="date"),
+    Question("onaylanan_tutar", "Kredi onayındaki tutar nedir (para birimiyle)?", (), kind="money"),
+    Question("kullandirilan_tutar", "Kullandırılan tutar nedir (para birimiyle)?", (), kind="money"),
     Question("teminat_sarti", "Kredi onayında teminatın kullandırımdan önce tesis edilmesi şartı var mı?",
              (("evet, kullandırımdan önce", "kullandirim_oncesi"), ("hayır / sonra da olabilir", "kullandirim_sonrasi"))),
     Question("islem_tarihi", "Tapu işleminin (ipotek tescilinin) tarihi nedir? (ipotek belgesindeki yevmiye tarihi)", (),
@@ -148,6 +151,8 @@ def apply_answers(fields: Dict[str, FieldValue], answers: Dict[str, Optional[str
         if q is not None and q.kind == "amount":
             # Müfettiş birimi yazmayabilir ("12.500.000"); okunamayan tutar ham metin kalır → eşik kuralı belirsiz
             value = as_amount(value) or as_amount(value + " TL") or value
+        elif q is not None and q.kind == "money":
+            value = as_money(value) or as_money(value + " TL") or value  # birim yazılmadıysa TL
         elif q is not None and q.kind == "date":
             value = as_date(value) or value  # okunamayan tarih ham metin kalır → tarih sırası kuralı belirsiz
         out[name] = FieldValue.filled(value, note, INSPECTOR)

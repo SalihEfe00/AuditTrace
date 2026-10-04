@@ -36,7 +36,7 @@ def test_new_file_document_types_and_collateral_unchanged():
 def test_file_places_documents_and_reads_fields():
     f = CreditFile.from_texts([("onay.pdf", ONAY), ("kul.pdf", KULLANDIRIM), ("not.txt", "Merhaba")])
     kinds = f.by_kind()
-    assert kinds["kredi_onay"][0].fields["onaylanan_tutar"].value == "1000000"
+    assert kinds["kredi_onay"][0].fields["onaylanan_tutar"].value == "1000000 TRY"
     assert kinds["kullandirim"][0].fields["kullandirim_tarihi"].value == dt.date(2024, 3, 15)
     assert [d.name for d in f.unrecognised()] == ["not.txt"]
     assert file_event_date(f) == (dt.date(2024, 3, 15), "kullandirim.kullandirim_tarihi")
@@ -97,6 +97,24 @@ def test_collateral_before_disbursement_is_an_internal_control_from_the_approval
     later = ONAY + "Teminat Şartı: Teminatlar kullandırımdan sonra 30 gün içinde tesis edilecektir.\n"
     assert list(run(("onay.pdf", later), ("ip.pdf", IPOTEK.format("20.03.2024")), kul).values())[0][0] == "uygulanmaz"
     assert list(run(("ip.pdf", IPOTEK.format("20.03.2024")), kul).values())[0][0] == UNKNOWN
+
+
+def test_disbursed_amount_does_not_exceed_approval_in_same_currency():
+    """M10.3: kullandırılan ≤ onaylanan (kısmi kullandırım bulgu değil); para birimi farklıysa belirsiz."""
+    rules = [r for r in load_catalog() if r.id == "ONAY-kullandirim-tutari"]
+
+    def run(onay_amount, used_amount):
+        f = CreditFile.from_texts([("o", ONAY.replace("1.000.000 TL", onay_amount)),
+                                   ("k", KULLANDIRIM.replace("1.000.000 TL", used_amount))])
+        return evaluate_file(rules, f)[0].result.status
+    assert run("1.000.000 TL", "1.000.000 TL") == MET
+    assert run("1.000.000 TL", "400.000 TL") == MET
+    assert run("1.000.000 TL", "1.000.000,01 TL") == NOT_MET
+    assert run("250.000 USD", "1.000.000 TL") == UNKNOWN
+    # müfettiş birimsiz yazarsa TL sayılır
+    from mufettis.rules.review import apply_answers
+    assert apply_answers({}, {"kredi_onay.onaylanan_tutar": "1.000.000"})["kredi_onay.onaylanan_tutar"].value == \
+        "1000000 TRY"
 
 
 def test_internal_control_rule_must_be_conditioned_on_the_approval():

@@ -156,6 +156,36 @@
       },
       "finding": "Kefalet tarihi kullandırım tarihinden sonra: kredi onaydaki teminat şartı yerine gelmeden kullandırılmış",
       "rationale": "Kanunda teminatın kullandırımdan önce tesisini genel olarak isteyen bir hüküm korpusta yok (M10.2 araması); şart bankanın kendi kredi onayından gelir (kullanıcı kararı 2026-10-04). Bu yüzden: dayanak onaydaki şarttır, bulgu kanun ihlali değil iç kontrol bulgusudur ve kural yalnızca onay belgesinde şart okunursa (ya da müfettiş onaylarsa) uygulanır. Aynı gün tesis ve kullandırım şartı karşılar (saat belgelerde yok); dosyada birden çok teminat belgesi varsa her biri ayrı değerlendirilir."
+    },
+    {
+      "id": "ONAY-kullandirim-tutari",
+      "document_type": "kredi_dosyasi",
+      "title": "Kullandırılan tutar onaylanan tutarı aşmıyor (aynı para biriminde)",
+      "basis": {
+        "law": "kredi_onayi",
+        "article": "onaylanan tutar",
+        "quote": "onaylanan limit / tutar"
+      },
+      "check": {
+        "type": "amount_not_above",
+        "field": "kullandirim.kullandirilan_tutar",
+        "other": "kredi_onay.onaylanan_tutar",
+        "applies_if": {
+          "field": "kredi_onay.onaylanan_tutar",
+          "present": true
+        }
+      },
+      "result_class": "otomatik",
+      "norm_type": "iç_kontrol",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "finding": "Kullandırılan tutar kredi onayındaki tutarı aşıyor",
+      "rationale": "Onaylanan tutarın aşılmaması bankanın kendi kredi onayından gelir (iç kontrol, M10.2 kararıyla aynı ilke). Onaydan az kullandırım (kısmi kullandırım) bulgu değildir; plandaki 'eşit mi' yerine 'aşmıyor mu' kontrol edilir. Para birimi farklıysa (dövize endeksli kredi, kur farkı) belgeden karar verilmez, belirsiz kalır. Birden çok kullandırım belgesinin toplamı v1'de toplanmaz: her belge ayrı karşılaştırılır."
     }
   ]
 }

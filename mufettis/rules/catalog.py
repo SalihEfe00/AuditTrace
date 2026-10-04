@@ -42,6 +42,7 @@ CHECK_TYPES = {
     "date_order",      # bir tarih alanı diğerinden önce / aynı anda mı
     "fields_differ",   # iki alan farklı kişiyi mi gösteriyor (kefil ≠ asıl borçlu)
     "threshold",       # sayısal alan eşiğin altında / üstünde mi
+    "amount_not_above",  # para birimli tutar ("1000 TRY") öbür tutarı aşmıyor mu; birim farklıysa karar yok
     "text_pattern",    # belgede kalıp geçiyor mu
     "human",           # yalnızca müfettişin yapabileceği kontrol; kontrol maddesi üretir
 }

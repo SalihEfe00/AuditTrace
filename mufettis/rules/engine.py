@@ -97,6 +97,18 @@ def _passes(rule: Rule, fields: Dict[str, FieldValue], text: str) -> Optional[bo
         if not isinstance(a.value, dt.date) or not isinstance(b.value, dt.date):
             return None
         return a.value < b.value or (check.get("allow_equal", True) and a.value == b.value)
+    if kind == "amount_not_above":
+        # "<tutar> <para birimi>": field ≤ other; para birimi farklıysa (dövize endeksli kredi olabilir) karar yok
+        a, b = _get(fields, check["field"]), _get(fields, check["other"])
+        if a.state != FILLED or b.state != FILLED:
+            return None
+        try:
+            (x, cx), (y, cy) = (str(v.value).split() for v in (a, b))
+            if cx != cy:
+                return None
+            return float(x) <= float(y)
+        except ValueError:
+            return None
     if kind == "threshold":
         fv = _get(fields, check["field"])
         if fv.state != FILLED:
