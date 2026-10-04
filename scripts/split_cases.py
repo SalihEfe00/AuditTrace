@@ -48,21 +48,38 @@ def _warnings(text: str) -> list:
     return out
 
 
+# Tek prompt partisinde (M9.4i) yapay zekanın ara satırları: "DEVAM İÇİN ...", "=== SON ===", bölüm satırları
+_CHATTER = re.compile(r"(?i)\bdevam\b|=+\s*son\s*=+|b[öo]l[üu]m\s*p\d")
+SECTION = re.compile(r"(?im)^[ \t]*#+[ \t]*B[ÖO]L[ÜU]M[ \t]*(P\d)")
+TYPE_PROMPT = {str(t): p for p, types in PROMPT_TYPES.items() for t in types}
+
+
 def _title_only(text: str) -> str:
-    """Kısa başlık metni (≤3 anlamlı satır) ya da boş; prompt süsleri ("═══", "P6 — ...") başlık sayılmaz."""
+    """Kısa başlık metni (≤3 anlamlı satır) ya da boş; prompt süsleri ("═══", "P6 — ...") ve ara satırlar
+    ("DEVAM İÇİN ...") başlık sayılmaz."""
     lines = [ln for ln in text.splitlines() if ln.strip()]
     if len(lines) > 3:
         return ""
-    lines = [ln for ln in lines if not re.match(r"^\s*(?:[═=\-_*#]{3,}|P\d+\s*[—–-])", ln)]
+    lines = [ln for ln in lines if not re.match(r"^\s*(?:[═=\-_*#]{3,}|P\d+\s*[—–-])", ln) and not _CHATTER.search(ln)]
     return "\n".join(lines)
 
 
 def split_file(path: Path):
     # "P1_chatgpt", ikinci partide "P1.2_chatgpt" / "p2_2_gemini": prompt numarasından sonraki parti eki atılır
+    # Tek prompt partisinde (M9.4i) dosya adı yalnızca yapay zeka ("chatgpt.txt"): prompt, vakanın "Tür:" numarasından
+    # ya da önceki "##### BÖLÜM P3 #####" satırından çıkar.
     m = re.match(r"(?i)^(p\d+)(?:[._]\d+)?_(.+)$", path.stem)
-    prompt, ai = m.group(1).upper(), m.group(2).lower().replace("copliot", "copilot")
+    combined = m is None
+    file_prompt, ai = (None, path.stem) if combined else (m.group(1).upper(), m.group(2))
+    ai = ai.lower().replace("copliot", "copilot")
     text = path.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
     parts = SPLIT.split(text)
+    sections = [(x.start(), x.group(1).upper()) for x in SECTION.finditer(text)]
+    starts = [x.start() for x in SPLIT.finditer(text)]
+    seen_in_section: dict = {}
+    if combined:  # dosya başındaki açılış cümleleri ("Tabii, başlıyorum") başlık değil: son bölüm satırından sonrası
+        head = list(SECTION.finditer(parts[0]))
+        parts[0] = parts[0][head[-1].end():].split("\n", 1)[-1] if head else ""
     cases = []
     # Bazı yapay zekalar vakanın başlığını ayraçtan ÖNCE yazar ("BONO\n=== VAKA 1 ===\n..."): son "Tür:" satırından
     # sonra kalan metin bir sonraki vakanın başıdır. Dosya başındaki kısa metin (≤3 satır) de ilk vakanın başlığıdır.
@@ -76,16 +93,30 @@ def split_file(path: Path):
             tail = _title_only(body[last[-1].end():])
             if tail:
                 body, lead = body[:last[-1].end()], tail
+        cut = SECTION.search(body) if combined else None
+        if cut:  # yeni bölüm satırı vakayı bitirir; ardındaki kısa metin bir sonraki vakanın başlığıdır
+            body, lead = body[:cut.start()], _title_only(body[cut.end():].split("\n", 1)[-1]) if k + 2 < len(parts) else ""
+            last = list(TYPE_LINE.finditer(body))
+        if combined and last and len([ln for ln in body[:last[-1].start()].splitlines() if ln.strip()]) > 3:
+            body = body[:last[-1].end()]  # tür satırı sonda: ardından gelen ara satırlar vakanın parçası değil
+        section = next((p for pos, p in reversed(sections) if pos < starts[k // 2]), None)
         types = TYPE_LINE.findall(body)
         warn = []
         if types:
             ctype = types[-1]
             body = TYPE_LINE.sub("", body)
+            prompt = file_prompt or TYPE_PROMPT.get(ctype) or section or "?"
         else:
-            order = PROMPT_TYPES[prompt]
-            idx = len(cases) if prompt == "P8" else len(cases) // 2  # P8 listesi vaka başına, diğerleri tür başına
+            prompt = file_prompt or section or "?"
+            order = PROMPT_TYPES.get(prompt, [])
+            n = seen_in_section.get(prompt, 0) if combined else len(cases)
+            # Ayrı prompt partilerinde her türden 2 vaka, tek promptta 1; P8 listesi zaten vaka başına
+            idx = n if prompt == "P8" or combined else n // 2
             ctype = order[idx] if idx < len(order) else "?"
             warn.append("tür satırı yok: prompt sırasından çıkarıldı")
+        seen_in_section[prompt] = seen_in_section.get(prompt, 0) + 1
+        if prompt not in DOC_TYPE:
+            continue  # bölümü de türü de belli olmayan metin vaka sayılmaz
         body = body.strip("\n") + "\n"
         body, masked = re.subn(r"(?<!\d)\d{11}(?!\d)", "XXXXXXXXXXX", body)
         if masked:
