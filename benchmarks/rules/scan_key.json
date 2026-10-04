@@ -1,0 +1,215 @@
+{
+ "schema_version": 1,
+ "description": "M9.4a tarama vakaları: kullanıcının doldurup taradığı banka şablonları (Masaüstü\\TARAMALAR)",
+ "defaults": {
+  "kefalet_sozlesmesi": {
+   "el_yazisi_azami_tutar": "var",
+   "el_yazisi_tarih": "var",
+   "el_yazisi_kefalet_turu": "var",
+   "ayrilik_durumu": "yok"
+  }
+ },
+ "types": {
+  "01": {
+   "doc_type": "kefalet_sozlesmesi",
+   "expected": {
+    "TBK583-azami-miktar-belirtilmis": "karşılandı",
+    "TBK583-kefalet-tarihi": "karşılandı",
+    "TBK583-muteselsil-el-yazisi": "karşılandı",
+    "TBK14-kefil-imzasi": "karşılandı",
+    "5070-md5-e-imza-kefalet": "karşılandı",
+    "TBK584-es-rizasi": "uygulanmaz"
+   },
+   "facts": {
+    "kefil_medeni_hal": "bekar",
+    "kredi_turu": "ticari",
+    "imza_turu": "ıslak"
+   },
+   "note": "Garanti kefil sayfası, eksiksiz",
+   "fields": {
+    "azami_tutar": "dolu",
+    "kefalet_tarihi": "dolu",
+    "kefalet_turu": "müteselsil"
+   },
+   "no_violation": true
+  },
+  "02": {
+   "doc_type": "kefalet_sozlesmesi",
+   "expected": {
+    "TBK583-azami-miktar-belirtilmis": "karşılanmadı"
+   },
+   "facts": {
+    "kefil_medeni_hal": "bekar",
+    "kredi_turu": "ticari",
+    "imza_turu": "ıslak",
+    "azami_tutar": ""
+   },
+   "note": "Garanti, kefalet tutarı boş — TBK 583/1",
+   "fields": {
+    "azami_tutar": "boş",
+    "kefalet_tarihi": "dolu",
+    "kefalet_turu": "müteselsil"
+   }
+  },
+  "03": {
+   "doc_type": "kefalet_sozlesmesi",
+   "expected": {
+    "TBK583-kefalet-tarihi": "karşılanmadı"
+   },
+   "facts": {
+    "kefil_medeni_hal": "bekar",
+    "kredi_turu": "ticari",
+    "imza_turu": "ıslak",
+    "kefalet_tarihi": ""
+   },
+   "note": "Garanti, kefalet tarihi boş — TBK 583/1",
+   "fields": {
+    "azami_tutar": "dolu",
+    "kefalet_tarihi": "boş",
+    "kefalet_turu": "müteselsil"
+   }
+  },
+  "04": {
+   "doc_type": "kefalet_sozlesmesi",
+   "expected": {
+    "TBK583-muteselsil-el-yazisi": "karşılanmadı"
+   },
+   "facts": {
+    "kefil_medeni_hal": "bekar",
+    "kredi_turu": "ticari",
+    "imza_turu": "ıslak",
+    "el_yazisi_kefalet_turu": "yok"
+   },
+   "note": "Garanti, kefil beyanı kutusu boş — TBK 583/1 (müteselsillik el yazısıyla yok)",
+   "fields": {
+    "azami_tutar": "dolu",
+    "kefalet_tarihi": "dolu",
+    "kefalet_turu": "müteselsil",
+    "el_yazisi_kefalet_turu": "yok"
+   }
+  },
+  "05": {
+   "doc_type": "kefalet_sozlesmesi",
+   "expected": {
+    "TBK583-azami-miktar-belirtilmis": "karşılandı",
+    "TBK583-kefalet-tarihi": "karşılandı",
+    "TBK583-muteselsil-el-yazisi": "karşılandı",
+    "TBK14-kefil-imzasi": "karşılandı",
+    "5070-md5-e-imza-kefalet": "karşılandı",
+    "TBK584-es-rizasi": "uygulanmaz"
+   },
+   "facts": {
+    "kefil_medeni_hal": "bekar",
+    "kredi_turu": "ticari",
+    "imza_turu": "ıslak"
+   },
+   "note": "Albaraka kefil sayfası, eksiksiz",
+   "fields": {
+    "azami_tutar": "dolu",
+    "kefalet_tarihi": "dolu",
+    "kefalet_turu": "müteselsil"
+   },
+   "no_violation": true
+  },
+  "06": {
+   "doc_type": "kefalet_sozlesmesi",
+   "expected": {
+    "TBK583-azami-miktar-belirtilmis": "karşılanmadı"
+   },
+   "facts": {
+    "kefil_medeni_hal": "bekar",
+    "kredi_turu": "ticari",
+    "imza_turu": "ıslak",
+    "azami_tutar": ""
+   },
+   "note": "Albaraka, kefalet miktarı boş — TBK 583/1",
+   "fields": {
+    "azami_tutar": "boş",
+    "kefalet_tarihi": "dolu",
+    "kefalet_turu": "müteselsil"
+   }
+  },
+  "07": {
+   "doc_type": "kefalet_sozlesmesi",
+   "expected": {
+    "TBK583-muteselsil-el-yazisi": "karşılanmadı"
+   },
+   "facts": {
+    "kefil_medeni_hal": "bekar",
+    "kredi_turu": "ticari",
+    "imza_turu": "ıslak",
+    "el_yazisi_kefalet_turu": "yok"
+   },
+   "note": "Albaraka, müteselsil kefalet beyanı boş — TBK 583/1",
+   "fields": {
+    "azami_tutar": "dolu",
+    "kefalet_tarihi": "dolu",
+    "kefalet_turu": "müteselsil",
+    "el_yazisi_kefalet_turu": "yok"
+   }
+  },
+  "08": {
+   "doc_type": "senet_gks",
+   "expected": {},
+   "facts": {},
+   "note": "Denizbank GKS, eksiksiz",
+   "fields": {
+    "duzenleme_tarihi": "dolu"
+   }
+  },
+  "09": {
+   "doc_type": "senet_gks",
+   "expected": {},
+   "facts": {},
+   "note": "Denizbank GKS, sözleşme tarihi boş",
+   "fields": {
+    "duzenleme_tarihi": "boş"
+   }
+  },
+  "10": {
+   "doc_type": "ipotek",
+   "expected": {
+    "TMK851-ipotek-tutari": "karşılandı",
+    "TMK856-tapu-tescili": "karşılandı"
+   },
+   "facts": {},
+   "no_violation": true,
+   "note": "ipotek formu, eksiksiz (yazıyla)",
+   "fields": {
+    "ipotek_tutari": "dolu",
+    "yevmiye_no": "dolu",
+    "tescil_tarihi": "dolu"
+   }
+  },
+  "11": {
+   "doc_type": "ipotek",
+   "expected": {
+    "TMK851-ipotek-tutari": "karşılanmadı"
+   },
+   "facts": {
+    "ipotek_tutari": ""
+   },
+   "note": "ipotek tutarı boş — TMK 851/1",
+   "fields": {
+    "ipotek_tutari": "boş"
+   }
+  },
+  "12": {
+   "doc_type": "ipotek",
+   "expected": {
+    "TMK856-tapu-tescili": "karşılanmadı"
+   },
+   "facts": {
+    "yevmiye_no": ""
+   },
+   "expected_document": {
+    "TMK856-tapu-tescili": "belirsiz"
+   },
+   "note": "yevmiye no boş — TMK 856: belgede boş → müfettişe sorulur; tapuda tescil yoksa bulgu",
+   "fields": {
+    "yevmiye_no": "boş"
+   }
+  }
+ },
+ "case_overrides": {}
+}
