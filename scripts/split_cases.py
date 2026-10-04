@@ -71,7 +71,8 @@ def split_file(path: Path):
     m = re.match(r"(?i)^(p\d+)(?:[._]\d+)?_(.+)$", path.stem)
     combined = m is None
     file_prompt, ai = (None, path.stem) if combined else (m.group(1).upper(), m.group(2))
-    ai = ai.lower().replace("copliot", "copilot")
+    # "VAKALAR_GEMİNİ" → "gemini" (Türkçe büyük İ'nin küçük harfte bıraktığı birleşik nokta da atılır)
+    ai = re.sub(r"^vakalar?_", "", ai.lower().replace("̇", "")).replace("copliot", "copilot")
     text = path.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
     parts = SPLIT.split(text)
     sections = [(x.start(), x.group(1).upper()) for x in SECTION.finditer(text)]
@@ -104,6 +105,8 @@ def split_file(path: Path):
         warn = []
         if types:
             ctype = types[-1]
+            if ctype in ("48", "49") and label[-1:] in ("a", "b"):
+                ctype += label[-1]  # çift türü ekini yalnızca ayraçta yazan yapay zeka ("VAKA 48a" ... "Tür: 48")
             body = TYPE_LINE.sub("", body)
             prompt = file_prompt or TYPE_PROMPT.get(ctype) or section or "?"
         else:
