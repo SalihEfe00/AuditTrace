@@ -173,3 +173,17 @@ def test_signature_authority_on_loan_agreement_and_authority_term():
     assert run("Ali Veli", "Süresiz (azledilinceye kadar)")["MASAK-7-yetki-suresi-kullandirim"] == "uygulanmaz"
     # başlangıç + süre: başlangıç tarihi bitiş sanılmaz
     assert run("Ali Veli", "01.01.2021 tarihinden itibaren 3 yıl")["MASAK-7-yetki-suresi-kullandirim"] == UNKNOWN
+
+
+def test_file_case_splitter_reads_document_separators():
+    import importlib.util
+    from pathlib import Path
+    path = Path(__file__).resolve().parents[1] / "scripts" / "rules_file_benchmark.py"
+    spec = importlib.util.spec_from_file_location("rules_file_benchmark", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    text = "ara satır\n--- BELGE 1 ---\n" + ONAY + "**--- BELGE 2 ---**\n" + KULLANDIRIM
+    docs = mod.split_documents(text)
+    assert [n for n, _ in docs] == ["belge1", "belge2"] and docs[1][1].startswith("KREDİ KULLANDIRIM")
+    got = mod.run_case(text, [r for r in load_catalog() if r.id == "ONAY-kullandirim-tutari"])
+    assert got["kinds"] == ["kredi_onay", "kullandirim"] and got["results"]["ONAY-kullandirim-tutari"] == MET

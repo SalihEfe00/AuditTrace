@@ -27,9 +27,11 @@ PROMPT_TYPES = {
     "P1": list(range(1, 11)), "P2": list(range(11, 22)), "P3": list(range(22, 26)), "P4": list(range(26, 33)),
     "P5": list(range(33, 38)), "P6": list(range(38, 42)), "P7": list(range(42, 48)),
     "P8": ["48a", "48b", "48a", "48b", "49a", "49b", "49a", "49b"], "P9": list(range(50, 54)),
+    "P10": list(range(101, 119)),  # M10 kredi dosyası vakaları (vaka içinde "--- BELGE n ---" ayraçlı belgeler)
 }
 DOC_TYPE = {"P1": "kefalet_sozlesmesi", "P2": "kefalet_sozlesmesi", "P3": "ipotek", "P4": "rehin", "P5": "ekspertiz",
-            "P6": "dask", "P7": "bono", "P8": "kefalet_sozlesmesi", "P9": "kefalet_sozlesmesi"}
+            "P6": "dask", "P7": "bono", "P8": "kefalet_sozlesmesi", "P9": "kefalet_sozlesmesi",
+            "P10": "kredi_dosyasi"}
 REAL_BANKS = r"ziraat|halkbank|halk bankas|vakıfbank|vakıflar bankas|iş bankas|garanti|akbank|yapı kredi|qnb|" \
              r"denizbank|teb\b|türk ekonomi bankas|ing bank|hsbc|şekerbank|fibabanka|kuveyt türk|albaraka|" \
              r"türkiye finans|odeabank|alternatifbank|anadolubank|burgan|icbc|vakıf katılım|emlak katılım|enpara"

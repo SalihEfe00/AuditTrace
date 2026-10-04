@@ -1,0 +1,454 @@
+{
+ "_note": "M10 dosya vakaları (Masaüstü\\Mufettis_Dosya_Vakalari_Prompt.txt); vakalar görülmeden türlerden yazıldı",
+ "types": {
+  "101": {
+   "title": "standart dosya, kusursuz",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "102": {
+   "title": "ipotek kullandırımdan sonra tescil",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılanmadı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "103": {
+   "title": "ipotek sonra tescil, onay şartı sonra 30 gün",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "uygulanmaz",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "104": {
+   "title": "ipotek kullandırımla aynı gün",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "105": {
+   "title": "taşınır rehni kullandırımdan sonra sicilde; ipotek/DASK yok",
+   "kinds": [
+    "imza_sirkuleri",
+    "kredi_onay",
+    "kullandirim",
+    "rehin",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "belirsiz",
+    "ONAY-teminat-once-rehin": "karşılanmadı",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "belirsiz",
+    "6305-11-dask-ipotek-bitis": "belirsiz",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "106": {
+   "title": "kefalet tarihi kullandırımdan sonra",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kefalet_sozlesmesi",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "karşılanmadı",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "107": {
+   "title": "kullandırılan > onaylanan",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılanmadı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "108": {
+   "title": "kısmi kullandırım",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "109": {
+   "title": "onay USD, kullandırım TL",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "belirsiz",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "110": {
+   "title": "DASK tescilden sonra başlıyor",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılanmadı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "111": {
+   "title": "DASK tescilden önce bitmiş",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılanmadı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "112": {
+   "title": "talimatı yetkisiz kişi imzalamış (münferit)",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılanmadı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "113": {
+   "title": "müşterek; talimatta tek imza, GKS iki imza",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılanmadı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "114": {
+   "title": "müşterek; iki belgede iki imza",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "115": {
+   "title": "GKS'yi yetkisiz kişi imzalamış",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılanmadı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılandı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "116": {
+   "title": "yetki GKS'den sonra, kullandırımdan önce bitmiş",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "karşılanmadı",
+    "MASAK-7-yetki-suresi-gks": "karşılandı"
+   }
+  },
+  "117": {
+   "title": "yetki süresiz",
+   "kinds": [
+    "dask",
+    "imza_sirkuleri",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-musterek-imza": "karşılandı",
+    "MASAK-7-gks-imzalayan-yetkili": "karşılandı",
+    "MASAK-7-gks-musterek-imza": "karşılandı",
+    "MASAK-7-yetki-suresi-kullandirim": "uygulanmaz",
+    "MASAK-7-yetki-suresi-gks": "uygulanmaz"
+   }
+  },
+  "118": {
+   "title": "gerçek kişi borçlu, imza sirküleri yok",
+   "kinds": [
+    "dask",
+    "ipotek",
+    "kredi_onay",
+    "kullandirim",
+    "senet_gks"
+   ],
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-rehin": "belirsiz",
+    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-kullandirim-tutari": "karşılandı",
+    "6305-11-dask-ipotek-baslangic": "karşılandı",
+    "6305-11-dask-ipotek-bitis": "karşılandı",
+    "MASAK-7-imzalayan-yetkili": "belirsiz",
+    "MASAK-7-musterek-imza": "belirsiz",
+    "MASAK-7-gks-imzalayan-yetkili": "belirsiz",
+    "MASAK-7-gks-musterek-imza": "belirsiz",
+    "MASAK-7-yetki-suresi-kullandirim": "belirsiz",
+    "MASAK-7-yetki-suresi-gks": "belirsiz"
+   }
+  }
+ }
+}
