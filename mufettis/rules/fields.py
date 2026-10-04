@@ -145,17 +145,49 @@ def is_blank(raw: str) -> bool:
     return bool(re.search(r"[.…_]{2,}", raw)) and bool(_BLANK.match(_UNIT.sub("", raw)))
 
 
+def _collected(text: str, low: str, patterns: List[str]) -> Tuple[List[str], str]:
+    """Etiketlerin satır başındaki bütün dolu değerleri, belgedeki sırasıyla; konum: ilk satır."""
+    hits = []
+    for label in patterns:
+        for m in re.finditer(r"(?m)^[ \t]*(?:[-•*\d.)]+\s*)?" + label + _LABEL_END + r"[ \t]*(.*)$", low):
+            value = _NEXT_LABEL.split(text[m.start(1):m.end(1)], maxsplit=1)[0].strip()
+            value = re.sub(r"[ \t]*[_.…]{3,}.*$", "", value).strip()  # adın yanındaki imza yeri
+            where = f"satır {low.count(chr(10), 0, m.start()) + 1}: {text[m.start():m.end()].strip()[:120]}"
+            if not is_blank(value):
+                hits.append((m.start(), value, where))
+                continue
+            # Etiketin altında liste ("Temsilciler:\n1. A (Müdür)\n2. B (Müdür)"): listenin TAMAMI okunur; yalnızca
+            # ilk satırı almak öbür yetkiliyi yetkisiz gösterirdi
+            pos = m.end() + 1
+            for line in text[pos:].split("\n")[:12]:
+                item = re.match(r"[ \t]*(?:[-•*]|\d+[.)])?[ \t]*([^:：\n]{2,60}?)[ \t]*$", line)
+                if not line.strip() or not item or is_blank(item.group(1)):
+                    break
+                hits.append((pos, item.group(1), where))
+                pos += len(line) + 1
+    hits.sort()
+    return [v for _, v, _ in hits], (hits[0][2] if hits else "")
+
+
 def extract_labeled_fields(text: str, labels: Dict[str, List[str]],
                            convert: Optional[Dict[str, Callable[[str], object]]] = None,
-                           every: frozenset = frozenset()) -> Dict[str, FieldValue]:
+                           every: frozenset = frozenset(), collect: frozenset = frozenset()) -> Dict[str, FieldValue]:
     """Alan adı → FieldValue (etiketi bulunmayan alan yok). `convert` alanın değerini normalleştirir; tanınmayan
-    değer ham metniyle dolu kalır. `every` içindeki alanlarda etiketin her tekrarı dolu olmalıdır."""
+    değer ham metniyle dolu kalır. `every` içindeki alanlarda etiketin her tekrarı dolu olmalıdır. `collect` içindeki
+    alanlarda bütün etiketlerin bütün dolu satırları birleşir ("Yetkili 1: A" + "Yetkili 2: B" → "A, B"; M10)."""
     text = text or ""
     low = turkish_lower(text)
     assert len(low) == len(text)  # konumlar küçük harfli metinden okunur
     convert = convert or {}
     out: Dict[str, FieldValue] = {}
     for field, patterns in labels.items():
+        if field in collect:
+            values, where = _collected(text, low, patterns)
+            if values:
+                fn = convert.get(field)
+                raw = ", ".join(dict.fromkeys(values))
+                out[field] = FieldValue.filled(fn(raw) if fn else raw, where)
+                continue
         for label in patterns:
             hit = _line_value(text, low, label, field in every)
             if hit is None:

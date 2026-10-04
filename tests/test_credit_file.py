@@ -187,3 +187,29 @@ def test_file_case_splitter_reads_document_separators():
     assert [n for n, _ in docs] == ["belge1", "belge2"] and docs[1][1].startswith("KREDİ KULLANDIRIM")
     got = mod.run_case(text, [r for r in load_catalog() if r.id == "ONAY-kullandirim-tutari"])
     assert got["kinds"] == ["kredi_onay", "kullandirim"] and got["results"]["ONAY-kullandirim-tutari"] == MET
+
+
+def test_file_field_variants_from_measurement():
+    """M10.5a (dosya vakaları dev ölçümü): numaralı / liste halinde yetkililer TAMAMI okunur (yalnız ilk satır öbür
+    yetkiliyi yetkisiz gösterirdi), birden çok imzalayan satırı birleşir, "(İmza)" ad sayılmaz, "aynı gün" şartı
+    kurala bağlanır."""
+    rules = [r for r in load_catalog() if r.id in ("MASAK-7-gks-imzalayan-yetkili", "MASAK-7-gks-musterek-imza")]
+    gks = ("GENEL KREDİ SÖZLEŞMESİ\nKredi Borçlusu: Örnek Ltd.\nTarih: 06.04.2024\n"
+           "Borçlu Şirket Adına İmzalayan: Selim Tan (İmza)\nBorçlu Şirket Adına İmzalayan: Engin Boz (İmza)\n"
+           "Banka Yetkilisi: Hasan Güler (İmza)\n")
+    for listing in ("Temsilciler:\n1. Selim Tan (Müdür)\n2. Engin Boz (Müdür)\n",
+                    "Yetkili 1: Selim Tan\nYetkili 2: Engin Boz\n",
+                    "İmza Yetkilileri:\n- Selim Tan (Genel Müdür)\n- Engin Boz (Müdür)\n"):
+        sirk = "İMZA SİRKÜLERİ\nŞirket Unvanı: Örnek Ltd.\n" + listing + "Temsil ve İlzam Şekli: MÜŞTEREK\n"
+        f = CreditFile.from_texts([("g", gks), ("s", sirk)])
+        assert f.by_kind()["senet_gks"][0].fields["duzenleme_tarihi"].value == dt.date(2024, 4, 6)
+        assert {r.result.rule_id: r.result.status for r in evaluate_file(rules, f)} == {
+            "MASAK-7-gks-imzalayan-yetkili": MET, "MASAK-7-gks-musterek-imza": MET}, listing
+    from mufettis.rules.fields_teminat import extract_teminat_fields
+    for cond, want in (("Teminatın kredi kullandırımı ile aynı gün tesis edilmesi şarttır.", "kullandirim_oncesi"),
+                       ("Kredi kullandırılmadan evvel ipotek tesis olunacaktır.", "kullandirim_oncesi"),
+                       ("Kredi çekilmeden önce ipotek tesis edilecektir.", "kullandirim_oncesi"),
+                       ("Teminatların kredi kullandırıldıktan sonra 30 gün içinde tesis edilmesi mümkündür.",
+                        "kullandirim_sonrasi")):
+        got = extract_teminat_fields("kredi_onay", ONAY + f"Teminat Koşulu: {cond}\n")["teminat_sarti"].value
+        assert got == want, cond

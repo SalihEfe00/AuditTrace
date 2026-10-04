@@ -81,7 +81,8 @@ def _people(value) -> List[frozenset]:
     """Ad listesi ("Ali Veli, Ayşe Kaya ve Can Er") → her kişi için ad sözcükleri kümesi. Türkçe harfler sadeleşir
     (OCR noktaları düşürebilir); tek sözcüklü parça (ad soyad değil) kişi sayılmaz."""
     out = []
-    for part in re.split(r"[,;/&\n]|\bve\b|\bile\b", turkish_lower(str(value or "")).translate(_ASCII)):
+    text = re.sub(r"\([^)]*\)", " ", str(value or ""))  # "Ali Veli (İmza)"
+    for part in re.split(r"[,;/&\n]|\bve\b|\bile\b", turkish_lower(text).translate(_ASCII)):
         words = frozenset(re.findall(r"[a-z]{2,}", part))
         if len(words) >= 2:
             out.append(words)

@@ -25,7 +25,8 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
         "rehin_veren": [r"rehin veren"],
         "rehin_konusu": [r"rehin(?:in)? konusu(?: taşınır| cinsi| mal(?:ın)? cinsi)?", r"rehinli (?:taşınır|varlık)"],
         "rehin_tutari": [r"rehin (?:tutarı|bedeli|miktarı)", r"azam[iî] (?:rehin |teminat |güvence )?(?:tutar[ıi]?|miktar[ıi]?|limiti?)"],
-        "sicil_tescil_tarihi": [r"(?:rts |sicil )?tescil tarihi", r"rehinli taşınır sicili kayıt tarihi"],
+        "sicil_tescil_tarihi": [r"(?:rts |sicil )?tescil tarihi", r"rehinli taşınır sicili kayıt tarihi",
+                                r"(?:rehinli taşınır )?sicil(?:i|ine) tescil tarihi"],
         "sicil_no": [r"(?:rts |rehinli taşınır )?sicil(?:i)? (?:kayıt )?(?:no|numarası)", r"kayıt (?:no|numarası)"],
         "imza_onayi": [r"imza onayı", r"onay şekli"],
         "sozlesme_tarihi": [r"(?:rehin )?sözleşme(?:nin)? tarihi", r"düzenleme tarihi", r"tarih(?:i)?"],
@@ -44,7 +45,8 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
     "dask": {
         "police_no": [r"poliçe (?:no|numarası|ref\.?)"],
         "baslangic_tarihi": [r"(?:poliçe |sigorta )?başla(?:ngıç|ngıcı|ma)(?: tarihi)?", r"yürürlük (?:tarihi|başla(?:ngıcı|ngıç)(?: tarihi)?)"],
-        "bitis_tarihi": [r"(?:poliçe |sigorta )?bitiş(?:i)?(?: tarihi)?", r"vade (?:sonu|bitiş)(?: tarihi)?"],
+        "bitis_tarihi": [r"(?:poliçe |sigorta )?bitiş(?:i)?(?: tarihi)?", r"vade (?:sonu|bitiş)(?: tarihi)?",
+                        r"yürürlük (?:bitiş|sonu)(?:i)?(?: tarihi)?"],
         "sigortali": [r"sigortalı(?: adı soyadı)?"],
         "dain_murtehin": [r"da[iı]n[- ]?i? ?mürtehin", r"rehin alacaklısı"],
         "islem_tarihi": [r"tapu (?:işlem|ipotek tescil|tescil) (?:tarihi|günü)"],
@@ -52,7 +54,7 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
     "senet_gks": {
         "borclu": [r"borçlu(?: adı soyadı| unvanı)?", r"kredi kullanan"],
         "tutar": [r"(?:kredi |senet )?(?:tutarı|bedeli|limiti)"],
-        "duzenleme_tarihi": [r"(?:düzenleme|sözleşme|tanzim) tarihi"],
+        "duzenleme_tarihi": [r"(?:düzenleme|sözleşme|tanzim) tarihi", r"tarih"],
         "vade_tarihi": [r"vade(?: tarihi)?"],
         "imza": [r"(?:borçlu )?imza(?:sı)?"],
     },
@@ -69,28 +71,37 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
     # Kredi dosyasının teminat dışı belgeleri (M10.1); belgeler arası kurallar mufettis/rules/credit_file.py
     "kredi_onay": {
         "borclu": [r"(?:müşteri|borçlu|kredi talep eden)(?: adı soyadı| unvanı)?", r"firma(?: unvanı)?"],
-        "onaylanan_tutar": [r"onaylanan (?:limit|tutar|kredi(?: tutarı)?)", r"tahsis edilen (?:limit|tutar)",
+        "onaylanan_tutar": [r"onaylanan (?:kredi |finansman )?(?:limit|tutar|kredi)\w*", r"onay tutarı",
+                            r"tahsis (?:edilen|olunan) (?:kredi |finansman )?(?:limit|tutar)\w*",
                             r"(?:kredi )?limit(?:i)?"],
         "onay_tarihi": [r"(?:onay|karar|tahsis|komite) tarihi"],
         "onay_mercii": [r"onay (?:mercii|makamı|yetkisi)", r"onaylayan(?: (?:merci|komite|yetkili))?",
                         r"karar (?:mercii|organı)"],
         # Onaydaki teminat zamanlaması şartı (M10.2 iç kontrol): kural yalnızca bu şart okunursa uygulanır
-        "teminat_sarti": [r"teminat (?:şartı|koşulu|şartları|koşulları)", r"kullandırım (?:şartı|koşulu|şartları|koşulları)",
+        "teminat_sarti": [r"teminat (?:şartı|koşulu|şartları|koşulları|hükmü)", r"kullandırım (?:şartı|koşulu|şartları|koşulları)",
                           r"kullandırım öncesi (?:şartlar|koşullar)"],
     },
     "kullandirim": {
         "borclu": [r"(?:müşteri|borçlu|kredi kullanan)(?: adı soyadı| unvanı)?"],
-        "kullandirilan_tutar": [r"kullandırılan (?:tutar|kredi(?: tutarı)?|limit)", r"kullandırım tutarı"],
+        "kullandirilan_tutar": [r"kullandırılan (?:kredi |finansman )?(?:tutar|kredi|limit)\w*", r"kullandırım tutarı"],
         "kullandirim_tarihi": [r"kullandırım tarihi", r"(?:valör|işlem) tarihi"],
         # Müşteri adına imzalayan (M10.3: imza sirküleri yetkilisi mi); bankanın onaylayan personelinden ayrı
-        "musteri_imzalayan": [r"(?:müşteri|firma|şirket|borçlu) (?:adına )?(?:imzalayan|yetkilisi|temsilcisi)(?: adı soyadı)?",
-                              r"talimat(?:ı)? veren(?: adı soyadı)?", r"müşteri imzası adı soyadı"],
+        # Birden çok satır olabilir ("Müşteri İmzası 1: A", "Müşteri İmzası 2: B"): hepsi toplanır (_COLLECT)
+        "musteri_imzalayan": [
+            r"(?:müşteri|firma|şirket|borçlu)(?: şirket| firma)? adına (?:birlikte )?imza(?:layan(?:lar)?|lar)?",
+            r"(?:müşteri|firma|şirket|borçlu)(?: şirket)? (?:yetkilisi|yetkilileri|temsilcisi|temsilcileri)(?: adı soyadı)?",
+            r"talimat(?:ı)? veren(?: adı soyadı)?", r"müşteri imza(?:sı)?(?: \d+)? adı soyadı",
+            r"müşteri imza(?:sı)? \d+"],
         "imzalayan": [r"(?:onaylayan|imzalayan|banka yetkilisi)(?: personel| adı soyadı)?"],
     },
     "imza_sirkuleri": {
         "unvan": [r"(?:şirket|firma)?(?: unvanı)", r"ticaret unvanı"],
-        "yetkili": [r"yetkili(?:ler|nin)?(?: adı soyadı)?", r"temsile yetkili(?:ler)?"],
-        "yetki_sekli": [r"yetki (?:şekli|türü)", r"temsil şekli"],
+        # "Yetkili 1: A" / "Yetkili 2: B" ya da "Müdürler: A, B": hepsi toplanır (_COLLECT)
+        "yetkili": [r"yetkili(?:ler|nin)?(?: \d+)?(?: adı soyadı)?", r"(?:temsile|imza) yetkili(?:leri|ler|si)?(?: \d+)?",
+                    r"(?:yetkili )?temsilci(?:ler)?(?: \d+)?", r"müdür(?:ler)?(?: \d+)?",
+                    r"(?:idare meclisi|yönetim kurulu) üyeleri"],
+        "yetki_sekli": [r"yetki (?:şekli|türü|durumu|kapsamı)", r"temsil (?:şekli|tarzı|yetkisi|ve ilzam şekli)",
+                        r"imza (?:şekli|yetkisi)"],
         "yetki_suresi": [r"yetki (?:süresi|bitiş tarihi)", r"geçerlilik (?:süresi|tarihi)"],
         "duzenleme_tarihi": [r"(?:düzenleme|onay|tasdik) tarihi"],
     },
@@ -98,6 +109,9 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
 
 # Genel kredi sözleşmesini müşteri adına imzalayan (M10.3): kullandırım talimatıyla aynı etiketler
 DOCUMENT_LABELS["senet_gks"]["musteri_imzalayan"] = DOCUMENT_LABELS["kullandirim"]["musteri_imzalayan"]
+
+# Kişi listesi alanları: bütün etiketli satırlar birleşir (M10.5a)
+_COLLECT = frozenset({"yetkili", "musteri_imzalayan"})
 
 _DATES = {"sozlesme_tarihi", "tescil_tarihi", "sicil_tescil_tarihi", "rapor_tarihi", "inceleme_tarihi", "baslangic_tarihi", "bitis_tarihi",
           "duzenleme_tarihi", "vade_tarihi", "islem_tarihi", "onay_tarihi", "kullandirim_tarihi"}
@@ -109,10 +123,13 @@ _CONVERT.update({f: as_money for f in ("onaylanan_tutar", "kullandirilan_tutar")
 _CONVERT["imza_onayi"] = one_of([(r"noter", "noter"), (r"sicil(?:i)? yetkilisi", "sicil_yetkilisi"),
                                   (r"güvenli elektronik imza", "guvenli_e_imza"),
                                   (r"elektronik imza|e-imza", UNDECIDED)])  # güvenli mi belli değil
+# "Önce" ile "aynı gün / eş zamanlı" aynı kurala bağlanır: kural aynı günü karşılandı sayar, sonraki tescili bulgu
+# (M10.5a; önceden eş zamanlı "sonra" sayılıyordu ve geç tescil bulgusuz kalıyordu)
 _CONVERT["teminat_sarti"] = one_of([
-    (r"(?:kullandırım|kullandırılma)\w*\s+(?:öncesi|önce)|tesis edil\w*\s+sonra\s+kullandır|"
-     r"(?:alınmadan|tesis edilmeden)\s+kullandır", "kullandirim_oncesi"),
-    (r"kullandırım\w*\s+sonra|eş zamanlı|kullandırımla birlikte", "kullandirim_sonrasi"),
+    (r"(?:kullandır\w*|kredi (?:çekil|kullan)\w*)(?:\s+\w+){0,3}?\s+(?:öncesi\w*|önce|evvel)|tesis edil\w*\s+sonra\s+kullandır|"
+     r"(?:alınmadan|tesis edilmeden)\s+kullandır|aynı gün|eş zamanlı|kullandırım\w*\s+(?:ile\s+)?birlikte",
+     "kullandirim_oncesi"),
+    (r"kullandır\w*\s+sonra", "kullandirim_sonrasi"),
     (r".", UNDECIDED),  # şart başka bir şey söylüyor: tahmin edilmez, müfettişe sorulur
 ])
 # İmza yetkisinin şekli (M10.3): müşterek ise en az iki yetkilinin imzası gerekir
@@ -147,7 +164,7 @@ def extract_teminat_fields(document_type: str, text: str) -> Dict[str, FieldValu
         raise ValueError(f"bilinmeyen teminat belgesi türü: {document_type}")
     # Md. 14/3: raporu hazırlayan her uzmanın lisans numarası; "Lisans No" satırlarından biri boşsa alan boştur
     return extract_labeled_fields(text, labels, {k: v for k, v in _CONVERT.items() if k in labels},
-                                  every=frozenset({"lisans_no"}))
+                                  every=frozenset({"lisans_no"}), collect=_COLLECT)
 
 
 __all__ = ["extract_teminat_fields", "DOCUMENT_LABELS"]

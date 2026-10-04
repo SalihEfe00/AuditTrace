@@ -52,7 +52,7 @@
    }
   },
   "103": {
-   "title": "ipotek sonra tescil, onay şartı sonra 30 gün",
+   "title": "ipotek sonra tescil, onay şartı sonra 30 gün; şart bütün teminatlar için",
    "kinds": [
     "dask",
     "imza_sirkuleri",
@@ -63,8 +63,8 @@
    ],
    "expected": {
     "ONAY-teminat-once-ipotek": "uygulanmaz",
-    "ONAY-teminat-once-rehin": "belirsiz",
-    "ONAY-teminat-once-kefalet": "belirsiz",
+    "ONAY-teminat-once-rehin": "uygulanmaz",
+    "ONAY-teminat-once-kefalet": "uygulanmaz",
     "ONAY-kullandirim-tutari": "karşılandı",
     "6305-11-dask-ipotek-baslangic": "karşılandı",
     "6305-11-dask-ipotek-bitis": "karşılandı",
