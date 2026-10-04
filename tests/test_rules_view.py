@@ -93,3 +93,46 @@ def _app_today(text):
         render_collateral_check(text)
 
     return AppTest.from_function(script, args=(text,), default_timeout=60)
+
+
+def _file_app(items):
+    def script(items):
+        import datetime as dt
+
+        from mufettis.ui.rules_view import render_credit_file_check
+        render_credit_file_check(items, event_date=dt.date(2024, 3, 15))
+
+    return AppTest.from_function(script, args=(items,), default_timeout=60)
+
+
+def test_credit_file_view_places_documents_asks_and_shows_cross_document_results():
+    """M10: birden çok belge; tanınmayan belgeye tür seçilir; dosya sorusu cevaplanınca belgeler arası sonuç değişir."""
+    onay = "KREDİ TEKLİF VE ONAY FORMU\nMüşteri: Örnek Ltd.\nOnaylanan Limit: 1.000.000 TL\nOnay Tarihi: 01.03.2024\n"
+    kul = "KREDİ KULLANDIRIM TALİMATI\nMüşteri: Örnek Ltd.\nKullandırım Tarihi: 15.03.2024\n"
+    ipotek = "TAPU MÜDÜRLÜĞÜ\nRESMİ SENET (İPOTEK)\nYevmiye No: 12\nTescil Tarihi: 10.03.2024\nİpotek Tutarı: 1.000.000 TL\n"
+    at = _file_app([("onay.pdf", onay), ("kul.pdf", kul), ("ip.pdf", ipotek), ("not.txt", "Merhaba dünya")]).run()
+    assert not at.exception
+    md = _markdown(at)
+    assert "kredi teklif / onay" in md and "⚠️ tanınmadı" in md
+    # kullandırılan tutar okunamadı → soru; cevapla karşılandı / karşılanmadı
+    assert "❔ **belirsiz** — `ONAY-kullandirim-tutari`" in md
+    radio = next(r for r in at.radio if "[kullandirim] Kullandırılan tutar" in r.label)
+    radio.set_value("yazacağım").run()
+    box = next(t for t in at.text_input if "para birimi" in t.label)
+    box.input("1.200.000").run()
+    assert not at.exception
+    assert "❌ **karşılanmadı** — `ONAY-kullandirim-tutari`" in _markdown(at)
+    # tanınmayan belgeye tür seçilince dosyaya girer
+    at.selectbox[3].set_value("imza_sirkuleri").run()
+    assert not at.exception
+    assert "not.txt** — imza sirküleri (kullanıcı seçti)" in _markdown(at)
+    # ipoteğin kendi kuralları da çalışır
+    assert "Belgelerin kendi kuralları" in _markdown(at)
+
+
+def test_credit_file_view_does_not_ask_about_documents_missing_from_the_file():
+    kul = "KREDİ KULLANDIRIM TALİMATI\nMüşteri: Örnek Ltd.\nKullandırım Tarihi: 15.03.2024\n"
+    at = _file_app([("kul.pdf", kul)]).run()
+    assert not at.exception
+    assert all(r.label.startswith("[kullandirim]") for r in at.radio)
+    assert "(dosyada yok: kredi_onay)" in _markdown(at)

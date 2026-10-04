@@ -98,6 +98,11 @@ def _merge(docs: Sequence[FileDocument]) -> Dict[str, FieldValue]:
     return out
 
 
+def file_fields(credit_file: CreditFile) -> Dict[str, FieldValue]:
+    """Dosyadaki bütün belgelerin alanları "<tür>.<alan>" adıyla (aynı türden birden çok belgede sonuncusu)."""
+    return _merge([d for d in credit_file.documents if d.kind])
+
+
 def file_event_date(credit_file: CreditFile, today: Optional[dt.date] = None) -> Tuple[dt.date, str]:
     groups = credit_file.by_kind()
     single = [docs[0] for docs in groups.values() if len(docs) == 1]
@@ -140,5 +145,5 @@ def evaluate_file(rules: Iterable[Rule], credit_file: CreditFile, event_date: Op
     return out
 
 
-__all__ = ["CreditFile", "FileDocument", "FileResult", "load_document", "evaluate_file", "file_event_date",
+__all__ = ["CreditFile", "FileDocument", "FileResult", "load_document", "evaluate_file", "file_event_date", "file_fields",
            "extract_fields"]

@@ -327,8 +327,10 @@ def render_analysis_page(
     )
 
     # M9: teminat belgesi kuralları (belirsiz alanlar müfettişe sorulur)
-    from mufettis.ui.rules_view import render_collateral_check
+    from mufettis.ui.rules_view import render_collateral_check, render_credit_file_check
     render_collateral_check(doc_text)
+    # M10: kredi dosyası (birden çok belge, belgeler arası kurallar)
+    render_credit_file_check()
 
     use_llm = st.checkbox(
         "Yerel dil modeliyle kanıt doğrulaması (Ollama)",

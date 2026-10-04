@@ -65,6 +65,11 @@ def _ev(name: str, fv: FieldValue) -> tuple:
     return (name, fv.state, fv.value, fv.location, fv.source)
 
 
+def _add(evidence: tuple, name: str, fv: FieldValue) -> tuple:
+    """Kanıta alan ekler; alan kontrolde ya da başka koşulda zaten varsa tekrarlanmaz."""
+    return evidence if any(e[0] == name for e in evidence) else evidence + (_ev(name, fv),)
+
+
 def _norm(value) -> str:
     return re.sub(r"\s+", " ", str(value or "")).strip().lower()
 
@@ -193,7 +198,7 @@ def evaluate_rule(rule: Rule, fields: Dict[str, FieldValue], text: str = "",
     cond = rule.check.get("applies_if")
     if cond:
         fv = _get(fields, cond["field"])
-        evidence = evidence + (_ev(cond["field"], fv),)
+        evidence = _add(evidence, cond["field"], fv)
         if cond.get("present"):
             holds = {FILLED: True, EMPTY: False}.get(fv.state)  # boşsa varlık kuralı zaten bulgu verir
         else:
@@ -215,7 +220,7 @@ def evaluate_rule(rule: Rule, fields: Dict[str, FieldValue], text: str = "",
         states = []
         for name, values in ex.conditions:
             fv = _get(fields, name)
-            evidence = evidence + (_ev(name, fv),)
+            evidence = _add(evidence, name, fv)
             states.append(None if fv.state != FILLED else _norm(fv.value) in {_norm(v) for v in values})
         if all(states):
             status = NOT_APPLICABLE if getattr(ex, "result", "istisna") == "uygulanmaz" else EXEMPT
