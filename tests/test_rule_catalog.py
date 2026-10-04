@@ -91,3 +91,16 @@ def test_duplicate_ids_are_rejected(tmp_path):
     path.write_text(json.dumps({"rules": [rule, rule]}, ensure_ascii=False), encoding="utf-8")
     with pytest.raises(CatalogError, match="kimlik tekrarı"):
         load_catalog([path], lookup)
+
+
+def test_review_table_describes_every_check_type():
+    """M9.7 gözden geçirme tablosu her kontrol türünü yazabilmeli (yeni tür eklenince tablo kırılmasın)."""
+    import importlib.util
+    from pathlib import Path
+
+    from mufettis.rules.catalog import CHECK_TYPES
+    path = Path(__file__).resolve().parents[1] / "scripts" / "rules_review_table.py"
+    spec = importlib.util.spec_from_file_location("rules_review_table", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert set(mod.CHECK_TEXT) == set(CHECK_TYPES)
