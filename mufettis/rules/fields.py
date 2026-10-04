@@ -73,16 +73,35 @@ def one_of(choices: List[Tuple[str, str]]) -> Callable[[str], object]:
 def _line_value(text: str, low: str, label: str) -> Optional[Tuple[str, str]]:
     # Aynı etiket birden çok satırda olabilir (form başında boş, sonunda dolu; OCR sütun kayması): doluyu tercih et.
     found = list(re.finditer(r"(?m)^[ \t]*(?:[-•*\d.)]+\s*)?" + label + _LABEL_END + r"[ \t]*(.*)$", low))
-    m = next((x for x in found if not is_blank(text[x.start(1):x.end(1)].strip())), found[0] if found else None)
+    m = next((x for x in found if not is_blank(_NEXT_LABEL.split(text[x.start(1):x.end(1)], maxsplit=1)[0].strip())),
+             found[0] if found else None)
     if not m:
         # Aynı satırda birden çok etiket ("... Sicil No: Tescil Tarihi: 17.08.2021, Sicil No: X"): virgül / noktalı
-        # virgülden ya da önceki etiketin iki noktasından sonra gelen etiket, değeri bir sonraki virgüle kadar (M9.4c).
-        m = re.search(r"(?m)(?:[,;]|[:：])[ \t]*" + label + r"[ \t]*[:：][ \t]*([^,;\n]*)", low)
+        # virgülden, önceki etiketin iki noktasından ya da sütun boşluğundan sonra gelen etiket, değeri bir sonraki
+        # virgüle kadar (M9.4c, M9.4h).
+        m = re.search(r"(?m)(?:[,;]|[:：]|[ \t]{2,}|(?<=[_…])[ \t])[ \t]*" + label + r"[ \t]*[:：][ \t]*([^,;\n]*)", low)
     if not m:
         return None
     line_no = low.count("\n", 0, m.start()) + 1
-    value = text[m.start(1):m.start(1) + len(m.group(1))].strip()
-    return value, f"satır {line_no}: {text[m.start():m.end()].strip()[:120]}"
+    value = _NEXT_LABEL.split(text[m.start(1):m.start(1) + len(m.group(1))], maxsplit=1)[0].strip()
+    where = f"satır {line_no}: {text[m.start():m.end()].strip()[:120]}"
+    if not value:
+        # Değer alt satıra yazılmış olabilir ("İmza:\nGül Soyuer"): kısa, etiketsiz, başlık olmayan satır (M9.4h).
+        # Doldurma yeri ("____") boş değer olarak kalır; uzun cümle (bölüm metni) değer sayılmaz.
+        # Yalnızca hemen alttaki satır (araya boş satır girerse başka bölümdür); sayfa / üst bilgi satırı değer değildir.
+        below = text[m.end():].splitlines()
+        nxt = below[1].strip() if len(below) > 1 else ""
+        if (nxt and len(nxt) <= 40 and ":" not in nxt and not is_blank(nxt)
+                and not re.match(r"(?i)(?:sayfa|page|\[|üst bilgi|alt bilgi)", nxt)
+                and not (nxt.upper() == nxt and re.search(r"[A-ZÇĞİÖŞÜ]{3}", nxt))):
+            return nxt, f"{where} / satır {line_no + 1}: {nxt[:60]}"
+    return value, where
+
+
+# Değerden sonra aynı satırda başlayan başka etiket ("Eş İmza: ____ Tarih: ____", "Ad Soyad : X    TC No : Y"):
+# sütun boşluğundan, noktalama ya da doldurma yerinden sonra 1-4 kelime ve iki nokta (M9.4h). "No:19/1" gibi iki
+# noktadan sonra boşluk gelmeyen değer parçaları etiket sayılmaz.
+_NEXT_LABEL = re.compile(r"(?:[ \t]{2,}|(?<=[.;,_…\]])[ \t])(?=(?:[^\W\d_]+\.? ?){1,4}[ \t]*[:：](?:[ \t]|$))")
 
 
 def is_blank(raw: str) -> bool:
@@ -90,6 +109,13 @@ def is_blank(raw: str) -> bool:
         return True
     if re.match(r"^\W*(?:boş|doldurulmamış|imzalanmamış|imza yok)\b", turkish_lower(raw)):
         return True  # "(BOŞ - İMZA VE METİN DOLDURULMAMIŞTIR)"
+    # Köşeli parantezli yer tutucu: "[imza yeri]", "[kaşe / imza alanı]" (M9.4h; "[imza]" imzalı da demek olabilir)
+    if re.fullmatch(r"\W*\[\s*(?:kaşe\W*)?imza (?:yeri|alanı)\s*\]\W*", turkish_lower(raw)):
+        return True
+    # Boş köşeli / normal parantez doldurma yeri: "[            ] TL", "(   )" (M9.4h)
+    bracket = re.sub(r"[\[(]\s*[\])]", "", raw)
+    if bracket != raw and _BLANK.match(_UNIT.sub("", bracket)):
+        return True
     # Doldurma yeri ve yalnızca birim ("…… TL")
     return bool(re.search(r"[.…_]{2,}", raw)) and bool(_BLANK.match(_UNIT.sub("", raw)))
 

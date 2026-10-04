@@ -104,6 +104,20 @@
     "TBK583-kefalet-tarihi": "karşılandı"
    },
    "note": "gizli set: kefalet tarihi dolu; boş olan ana kredi sözleşmesinin tarihi (TBK 583 kefalet tarihini arar)"
+  },
+  "s2_p9_copilot_2": {
+   "no_violation": false,
+   "expected": {
+    "5070-md5-e-imza-kefalet": "karşılanmadı"
+   },
+   "note": "gizli set 2: kusursuz istendi ama güvenli elektronik imza yazılmış (kefalet güvenli e-imzayla kurulamaz)"
+  },
+  "s2_p9_grok_2": {
+   "no_violation": false,
+   "expected": {
+    "TBK14-kefil-imzasi": "karşılanmadı"
+   },
+   "note": "gizli set 2: kusursuz istendi ama türü yazmayan elektronik imza yazılmış (geçerli imza şekli yok)"
   }
  },
  "types": {

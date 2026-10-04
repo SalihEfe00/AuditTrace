@@ -18,7 +18,7 @@ EVENT_DATE_FIELDS = {
     "kefalet_sozlesmesi": ("kefalet_tarihi", "sozlesme_tarihi", "kredi_sozlesme_tarihi"),
     "ipotek": ("tescil_tarihi",),
     "rehin": ("sozlesme_tarihi", "sicil_tescil_tarihi"),
-    "ekspertiz": ("rapor_tarihi",),
+    "ekspertiz": ("rapor_tarihi", "inceleme_tarihi"),
     "dask": ("islem_tarihi", "baslangic_tarihi"),
     "bono": ("duzenleme_tarihi",),
     "senet_gks": ("duzenleme_tarihi",),

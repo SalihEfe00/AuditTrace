@@ -23,13 +23,15 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
         "rehin_veren": [r"rehin veren"],
         "rehin_konusu": [r"rehin(?:in)? konusu(?: taşınır| cinsi| mal(?:ın)? cinsi)?", r"rehinli (?:taşınır|varlık)"],
         "rehin_tutari": [r"rehin (?:tutarı|bedeli|miktarı)", r"azam[iî] (?:rehin |teminat )?(?:tutar[ıi]?|miktar[ıi]?)"],
-        "sicil_tescil_tarihi": [r"(?:sicil )?tescil tarihi", r"rehinli taşınır sicili kayıt tarihi"],
+        "sicil_tescil_tarihi": [r"(?:rts |sicil )?tescil tarihi", r"rehinli taşınır sicili kayıt tarihi"],
         "sicil_no": [r"(?:rts |rehinli taşınır )?sicil(?:i)? (?:kayıt )?(?:no|numarası)", r"kayıt (?:no|numarası)"],
         "imza_onayi": [r"imza onayı", r"onay şekli"],
-        "sozlesme_tarihi": [r"(?:rehin )?sözleşme(?:nin)? tarihi", r"düzenleme tarihi"],
+        "sozlesme_tarihi": [r"(?:rehin )?sözleşme(?:nin)? tarihi", r"düzenleme tarihi", r"tarih(?:i)?"],
     },
     "ekspertiz": {
-        "rapor_tarihi": [r"(?:rapor|ekspertiz) tarihi", r"(?:rapor )?(?:tanzim|düzenleme|düzenlenme) tarihi", r"değerleme tarihi"],
+        # Raporun tarihi (md. 14/3-a-1) ile inceleme / değerleme tarihi ayrı: biri öbürünün yerine geçmez (M9.4h)
+        "rapor_tarihi": [r"(?:değerleme |ekspertiz )?rapor(?:u|unun)? tarihi", r"(?:rapor )?(?:tanzim|düzenleme|düzenlenme) tarihi"],
+        "inceleme_tarihi": [r"(?:ekspertiz|değerleme|inceleme|keşif) tarihi"],
         # Md. 14 nihai değer ister: "Nihai Değer" etiketi varsa o okunur, yoksa piyasa / pazar değeri
         "deger": [r"(?:takdir edilen )?nihai değer(?:i)?", r"(?:piyasa|pazar|tespit edilen) değer(?:i)?",
                   r"değer(?:i)?", r"değerleme sonucu"],
@@ -64,7 +66,7 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
     },
 }
 
-_DATES = {"sozlesme_tarihi", "tescil_tarihi", "sicil_tescil_tarihi", "rapor_tarihi", "baslangic_tarihi", "bitis_tarihi",
+_DATES = {"sozlesme_tarihi", "tescil_tarihi", "sicil_tescil_tarihi", "rapor_tarihi", "inceleme_tarihi", "baslangic_tarihi", "bitis_tarihi",
           "duzenleme_tarihi", "vade_tarihi", "islem_tarihi"}
 _AMOUNTS = {"ipotek_tutari", "rehin_tutari", "deger", "tutar"}
 _CONVERT = {f: as_date for f in _DATES}

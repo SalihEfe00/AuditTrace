@@ -15,7 +15,7 @@ from mufettis.rules.fields import UNDECIDED, as_amount, as_date, extract_labeled
 
 # alan → etiket kalıpları (küçük harfe çevrilmiş metinde; Türkçe ekler tolere edilir)
 LABELS: Dict[str, List[str]] = {
-    "kefil": [r"kefil(?:in)?(?: adı soyadı| ad[ıi] ?soyad[ıi]| unvanı)?"],
+    "kefil": [r"kefil(?:in)?(?: adı soyadı| ad[ıi]? ?soyad[ıi]?| unvanı)?"],
     "borclu": [r"(?:asıl )?borçlu(?:nun)?(?: adı soyadı| unvanı)?", r"kredi kullanan"],
     "alacakli": [r"alacaklı(?: banka)?", r"banka unvanı"],
     "azami_tutar": [r"(?:kefilin sorumlu olacağı )?azam[iî] (?:kefalet |sorumluluk )?(?:tutar[ıi]?|miktar[ıi]?)",
@@ -89,10 +89,37 @@ def extract_kefalet_fields(text: str) -> Dict[str, FieldValue]:
 
 # Eş rızası bölümünün parçaları (M9.4c): bölümde eşin adı matbu basılı olabilir; rıza, beyan / imza / tarihle verilir.
 _CONSENT_PARTS = {
-    "ad": [r"(?:muvafakat eden |rıza veren )?eş(?:in)? ad[ıi] ?soyad[ıi]", r"eş"],
+    "ad": [r"(?:muvafakat eden |rıza veren )?eş(?:in)? ad[ıi](?: ?soyad[ıi])?", r"eş"],
     "imza": [r"eş(?:in)? imza(?:sı)?", r"muvafakat eden(?:in)? imzası"],
     "beyan": [r"eş(?:in)? (?:rıza |muvafakat )?beyanı"],
 }
+
+
+_SECTION_HEAD = r"eş(?:in)? (?:rıza|muvaf+akat|onay)|muvaf+akatname"
+_SECTION_PARTS = {
+    "imza": [r"(?:eş(?:in)? )?imza(?:sı)?"],
+    "ad": [r"(?:[^\W\d_]+ ){0,3}ad[ıi](?: ?soyad[ıi])?"],
+    "tarih": [r"(?:eş(?:in)? |rıza |imza )*tarih(?:i)?"],
+}
+
+
+def _consent_section(text: str) -> str:
+    """Eş rızası başlığından sonraki satırlar; yeni bölüm başlığında (büyük harfli satır) ya da kefil / banka
+    satırında biter (onların imza / tarih satırları eşinkiyle karışmasın)."""
+    lines = (text or "").splitlines()
+    for i, line in enumerate(lines):
+        if re.search(_SECTION_HEAD, turkish_lower(line)):
+            block = []
+            for nxt in lines[i + 1:i + 13]:
+                bare = nxt.strip()
+                low = turkish_lower(bare)
+                heading = bare and bare.upper() == bare and re.search(r"[A-ZÇĞİÖŞÜ]{3}", bare) and (
+                    ":" not in bare or bare.endswith(":"))
+                if heading or re.match(r"(?:müteselsil |adi )?kefil(?!in eş)|banka|yetkili|alacaklı", low):
+                    break
+                block.append(nxt)
+            return "\n" * (i + 1) + "\n".join(block)  # satır numaraları belgedekiyle aynı kalsın
+    return ""
 
 
 def _consent(text: str, out: Dict[str, FieldValue]) -> None:
@@ -106,7 +133,16 @@ def _consent(text: str, out: Dict[str, FieldValue]) -> None:
             return
         printed, direct = out.pop("es_rizasi"), None  # matbu rıza cümlesi: imza / ad / tarihe bakılır
     parts = extract_labeled_fields(text, _CONSENT_PARTS)
-    date, sign, name = out.get("es_rizasi_tarihi"), parts.get("imza"), parts.get("ad")
+    # Bölümün kendi genel etiketleri ("EŞ MUVAFAKATNAMESİ:" başlığı altında "İmza:", "Tarih:", "Kefilin Eşinin Adı
+    # Soyadı:"); özel etiket bulunamayan öğe için kullanılır (M9.4h).
+    section = extract_labeled_fields(_consent_section(text), _SECTION_PARTS)
+    for key in ("imza", "ad"):
+        if key not in parts and key in section:
+            parts[key] = section[key]
+    date = out.get("es_rizasi_tarihi") or section.get("tarih")
+    sign, name = parts.get("imza"), parts.get("ad")
+    if direct is not None and direct.state == EMPTY and any(fv.state == FILLED for fv in section.values()):
+        direct = None  # boş değerli etiket bölüm başlığıymış: altındaki öğelere bakılır
 
     def filled(fv):
         return fv is not None and fv.state == FILLED
@@ -115,6 +151,10 @@ def _consent(text: str, out: Dict[str, FieldValue]) -> None:
     if filled(sign) or (filled(name) and filled(date)):
         src = sign if filled(sign) else name
         out["es_rizasi"] = FieldValue.filled(src.value, src.location if src is sign else f"{name.location}; {date.location}")
+    elif sign is not None and sign.state == EMPTY and filled(date):
+        # Kefil imzasındaki gibi: taranmış metin imzayı göstermez; rıza tarihi elle doldurulmuş, imza yeri boş →
+        # müfettiş bakar. Eşin adı matbu basılı olabildiğinden yalnızca ad yetmez.
+        out["es_rizasi"] = FieldValue(NOT_FOUND, None, f"{sign.location} (eşin imza yeri boş görünüyor; rıza tarihi dolu)")
     elif (sign is not None and sign.state == EMPTY) or (core and all(fv.state == EMPTY for fv in core)):
         out["es_rizasi"] = FieldValue(EMPTY, None, "; ".join(fv.location for fv in core if fv.state == EMPTY)[:200])
     elif filled(name) and direct is None:
@@ -126,7 +166,7 @@ def _consent(text: str, out: Dict[str, FieldValue]) -> None:
 def _guarantor_signature(text: str, out: Dict[str, FieldValue]) -> None:
     """Kefilin imza yeri boş görünüyorsa ıslak imza satırına güvenilmez: taranmış metin imzayı göstermez, karar
     müfettişin (TBK 14 kuralı belirsiz kalır ve sorulur). Elektronik imzada imza yerinin boş olması olağandır."""
-    sign = extract_labeled_fields(text, {"s": [r"kefil(?:in)? imzası", r"kefil imza"]}).get("s")
+    sign = extract_labeled_fields(text, {"s": [r"(?:müteselsil |müşterek |adi )?kefil(?:in)? imza(?:sı)?"]}).get("s")
     current = out.get("imza_turu")
     electronic = current is not None and current.value in ("guvenli_e_imza", "diger_elektronik", "e_imza")
     if sign is not None and sign.state == EMPTY and not electronic:

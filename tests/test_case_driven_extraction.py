@@ -56,3 +56,34 @@ def test_blank_guarantor_signature_overrides_wet_signature_line_but_not_e_signat
     assert wet["imza_turu"].state == NOT_FOUND and "boş" in wet["imza_turu"].location
     secure = extract_kefalet_fields("İmza Türü: Güvenli elektronik imza\nKefil İmzası: ________\n")
     assert secure["imza_turu"].value == "guvenli_e_imza"
+
+
+def test_second_holdout_extraction_classes():
+    """M9.4h: ikinci gizli setin yanlış kararlarından çıkan sınıflar (sentetik)."""
+    # aynı satırda ikinci etiket değerin parçası değil
+    f = extract_kefalet_fields("Eş Adı Soyadı: ________\nEş İmza: ________ Tarih: ____\n")
+    assert f["es_rizasi"].state == EMPTY
+    # bölüm başlığı boş alan değil; altındaki genel imza / tarih satırları okunur
+    head = ("EŞ MUVAFAKATNAMESİ:\n\"Eşimin kefil olmasına rıza gösteriyorum ve bunu kabul ediyorum.\"\n"
+            "Kefilin Eşinin Adı Soyadı: Ayşe Veli\nTarih: 12.03.2024\nİmza: Ayşe Veli (İmzalı)\n")
+    assert extract_kefalet_fields(head)["es_rizasi"].state == FILLED
+    # değer alt satırda; araya boş satır ya da sayfa satırı girerse değer değil
+    assert extract_kefalet_fields("Eş Adı: Ayşe Veli\nRıza Tarihi: 12.03.2024\nİmza:\nAyşe Veli\n")["es_rizasi"].state == FILLED
+    assert extract_kefalet_fields("Eş Adı Soyadı :\nRıza Tarihi :\nİmza :\n\nSayfa 2\n")["es_rizasi"].state == EMPTY
+    # eşin imza yeri boş ama rıza tarihi dolu: taranmış metin imzayı göstermez → müfettişe
+    assert extract_kefalet_fields("Eş Rızası Bölümü:\nEş İmza: ________ Tarih: 15.03.2024\n")["es_rizasi"].state == NOT_FOUND
+    # köşeli parantezli boşluk ve "[imza yeri]" boş
+    assert is_blank("[                    ] TL") and is_blank("[imza yeri]") and not is_blank("[ISLAK İMZA MEVCUT]")
+    # nitelemeli kefil imza etiketi
+    assert extract_kefalet_fields("İmza Türü: Islak imza\nMüteselsil Kefil İmza : ______\n")["imza_turu"].state == NOT_FOUND
+    # sütun düzeninde yan yana iki etiket
+    assert extract_kefalet_fields("KEFİL AD SOYAD : Ali Veli        TC KİMLİK NO : X\n")["kefil"].value == "Ali Veli"
+
+
+def test_report_date_is_not_inspection_date_and_rts_dates():
+    rep = extract_teminat_fields("ekspertiz", "Rapor Tarihi:\nEkspertiz Tarihi: 03.08.2026\n")
+    assert rep["rapor_tarihi"].state == EMPTY and rep["inceleme_tarihi"].value == dt.date(2026, 8, 3)
+    assert extract_teminat_fields("ekspertiz", "Değerleme Rapor Tarihi: 21.06.2026\n")["rapor_tarihi"].state == FILLED
+    pledge = extract_teminat_fields("rehin", "Tarih: 02.11.2016\nRTS Tescil Tarihi: 07.11.2016\n")
+    assert pledge["sozlesme_tarihi"].value == dt.date(2016, 11, 2)
+    assert pledge["sicil_tescil_tarihi"].value == dt.date(2016, 11, 7)
