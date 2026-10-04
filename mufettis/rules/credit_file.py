@@ -8,8 +8,9 @@ Motor değişmez: dosyanın alanları bu adlarla tek sözlükte toplanır.
 - Eksik belge: o türün alanları sözlükte yoktur, motor "bulunamadı" görür, kural "belirsiz" olur; bulguya hangi
   belgenin dosyada olmadığı yazılır.
 - Aynı türden birden çok belge (iki kefalet, iki ipotek): kural her biri için ayrı değerlendirilir ve sonuç hangi
-  belgeye ait olduğunu söyler. Bir kuralda en çok bir tür çoklu olabilir; iki çoklu tür eşleştirilmez (hangisinin
-  hangisiyle ilgili olduğu belgeden bilinemez), kural "belirsiz" olur.
+  belgeye ait olduğunu söyler; ancak kuralın öbür belgeleri dosyada doğası gereği tekse (onay, kullandırım, imza
+  sirküleri). İki teminat belgesi arasındaki kuralda (DASK ↔ ipotek) biri çoklu ise hangisinin hangisiyle ilgili
+  olduğu belgeden bilinemez: kural "belirsiz" olur, eşleştirme elle yapılır.
 - Tanınmayan belge dosyaya yerleşmez; listede "tanınmadı" olarak görünür (sessizce atlanmaz).
 """
 from __future__ import annotations
@@ -26,6 +27,8 @@ from mufettis.rules.fields_kefalet import extract_kefalet_fields
 from mufettis.rules.fields_teminat import DOCUMENT_LABELS, extract_teminat_fields
 
 _FIELD_KEYS = ("field", "other", "before", "after")
+# Bir kredi dosyasında doğası gereği tek olan belgeler: çoklu teminat belgesinin her biri bunlarla ayrı eşleşir
+FILE_UNIQUE = {"kredi_onay", "kullandirim", "imza_sirkuleri"}
 
 
 @dataclass
@@ -115,6 +118,10 @@ def evaluate_file(rules: Iterable[Rule], credit_file: CreditFile, event_date: Op
         kinds = _kinds(rule)
         multi = [k for k in kinds if len(groups.get(k, [])) > 1]
         fixed = [groups[k][0] for k in kinds if len(groups.get(k, [])) == 1]
+        # Çoklu belge ancak dosyada tek olan belgelerle eşleşir; iki teminat belgesi (DASK ↔ ipotek) aynı taşınmaza
+        # mı ait, belgeden bilinemez
+        if multi and any(k not in FILE_UNIQUE for k in kinds if k not in multi):
+            multi = multi + [k for k in kinds if k not in multi and k not in FILE_UNIQUE]
         if len(multi) > 1:
             res = evaluate_rule(rule, {}, event_date=event_date)
             out.append(FileResult(tuple(d.name for k in multi for d in groups[k]), RuleResult(

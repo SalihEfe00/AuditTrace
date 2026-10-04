@@ -26,7 +26,7 @@ EVENT_DATE_FIELDS = {
     "kullandirim": ("kullandirim_tarihi",),
     "imza_sirkuleri": ("duzenleme_tarihi",),
     # Kredi dosyası (M10.1): belgeler arası kurallar kullandırım anındaki metne göre
-    "kredi_dosyasi": ("kullandirim.kullandirim_tarihi", "kredi_onay.onay_tarihi"),
+    "kredi_dosyasi": ("kullandirim.kullandirim_tarihi", "kredi_onay.onay_tarihi", "ipotek.tescil_tarihi"),
 }
 
 

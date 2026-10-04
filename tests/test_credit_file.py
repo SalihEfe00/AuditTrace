@@ -1,7 +1,7 @@
 """M10.1: kredi dosyası modeli (sentetik belgeler)."""
 import datetime as dt
 
-from mufettis.rules.catalog import parse_rule
+from mufettis.rules.catalog import load_catalog, parse_rule
 from mufettis.rules.credit_file import CreditFile, evaluate_file, file_event_date
 from mufettis.rules.doctype import detect_collateral_type
 from mufettis.rules.engine import MET, NOT_MET, UNKNOWN
@@ -59,3 +59,23 @@ def test_cross_document_rule_missing_document_and_multiple_instances():
                                  ("kul.pdf", KULLANDIRIM)])
     got = {r.documents[-1]: r.result.status for r in evaluate_file([rule], two)}
     assert got == {"ip1.pdf": MET, "ip2.pdf": NOT_MET}
+
+
+DASK = "ZORUNLU DEPREM SİGORTASI POLİÇESİ\nPoliçe No: 1\nBaşlangıç Tarihi: {}\nBitiş Tarihi: {}\n"
+
+
+def test_dask_policy_valid_on_mortgage_registration_day():
+    """6305 md. 11/2: ipotek tescil günü geçerli DASK; poliçeye yazılan işlem tarihi değil, ipoteğin kendi tarihi."""
+    rules = [r for r in load_catalog() if r.document_type == "kredi_dosyasi"]
+
+    def run(*docs):
+        return {r.result.rule_id: r.result.status for r in evaluate_file(rules, CreditFile.from_texts(docs))
+                if r.result.rule_id.startswith("6305-11-dask-ipotek")}
+    ip = ("ip.pdf", IPOTEK.format("10.03.2024"))
+    assert run(ip, ("d.pdf", DASK.format("01.03.2024", "01.03.2025"))) == {
+        "6305-11-dask-ipotek-baslangic": MET, "6305-11-dask-ipotek-bitis": MET}
+    assert run(ip, ("d.pdf", DASK.format("11.03.2024", "11.03.2025")))["6305-11-dask-ipotek-baslangic"] == NOT_MET
+    assert run(ip, ("d.pdf", DASK.format("01.03.2023", "01.03.2024")))["6305-11-dask-ipotek-bitis"] == NOT_MET
+    # iki ipotek, tek poliçe: hangi taşınmazın poliçesi olduğu belgeden bilinmez
+    two = run(ip, ("ip2.pdf", IPOTEK.format("20.03.2024")), ("d.pdf", DASK.format("01.03.2024", "01.03.2025")))
+    assert set(two.values()) == {UNKNOWN}

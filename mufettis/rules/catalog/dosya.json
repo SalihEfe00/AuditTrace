@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "description": "Kredi dosyası kuralları (M10): belgeler arası kontroller; alanlar '<belge türü>.<alan>' (mufettis/rules/credit_file.py). Alıntılar madde metninden birebir.",
+  "rules": [
+    {
+      "id": "6305-11-dask-ipotek-baslangic",
+      "document_type": "kredi_dosyasi",
+      "title": "İpotek tescil tarihinde DASK poliçesi başlamış (dosyadaki ipotek belgesine göre)",
+      "basis": {
+        "law": "6305",
+        "article": "11",
+        "paragraph": "2",
+        "quote": "zorunlu deprem sigortasının yaptırıldığı ve işlem tarihi itibarıyla geçerli olduğu belgelenmedikçe yapamaz."
+      },
+      "check": {"type": "date_order", "before": "dask.baslangic_tarihi", "after": "ipotek.tescil_tarihi", "allow_equal": true},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {"from": "2012-08-18", "to": null},
+      "finding": "DASK poliçesi ipoteğin tescil tarihinden sonra başlıyor: tescil günü geçerli poliçe yok",
+      "rationale": "6305 md. 11/2, tek belge kuralı 6305-11-dask-baslangic ile aynı dayanak. Orada işlem tarihi poliçeye yazılan tarihtir; dosyada ipotek belgesinin kendi tescil tarihiyle karşılaştırılır (poliçedeki işlem tarihi yazılmamış ya da yanlış olabilir). Poliçe ile ipotek aynı taşınmaza mı ait, eşleştirme belgeden yapılmaz: dosyada birden çok DASK ya da ipotek varsa kural belirsiz olur, eşleştirme elle yapılır."
+    },
+    {
+      "id": "6305-11-dask-ipotek-bitis",
+      "document_type": "kredi_dosyasi",
+      "title": "İpotek tescil tarihinde DASK poliçesi sona ermemiş (dosyadaki ipotek belgesine göre)",
+      "basis": {
+        "law": "6305",
+        "article": "11",
+        "paragraph": "2",
+        "quote": "zorunlu deprem sigortasının yaptırıldığı ve işlem tarihi itibarıyla geçerli olduğu belgelenmedikçe yapamaz."
+      },
+      "check": {"type": "date_order", "before": "ipotek.tescil_tarihi", "after": "dask.bitis_tarihi", "allow_equal": true},
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "banka",
+      "absence_is_violation": false,
+      "exceptions": [],
+      "validity": {"from": "2012-08-18", "to": null},
+      "finding": "DASK poliçesi ipoteğin tescil tarihinden önce sona ermiş: tescil günü geçerli poliçe yok",
+      "rationale": "6305 md. 11/2, bkz. 6305-11-dask-ipotek-baslangic."
+    }
+  ]
+}
