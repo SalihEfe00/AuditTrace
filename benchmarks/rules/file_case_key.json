@@ -450,5 +450,19 @@
     "MASAK-7-yetki-suresi-gks": "belirsiz"
    }
   }
+ },
+ "case_overrides": {
+  "d_p10_chatgpt_7": {
+   "expected": {
+    "6305-11-dask-ipotek-baslangic": "karşılanmadı"
+   },
+   "reason": "yapay zeka DASK başlangıcını 19.01.2025 yazmış, ipotek tescili 24.01.2024: poliçe tescilden sonra başlıyor"
+  },
+  "d_p10_chatgpt_13": {
+   "expected": {
+    "MASAK-7-musterek-imza": "karşılandı"
+   },
+   "reason": "tür 113 tek imza istiyordu; yapay zeka talimatı iki yetkiliye imzalatmış"
+  }
  }
 }

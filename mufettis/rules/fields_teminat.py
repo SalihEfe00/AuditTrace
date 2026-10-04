@@ -8,7 +8,7 @@ import re
 from typing import Dict, List
 
 from mufettis.analysis.turkish_text import turkish_lower
-from mufettis.rules.engine import FieldValue
+from mufettis.rules.engine import FILLED, FieldValue
 from mufettis.rules.fields import UNDECIDED, as_amount, as_date, as_money, extract_labeled_fields, one_of
 
 DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
@@ -78,7 +78,7 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
         "onay_mercii": [r"onay (?:mercii|makamı|yetkisi)", r"onaylayan(?: (?:merci|komite|yetkili))?",
                         r"karar (?:mercii|organı)"],
         # Onaydaki teminat zamanlaması şartı (M10.2 iç kontrol): kural yalnızca bu şart okunursa uygulanır
-        "teminat_sarti": [r"teminat (?:şartı|koşulu|şartları|koşulları|hükmü)", r"kullandırım (?:şartı|koşulu|şartları|koşulları)",
+        "teminat_sarti": [r"teminat (?:şartı|koşulu|şartları|koşulları|hükmü|kriteri)", r"kullandırım (?:şartı|koşulu|şartları|koşulları)",
                           r"kullandırım öncesi (?:şartlar|koşullar)"],
     },
     "kullandirim": {
@@ -88,7 +88,7 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
         # Müşteri adına imzalayan (M10.3: imza sirküleri yetkilisi mi); bankanın onaylayan personelinden ayrı
         # Birden çok satır olabilir ("Müşteri İmzası 1: A", "Müşteri İmzası 2: B"): hepsi toplanır (_COLLECT)
         "musteri_imzalayan": [
-            r"(?:müşteri|firma|şirket|borçlu)(?: şirket| firma)? adına (?:birlikte )?imza(?:layan(?:lar)?|lar)?",
+            r"(?:müşteri|firma|şirket|borçlu)(?: şirket| firma)? (?:adına|tarafından) (?:birlikte )?imza(?:layan(?:lar)?|lar)?",
             r"(?:müşteri|firma|şirket|borçlu)(?: şirket)? (?:yetkilisi|yetkilileri|temsilcisi|temsilcileri)(?: adı soyadı)?",
             r"talimat(?:ı)? veren(?: adı soyadı)?", r"müşteri imza(?:sı)?(?: \d+)? adı soyadı",
             r"müşteri imza(?:sı)? \d+"],
@@ -98,11 +98,13 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
         "unvan": [r"(?:şirket|firma)?(?: unvanı)", r"ticaret unvanı"],
         # "Yetkili 1: A" / "Yetkili 2: B" ya da "Müdürler: A, B": hepsi toplanır (_COLLECT)
         "yetkili": [r"yetkili(?:ler|nin)?(?: \d+)?(?: adı soyadı)?", r"(?:temsile|imza) yetkili(?:leri|ler|si)?(?: \d+)?",
-                    r"(?:yetkili )?temsilci(?:ler)?(?: \d+)?", r"müdür(?:ler)?(?: \d+)?",
+                    r"(?:yetkili |şirket |yönetim kurulu )?temsilci(?:ler|leri)?(?: \d+)?",
+                    r"(?:şirket )?müdür(?:ler|leri)?(?: kurulu)?(?: \d+)?",
                     r"(?:idare meclisi|yönetim kurulu) üyeleri"],
         "yetki_sekli": [r"yetki (?:şekli|türü|durumu|kapsamı)", r"temsil (?:şekli|tarzı|yetkisi|ve ilzam şekli)",
                         r"imza (?:şekli|yetkisi)"],
-        "yetki_suresi": [r"yetki (?:süresi|bitiş tarihi)", r"geçerlilik (?:süresi|tarihi)"],
+        "yetki_suresi": [r"yetki (?:süresi(?: sonu)?|bitiş tarihi|sona erme tarihi|son geçerlilik tarihi)",
+                         r"geçerlilik (?:süresi|tarihi)"],
         "duzenleme_tarihi": [r"(?:düzenleme|onay|tasdik) tarihi"],
     },
 }
@@ -126,7 +128,8 @@ _CONVERT["imza_onayi"] = one_of([(r"noter", "noter"), (r"sicil(?:i)? yetkilisi",
 # "Önce" ile "aynı gün / eş zamanlı" aynı kurala bağlanır: kural aynı günü karşılandı sayar, sonraki tescili bulgu
 # (M10.5a; önceden eş zamanlı "sonra" sayılıyordu ve geç tescil bulgusuz kalıyordu)
 _CONVERT["teminat_sarti"] = one_of([
-    (r"(?:kullandır\w*|kredi (?:çekil|kullan)\w*)(?:\s+\w+){0,3}?\s+(?:öncesi\w*|önce|evvel)|tesis edil\w*\s+sonra\s+kullandır|"
+    # "kredi serbest bırakılmadan / verilmeden / açılışından önce": kredinin kullanıma açılmasından önce
+    (r"(?:kullandır\w*|kredi\w*)(?:\s+\w+){0,3}?\s+(?:öncesi\w*|önce|evvel)|tesis edil\w*\s+sonra\s+kullandır|"
      r"(?:alınmadan|tesis edilmeden)\s+kullandır|aynı gün|eş zamanlı|kullandırım\w*\s+(?:ile\s+)?birlikte",
      "kullandirim_oncesi"),
     (r"kullandır\w*\s+sonra", "kullandirim_sonrasi"),
@@ -163,8 +166,16 @@ def extract_teminat_fields(document_type: str, text: str) -> Dict[str, FieldValu
     if labels is None:
         raise ValueError(f"bilinmeyen teminat belgesi türü: {document_type}")
     # Md. 14/3: raporu hazırlayan her uzmanın lisans numarası; "Lisans No" satırlarından biri boşsa alan boştur
-    return extract_labeled_fields(text, labels, {k: v for k, v in _CONVERT.items() if k in labels},
-                                  every=frozenset({"lisans_no"}), collect=_COLLECT)
+    out = extract_labeled_fields(text, labels, {k: v for k, v in _CONVERT.items() if k in labels},
+                                 every=frozenset({"lisans_no"}), collect=_COLLECT)
+    if document_type == "imza_sirkuleri" and getattr(out.get("yetki_suresi"), "state", None) != FILLED:
+        # "Yetki Bitiş Tarihi: Belirtilmemiş" ama başka satırda "Yetki süresi: süresiz / azledilinceye kadar" (M10.5b)
+        low = turkish_lower(text or "")
+        m = re.search(r"(?m)^.*(?:yetki süresi\W+süresiz|azledilinceye kadar|süresiz olarak).*$", low)
+        if m:
+            line = low.count("\n", 0, m.start()) + 1
+            out["yetki_suresi"] = FieldValue.filled("süresiz", f"satır {line}: {text[m.start():m.end()].strip()[:120]}")
+    return out
 
 
 __all__ = ["extract_teminat_fields", "DOCUMENT_LABELS"]

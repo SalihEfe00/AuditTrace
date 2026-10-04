@@ -213,3 +213,20 @@ def test_file_field_variants_from_measurement():
                         "kullandirim_sonrasi")):
         got = extract_teminat_fields("kredi_onay", ONAY + f"Teminat Koşulu: {cond}\n")["teminat_sarti"].value
         assert got == want, cond
+
+
+def test_file_field_variants_from_spent_holdout():
+    """M10.5b: "Borçlu Tarafından İmzalayan", "Şirket Müdürleri:" listesi, "Yetki Süresi Sonu", "kredi serbest
+    bırakılmadan önce"; bitiş tarihi "Belirtilmemiş" iken başka satırdaki "süresiz" okunur."""
+    from mufettis.rules.fields_teminat import extract_teminat_fields
+    kul = extract_teminat_fields("kullandirim", KULLANDIRIM + "Borçlu Tarafından İmzalayan: Hakan Var\n")
+    assert kul["musteri_imzalayan"].value == "Hakan Var"
+    sirk = extract_teminat_fields("imza_sirkuleri", "İMZA SİRKÜLERİ\nŞirket Müdürleri:\n1. Ali Veli (Müdür)\n"
+                                  "2. Can Er (Müdür)\nYetki Süresi Sonu: 20.08.2026\n")
+    assert sirk["yetkili"].value == "Ali Veli (Müdür), Can Er (Müdür)" and sirk["yetki_suresi"].value == dt.date(2026, 8, 20)
+    open_ended = extract_teminat_fields("imza_sirkuleri", "İMZA SİRKÜLERİ\nYetkili 1: Ali Veli\n"
+                                        "Yetki Şekli: MÜNFERİT; Yetki süresi: süresiz / azledilinceye kadar\n"
+                                        "Yetki Bitiş Tarihi: Belirtilmemiş\n")
+    assert open_ended["yetki_suresi"].value == "süresiz"
+    onay = extract_teminat_fields("kredi_onay", ONAY + "Teminat Kriteri: Kredi serbest bırakılmadan önce ipotek tesis edilmelidir.\n")
+    assert onay["teminat_sarti"].value == "kullandirim_oncesi"
