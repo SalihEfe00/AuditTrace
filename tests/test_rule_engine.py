@@ -46,19 +46,16 @@ def test_exception_applies():
 
 
 def test_business_capacity_alone_is_not_the_exception():
-    """TBK 584/3: şirket ortağı / esnaf olmak yetmez, kefalet işletmeyle ilgili olmalı (M9.7)."""
-    personal = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("sirket_ortagi_yoneticisi"),
-                      kredi_turu=F("tüketici"))
-    assert personal.status == NOT_MET
+    """TBK 584/3: şirket ortağı / esnaf olmak yetmez, kefalet işletmeyle ilgili olmalı (M9.7). Kredinin ticari
+    olması kanunda aranmaz (M9.7c): ölçüt yalnızca sıfat + kefaletin işletme / şirketle ilgisi."""
     unknown = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("sirket_ortagi_yoneticisi"))
-    assert unknown.status == UNKNOWN and "kredi_turu" in unknown.reason
-    # Ticari kredi de tek başına yetmez: kefaletin işletmeyle ilgisi ayrıca sorulur
-    commercial = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("sirket_ortagi_yoneticisi"),
-                        kredi_turu=F("ticari"))
-    assert commercial.status == UNKNOWN and "kefalet_isletmeyle_ilgili" in commercial.reason
+    assert unknown.status == UNKNOWN and "kefalet_isletmeyle_ilgili" in unknown.reason
     unrelated = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("sirket_ortagi_yoneticisi"),
-                       kredi_turu=F("ticari"), kefalet_isletmeyle_ilgili=F("hayir"))
+                       kefalet_isletmeyle_ilgili=F("hayir"))
     assert unrelated.status == NOT_MET
+    related = spouse(es_rizasi=FieldValue(EMPTY), kefil_ticari_sifat=F("sirket_ortagi_yoneticisi"),
+                     kredi_turu=F("tüketici"), kefalet_isletmeyle_ilgili=F("evet"))
+    assert related.status == EXEMPT  # kredi türü istisnayı engellemez
 
 
 def test_unknown_exception_condition_blocks_not_met():

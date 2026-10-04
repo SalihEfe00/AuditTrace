@@ -5,22 +5,28 @@
     {
       "id": "TMK851-ipotek-tutari",
       "document_type": "ipotek",
-      "title": "İpotek, Türk parası (ya da kredi kuruluşu için yabancı para) ile gösterilen belli bir miktar için kurulmuş",
+      "title": "İpotek tutarı (belli alacak ya da üst sınır) belgede gösterilmiş",
       "basis": {
         "law": "4721",
         "article": "851",
         "paragraph": "1",
         "quote": "Taşınmaz rehni, miktarı Türk parası ile gösterilen belli bir alacak için kurulabilir."
       },
-      "check": {"type": "field_present", "field": "ipotek_tutari"},
+      "check": {
+        "type": "field_present",
+        "field": "ipotek_tutari"
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
       "obligor": "taraflar",
       "absence_is_violation": true,
       "exceptions": [],
-      "validity": {"from": null, "to": null},
+      "validity": {
+        "from": "2002-01-01",
+        "to": null
+      },
       "finding": "İpotek tutarı (üst sınır) belgede boş",
-      "rationale": "Belirlilik ilkesi: rehin miktarı gösterilmeden taşınmaz rehni kurulamaz; alacak belli değilse üst sınır belirtilir (TMK 851/1). Yabancı para ipoteği 851/2 ile mümkün, yine miktar gösterilir."
+      "rationale": "Belirlilik ilkesi: rehin miktarı gösterilmeden taşınmaz rehni kurulamaz; alacak belli değilse üst sınır belirtilir (TMK 851/1). Yabancı para ipoteği 851/2 ile mümkün, yine miktar gösterilir. Kural yalnızca miktarın gösterildiğini denetler; yabancı para ipoteğinin şartları (kredi kuruluşu, her derecede tek para türü, md. 851/1 devamı) denetlenmez, gerekirse müfettiş bakar (M9.7c)."
     },
     {
       "id": "TMK856-tapu-tescili",
@@ -32,13 +38,19 @@
         "paragraph": "1",
         "quote": "Taşınmaz rehni tapu kütüğüne tescil ile kurulur."
       },
-      "check": {"type": "field_present", "field": "yevmiye_no"},
+      "check": {
+        "type": "field_present",
+        "field": "yevmiye_no"
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
       "obligor": "banka",
       "absence_is_violation": false,
       "exceptions": [],
-      "validity": {"from": null, "to": null},
+      "validity": {
+        "from": "2002-01-01",
+        "to": null
+      },
       "finding": "İpoteğin tapuya tescil edildiği belgelenmemiş (yevmiye numarası yok)",
       "rationale": "Taşınmaz rehni tescille doğar (TMK 856/1); tescilsiz akit tablosu teminat sağlamaz. Yevmiye numarası tescilin belgedeki izidir, ama belgede boş olması tapu kütüğünde kayıt olmadığını kanıtlamaz (M9.4d: belgede yok ≠ hukuken yok): boş ya da bulunamadıysa belirsiz, müfettişe sorulur; müfettiş tapu kaydına bakıp 'tescil yok' derse karşılanmadı."
     },
@@ -52,13 +64,19 @@
         "paragraph": "1",
         "quote": "Sicile tescil edilmesiyle kurulur."
       },
-      "check": {"type": "field_present", "field": "sicil_no"},
+      "check": {
+        "type": "field_present",
+        "field": "sicil_no"
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
       "obligor": "banka",
       "absence_is_violation": false,
       "exceptions": [],
-      "validity": {"from": "2017-01-01", "to": null},
+      "validity": {
+        "from": "2017-01-01",
+        "to": null
+      },
       "finding": "Rehnin sicile tescil edildiği belgelenmemiş (sicil / kayıt numarası yok)",
       "rationale": "6750 md. 4/1: rehin hakkı sözleşmenin sicile tescili ile kurulur. Sözleşmede sicil numarasının boş olması sicilde kayıt olmadığını kanıtlamaz (M9.4d): belirsiz, müfettişe sorulur; müfettiş sicile bakıp 'kayıt yok' derse karşılanmadı. 6750 yürürlüğünden (1.1.2017) önceki rehinler eski mevzuata (TMK teslimli rehin, 1447) tabidir; o dönem için kural uygulanmaz."
     },
@@ -72,13 +90,19 @@
         "paragraph": "6",
         "quote": "ödenecek para cinsi ve rehnin azami miktarı"
       },
-      "check": {"type": "field_present", "field": "rehin_tutari"},
+      "check": {
+        "type": "field_present",
+        "field": "rehin_tutari"
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
       "obligor": "taraflar",
       "absence_is_violation": true,
       "exceptions": [],
-      "validity": {"from": "2017-01-01", "to": null},
+      "validity": {
+        "from": "2017-01-01",
+        "to": null
+      },
       "finding": "Rehnin azami miktarı sözleşmede boş",
       "rationale": "6750 md. 4/6-b: borcun miktarı, belirli değilse rehnin güvence teşkil ettiği miktar, para cinsi ve rehnin azami miktarı sözleşmede zorunlu unsurdur."
     },
@@ -92,15 +116,26 @@
         "paragraph": "4",
         "quote": "tarafların imzalarının noterce onaylanması veya sözleşmenin Sicil yetkilisinin huzurunda imzalanması şarttır."
       },
-      "check": {"type": "field_value", "field": "imza_onayi", "expected": ["noter", "sicil_yetkilisi", "guvenli_e_imza"]},
+      "check": {
+        "type": "field_value",
+        "field": "imza_onayi",
+        "expected": [
+          "noter",
+          "sicil_yetkilisi",
+          "guvenli_e_imza"
+        ]
+      },
       "result_class": "kısmen",
       "norm_type": "yükümlülük",
       "obligor": "taraflar",
-      "absence_is_violation": true,
+      "absence_is_violation": false,
       "exceptions": [],
-      "validity": {"from": "2017-01-01", "to": null},
+      "validity": {
+        "from": "2017-01-01",
+        "to": null
+      },
       "finding": "Rehin sözleşmesindeki imzaların onay şekli 6750 md. 4/3-4'e uygun değil (noter / sicil yetkilisi / güvenli e-imza yok)",
-      "rationale": "Yazılı sözleşme noter onayı ya da sicil yetkilisi huzurunda imza (md. 4/4), elektronik sözleşme güvenli e-imza (md. 4/3) olmadan sicile tescil edilemez. Onay şekli taranmış belgede her zaman anlaşılamaz: sınıf 'kısmen', bilinmiyorsa müfettişe sorulur."
+      "rationale": "Yazılı sözleşme noter onayı ya da sicil yetkilisi huzurunda imza (md. 4/4), elektronik sözleşme güvenli e-imza (md. 4/3) olmadan sicile tescil edilemez. Onay şekli taranmış belgede her zaman anlaşılamaz: sınıf 'kısmen', bilinmiyorsa müfettişe sorulur. Belgedeki 'İmza onayı' satırının boş olması tek başına ihlal sayılmaz (noter onayı damga / şerh olarak metne yansımayabilir): müfettiş 'onaysız' derse karşılanmadı (M9.7c)."
     },
     {
       "id": "BDDK-DHY14-lisans-no",
@@ -112,15 +147,21 @@
         "paragraph": "3",
         "quote": "Değerlemeyi yapan değerleme uzmanı veya uzmanlarının ad ve soyadları, imzaları ve lisans numaraları"
       },
-      "check": {"type": "field_present", "field": "lisans_no"},
+      "check": {
+        "type": "field_present",
+        "field": "lisans_no"
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
-      "obligor": "banka",
+      "obligor": "değerleme_kuruluşu",
       "absence_is_violation": true,
       "exceptions": [],
-      "validity": {"from": null, "to": null},
+      "validity": {
+        "from": null,
+        "to": null
+      },
       "finding": "Değerleme uzmanının lisans numarası raporda boş",
-      "rationale": "Bankalarca alınan değerleme raporunun asgari unsurlarından (md. 14/3-a-2); lisans numarası olmayan rapor, lisanslı uzman şartının sağlandığını göstermez."
+      "rationale": "Bankalarca alınan değerleme raporunun asgari unsurlarından (md. 14/3-a-2); lisans numarası olmayan rapor, lisanslı uzman şartının sağlandığını göstermez. Raporun içeriğinden değerleme kuruluşu sorumludur; banka eksik raporu teminat değerlemesinde kullanmamakla ve süreci iç kontrolüne almakla yükümlüdür (M9.7c)."
     },
     {
       "id": "BDDK-DHY14-rapor-tarihi",
@@ -132,15 +173,21 @@
         "paragraph": "3",
         "quote": "Raporun tarihi ve sayısı"
       },
-      "check": {"type": "field_present", "field": "rapor_tarihi"},
+      "check": {
+        "type": "field_present",
+        "field": "rapor_tarihi"
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
-      "obligor": "banka",
+      "obligor": "değerleme_kuruluşu",
       "absence_is_violation": true,
       "exceptions": [],
-      "validity": {"from": null, "to": null},
+      "validity": {
+        "from": null,
+        "to": null
+      },
       "finding": "Değerleme raporunun tarihi boş",
-      "rationale": "Md. 14/3-a-1 asgari unsur; rapor tarihi olmadan değerin kredi kullandırım tarihindeki güncelliği denetlenemez."
+      "rationale": "Md. 14/3-a-1 asgari unsur; rapor tarihi olmadan değerin kredi kullandırım tarihindeki güncelliği denetlenemez. Raporun içeriğinden değerleme kuruluşu sorumludur; banka eksik raporu teminat değerlemesinde kullanmamakla ve süreci iç kontrolüne almakla yükümlüdür (M9.7c)."
     },
     {
       "id": "BDDK-DHY14-nihai-deger",
@@ -152,15 +199,21 @@
         "paragraph": "3",
         "quote": "Nihai değer takdiri"
       },
-      "check": {"type": "field_present", "field": "deger"},
+      "check": {
+        "type": "field_present",
+        "field": "deger"
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
-      "obligor": "banka",
+      "obligor": "değerleme_kuruluşu",
       "absence_is_violation": true,
       "exceptions": [],
-      "validity": {"from": null, "to": null},
+      "validity": {
+        "from": null,
+        "to": null
+      },
       "finding": "Raporda nihai değer boş",
-      "rationale": "Md. 14/3-e-2: sonuç bölümünde nihai değer takdiri zorunlu; teminat değeri ve limit hesabı bu değere dayanır."
+      "rationale": "Md. 14/3-e-2: sonuç bölümünde nihai değer takdiri zorunlu; teminat değeri ve limit hesabı bu değere dayanır. Raporun içeriğinden değerleme kuruluşu sorumludur; banka eksik raporu teminat değerlemesinde kullanmamakla ve süreci iç kontrolüne almakla yükümlüdür (M9.7c)."
     },
     {
       "id": "BDDK-DHY20-iki-rapor",
@@ -174,17 +227,23 @@
       },
       "check": {
         "type": "human",
-        "instruction": "Değer 10 milyon TL'nin üzerinde: 30 gün içinde farklı bir değerleme kuruluşundan ikinci rapor alınmış mı, iki değer arasındaki fark %10'u aşıyorsa üçüncü rapor var mı, esas alınan değer ortalamaya göre hesaplanmış mı kontrol edin",
-        "applies_if": {"field": "deger", "above": 10000000}
+        "instruction": "Değer 10 milyon TL'nin üzerinde: (1) 30 gün içinde farklı değerleme kuruluşlarından iki rapor alınmış mı; (2) iki değer arasındaki fark %10'dan azsa esas alınan değer iki değerin aritmetik ortalaması mı; (3) fark %10'dan fazlaysa ilk ikisi dışındaki üçüncü bir kuruluşa değerleme yaptırılmış ve birbirine en yakın iki değerin ortalaması esas alınmış mı; (4) bağımsız bölüm niteliğindeki işyeri / konut değilse raporlar en az beş yıllık tecrübeli değerleme uzmanınca hazırlanmış mı. Fark tam %10 ise metin açık değil: hukuk / değerleme birimine danışın.",
+        "applies_if": {
+          "field": "deger",
+          "above": 10000000
+        }
       },
       "result_class": "manuel",
       "norm_type": "yükümlülük",
       "obligor": "banka",
       "absence_is_violation": false,
       "exceptions": [],
-      "validity": {"from": "2022-10-17", "to": null},
+      "validity": {
+        "from": "2022-10-17",
+        "to": null
+      },
       "finding": "On milyon TL üzeri değerlemede ikinci rapor kontrol edilmeli",
-      "rationale": "Md. 20/2 (RG 17.9.2022 değişik metin; değişiklik yönetmeliği 'yayımı tarihinden bir ay sonra yürürlüğe girer': yürürlük 17.10.2022, M9.4e): ikinci rapor tek belgeden görülemez, kural müfettişe kontrol maddesi üretir; eşik sayısal koşulla (applies_if above) yalnızca 10 milyon TL üstünde devreye girer. Kurul tutar ve oranları değiştirebilir (md. 20/3): eşik değişirse kural yeni metne göre yazılır."
+      "rationale": "Md. 20/2 (RG 17.9.2022 değişik metin; değişiklik yönetmeliği 'yayımı tarihinden bir ay sonra yürürlüğe girer': yürürlük 17.10.2022, M9.4e): ikinci rapor tek belgeden görülemez, kural müfettişe kontrol maddesi üretir; eşik sayısal koşulla (applies_if above) yalnızca 10 milyon TL üstünde devreye girer. Kurul tutar ve oranları değiştirebilir (md. 20/3): eşik değişirse kural yeni metne göre yazılır. Tam %10 farkı metinde iki duruma da girmez; kontrol maddesi bunu müfettişe bırakır (M9.7c)."
     },
     {
       "id": "6305-11-dask-baslangic",
@@ -196,15 +255,23 @@
         "paragraph": "2",
         "quote": "zorunlu deprem sigortasının yaptırıldığı ve işlem tarihi itibarıyla geçerli olduğu belgelenmedikçe yapamaz."
       },
-      "check": {"type": "date_order", "before": "baslangic_tarihi", "after": "islem_tarihi", "allow_equal": true},
+      "check": {
+        "type": "date_order",
+        "before": "baslangic_tarihi",
+        "after": "islem_tarihi",
+        "allow_equal": true
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
-      "obligor": "banka",
+      "obligor": "tapu_müdürlüğü",
       "absence_is_violation": false,
       "exceptions": [],
-      "validity": {"from": "2012-08-18", "to": null},
+      "validity": {
+        "from": "2012-08-18",
+        "to": null
+      },
       "finding": "DASK poliçesi tapu işlemi tarihinden sonra başlıyor: işlem tarihinde geçerli poliçe yok",
-      "rationale": "6305 md. 11/2: sigortaya tabi binalarda tapu tescil işlemi (ipotek tescili dahil) işlem tarihinde geçerli DASK belgelenmeden yapılamaz. İşlem tarihi poliçede yoksa müfettişe sorulur."
+      "rationale": "6305 md. 11/2: sigortaya tabi binalarda tapu tescil işlemi (ipotek tescili dahil) işlem tarihinde geçerli DASK belgelenmeden yapılamaz. İşlem tarihi poliçede yoksa müfettişe sorulur. Hükmün muhatabı tapu müdürlüğüdür; banka bunu teminatın (ipoteğin) sağlıklı tesisi için kendi kontrolü olarak denetler (M9.7c)."
     },
     {
       "id": "6305-11-dask-bitis",
@@ -216,28 +283,73 @@
         "paragraph": "2",
         "quote": "zorunlu deprem sigortasının yaptırıldığı ve işlem tarihi itibarıyla geçerli olduğu belgelenmedikçe yapamaz."
       },
-      "check": {"type": "date_order", "before": "islem_tarihi", "after": "bitis_tarihi", "allow_equal": true},
+      "check": {
+        "type": "date_order",
+        "before": "islem_tarihi",
+        "after": "bitis_tarihi",
+        "allow_equal": true
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
-      "obligor": "banka",
+      "obligor": "tapu_müdürlüğü",
       "absence_is_violation": false,
       "exceptions": [],
-      "validity": {"from": "2012-08-18", "to": null},
+      "validity": {
+        "from": "2012-08-18",
+        "to": null
+      },
       "finding": "DASK poliçesi tapu işlemi tarihinden önce sona ermiş: işlem tarihinde geçerli poliçe yok",
-      "rationale": "6305 md. 11/2, bkz. 6305-11-dask-baslangic."
+      "rationale": "6305 md. 11/2, bkz. 6305-11-dask-baslangic. Hükmün muhatabı tapu müdürlüğüdür; banka bunu teminatın (ipoteğin) sağlıklı tesisi için kendi kontrolü olarak denetler (M9.7c)."
     },
     {
-      "id": "TTK776-bono-bedel",
+      "id": "TTK776-bono-ibaresi",
       "document_type": "bono",
-      "title": "Bonoda belirli bir bedel yazılı",
-      "basis": {"law": "6102", "article": "776", "paragraph": "1", "quote": "Kayıtsız ve şartsız belirli bir bedeli ödemek vaadini"},
-      "check": {"type": "field_present", "field": "tutar"},
+      "title": "Senet metninde \"bono\" ya da \"emre yazılı senet\" ibaresi var",
+      "basis": {
+        "law": "6102",
+        "article": "776",
+        "paragraph": "1",
+        "quote": "Senet metninde “bono” veya “emre yazılı senet” kelimesini"
+      },
+      "check": {
+        "type": "text_pattern",
+        "pattern": "\\bbono|emre\\s+yazılı\\s+senet"
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
       "obligor": "borçlu",
       "absence_is_violation": true,
       "exceptions": [],
-      "validity": {"from": "2012-07-01", "to": null},
+      "validity": {
+        "from": "2012-07-01",
+        "to": null
+      },
+      "finding": "Senet metninde \"bono\" ya da \"emre yazılı senet\" ibaresi yok: senet bono sayılmaz (TTK 777/1)",
+      "rationale": "TTK 776/1-a zorunlu unsur; 777/1 gereği eksikliğinde senet bono sayılmaz. Belge 'bono' başlığıyla tanındığında ibare genellikle vardır; kural, ibaresi metinde hiç geçmeyen senedi yakalar. Yabancı dildeki karşılık denetlenmez (M9.7c)."
+    },
+    {
+      "id": "TTK776-bono-bedel",
+      "document_type": "bono",
+      "title": "Bonoda belirli bir bedel yazılı",
+      "basis": {
+        "law": "6102",
+        "article": "776",
+        "paragraph": "1",
+        "quote": "Kayıtsız ve şartsız belirli bir bedeli ödemek vaadini"
+      },
+      "check": {
+        "type": "field_present",
+        "field": "tutar"
+      },
+      "result_class": "otomatik",
+      "norm_type": "yükümlülük",
+      "obligor": "borçlu",
+      "absence_is_violation": true,
+      "exceptions": [],
+      "validity": {
+        "from": "2012-07-01",
+        "to": null
+      },
       "finding": "Bono bedeli boş: senet bono sayılmaz (TTK 777/1)",
       "rationale": "TTK 776/1-b zorunlu unsur; eksikliğinde 777/1 gereği senet bono sayılmaz ve kambiyo senedi teminatı kaybolur."
     },
@@ -245,14 +357,25 @@
       "id": "TTK776-bono-lehtar",
       "document_type": "bono",
       "title": "Bonoda lehtarın (kime ödeneceğinin) adı yazılı",
-      "basis": {"law": "6102", "article": "776", "paragraph": "1", "quote": "Kime veya kimin emrine ödenecek ise onun adını"},
-      "check": {"type": "field_present", "field": "lehtar"},
+      "basis": {
+        "law": "6102",
+        "article": "776",
+        "paragraph": "1",
+        "quote": "Kime veya kimin emrine ödenecek ise onun adını"
+      },
+      "check": {
+        "type": "field_present",
+        "field": "lehtar"
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
       "obligor": "borçlu",
       "absence_is_violation": true,
       "exceptions": [],
-      "validity": {"from": "2012-07-01", "to": null},
+      "validity": {
+        "from": "2012-07-01",
+        "to": null
+      },
       "finding": "Lehtar adı boş: senet bono sayılmaz (TTK 777/1)",
       "rationale": "TTK 776/1-e zorunlu unsur; 777/2-4'teki tamamlayıcı hükümler lehtarı kapsamaz."
     },
@@ -260,14 +383,25 @@
       "id": "TTK776-bono-duzenleme-tarihi",
       "document_type": "bono",
       "title": "Bonoda düzenlenme tarihi yazılı",
-      "basis": {"law": "6102", "article": "776", "paragraph": "1", "quote": "Düzenlenme tarihini ve yerini"},
-      "check": {"type": "field_present", "field": "duzenleme_tarihi"},
+      "basis": {
+        "law": "6102",
+        "article": "776",
+        "paragraph": "1",
+        "quote": "Düzenlenme tarihini ve yerini"
+      },
+      "check": {
+        "type": "field_present",
+        "field": "duzenleme_tarihi"
+      },
       "result_class": "otomatik",
       "norm_type": "yükümlülük",
       "obligor": "borçlu",
       "absence_is_violation": true,
       "exceptions": [],
-      "validity": {"from": "2012-07-01", "to": null},
+      "validity": {
+        "from": "2012-07-01",
+        "to": null
+      },
       "finding": "Düzenlenme tarihi boş: senet bono sayılmaz (TTK 777/1)",
       "rationale": "TTK 776/1-f; düzenlenme yeri eksikliği 777/4 ile tamamlanır, tarih eksikliği tamamlanmaz. Vade (777/2) ve ödeme yeri (777/3) eksikliği bonoyu geçersiz kılmadığı için kural yazılmadı."
     },
@@ -275,14 +409,25 @@
       "id": "TTK776-bono-imza",
       "document_type": "bono",
       "title": "Bonoda düzenleyenin imzası var",
-      "basis": {"law": "6102", "article": "776", "paragraph": "1", "quote": "Düzenleyenin imzasını"},
-      "check": {"type": "field_present", "field": "imza"},
+      "basis": {
+        "law": "6102",
+        "article": "776",
+        "paragraph": "1",
+        "quote": "Düzenleyenin imzasını"
+      },
+      "check": {
+        "type": "field_present",
+        "field": "imza"
+      },
       "result_class": "kısmen",
       "norm_type": "yükümlülük",
       "obligor": "borçlu",
       "absence_is_violation": false,
       "exceptions": [],
-      "validity": {"from": "2012-07-01", "to": null},
+      "validity": {
+        "from": "2012-07-01",
+        "to": null
+      },
       "finding": "Düzenleyenin imzası yok: senet bono sayılmaz (TTK 777/1)",
       "rationale": "TTK 776/1-g. İmzanın varlığı taranmış belgede metne yansımaz: imza yeri boş görünse de 'karşılanmadı' denmez, belirsiz kalır ve müfettişe sorulur (M9.4c; kefil imzasıyla aynı ilke)."
     },
@@ -290,14 +435,25 @@
       "id": "TTK776-bono-duzenleme-yeri",
       "document_type": "bono",
       "title": "Bonoda düzenlenme yeri ya da düzenleyenin adı yanında bir yer yazılı",
-      "basis": {"law": "6102", "article": "776", "paragraph": "1", "quote": "Düzenlenme tarihini ve yerini"},
-      "check": {"type": "field_present", "field": "duzenleme_yeri"},
+      "basis": {
+        "law": "6102",
+        "article": "776",
+        "paragraph": "1",
+        "quote": "Düzenlenme tarihini ve yerini"
+      },
+      "check": {
+        "type": "field_present",
+        "field": "duzenleme_yeri"
+      },
       "result_class": "kısmen",
       "norm_type": "yükümlülük",
       "obligor": "borçlu",
       "absence_is_violation": false,
       "exceptions": [],
-      "validity": {"from": "2012-07-01", "to": null},
+      "validity": {
+        "from": "2012-07-01",
+        "to": null
+      },
       "finding": "Düzenlenme yeri yok ve düzenleyenin adı yanında da yer yazılı değil: senet bono sayılmaz (TTK 777/1, 777/4)",
       "rationale": "TTK 776/1-f düzenlenme yerini ister; 777/4: yer gösterilmemişse düzenleyenin adının yanında yazılı yerde düzenlenmiş sayılır. Bu yüzden düzenlenme yeri satırı boşsa karşılanmadı denmez: müfettişe 'düzenleyenin adı yanında bir yer yazılı mı' sorulur; 'hiçbir yer yok' derse karşılanmadı (M9.4d, kullanıcının üçüncü gözden geçirmesi)."
     }

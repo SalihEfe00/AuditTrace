@@ -129,9 +129,10 @@ _CONVERT["imza_onayi"] = one_of([(r"noter", "noter"), (r"sicil(?:i)? yetkilisi",
 # (M10.5a; önceden eş zamanlı "sonra" sayılıyordu ve geç tescil bulgusuz kalıyordu)
 _CONVERT["teminat_sarti"] = one_of([
     # "kredi serbest bırakılmadan / verilmeden / açılışından önce": kredinin kullanıma açılmasından önce
+    # "En geç aynı gün" ayrı değer (M9.7c): "önce" şartında aynı gün tescil belirsizdir (saat yok), bu şartta karşılar
+    (r"aynı gün|eş zamanlı|kullandırım\w*\s+(?:ile\s+)?birlikte", "en_gec_kullandirim_gunu"),
     (r"(?:kullandır\w*|kredi\w*)(?:\s+\w+){0,3}?\s+(?:öncesi\w*|önce|evvel)|tesis edil\w*\s+sonra\s+kullandır|"
-     r"(?:alınmadan|tesis edilmeden)\s+kullandır|aynı gün|eş zamanlı|kullandırım\w*\s+(?:ile\s+)?birlikte",
-     "kullandirim_oncesi"),
+     r"(?:alınmadan|tesis edilmeden)\s+kullandır", "kullandirim_oncesi"),
     (r"kullandır\w*\s+sonra", "kullandirim_sonrasi"),
     (r".", UNDECIDED),  # şart başka bir şey söylüyor: tahmin edilmez, müfettişe sorulur
 ])

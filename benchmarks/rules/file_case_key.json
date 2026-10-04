@@ -87,7 +87,7 @@
     "senet_gks"
    ],
    "expected": {
-    "ONAY-teminat-once-ipotek": "karşılandı",
+    "ONAY-teminat-once-ipotek": "belirsiz",
     "ONAY-teminat-once-rehin": "belirsiz",
     "ONAY-teminat-once-kefalet": "belirsiz",
     "ONAY-kullandirim-tutari": "karşılandı",
@@ -457,6 +457,12 @@
     "6305-11-dask-ipotek-baslangic": "karşılanmadı"
    },
    "reason": "yapay zeka DASK başlangıcını 19.01.2025 yazmış, ipotek tescili 24.01.2024: poliçe tescilden sonra başlıyor"
+  },
+  "d_p10_chatgpt_4": {
+   "expected": {
+    "ONAY-teminat-once-ipotek": "karşılandı"
+   },
+   "reason": "tür 104 'önce' şartı istiyordu; yapay zeka onaya 'aynı gün tesis' şartı yazmış: aynı gün karşılar"
   },
   "d_p10_chatgpt_13": {
    "expected": {

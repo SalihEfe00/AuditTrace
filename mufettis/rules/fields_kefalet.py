@@ -48,7 +48,7 @@ CONVERT = {
     "kefil_medeni_hal": one_of([(r"evli", "evli"), (r"bek[aâ]r", "bekar"), (r"boşanmış", "boşanmış"), (r"\bdul\b", "dul")]),
     "kredi_turu": one_of([(r"tüketici|bireysel|ihtiyaç|konut|taşıt", "tüketici"),
                           (r"ticari|kurumsal|işletme|kobi", "ticari")]),
-    # 5070 md. 5/2 yalnızca güvenli elektronik imzayı yasaklar; türü yazmayan "elektronik imza" karar için yetersiz
+    # 5070 md. 5 (ikinci cümle) yalnızca güvenli elektronik imzayı yasaklar; türü yazmayan "elektronik imza" karar için yetersiz
     "imza_turu": one_of([(r"güvenli elektronik|nitelikli elektronik", "guvenli_e_imza"),
                          (r"basit elektronik|güvenli olmayan|ekrana|tablet", "diger_elektronik"),
                          # türü yazmayan e-imza: güvenliyse 5070 yasağı, değilse yazılı şekil eksik (M9.4e)
@@ -63,7 +63,7 @@ CONVERT = {
         (r"esnaf|sanatkâr|sanatkar|berber|terzi|bakkal|kuaför|kasap|fırın|manav|tamirci|marangoz|nalbur|"
          r"dükkan|dükkân|zanaat", "esnaf_sanatkar"),
         (r"tacir|işletme sahibi|ticari işletme|şahıs şirketi", "tacir_isletme_sahibi"),
-        (r"kooperatif", "kooperatif_kredisi"),
+        (r"kooperatif", UNDECIDED),  # 584/3 yalnızca sayılan kooperatifler (M9.7c): türü müfettişe sorulur
         (r"\byok\b|bireysel|ücretli|çalışan|memur|emekli|ev hanımı|öğrenci|işçi|personel|uzman|mühendis|"
          r"öğretmen|eleman|doktor|hekim|hemşire|teknisyen|şoför|sekreter|muhasebe|avukat|akademisyen", "yok"),
         (r".", UNDECIDED),

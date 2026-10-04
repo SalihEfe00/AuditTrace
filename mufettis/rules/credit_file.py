@@ -22,7 +22,7 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 from mufettis.rules.authority import authority_fields
 from mufettis.rules.catalog import AUTHORITY_KIND, FIELD_KEYS as _FIELD_KEYS, FILE_TYPE, Rule
 from mufettis.rules.doctype import detect_collateral_type
-from mufettis.rules.engine import UNKNOWN, FieldValue, RuleResult, evaluate_rule
+from mufettis.rules.engine import FILLED, NOT_FOUND, UNKNOWN, FieldValue, RuleResult, evaluate_rule
 from mufettis.rules.event_date import document_event_date
 from mufettis.rules.fields_kefalet import extract_kefalet_fields
 from mufettis.rules.fields_teminat import DOCUMENT_LABELS, extract_teminat_fields
@@ -100,6 +100,34 @@ def _merge(docs: Sequence[FileDocument]) -> Dict[str, FieldValue]:
     return out
 
 
+def _summed_field(rule: Rule, groups) -> Optional[Tuple[str, str, FieldValue]]:
+    """`aggregate: sum` kuralında alanın belge türünden birden çok belge varsa (tür, alan, toplam). Toplam yalnızca
+    bütün tutarlar okunmuş ve aynı para birimindeyse dolu; değilse bulunamadı (kural belirsiz)."""
+    if rule.check.get("aggregate") != "sum":
+        return None
+    name = rule.check["field"]
+    kind, _, base = name.partition(".")
+    docs = groups.get(kind, [])
+    if len(docs) < 2:
+        return None
+    parts = [d.fields.get(base) for d in docs]
+    dates = [d.fields.get("kullandirim_tarihi") for d in docs]
+    keys = [(str(getattr(p, "value", "")), str(getattr(t, "value", ""))) for p, t in zip(parts, dates)]
+    if len(set(keys)) < len(keys):  # aynı belge iki kez taranmış olabilir: toplam sahte bulgu verirdi
+        return kind, name, FieldValue(NOT_FOUND, None, "aynı tarih ve tutarda birden çok kullandırım: mükerrer belge "
+                                                       "olabilir, toplam elle kontrol edilmeli")
+    try:
+        values = [str(fv.value).split() for fv in parts if fv is not None and fv.state == FILLED]
+        if len(values) == len(docs) and len({cur for _, cur in values}) == 1:
+            total = sum(float(x) for x, _ in values)
+            shown = f"{total:.2f}".rstrip("0").rstrip(".")
+            where = "toplam: " + " + ".join(f"{d.name} {fv.value}" for d, fv in zip(docs, parts))
+            return kind, name, FieldValue.filled(f"{shown} {values[0][1]}", where)
+    except ValueError:
+        pass
+    return kind, name, FieldValue(NOT_FOUND, None, "birden çok kullandırımın toplamı hesaplanamadı")
+
+
 def file_fields(credit_file: CreditFile) -> Dict[str, FieldValue]:
     """Dosyadaki bütün belgelerin alanları "<tür>.<alan>" adıyla (aynı türden birden çok belgede sonuncusu)."""
     return _merge([d for d in credit_file.documents if d.kind])
@@ -126,7 +154,8 @@ def evaluate_file(rules: Iterable[Rule], credit_file: CreditFile, event_date: Op
         if rule.document_type != FILE_TYPE:
             continue
         kinds = _kinds(rule)
-        multi = [k for k in kinds if len(groups.get(k, [])) > 1]
+        summed = _summed_field(rule, groups)
+        multi = [k for k in kinds if len(groups.get(k, [])) > 1 and not (summed and k == summed[0])]
         fixed = [groups[k][0] for k in kinds if len(groups.get(k, [])) == 1]
         # Çoklu belge ancak dosyada tek olan belgelerle eşleşir; iki teminat belgesi (DASK ↔ ipotek) aynı taşınmaza
         # mı ait, belgeden bilinemez
@@ -143,9 +172,11 @@ def evaluate_file(rules: Iterable[Rule], credit_file: CreditFile, event_date: Op
         notes = [f"dosyada yok: {', '.join(missing)}"] if missing else []
         if AUTHORITY_KIND in kinds and not virtual:
             notes.append("onay mercii yetki tablosunda yok" if authority_table else "yetki tablosu girilmedi")
+        if summed:  # birden çok kullandırım: toplam onayla karşılaştırılır (M9.7c)
+            fixed = [d for d in fixed if d.kind != summed[0]] + groups[summed[0]]
         for extra in variants:
             docs = fixed + extra
-            fields = {**_merge(docs), **virtual, **(answers or {})}
+            fields = {**_merge(docs), **virtual, **(dict([summed[1:]]) if summed else {}), **(answers or {})}
             res = evaluate_rule(rule, fields, event_date=event_date)
             if notes and res.status == UNKNOWN:
                 res = RuleResult(res.rule_id, res.status, f"{res.finding} ({'; '.join(notes)})",

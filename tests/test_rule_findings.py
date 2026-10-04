@@ -75,3 +75,61 @@ def test_rules_about_collateral_missing_from_the_file_are_not_findings():
     assert "ONAY-teminat-once-rehin" not in ids and "ONAY-teminat-once-kefalet" not in ids
     assert "6305-11-dask-ipotek-baslangic" in ids  # ipotek var, DASK poliçesi yok: belirsiz bulgu
     assert "ONAY-teminat-once-ipotek" not in ids  # ipotek kullandırımdan önce: karşılandı, bulgu yok
+
+
+def test_review_c_changes():
+    """M9.7c (dış gözden geçirme raporları): şirket ≠ ortağı; çoklu kullandırım toplamı; bono ibaresi; kısa ad."""
+    from mufettis.rules.engine import FieldValue
+    rules = load_catalog()
+    differ = next(r for r in rules if r.id == "TBK581-kefil-ucuncu-kisi")
+    F = FieldValue.filled
+
+    def same(kefil, borclu):
+        return evaluate([differ], "kefalet_sozlesmesi", {"kefil": F(kefil), "borclu": F(borclu)})[0].status
+    assert same("Selim Arslan", "Selim Arslan Gıda A.Ş.") == MET          # şirket ile ortağı ayrı kişi
+    assert same("Selim Arslan", "Arslan Kuaförlüğü - Selim Arslan") == NOT_MET  # şahıs işletmesi = sahibi
+    # iki kullandırım: tek tek onayın altında, toplam üstünde
+    onay = "KREDİ TEKLİF VE ONAY FORMU\nOnaylanan Limit: 1.000.000 TL\nOnay Tarihi: 01.03.2024\n"
+    kul = "KREDİ KULLANDIRIM TALİMATI\nKullandırılan Tutar: {} TL\nKullandırım Tarihi: 15.03.2024\n"
+    amount = [r for r in rules if r.id == "ONAY-kullandirim-tutari"]
+    [res] = evaluate_file(amount, CreditFile.from_texts([("o", onay), ("k1", kul.format("700.000")),
+                                                         ("k2", kul.format("600.000"))]))
+    assert res.result.status == NOT_MET and any("toplam" in e[3] for e in res.result.evidence)
+    [res] = evaluate_file(amount, CreditFile.from_texts([("o", onay), ("k1", kul.format("400.000")),
+                                                         ("k2", kul.format("600.000"))]))
+    assert res.result.status == MET
+    # bono ibaresi
+    ibare = [r for r in rules if r.id == "TTK776-bono-ibaresi"]
+    assert evaluate(ibare, "bono", {}, text="BONO\nBedel: 1 TL")[0].status == MET
+    assert evaluate(ibare, "bono", {}, text="SENET\nBedel: 1 TL")[0].status == NOT_MET
+    # kod yerine kısa ad
+    masak = next(r for r in rules if r.id == "MASAK-7-imzalayan-yetkili")
+    assert evaluate([masak], "kredi_dosyasi", {})[0].basis == "Tedbirler Yön. md. 7/3"
+
+
+def test_review_c_sonnet_checks():
+    """M9.7c Sonnet denetimi: büyük harfli unvan, eksiz yazılmış aynı şirket, mükerrer kullandırım, aynı gün bulgusu,
+    'kooperatif' kelimesi istisna sayılmaz."""
+    from mufettis.rules.engine import FieldValue
+    from mufettis.rules.fields_kefalet import extract_kefalet_fields
+    rules = load_catalog()
+    differ = next(r for r in rules if r.id == "TBK581-kefil-ucuncu-kisi")
+    F = FieldValue.filled
+
+    def same(kefil, borclu):
+        return evaluate([differ], "kefalet_sozlesmesi", {"kefil": F(kefil), "borclu": F(borclu)})[0].status
+    assert same("SELİM ARSLAN", "ARSLAN GIDA ANONİM ŞİRKETİ") == MET
+    assert same("Arslan Gıda", "Arslan Gıda A.Ş.") == NOT_MET            # aynı şirket, eki yazılmamış
+    assert same("Kooperatif Başkanı Ali Veli", "Ali Veli") == NOT_MET     # kişi unvanı şirket eki değil
+    onay = "KREDİ TEKLİF VE ONAY FORMU\nOnaylanan Limit: 1.000.000 TL\nOnay Tarihi: 01.03.2024\n"
+    kul = "KREDİ KULLANDIRIM TALİMATI\nKullandırılan Tutar: 700.000 TL\nKullandırım Tarihi: 15.03.2024\n"
+    amount = [r for r in rules if r.id == "ONAY-kullandirim-tutari"]
+    [res] = evaluate_file(amount, CreditFile.from_texts([("o", onay), ("k1", kul), ("k2", kul)]))
+    assert res.result.status == UNKNOWN  # aynı tarih + tutar: mükerrer tarama olabilir
+    once = [r for r in rules if r.id == "ONAY-teminat-once-ipotek"]
+    ip = "TAPU MÜDÜRLÜĞÜ\nRESMİ SENET (İPOTEK)\nYevmiye No: 1\nTescil Tarihi: 15.03.2024\n"
+    cond = onay + "Teminat Şartı: Teminatlar kullandırımdan önce tesis edilecektir.\n"
+    [res] = evaluate_file(once, CreditFile.from_texts([("o", cond), ("k", kul), ("i", ip)]))
+    assert res.result.status == UNKNOWN and "aynı gün" in res.result.finding and "sonra tescil" not in res.result.finding
+    fields = extract_kefalet_fields("KEFALET SÖZLEŞMESİ\nKefil Mesleği: Konut kooperatifi üyesi\n")
+    assert "kefil_ticari_sifat" not in fields or fields["kefil_ticari_sifat"].state != "dolu"

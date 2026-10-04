@@ -90,8 +90,14 @@ def test_collateral_before_disbursement_is_an_internal_control_from_the_approval
         return {r.documents: (r.result.status, r.result.basis) for r in evaluate_file(rules, CreditFile.from_texts(docs))
                 if r.result.rule_id == "ONAY-teminat-once-ipotek"}
     kul = ("kul.pdf", KULLANDIRIM)  # kullandırım 15.03.2024
-    [(status, basis)] = run(("onay.pdf", cond), ("ip.pdf", IPOTEK.format("15.03.2024")), kul).values()
+    [(status, basis)] = run(("onay.pdf", cond), ("ip.pdf", IPOTEK.format("14.03.2024")), kul).values()
     assert status == MET and "iç kontrol" in basis
+    # aynı gün: "önce" şartında sıra bilinmez (saat yok) → belirsiz; "en geç aynı gün" şartında karşılandı (M9.7c)
+    same = run(("onay.pdf", cond), ("ip.pdf", IPOTEK.format("15.03.2024")), kul)
+    assert list(same.values())[0][0] == UNKNOWN
+    sameday = ONAY + "Teminat Şartı: Teminatların kullandırımla aynı gün tesis edilmesi şarttır.\n"
+    assert list(run(("onay.pdf", sameday), ("ip.pdf", IPOTEK.format("15.03.2024")), kul).values())[0][0] == MET
+    assert list(run(("onay.pdf", sameday), ("ip.pdf", IPOTEK.format("16.03.2024")), kul).values())[0][0] == NOT_MET
     assert list(run(("onay.pdf", cond), ("ip.pdf", IPOTEK.format("20.03.2024")), kul).values())[0][0] == NOT_MET
     # onayda şart yok: kural uygulanmaz; onay dosyada yok: belirsiz (müfettişe sorulur)
     later = ONAY + "Teminat Şartı: Teminatlar kullandırımdan sonra 30 gün içinde tesis edilecektir.\n"
@@ -206,7 +212,7 @@ def test_file_field_variants_from_measurement():
         assert {r.result.rule_id: r.result.status for r in evaluate_file(rules, f)} == {
             "MASAK-7-gks-imzalayan-yetkili": MET, "MASAK-7-gks-musterek-imza": MET}, listing
     from mufettis.rules.fields_teminat import extract_teminat_fields
-    for cond, want in (("Teminatın kredi kullandırımı ile aynı gün tesis edilmesi şarttır.", "kullandirim_oncesi"),
+    for cond, want in (("Teminatın kredi kullandırımı ile aynı gün tesis edilmesi şarttır.", "en_gec_kullandirim_gunu"),
                        ("Kredi kullandırılmadan evvel ipotek tesis olunacaktır.", "kullandirim_oncesi"),
                        ("Kredi çekilmeden önce ipotek tesis edilecektir.", "kullandirim_oncesi"),
                        ("Teminatların kredi kullandırıldıktan sonra 30 gün içinde tesis edilmesi mümkündür.",

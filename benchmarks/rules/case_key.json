@@ -416,7 +416,7 @@
     "TBK14-kefil-imzasi": "karşılandı"
    },
    "facts": {},
-   "note": "5070 md. 5/2; güvenli e-imza imzadır (TBK 15), sorun yalnızca türü: tek bulgu",
+   "note": "5070 md. 5 (ikinci cümle); güvenli e-imza imzadır (TBK 15), sorun yalnızca türü: tek bulgu",
    "fields": {
     "imza_turu": "guvenli_e_imza"
    }
@@ -590,6 +590,9 @@
    "note": "6750 md. 4/4",
    "fields": {
     "imza_onayi": "boş"
+   },
+   "expected_document": {
+    "6750-4-imza-onayi": "belirsiz"
    }
   },
   "29": {

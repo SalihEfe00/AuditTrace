@@ -58,7 +58,12 @@ INTERNAL_BASIS = "kredi_onayi"
 # İç kontrol dayanakları ve gösterimleri: kredi onayındaki şart (M10.2) ve kullanıcının girdiği yetki tablosu (M10.4)
 INTERNAL_BASES = {INTERNAL_BASIS: "kredi onayındaki şart (iç kontrol)",
                   "yetki_tablosu": "bankanın yetki tablosu (iç kontrol, kullanıcının girdiği)"}
-OBLIGORS = {"banka", "kefil", "eş", "borçlu", "alacaklı", "rehin_veren", "taraflar"}
+# Normun muhatabı (M9.7c): 6305 md. 11/2 tapu müdürlüğüne, değerleme raporunun içeriği değerleme kuruluşuna yöneliktir;
+# banka bunları kendi teminat kontrolü olarak denetler
+OBLIGORS = {"banka", "kefil", "eş", "borçlu", "alacaklı", "rehin_veren", "taraflar", "tapu_müdürlüğü",
+            "değerleme_kuruluşu"}
+# Mevzuat kodlarının gösterimdeki kısa adı (M9.7c): bulgu ve tablolarda ham kod yerine
+LAW_SHORT_NAMES = {"21.5.200713012": "Tedbirler Yön.", "7.5.23228": "Değerleme Yön."}
 
 # Belge türü → kuralların adlandırabileceği alanlar (M9.3 alanları; tür eklendikçe genişler).
 DOCUMENT_FIELDS: Dict[str, set] = {

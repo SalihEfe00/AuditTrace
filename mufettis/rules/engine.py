@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional
 
 from mufettis.analysis.turkish_text import turkish_lower
-from mufettis.rules.catalog import FIELD_KEYS, INTERNAL_BASES, Rule
+from mufettis.rules.catalog import FIELD_KEYS, INTERNAL_BASES, LAW_SHORT_NAMES, Rule
 
 FILLED, EMPTY, NOT_FOUND = "dolu", "boş", "bulunamadı"
 MET, NOT_MET, UNKNOWN, MANUAL, EXEMPT, NOT_APPLICABLE = (
@@ -54,7 +54,8 @@ class RuleResult:
 def _ref(b) -> str:
     if b.law in INTERNAL_BASES:  # kanun değil: bankanın kendi kredi onay şartı (M10.2) ya da yetki tablosu (M10.4)
         return f"{INTERNAL_BASES[b.law]}: {b.article}"
-    return f"{b.law} md. {b.article}" + (f"/{b.paragraph}" if b.paragraph else "")
+    law = LAW_SHORT_NAMES.get(b.law, b.law)
+    return f"{law} md. {b.article}" + (f"/{b.paragraph}" if b.paragraph else "")
 
 
 def _get(fields: Dict[str, FieldValue], name: str) -> FieldValue:
@@ -93,6 +94,26 @@ def _same_person(a: frozenset, b: frozenset) -> bool:
     return a <= b or b <= a  # ikinci ad yazılmamış olabilir ("Ali Veli" ↔ "Ali Rıza Veli")
 
 
+# Ticaret şirketi / tüzel kişi ekleri (Türkçe ve ASCII yazım); "Kooperatif Başkanı" gibi kişi unvanı ek sayılmaz
+_ENTITY = re.compile(r"(?:\ba\.\s?[şs]\.?|\ba\s?ş\b|\banonim\b|\bltd\b\.?|\blimited\b|\b[şs]ti\b\.?|"
+                     r"\b[şs]irketi\b|\bkooperatifi\b|\bvakf[ıi]\b|\bderne[ğg]i\b|\bholding\b|\binc\b\.?|"
+                     r"\bllc\b|\bgmbh\b)")
+
+
+def _entity_text(name) -> str:
+    return turkish_lower(str(name or "")).replace("\u0307", "")
+
+
+def _legal_entity(name: str) -> bool:
+    """Unvan bir ticaret şirketi / tüzel kişi biçiminde mi (A.Ş., Ltd. Şti., ANONİM ŞİRKETİ, kooperatifi …)."""
+    return bool(_ENTITY.search(_entity_text(name)))
+
+
+def _without_entity(name: str) -> str:
+    """Unvandan şirket ekleri atılmış ad ("Arslan Gıda A.Ş." → "arslan gıda")."""
+    return re.sub(r"\s+", " ", _ENTITY.sub(" ", _entity_text(name))).strip(" .,-")
+
+
 def _passes(rule: Rule, fields: Dict[str, FieldValue], text: str) -> Optional[bool]:
     """Kontrolün kendisi: True / False, ya da karar verilemiyorsa None."""
     check = rule.check
@@ -114,6 +135,11 @@ def _passes(rule: Rule, fields: Dict[str, FieldValue], text: str) -> Optional[bo
         if a.state != FILLED or b.state != FILLED:
             return None
         x, y = _norm(a.value), _norm(b.value)
+        # Ticaret şirketi / tüzel kişi ile gerçek kişi, unvan kişinin adını içerse de ayrı kişidir (M9.7c);
+        # şahıs işletmesi ("Arslan Kuaförlüğü - Selim Arslan") tüzel kişi değildir, sahibiyle aynı kişidir.
+        # Biri eksiz yazılmış aynı unvansa ("Arslan Gıda" / "Arslan Gıda A.Ş.") aynı kişidir.
+        if _legal_entity(a.value) != _legal_entity(b.value):
+            return _without_entity(a.value) != _without_entity(b.value)
         return not (x and y and (x in y or y in x))
     if kind == "date_order":
         a, b = _get(fields, check["before"]), _get(fields, check["after"])
@@ -121,7 +147,17 @@ def _passes(rule: Rule, fields: Dict[str, FieldValue], text: str) -> Optional[bo
             return None
         if not isinstance(a.value, dt.date) or not isinstance(b.value, dt.date):
             return None
-        return a.value < b.value or (check.get("allow_equal", True) and a.value == b.value)
+        if a.value != b.value:
+            return a.value < b.value
+        # Aynı gün: saat belgelerde yok. "Önce" şartında sıra bilinmez (belirsiz, M9.7c); "en geç aynı gün"
+        # şartında (equal_ok_if) aynı gün karşılar
+        ok_if = check.get("equal_ok_if")
+        if ok_if and _get(fields, ok_if["field"]).state == FILLED and \
+                _norm(_get(fields, ok_if["field"]).value) in {_norm(v) for v in ok_if["values"]}:
+            return True
+        if check.get("equal_unknown"):
+            return None
+        return bool(check.get("allow_equal", True))
     if kind == "amount_not_above":
         # "<tutar> <para birimi>": field ≤ other; para birimi farklıysa (dövize endeksli kredi olabilir) karar yok
         a, b = _get(fields, check["field"]), _get(fields, check["other"])
@@ -169,6 +205,14 @@ def _passes(rule: Rule, fields: Dict[str, FieldValue], text: str) -> Optional[bo
     return None
 
 
+def _same_day_unknown(rule: Rule, fields: Dict[str, FieldValue]) -> bool:
+    check = rule.check
+    if check.get("type") != "date_order" or not check.get("equal_unknown"):
+        return False
+    a, b = _get(fields, check["before"]), _get(fields, check["after"])
+    return a.state == FILLED and b.state == FILLED and isinstance(a.value, dt.date) and a.value == b.value
+
+
 def _condition_holds(cond: Dict, fv: FieldValue) -> Optional[bool]:
     """applies_if koşulu: değer listesinde mi ('values') ya da sayısal eşiğin üstünde mi ('above');
     sayı okunamazsa None (bilinmiyor)."""
@@ -212,6 +256,11 @@ def evaluate_rule(rule: Rule, fields: Dict[str, FieldValue], text: str = "",
     if rule.check["type"] == "human":
         return result(MANUAL, "insan kontrolü", finding=rule.check["instruction"], ev=evidence)
     outcome = _passes(rule, fields, text)
+    if outcome is None and _same_day_unknown(rule, fields):
+        before, after = rule.check["before"], rule.check["after"]
+        return result(UNKNOWN, "aynı gün: saat bilgisi yok, sıra belirlenemedi",
+                      finding=f"{before} ile {after} aynı gün; saat bilgisi olmadığından şartın sağlanıp sağlanmadığı "
+                              f"belirlenemedi ({rule.title})", ev=evidence)
     if outcome is True:
         return result(MET, "olumlu kanıt", ev=evidence)
     # Karşılanmadı demeden önce istisna: koşulu sağlanıyorsa istisna, bilinmiyorsa belirsiz.

@@ -34,7 +34,8 @@ def run(doc_type, text, answers=None):
     ("ipotek", IPOTEK.replace("Yevmiye No: 4521\n", ""), {"TMK856-tapu-tescili": "belirsiz"}),
     ("rehin", REHIN, {"6750-4-sicil-tescili": "karşılandı", "6750-4-azami-miktar": "karşılandı",
                       "6750-4-imza-onayi": "karşılandı"}),
-    ("rehin", REHIN.replace("Noter onaylı", "……"), {"6750-4-imza-onayi": "karşılanmadı"}),
+    # boş "İmza Onayı" satırı ihlal değil (onay damga / şerh olarak metne yansımayabilir; M9.7c): müfettişe sorulur
+    ("rehin", REHIN.replace("Noter onaylı", "……"), {"6750-4-imza-onayi": "belirsiz"}),
     ("rehin", REHIN.replace("İmza Onayı: Noter onaylı\n", ""), {"6750-4-imza-onayi": "belirsiz"}),
     ("rehin", REHIN.replace("800.000,00 TL", "……"), {"6750-4-azami-miktar": "karşılanmadı"}),
     ("ekspertiz", EKSPERTIZ, {"BDDK-DHY14-lisans-no": "karşılandı", "BDDK-DHY14-rapor-tarihi": "karşılandı",

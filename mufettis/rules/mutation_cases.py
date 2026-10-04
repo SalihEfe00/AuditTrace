@@ -90,7 +90,7 @@ CASES: List[Case] = [
          answers={"el_yazisi_kefalet_turu": "yok"}, basis="TBK 583/1: müteselsil sıfat kefilin el yazısıyla"),
     Case("m11-e-imza", _swap("İmza Türü: Islak imza", "İmza Türü: Güvenli elektronik imza"),
          {"5070-md5-e-imza-kefalet": "karşılanmadı", "TBK14-kefil-imzasi": "karşılandı"},
-         basis="5070 md. 5/2: teminat sözleşmesi güvenli e-imzayla kurulamaz; tek bulgu"),
+         basis="5070 md. 5 (ikinci cümle): teminat sözleşmesi güvenli e-imzayla kurulamaz; tek bulgu"),
     Case("m11b-e-imza-turu-yok", _swap("İmza Türü: Islak imza", "İmza Türü: Elektronik imza"),
          {"5070-md5-e-imza-kefalet": "belirsiz", "TBK14-kefil-imzasi": "karşılanmadı"},
          basis="türü yazmayan e-imza: güvenliyse 5070 yasağı, değilse yazılı şekil eksik → geçerli imza şekli yok; 5070 dayanağı müfettişe sorulur"),

@@ -24,8 +24,10 @@ TBK = {
 
 
 OTHER = {
-    ("5070", "5"): "Madde 5- Güvenli elektronik imza, elle atılan imza ile aynı hukukî sonucu doğurur.\nKanunların resmî "
-                   "şekle ... dışındaki teminat sözleşmeleri, güvenli elektronik imza ile gerçekleştirilemez.23",
+    ("5070", "5"): "Madde 5- Güvenli elektronik imza, elle atılan imza ile aynı hukukî sonucu doğurur. Kanunların resmî "
+                   "şekle veya özel bir merasime tabi tuttuğu hukukî işlemler ile banka teminat mektupları ve\nTürkiye’de "
+                   "yerleşik sigorta şirketleri tarafından düzenlenen kefalet senetleri dışındaki teminat sözleşmeleri, "
+                   "güvenli elektronik imza ile gerçekleştirilemez.23",
     ("6502", "4"): "(6) Tüketici işlemlerinde, tüketicinin edimlerine karşılık olarak alınan şahsi teminatlar,\n"
                    "her ne isim altında olursa olsun adi kefalet sayılır.",
     ("7.5.20767", "28"): "MADDE 28 –\n (1) Tüketici kredisi\nsözleşmelerinde tüketicinin edimlerine karşılık olarak alınan "
