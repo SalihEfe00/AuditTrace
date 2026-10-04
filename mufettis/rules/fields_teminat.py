@@ -64,11 +64,33 @@ DOCUMENT_LABELS: Dict[str, Dict[str, List[str]]] = {
         "duzenleme_yeri": [r"(?:düzenleme|düzenlenme|tanzim) yeri"],
         "imza": [r"(?:düzenleyen(?:in)? )?imza(?:sı)?"],
     },
+    # Kredi dosyasının teminat dışı belgeleri (M10.1); belgeler arası kurallar mufettis/rules/credit_file.py
+    "kredi_onay": {
+        "borclu": [r"(?:müşteri|borçlu|kredi talep eden)(?: adı soyadı| unvanı)?", r"firma(?: unvanı)?"],
+        "onaylanan_tutar": [r"onaylanan (?:limit|tutar|kredi(?: tutarı)?)", r"tahsis edilen (?:limit|tutar)",
+                            r"(?:kredi )?limit(?:i)?"],
+        "onay_tarihi": [r"(?:onay|karar|tahsis|komite) tarihi"],
+        "onay_mercii": [r"onay (?:mercii|makamı|yetkisi)", r"onaylayan(?: (?:merci|komite|yetkili))?",
+                        r"karar (?:mercii|organı)"],
+    },
+    "kullandirim": {
+        "borclu": [r"(?:müşteri|borçlu|kredi kullanan)(?: adı soyadı| unvanı)?"],
+        "kullandirilan_tutar": [r"kullandırılan (?:tutar|kredi(?: tutarı)?|limit)", r"kullandırım tutarı"],
+        "kullandirim_tarihi": [r"kullandırım tarihi", r"(?:valör|işlem) tarihi"],
+        "imzalayan": [r"(?:onaylayan|imzalayan|yetkili)(?: personel| adı soyadı)?"],
+    },
+    "imza_sirkuleri": {
+        "unvan": [r"(?:şirket|firma)?(?: unvanı)", r"ticaret unvanı"],
+        "yetkili": [r"yetkili(?:ler|nin)?(?: adı soyadı)?", r"temsile yetkili(?:ler)?"],
+        "yetki_sekli": [r"yetki (?:şekli|türü)", r"temsil şekli"],
+        "yetki_suresi": [r"yetki (?:süresi|bitiş tarihi)", r"geçerlilik (?:süresi|tarihi)"],
+        "duzenleme_tarihi": [r"(?:düzenleme|onay|tasdik) tarihi"],
+    },
 }
 
 _DATES = {"sozlesme_tarihi", "tescil_tarihi", "sicil_tescil_tarihi", "rapor_tarihi", "inceleme_tarihi", "baslangic_tarihi", "bitis_tarihi",
-          "duzenleme_tarihi", "vade_tarihi", "islem_tarihi"}
-_AMOUNTS = {"ipotek_tutari", "rehin_tutari", "deger", "tutar"}
+          "duzenleme_tarihi", "vade_tarihi", "islem_tarihi", "onay_tarihi", "kullandirim_tarihi"}
+_AMOUNTS = {"ipotek_tutari", "rehin_tutari", "deger", "tutar", "onaylanan_tutar", "kullandirilan_tutar"}
 _CONVERT = {f: as_date for f in _DATES}
 _CONVERT.update({f: as_amount for f in _AMOUNTS})
 _CONVERT["imza_onayi"] = one_of([(r"noter", "noter"), (r"sicil(?:i)? yetkilisi", "sicil_yetkilisi"),

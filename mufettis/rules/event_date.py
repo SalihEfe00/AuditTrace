@@ -22,6 +22,11 @@ EVENT_DATE_FIELDS = {
     "dask": ("islem_tarihi", "baslangic_tarihi"),
     "bono": ("duzenleme_tarihi",),
     "senet_gks": ("duzenleme_tarihi",),
+    "kredi_onay": ("onay_tarihi",),
+    "kullandirim": ("kullandirim_tarihi",),
+    "imza_sirkuleri": ("duzenleme_tarihi",),
+    # Kredi dosyası (M10.1): belgeler arası kurallar kullandırım anındaki metne göre
+    "kredi_dosyasi": ("kullandirim.kullandirim_tarihi", "kredi_onay.onay_tarihi"),
 }
 
 

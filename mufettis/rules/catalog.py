@@ -65,7 +65,14 @@ DOCUMENT_FIELDS: Dict[str, set] = {
     "dask": {"police_no", "baslangic_tarihi", "bitis_tarihi", "sigortali", "dain_murtehin", "islem_tarihi"},
     "senet_gks": {"borclu", "tutar", "duzenleme_tarihi", "vade_tarihi", "imza"},
     "bono": {"duzenleyen", "lehtar", "tutar", "vade_tarihi", "odeme_yeri", "duzenleme_tarihi", "duzenleme_yeri", "imza"},
+    # Kredi dosyasının teminat dışı belgeleri (M10.1)
+    "kredi_onay": {"borclu", "onaylanan_tutar", "onay_tarihi", "onay_mercii"},
+    "kullandirim": {"borclu", "kullandirilan_tutar", "kullandirim_tarihi", "imzalayan"},
+    "imza_sirkuleri": {"unvan", "yetkili", "yetki_sekli", "yetki_suresi", "duzenleme_tarihi"},
 }
+# Kredi dosyası (M10.1): belgeler arası kurallar alanı "<belge türü>.<alan>" diye adlandırır
+FILE_TYPE = "kredi_dosyasi"
+DOCUMENT_FIELDS[FILE_TYPE] = {f"{kind}.{name}" for kind, names in DOCUMENT_FIELDS.items() for name in names}
 
 
 class CatalogError(ValueError):

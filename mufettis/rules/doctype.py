@@ -53,6 +53,17 @@ _TYPES = {
     "bono": (r"^(?:bono|emre (?:yazili|muharrer) senet)\b", None,
              [r"lehtar", r"duzenleyen", r"odeme yeri", r"duzen(?:le|len)me yeri"]),
     "senet_gks": (r"(?:genel )?kredi sozlesmesi", r"genel kredi sozlesmesi", []),
+    # Kredi dosyasının teminat dışı belgeleri (M10.1): başlıkla ya da en az iki özgü etiketle
+    "kredi_onay": (r"kredi (?:teklif|onay|tahsis)|teklif ve onay|komite karar|tahsis karar",
+                   r"kredi komitesi|onaylanan (?:limit|tutar)|tahsis edilen limit",
+                   [r"onay (?:tarihi|mercii)|onaylayan", r"onaylanan (?:limit|tutar|kredi)|tahsis edilen (?:limit|tutar)",
+                    r"karar (?:tarihi|no)", r"teklif edilen (?:limit|tutar)"]),
+    "kullandirim": (r"kullandirim", r"kullandirim (?:tarihi|talimati)|kullandirilan tutar",
+                    [r"kullandirim tarihi", r"kullandirilan (?:tutar|kredi|limit)", r"kullandirim hesabi",
+                     r"(?:valor|islem) tarihi"]),
+    "imza_sirkuleri": (r"imza sirkuler|imza beyannamesi", r"imza sirkuleri|temsile yetkili",
+                       [r"yetkili(?:ler|nin)?(?: adi soyadi)?", r"yetki (?:sekli|turu|siniri|suresi)",
+                        r"(?:munferit|musterek) (?:imza|yetki)"]),
 }
 _BONO_PROMISE = r"emrine.{0,80}odeyecegi[mz]|odeyecegi[mz].{0,40}emrine|kayitsiz sartsiz.{0,60}odeyecegi[mz]"
 _ORDER = list(_TYPES)  # eşitlikte önce gelen (daha özgül) seçilir
