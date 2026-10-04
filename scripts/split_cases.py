@@ -75,6 +75,8 @@ def split_file(path: Path):
     file_prompt, ai = (None, path.stem) if combined else (m.group(1).upper(), m.group(2))
     # "VAKALAR_GEMİNİ" → "gemini" (Türkçe büyük İ'nin küçük harfte bıraktığı birleşik nokta da atılır)
     ai = re.sub(r"^vakalar?_", "", ai.lower().replace("̇", "")).replace("copliot", "copilot")
+    if combined:  # yarıda kesilen çıktının devamı "chatgpt_2.txt": aynı yapay zeka
+        ai = re.sub(r"_\d+$", "", ai)
     text = path.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
     parts = SPLIT.split(text)
     sections = [(x.start(), x.group(1).upper()) for x in SECTION.finditer(text)]
@@ -136,10 +138,13 @@ def main(src: str, out: str, all_holdout: bool = False, tag: str = "") -> int:
     cases = []
     for path in sorted(src_dir.glob("*.txt"), key=lambda p: p.name.lower()):
         cases.extend(split_file(path))
-    seen = {}
+    seen, ids = {}, set()
     for c in cases:
         digest = hashlib.sha1(re.sub(r"\s+", " ", c["text"]).strip().encode("utf-8")).hexdigest()
         c["id"] = f"{tag}{c['prompt'].lower()}_{c['ai']}_{c['label']}"
+        if c["id"] in ids:  # devam dosyası numarayı baştan başlatmış: kimlik dosya adıyla ayrışır
+            c["id"] += "_" + Path(c["source"]).stem.lower()
+        ids.add(c["id"])
         c["excluded"] = digest in seen
         if c["excluded"]:
             c["warnings"].append(f"aynı metin: {seen[digest]} (atıldı)")
