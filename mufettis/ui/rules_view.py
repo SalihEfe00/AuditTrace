@@ -30,51 +30,89 @@ TYPE_NAMES = {"kefalet_sozlesmesi": "kefalet sözleşmesi", "ipotek": "ipotek", 
 ICON = {MET: "✅", NOT_MET: "❌", UNKNOWN: "❔", MANUAL: "📝", EXEMPT: "➖", NOT_APPLICABLE: "➖"}
 
 
+def _plain_source(source: str) -> str:
+    """Olay tarihinin kaynağı sade yazılır (M15.6): "kullandirim.kullandirim_tarihi" → "kullandırım talimatı —
+    kullandirim tarihi"."""
+    kind, _, field = source.rpartition(".")
+    field = field.replace("_", " ")
+    return f"{FILE_TYPE_NAMES.get(kind, kind)} — {field}" if kind else field
+
+
+def _event_date_input(detected: dt.date, source_text: str, key: str) -> dt.date:
+    """Olay tarihi (M15.6): belgeden okunan tarih önerilir, müfettiş değiştirebilir; kaynağı yazılır."""
+    col1, col2 = st.columns([1, 3])
+    chosen = col1.date_input("Olay tarihi", value=detected, min_value=dt.date(1950, 1, 1),
+                             max_value=dt.date(2100, 12, 31), format="DD.MM.YYYY", key=key)
+    chosen = chosen if isinstance(chosen, dt.date) else detected
+    why = "sizin girdiğiniz tarih" if chosen != detected else source_text
+    col2.caption(f"Olay tarihi: {chosen:%d.%m.%Y} ({why})")
+    return chosen
+
+
+def _type_choice(label: str, options, current, key: str, ask: bool):
+    """Belge türü seçimi (M15.6): tanınmayan belgede doğrudan sorulur, tanınanda "türü değiştir" altında."""
+    names = {None: "(seçilmedi)", **FILE_TYPE_NAMES}
+    opts = [None] + [o for o in options if o is not None]
+    index = opts.index(current) if current in opts else 0
+    box = st.container() if ask else st.popover("türü değiştir")
+    with box:
+        return box.selectbox(label, opts, index=index, format_func=lambda k: names.get(k, k), key=key)
+
+
 def render_collateral_check(text: str, event_date: Optional[dt.date] = None) -> None:
-    if st is None:
+    if st is None or not (text or "").strip():
         return
-    with st.expander("Teminat uygunluk kontrolü — kefalet, ipotek, rehin, ekspertiz, DASK, bono"):
-        if not (text or "").strip():
-            st.caption("Kontrol için önce belge metnini girin.")
+    doc_type = detect_collateral_type(text)
+    # Cevaplar ve tür seçimi belgeye bağlı: metin değişince eski beyanlar yeni belgeye taşınmaz.
+    doc_key = hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]
+    detected = doc_type.document_type if doc_type.document_type in TYPE_NAMES else None
+    chosen = st.session_state.get(f"rules_kind_{doc_key}")
+    kind = chosen or detected
+    col1, col2 = st.columns([3, 2])
+    if kind is None:
+        col1.caption(f"Belge kurallı bir teminat belgesi olarak tanınmadı ({doc_type.reason}). Türünü biliyorsanız "
+                     "seçin.")
+    else:
+        col1.caption(f"Belge türü: {TYPE_NAMES[kind]}" + (" (sizin seçtiğiniz)" if chosen else
+                     ("" if doc_type.reason.startswith("puan") else f" ({doc_type.reason})")))
+    with col2:
+        picked = _type_choice("Belge türü", list(TYPE_NAMES), chosen, f"rules_kind_pick_{doc_key}", ask=kind is None)
+    if picked != chosen:
+        st.session_state[f"rules_kind_{doc_key}"] = picked
+        st.rerun()
+    if kind is None:
+        return
+    if doc_type.via_603 and not chosen:
+        st.info(f"Kişisel güvence belgesi: {doc_type.reason}")
+    rules = load_catalog()
+    fields = extract_kefalet_fields(text) if kind == "kefalet_sozlesmesi" else extract_teminat_fields(kind, text)
+    answers = st.session_state.setdefault(f"rules_answers_{doc_key}", {})
+    fields = apply_answers(fields, answers)
+    if event_date is None:
+        detected_day, source = document_event_date(kind, fields)
+        event_date = _event_date_input(
+            detected_day,
+            "belgeden okunamadı, bugün varsayıldı; kurallar güncel metne göre" if source == "bugün"
+            else f"belgedeki {_plain_source(source)}; kurallar o tarihteki kanun metnine göre",
+            f"rules_event_{doc_key}")
+    results = evaluate(rules, kind, fields, text=text, event_date=event_date)
+    questions = pending_questions(rules, results, fields)
+
+    def ask():
+        if not questions:
             return
-        doc_type = detect_collateral_type(text)
-        kind = doc_type.document_type
-        if kind not in TYPE_NAMES:
-            st.caption(f"Belge kurallı bir teminat belgesi olarak tanınmadı ({doc_type.reason}).")
-            return
-        st.caption(f"Belge türü: {TYPE_NAMES[kind]}"
-                   + ("" if doc_type.reason.startswith("puan") else f" ({doc_type.reason})"))
-        if doc_type.via_603:
-            st.info(f"Kişisel güvence belgesi: {doc_type.reason}")
-        rules = load_catalog()
-        fields = extract_kefalet_fields(text) if kind == "kefalet_sozlesmesi" else extract_teminat_fields(kind, text)
-        # Cevaplar belgeye bağlı: metin değişince eski beyanlar yeni belgeye taşınmaz.
-        doc_key = hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]
-        answers = st.session_state.setdefault(f"rules_answers_{doc_key}", {})
-        fields = apply_answers(fields, answers)
-        if event_date is None:
-            event_date, source = document_event_date(kind, fields)
-            st.caption(f"Olay tarihi: {event_date:%d.%m.%Y} ("
-                       + ("belgeden okunamadı, bugün varsayıldı; kurallar güncel metne göre" if source == "bugün"
-                          else f"belgedeki {source}; kurallar o tarihteki kanun metnine göre") + ")")
-        results = evaluate(rules, kind, fields, text=text, event_date=event_date)
-        questions = pending_questions(rules, results, fields)
+        with st.container(border=True):
+            _questions_header("Belgeden anlaşılamayanlar")
+            changed = _questions(questions, answers, doc_key, "rules")
+        if changed:
+            st.rerun()
 
-        def ask():
-            if not questions:
-                return
-            with st.container(border=True):
-                _questions_header("Belgeden anlaşılamayanlar")
-                changed = _questions(questions, answers, doc_key, "rules")
-            if changed:
-                st.rerun()
+    def full_list():
+        for res in results:
+            _result_line(res)
 
-        def full_list():
-            for res in results:
-                _result_line(res)
-
-        _findings_section(rules, results, "Teminat Belgesi Kontrolü", [("belge", TYPE_NAMES[kind])], event_date,
-                          f"rules_{doc_key}", questions=ask, full_list=full_list)
+    _findings_section(rules, results, "Teminat Belgesi Kontrolü", [("belge", TYPE_NAMES[kind])], event_date,
+                      f"rules_{doc_key}", questions=ask, full_list=full_list)
 
 
 FILE_TYPE_NAMES = {**TYPE_NAMES, "senet_gks": "senet / genel kredi sözleşmesi", "kredi_onay": "kredi teklif / onay",
@@ -88,14 +126,21 @@ def _questions_header(title: str, extra: str = "") -> None:
                + (f" ({extra})" if extra else "") + ".")
 
 
-def _questions(questions, answers, key, prefix):
-    """Soruları çizer; cevap değişirse True (çağıran yeniden çizer)."""
+_QUESTION_TAG = re.compile(r"^\[([a-z_]+)\]\s*")
+
+
+def _questions(questions, answers, key, prefix, names=None):
+    """Soruları çizer; cevap değişirse True (çağıran yeniden çizer). `names`: belge türü → ekranda gösterilecek ad
+    (M15.6: soruların başındaki `[dask]` gibi teknik etiket yerine belge adı)."""
     changed = False
     for q in questions:
         labels = [UNKNOWN_ANSWER] + [shown for shown, _ in q.options]
         if q.kind != "choice":
             labels.append("yazacağım")
-        choice = st.radio(q.text, labels, horizontal=True, key=f"{prefix}_q_{key}_{q.field}")
+        text = q.text
+        if names:
+            text = _QUESTION_TAG.sub(lambda m: f"[{names.get(m.group(1), m.group(1))}] ", text)
+        choice = st.radio(text, labels, horizontal=True, key=f"{prefix}_q_{key}_{q.field}")
         if choice == "yazacağım":
             hint = {"amount": "Tutar (TL)", "money": "Tutar ve para birimi (ör. 250.000 USD)",
                     "text": "Ad soyad (birden çok ise virgülle)"}.get(q.kind, "Tarih (GG.AA.YYYY)")
@@ -248,26 +293,6 @@ def _findings_section(rules, results, title, documents, event_date, key, questio
                        key=f"{key}_docx")
 
 
-def _uploaded_texts():
-    """Yüklenen dosyaların metni (ad, metin); her dosya bir kez çıkarılır (OCR yavaş olabilir)."""
-    files = st.file_uploader("Kredi dosyasının belgeleri (PDF, DOCX, TXT; birden çok seçilebilir)",
-                             type=["pdf", "docx", "txt"], accept_multiple_files=True, key="credit_file_upload")
-    cache = st.session_state.setdefault("credit_file_texts", {})
-    out = []
-    for f in files or []:
-        data = f.getvalue()
-        fid = hashlib.sha256(data).hexdigest()
-        if fid not in cache:
-            from mufettis.ui.analysis_view import load_uploaded_document
-            try:
-                cache[fid] = load_uploaded_document(f.name, data).text
-            except Exception as exc:
-                st.error(f"{f.name} okunamadı: {exc}")
-                continue
-        out.append((f.name, cache[fid]))
-    return out
-
-
 def current_authority_table():
     """Yetki tablosu (M10.4): kayıtlı tablo oturuma bir kez yüklenir; düzenleyici Admin → Ayarlar'dadır (M15.5)."""
     from mufettis.rules.authority import load_table
@@ -300,95 +325,96 @@ def render_authority_settings() -> None:
 def render_credit_file_check(items=None, event_date: Optional[dt.date] = None, authority_table=None) -> None:
     """Kredi dosyası kontrolü (M10): birden çok belge tek dosya; belgeler türüne göre yerleşir, her belgenin kendi
     kuralları ve belgeler arası dosya kuralları çalışır, belirsiz kalanlar müfettişe sorulur. `items` (ad, metin)
-    verilirse yükleyici gösterilmez (test); `authority_table` verilirse yetki tablosu düzenleyicisi gösterilmez."""
+    belgeleri tek yükleyiciden gelir (M15.6); `authority_table` verilmezse kayıtlı tablo kullanılır."""
     if st is None:
         return
     from mufettis.rules.authority import authority_fields
     from mufettis.rules.catalog import AUTHORITY_KIND, FILE_TYPE
     from mufettis.rules.credit_file import CreditFile, evaluate_file, file_event_date, file_fields, load_document
 
-    with st.expander("Kredi dosyası kontrolü — onay, teminatlar, imza sirküleri, kullandırım (birden çok belge)"):
-        items = list(items) if items is not None else _uploaded_texts()
-        if not items:
-            st.caption("Kontrol için dosyanın belgelerini yükleyin.")
+    items = list(items or [])
+    if not items:
+        return
+    file_key = hashlib.sha1("\n".join(sorted(hashlib.sha1(t.encode("utf-8")).hexdigest()
+                                             for _, t in items)).encode()).hexdigest()[:12]
+    kinds = st.session_state.setdefault(f"credit_file_kinds_{file_key}", {})
+    st.markdown("**Belgeler**")
+    documents = []
+    options = [_AUTO] + list(FILE_TYPE_NAMES)
+    for i, (name, text) in enumerate(items):
+        tid = hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]  # tür seçimi belgeye bağlı
+        chosen = kinds.get(tid)
+        doc = load_document(name, text, chosen)
+        col1, col2 = st.columns([3, 2])
+        # Otomatik tanının puanı teknik ayrıntı; yalnız kullanıcının seçimi gibi açıklamalar gösterilir
+        why = "" if doc.reason.startswith("puan") else f" ({doc.reason})"
+        col1.markdown(f"📄 **{name}** — " + (f"{FILE_TYPE_NAMES.get(doc.kind, doc.kind)}{why}" if doc.kind
+                                            else f"⚠️ tanınmadı ({doc.reason}); türünü seçin"))
+        with col2:  # tür seçimi yalnız tanınmayan belgede doğrudan, tanınanda "türü değiştir" altında
+            picked = _type_choice("Tür", options[1:], chosen, f"credit_file_kind_{file_key}_{i}",
+                                  ask=doc.kind is None)
+        if picked != chosen:
+            kinds[tid] = picked
+            st.rerun()
+        documents.append(doc)
+    credit_file = CreditFile(documents)
+    rules = load_catalog()
+    answers = st.session_state.setdefault(f"credit_file_answers_{file_key}", {})
+    answered = apply_answers({}, answers)
+    if event_date is None:
+        detected_day, source = file_event_date(credit_file)
+        event_date = _event_date_input(
+            detected_day, "dosyadan okunamadı, bugün varsayıldı" if source == "bugün" else f"dosyadaki {_plain_source(source)}",
+            f"credit_file_event_{file_key}")
+    if authority_table is None:
+        authority_table = current_authority_table()
+        st.caption(f"Yetki tablosu: {len(authority_table)} satır" if authority_table else
+                   "Yetki tablosu girilmedi; onay yetkisi kuralı karar verilemedi kalır (Admin → Ayarlar).")
+    results = evaluate_file(rules, credit_file, event_date=event_date, answers=answered,
+                            authority_table=authority_table)
+    approvals = credit_file.by_kind().get("kredi_onay", [])
+    virtual = authority_fields(approvals[0].fields, authority_table) if len(approvals) == 1 else {}
+    known = {**file_fields(credit_file), **virtual, **answered}
+    questions = pending_questions([r for r in rules if r.document_type == FILE_TYPE], [r.result for r in results],
+                                  known)
+    # Dosyada olmayan belgenin alanı sorulmaz: cevap belgenin yerini tutmaz, sonuç "dosyada yok" diye kalır
+    present = set(credit_file.by_kind())
+    if "kredi_onay" in present:  # tabloda olmayan merciin sınırı sorulabilir (onay belgesi varsa)
+        present.add(AUTHORITY_KIND)
+    questions = [q for q in questions if q.field.split(".", 1)[0] in present]
+
+    question_names = {kind: ", ".join(d.name for d in docs) for kind, docs in credit_file.by_kind().items()}
+    question_names[AUTHORITY_KIND] = "yetki tablosu"
+
+    def ask():
+        if not questions:
             return
-        file_key = hashlib.sha1("\n".join(sorted(hashlib.sha1(t.encode("utf-8")).hexdigest()
-                                                 for _, t in items)).encode()).hexdigest()[:12]
-        kinds = st.session_state.setdefault(f"credit_file_kinds_{file_key}", {})
-        st.markdown("**Belgeler**")
-        documents = []
-        options = [_AUTO] + list(FILE_TYPE_NAMES)
-        for i, (name, text) in enumerate(items):
-            tid = hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]  # tür seçimi belgeye bağlı
-            chosen = kinds.get(tid)
-            doc = load_document(name, text, chosen)
-            col1, col2 = st.columns([3, 2])
-            # Otomatik tanının puanı teknik ayrıntı; yalnız kullanıcının seçimi gibi açıklamalar gösterilir
-            why = "" if doc.reason.startswith("puan") else f" ({doc.reason})"
-            col1.markdown(f"📄 **{name}** — " + (f"{FILE_TYPE_NAMES.get(doc.kind, doc.kind)}{why}" if doc.kind
-                                                else f"⚠️ tanınmadı ({doc.reason}); dosyaya alınmadı"))
-            picked = col2.selectbox("Tür", options, index=options.index(chosen) if chosen in options else 0,
-                                    format_func=lambda k: FILE_TYPE_NAMES.get(k, k), key=f"credit_file_kind_{file_key}_{i}",
-                                    label_visibility="collapsed")
-            picked = None if picked == _AUTO else picked
-            if picked != chosen:
-                kinds[tid] = picked
-                st.rerun()
-            documents.append(doc)
-        credit_file = CreditFile(documents)
-        rules = load_catalog()
-        answers = st.session_state.setdefault(f"credit_file_answers_{file_key}", {})
-        answered = apply_answers({}, answers)
-        if event_date is None:
-            event_date, source = file_event_date(credit_file)
-            st.caption(f"Olay tarihi: {event_date:%d.%m.%Y} ("
-                       + ("dosyadan okunamadı, bugün varsayıldı" if source == "bugün" else f"dosyadaki {source}") + ")")
-        if authority_table is None:
-            authority_table = current_authority_table()
-            st.caption(f"Yetki tablosu: {len(authority_table)} satır" if authority_table else
-                       "Yetki tablosu girilmedi; onay yetkisi kuralı karar verilemedi kalır (Admin → Ayarlar).")
-        results = evaluate_file(rules, credit_file, event_date=event_date, answers=answered,
-                                authority_table=authority_table)
-        approvals = credit_file.by_kind().get("kredi_onay", [])
-        virtual = authority_fields(approvals[0].fields, authority_table) if len(approvals) == 1 else {}
-        known = {**file_fields(credit_file), **virtual, **answered}
-        questions = pending_questions([r for r in rules if r.document_type == FILE_TYPE], [r.result for r in results],
-                                      known)
-        # Dosyada olmayan belgenin alanı sorulmaz: cevap belgenin yerini tutmaz, sonuç "dosyada yok" diye kalır
-        present = set(credit_file.by_kind())
-        if "kredi_onay" in present:  # tabloda olmayan merciin sınırı sorulabilir (onay belgesi varsa)
-            present.add(AUTHORITY_KIND)
-        questions = [q for q in questions if q.field.split(".", 1)[0] in present]
+        with st.container(border=True):
+            _questions_header("Dosyadan anlaşılamayanlar", "aynı türden birden çok belge varsa cevap hepsine uygulanır")
+            changed = _questions(questions, answers, file_key, "credit_file", names=question_names)
+        if changed:
+            st.rerun()
 
-        def ask():
-            if not questions:
-                return
-            with st.container(border=True):
-                _questions_header("Dosyadan anlaşılamayanlar", "aynı türden birden çok belge varsa cevap hepsine uygulanır")
-                changed = _questions(questions, answers, file_key, "credit_file")
-            if changed:
-                st.rerun()
+    own = [(d, evaluate(rules, d.kind, d.fields, text=d.text, event_date=document_event_date(d.kind, d.fields)[0]))
+           for d in documents if d.kind]
+    own = [(d, res) for d, res in own if res]
+    from mufettis.rules.credit_file import FileResult
+    everything = list(results) + [FileResult((d.name,), r) for d, res in own for r in res]
 
-        own = [(d, evaluate(rules, d.kind, d.fields, text=d.text, event_date=document_event_date(d.kind, d.fields)[0]))
-               for d in documents if d.kind]
-        own = [(d, res) for d, res in own if res]
-        from mufettis.rules.credit_file import FileResult
-        everything = list(results) + [FileResult((d.name,), r) for d, res in own for r in res]
+    def full_list():
+        st.markdown("**Belgeler arası kurallar**")
+        for fr in results:
+            _result_line(fr.result, fr.documents)
+        if own:
+            st.markdown("**Belgelerin kendi kuralları** (sorular belgenin tek başına kontrolünde)")
+            for doc, res in own:
+                st.markdown(f"*{doc.name}*")
+                for r in res:
+                    _result_line(r)
 
-        def full_list():
-            st.markdown("**Belgeler arası kurallar**")
-            for fr in results:
-                _result_line(fr.result, fr.documents)
-            if own:
-                st.markdown("**Belgelerin kendi kuralları** (sorular belgenin tek başına kontrolünde)")
-                for doc, res in own:
-                    st.markdown(f"*{doc.name}*")
-                    for r in res:
-                        _result_line(r)
-
-        _findings_section(rules, everything, "Kredi Dosyası Kontrolü",
-                          [(d.name, FILE_TYPE_NAMES.get(d.kind, "tanınmadı")) for d in documents], event_date,
-                          f"credit_file_{file_key}", questions=ask, full_list=full_list)
+    _findings_section(rules, everything, "Kredi Dosyası Kontrolü",
+                      [(d.name, FILE_TYPE_NAMES.get(d.kind, "tanınmadı")) for d in documents], event_date,
+                      f"credit_file_{file_key}", questions=ask, full_list=full_list)
 
 
 __all__ = ["render_collateral_check", "render_credit_file_check", "FILE_TYPE_NAMES"]

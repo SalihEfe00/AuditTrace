@@ -208,6 +208,43 @@ def render_evidence_text_html(text_span: str) -> str:
     )
 
 
+# Yeni kontrol başlatılınca temizlenen oturum değerleri (M15.6); ayarlar ve yetki tablosu kalır.
+_CHECK_STATE_PREFIXES = ("analysis_ui_", "check_", "rules_", "credit_file_")
+_CHECK_STATE_KEEP = {"analysis_ui_llm_verification", "credit_file_authority", "credit_file_authority_editor",
+                     "check_upload_nonce"}
+
+
+def reset_check() -> None:
+    """"Yeni kontrol başlat": yüklenenler, metin, cevaplar, tür seçimleri ve sonuçlar silinir; yükleyici boşalsın
+    diye anahtarı yenilenir. Düğmenin geri çağrısında çalışır (widget değerleri ancak çizimden önce değişebilir)."""
+    for key in list(st.session_state.keys()):
+        if key in _CHECK_STATE_KEEP:
+            continue
+        if key == "analysis_exec_result" or str(key).startswith(_CHECK_STATE_PREFIXES):
+            del st.session_state[key]
+    st.session_state["check_upload_nonce"] = st.session_state.get("check_upload_nonce", 0) + 1
+
+
+def _read_uploads(files) -> List[Any]:
+    """Yüklenen dosyalar (ad, metin, UploadedDocument); her dosya bir kez okunur (OCR yavaş olabilir)."""
+    cache = st.session_state.setdefault("check_texts", {})
+    out = []
+    for f in files:
+        data = f.getvalue()
+        if not isinstance(data, (bytes, bytearray)):
+            continue
+        fid = hashlib.sha256(data).hexdigest()
+        if fid not in cache:
+            try:
+                with st.spinner(f"{f.name} okunuyor… (taranmış PDF'lerde birkaç dakika sürebilir)"):
+                    cache[fid] = load_uploaded_document(f.name, data)
+            except Exception as exc:
+                st.error(f"{f.name} okunamadı: {exc}")
+                continue
+        out.append((f.name, cache[fid].text, cache[fid]))
+    return out
+
+
 def render_analysis_page(
     rag_client: Optional[Any] = None,
     presenter: Optional[AnalysisPresenter] = None,
@@ -283,59 +320,67 @@ def render_analysis_page(
 
     st.divider()
 
-    # ── Input Area ────────────────────────────────────────────────────────────
+    # ── Input Area (M15.6: tek giriş) ────────────────────────────────────────
     st.markdown("### 1. Belge Girişi")
-    # Yükleyici metin alanından önce: metin alanının anahtarına yalnızca widget oluşmadan yazılabilir.
-    uploaded = st.file_uploader(
-        "Belge yükle (PDF, DOCX, TXT) — veya metni aşağıya yapıştırın",
+    nonce = st.session_state.get("check_upload_nonce", 0)
+    files = st.file_uploader(
+        "Belge yükle (PDF, DOCX, TXT) — kredi dosyasının bütün belgelerini birlikte seçebilirsiniz",
         type=UPLOAD_TYPES,
-        key="analysis_ui_upload",
+        accept_multiple_files=True,
+        key=f"check_upload_{nonce}",
     )
-    data = uploaded.getvalue() if uploaded is not None else None
-    if isinstance(data, (bytes, bytearray)):
-        upload_id = hashlib.sha256(data).hexdigest()
-        # Aynı dosya her yeniden çizimde tekrar çıkarılmaz; kullanıcının metinde yaptığı düzeltme korunur.
+    items = _read_uploads(files if isinstance(files, list) else [])
+    st.button("🔄 Yeni kontrol başlat", key="check_new", on_click=reset_check,
+              help="Yüklenen belgeleri, metni, cevaplarınızı ve sonuçları temizler; ayarlar ve yetki tablosu kalır.")
+    # Yükleyici metin alanından önce: metin alanının anahtarına yalnızca widget oluşmadan yazılabilir.
+    if items:
+        upload_id = hashlib.sha256("\n".join(t for _, t, _ in items).encode("utf-8")).hexdigest()
+        # Aynı dosyalar her yeniden çizimde tekrar yazılmaz; kullanıcının metinde yaptığı düzeltme korunur.
         if st.session_state.get("analysis_ui_upload_id") != upload_id:
             st.session_state["analysis_ui_upload_id"] = upload_id
-            try:
-                loaded = load_uploaded_document(uploaded.name, data)
-            except Exception as exc:
-                st.error(f"Belge okunamadı: {exc}")
-            else:
-                st.session_state["analysis_ui_text"] = loaded.text
+            if len(items) == 1:
+                name, text, loaded = items[0]
+                st.session_state["analysis_ui_text"] = text
                 if not st.session_state.get("analysis_ui_title", "").strip():
                     st.session_state["analysis_ui_title"] = loaded.title
-                st.session_state["analysis_ui_upload_info"] = f"{uploaded.name}: {loaded.info}"
-                st.session_state["analysis_exec_result"] = None
+                st.session_state["analysis_ui_upload_info"] = f"{name}: {loaded.info}"
+            else:  # mevzuat yardımcısı dosyanın bütün metnine bakar
+                st.session_state["analysis_ui_text"] = "\n\n".join(f"=== {n} ===\n{t}" for n, t, _ in items)
+                st.session_state["analysis_ui_upload_info"] = f"{len(items)} belge"
+            st.session_state["analysis_exec_result"] = None
         info = st.session_state.get("analysis_ui_upload_info")
         if info:
-            st.caption(f"📄 Yüklenen belge — {info}. Metni analizden önce aşağıda düzeltebilirsiniz.")
+            st.caption(f"📄 Yüklenen: {info}.")
 
-    in_col1, in_col2 = st.columns(2)
-    doc_title = in_col1.text_input(
-        "Belge Başlığı (Opsiyonel)",
-        placeholder="Örn: 2024/03 Şube Denetim Raporu",
-        key="analysis_ui_title",
-    )
-    doc_source = in_col2.text_input(
-        "Kaynak / Birim (Opsiyonel)",
-        placeholder="Örn: Bireysel Bankacılık / BDDK İletişim / Müşteri",
-        key="analysis_ui_source",
-    )
+    with st.expander("Metni yapıştırarak kontrol (dosya yerine) ve metni düzeltme", expanded=False):
+        in_col1, in_col2 = st.columns(2)
+        doc_title = in_col1.text_input(
+            "Belge Başlığı (Opsiyonel)",
+            placeholder="Örn: 2024/03 Şube Denetim Raporu",
+            key="analysis_ui_title",
+        )
+        doc_source = in_col2.text_input(
+            "Kaynak / Birim (Opsiyonel)",
+            placeholder="Örn: Bireysel Bankacılık / BDDK İletişim / Müşteri",
+            key="analysis_ui_source",
+        )
+        doc_text = st.text_area(
+            "Belge Metni",
+            height=180,
+            placeholder="Kontrol edilecek belgenin metnini buraya yapıştırınız...",
+            key="analysis_ui_text",
+            help="Belge yüklediyseniz metni burada düzeltebilirsiniz. En az 15 karakter.",
+        )
 
-    doc_text = st.text_area(
-        "Belge Metni *",
-        height=180,
-        placeholder="Analiz edilecek şikayet, teftiş notu veya iç yazışma metnini buraya yapıştırınız...",
-        key="analysis_ui_text",
-        help="En az 15 karakter içeren metin girilmelidir.",
-    )
-
-    # M9: teminat belgesi kuralları (belirsiz alanlar müfettişe sorulur)
+    # Bir belge (ya da yapıştırılan metin) → belgenin kendi kontrolü; birden çok → kredi dosyası kontrolü
     from mufettis.ui.rules_view import render_collateral_check, render_credit_file_check
-    render_collateral_check(doc_text)
-    # M10: kredi dosyası (birden çok belge, belgeler arası kurallar)
-    render_credit_file_check()
+    if len(items) > 1:
+        render_credit_file_check([(n, t) for n, t, _ in items])
+    elif isinstance(doc_text, str) and doc_text.strip():
+        render_collateral_check(doc_text)
+    else:
+        st.info("Başlamak için belge yükleyin: tek belge (ör. kefalet sözleşmesi) ya da kredi dosyasının bütün "
+                "belgeleri.")
 
     from mufettis.llm.client import ollama_health
     llm_health = ollama_health()

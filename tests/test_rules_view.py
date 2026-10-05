@@ -116,7 +116,7 @@ def test_credit_file_view_places_documents_asks_and_shows_cross_document_results
     assert "kredi teklif / onay" in md and "⚠️ tanınmadı" in md
     # kullandırılan tutar okunamadı → soru; cevapla karşılandı / karşılanmadı
     assert "❔ **belirsiz** — `ONAY-kullandirim-tutari`" in md
-    radio = next(r for r in at.radio if "[kullandirim] Kullandırılan tutar" in r.label)
+    radio = next(r for r in at.radio if "[kul.pdf] Kullandırılan tutar" in r.label)  # M15.6: teknik etiket yerine belge adı
     radio.set_value("yazacağım").run()
     box = next(t for t in at.text_input if "para birimi" in t.label)
     box.input("1.200.000").run()
@@ -134,7 +134,7 @@ def test_credit_file_view_does_not_ask_about_documents_missing_from_the_file():
     kul = "KREDİ KULLANDIRIM TALİMATI\nMüşteri: Örnek Ltd.\nKullandırım Tarihi: 15.03.2024\n"
     at = _file_app([("kul.pdf", kul)]).run()
     assert not at.exception
-    assert all(r.label.startswith("[kullandirim]") for r in at.radio)
+    assert all(r.label.startswith("[kul.pdf]") for r in at.radio)
     assert "(dosyada yok: kredi_onay)" in _markdown(at)
 
 
@@ -145,7 +145,7 @@ def test_credit_file_view_uses_authority_table():
     assert not at.exception
     assert "❌ **karşılanmadı** — `YETKI-onay-siniri`" in _markdown(at)
     at = _file_app([("onay.pdf", onay)]).run()  # tablo yok: sınır sorulur
-    radio = next(r for r in at.radio if r.label.startswith("[yetki_tablosu]"))
+    radio = next(r for r in at.radio if r.label.startswith("[yetki tablosu]"))
     radio.set_value("yazacağım").run()
     next(t for t in at.text_input if "para birimi" in t.label).input("2.000.000").run()
     assert "✅ **karşılandı** — `YETKI-onay-siniri`" in _markdown(at)
