@@ -268,28 +268,33 @@ def _uploaded_texts():
     return out
 
 
-def _authority_table_editor():
-    """Yetki tablosu (M10.4): kullanıcı girer, veri klasörüne kaydedilir; kayıtlı tablo açılışta yüklenir."""
-    from mufettis.rules.authority import load_table, save_table, table_path
+def current_authority_table():
+    """Yetki tablosu (M10.4): kayıtlı tablo oturuma bir kez yüklenir; düzenleyici Admin → Ayarlar'dadır (M15.5)."""
+    from mufettis.rules.authority import load_table
     if "credit_file_authority" not in st.session_state:
         try:
             st.session_state["credit_file_authority"] = load_table()
         except Exception as exc:  # bozuk dosya: tablo boş başlar, kullanıcı görür
             st.warning(f"Kayıtlı yetki tablosu okunamadı: {exc}")
             st.session_state["credit_file_authority"] = []
-    table = st.session_state["credit_file_authority"]
-    with st.popover("Yetki tablosu (isteğe bağlı)" + (f" — {len(table)} satır" if table else "")):
-        st.caption("Bankanın kredi yetki sınırları: onay mercii ve onaylayabileceği azami tutar (ör. 'Şube Kredi "
-                   "Komitesi' — '5.000.000 TL'). Birimsiz tutar TL sayılır. Kanun değil iç düzenlemedir; sonuç "
-                   "'iç kontrol' olarak gösterilir.")
-        rows = [{"Onay mercii": n, "Azami tutar": m} for n, m in table] or [{"Onay mercii": "", "Azami tutar": ""}]
-        edited = st.data_editor(rows, num_rows="dynamic", key="credit_file_authority_editor", use_container_width=True)
-        if st.button("Tabloyu kaydet", key="credit_file_authority_save"):
-            saved = save_table([(r.get("Onay mercii"), r.get("Azami tutar")) for r in edited])
-            st.session_state["credit_file_authority"] = saved
-            st.success(f"{len(saved)} satır kaydedildi ({table_path()}).")
-            st.rerun()
-    return table
+    return st.session_state["credit_file_authority"]
+
+
+def render_authority_settings() -> None:
+    """Admin → Ayarlar: yetki tablosu düzenleyicisi (önceden kredi dosyası bölümünde açılır kutuydu)."""
+    from mufettis.rules.authority import save_table, table_path
+    table = current_authority_table()
+    st.markdown("**Yetki tablosu (isteğe bağlı)**" + (f" — {len(table)} satır" if table else ""))
+    st.caption("Bankanın kredi yetki sınırları: onay mercii ve onaylayabileceği azami tutar (ör. 'Şube Kredi "
+               "Komitesi' — '5.000.000 TL'). Birimsiz tutar TL sayılır. Kanun değil iç düzenlemedir; sonuç "
+               "'iç kontrol' olarak gösterilir.")
+    rows = [{"Onay mercii": n, "Azami tutar": m} for n, m in table] or [{"Onay mercii": "", "Azami tutar": ""}]
+    edited = st.data_editor(rows, num_rows="dynamic", key="credit_file_authority_editor", use_container_width=True)
+    if st.button("Tabloyu kaydet", key="credit_file_authority_save"):
+        saved = save_table([(r.get("Onay mercii"), r.get("Azami tutar")) for r in edited])
+        st.session_state["credit_file_authority"] = saved
+        st.success(f"{len(saved)} satır kaydedildi ({table_path()}).")
+        st.rerun()
 
 
 def render_credit_file_check(items=None, event_date: Optional[dt.date] = None, authority_table=None) -> None:
@@ -339,7 +344,9 @@ def render_credit_file_check(items=None, event_date: Optional[dt.date] = None, a
             st.caption(f"Olay tarihi: {event_date:%d.%m.%Y} ("
                        + ("dosyadan okunamadı, bugün varsayıldı" if source == "bugün" else f"dosyadaki {source}") + ")")
         if authority_table is None:
-            authority_table = _authority_table_editor()
+            authority_table = current_authority_table()
+            st.caption(f"Yetki tablosu: {len(authority_table)} satır" if authority_table else
+                       "Yetki tablosu girilmedi; onay yetkisi kuralı karar verilemedi kalır (Admin → Ayarlar).")
         results = evaluate_file(rules, credit_file, event_date=event_date, answers=answered,
                                 authority_table=authority_table)
         approvals = credit_file.by_kind().get("kredi_onay", [])

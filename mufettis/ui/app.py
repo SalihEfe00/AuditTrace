@@ -71,6 +71,7 @@ from mufettis.rag.maintenance import (
 from mufettis.scheduler.scheduler import BackgroundUpdateScheduler
 from mufettis.ui.admin import render_mevzuat_admin
 from mufettis.ui.analysis_view import render_analysis_page, render_review_history
+from mufettis.ui.rules_view import render_authority_settings
 
 logger = logging.getLogger(__name__)
 def run_self_tests(*args, **kwargs):
@@ -189,58 +190,8 @@ def run_streamlit() -> None:
     if st.session_state.get("llm_model_choice"):
         set_model(st.session_state["llm_model_choice"])
     with st.sidebar:
-        st.header("Sistem")
-        local_only = st.checkbox("Tam yerel mod", value=True, help="Resmî Gazete senkronizasyonu ve ilk model indirmeyi kapatır.")
-        # Devre dışı checkbox son değerini döndürmeye devam eder; tam yerel modda indirme izni zorla kapatılır.
-        allow_embedding_download = st.checkbox("İlk embedding model indirmesine izin ver", value=False, disabled=local_only) and not local_only
-        auto_update = st.checkbox("Arka planda günlük mevzuat güncellemesi", value=False, disabled=local_only, help="Uygulama açıkken her gün 00:05 Europe/Istanbul saatinde BDDK + Resmî Gazete senkronizasyonunu çalıştırır.")
-        playwright_available = sync_playwright is not None
-        use_browser_bddk = st.checkbox(
-            "BDDK için Playwright kullan",
-            value=playwright_available,
-            disabled=local_only or not playwright_available,
-            help=(
-                "JavaScript ile yüklenen linklerde requests/BeautifulSoup yerine headless Chromium kullanır."
-                if playwright_available
-                else "Playwright kurulu değil (requirements-optional.txt); BDDK HTTP toplayıcıyla taranır."
-            ),
-        ) and playwright_available
-        st.markdown("### Analiz ayarları")
-        z_threshold_ui = st.number_input(
-            "Z-score eşiği",
-            min_value=0.5,
-            max_value=10.0,
-            value=3.0,
-            step=0.1,
-            key="sidebar_z_threshold",
-            help="Z-score ve grup içi Z-score için eşik.",
-        )
-        mad_threshold_ui = st.number_input(
-            "Medyan / MAD eşiği",
-            min_value=0.5,
-            max_value=15.0,
-            value=3.5,
-            step=0.1,
-            key="sidebar_mad_threshold",
-            help="Medyan merkezli robust modified z-score eşiği.",
-        )
-        iqr_multiplier_ui = st.number_input(
-            "IQR katsayısı",
-            min_value=0.5,
-            max_value=5.0,
-            value=1.5,
-            step=0.1,
-            key="sidebar_iqr_multiplier",
-        )
-        auditor = st.text_input("Denetçi / kullanıcı", value="")
-        if not local_only and auto_update:
-            scheduler = BackgroundUpdateScheduler.get_or_create(["bddk_official", "resmi_gazete"], use_browser_for_bddk=use_browser_bddk)
-            scheduler.start()
-            st.caption(f"Otomatik güncelleme aktif — sonraki çalışma yaklaşık {scheduler.seconds_until_next_run()/3600:.1f} saat sonra.")
-        elif BackgroundUpdateScheduler._instance is not None:
-            BackgroundUpdateScheduler._instance.stop()
-        health = check_disk_health()
-        st.write(f"Disk: {'OK' if health.get('ok') else 'HATA'} | Boş: {health.get('free_gb','?')} GB")
+        # M15.5: kenar çubuğunda yalnız denetçi adı ve mevzuatın güncelliği; diğer ayarlar Admin → Ayarlar'da.
+        auditor = st.text_input("Denetçi adı", value="", key="auditor_name")
         # M6.16: korpusun güncelliği; eskiyse sonuçların hangi tarihteki mevzuata göre olduğu söylenir.
         from mufettis.config import DATA_DIR
         from mufettis.corpus.currency import last_corpus_update, staleness_message
@@ -258,9 +209,6 @@ def run_streamlit() -> None:
                        help="Son 7 günün Resmî Gazetesi taranır; değişen belgeler resmî kaynaktan yeniden indirilir."):
             ok, message = start_update(DATA_DIR, BASE_DIR, production=not os.environ.get("MUFETTIS_DATA_DIR"))
             (st.success if ok else st.error)(message)
-        if st.button("Self-test çalıştır"):
-            result = run_self_tests()
-            render_self_test_result(result)
 
     # M15.4: dört ana sekme; Mevzuat Arama, Admin'den önceki son sekme. Eski Veri Analizi / İnceleme / Rapor
     # sekmeleri silinmedi, Admin → Gelişmiş araçlar → İşlem verisi analizi (deneysel) altına taşındı; mevzuat
@@ -277,15 +225,80 @@ def run_streamlit() -> None:
             "Yerel mevzuat yükleme, toplu içe aktarma, resmi kaynak senkronizasyonu, "
             "bootstrap, RAG rebuild, sistem testleri ve gelişmiş araçlar."
         )
-        admin_main, admin_diag, admin_advanced = st.tabs(
-            ["Mevzuat yönetimi ve sistem", "Mevzuat teşhis araçları", "Gelişmiş araçlar"]
+        admin_settings, admin_main, admin_diag, admin_advanced = st.tabs(
+            ["Ayarlar", "Mevzuat yönetimi ve sistem", "Mevzuat teşhis araçları", "Gelişmiş araçlar"]
         )
+    # M15.5: ayarlar diğer sekmelerden önce okunur (değerleri onlar kullanır); önceden kenar çubuğundaydı.
+    with admin_settings:
+        st.markdown("#### Mevzuat ve internet")
+        local_only = st.checkbox("Tam yerel mod", value=True, help="Resmî Gazete senkronizasyonu ve ilk model indirmeyi kapatır.")
+        # Devre dışı checkbox son değerini döndürmeye devam eder; tam yerel modda indirme izni zorla kapatılır.
+        allow_embedding_download = st.checkbox("İlk embedding model indirmesine izin ver", value=False, disabled=local_only) and not local_only
+        auto_update = st.checkbox("Arka planda günlük mevzuat güncellemesi", value=False, disabled=local_only, help="Uygulama açıkken her gün 00:05 Europe/Istanbul saatinde BDDK + Resmî Gazete senkronizasyonunu çalıştırır.")
+        playwright_available = sync_playwright is not None
+        use_browser_bddk = st.checkbox(
+            "BDDK için Playwright kullan",
+            value=playwright_available,
+            disabled=local_only or not playwright_available,
+            help=(
+                "JavaScript ile yüklenen linklerde requests/BeautifulSoup yerine headless Chromium kullanır."
+                if playwright_available
+                else "Playwright kurulu değil (requirements-optional.txt); BDDK HTTP toplayıcıyla taranır."
+            ),
+        ) and playwright_available
+        if not local_only and auto_update:
+            scheduler = BackgroundUpdateScheduler.get_or_create(["bddk_official", "resmi_gazete"], use_browser_for_bddk=use_browser_bddk)
+            scheduler.start()
+            st.caption(f"Otomatik güncelleme aktif — sonraki çalışma yaklaşık {scheduler.seconds_until_next_run()/3600:.1f} saat sonra.")
+        elif BackgroundUpdateScheduler._instance is not None:
+            BackgroundUpdateScheduler._instance.stop()
+        st.markdown("#### Yerel dil modeli")
+        render_llm_settings()
+        st.markdown("#### Kredi dosyası")
+        render_authority_settings()
+        st.markdown("#### Sistem")
+        health = check_disk_health()
+        st.write(f"Disk: {'OK' if health.get('ok') else 'HATA'} | Boş: {health.get('free_gb','?')} GB")
+        if st.button("Self-test çalıştır"):
+            result = run_self_tests()
+            render_self_test_result(result)
     with admin_advanced:
         st.markdown("#### İşlem verisi analizi (deneysel)")
         st.caption(
             "Excel / CSV işlem verisinde istatistiksel aykırılık taraması. Kredi dosyası kontrolünün parçası "
-            "değildir; eşik ayarları (Z-score, MAD, IQR) kenar çubuğundadır."
+            "değildir."
         )
+        # M15.5: eşikler yalnız bu analizde kullanılır; önceden kenar çubuğundaydı (anahtarlar aynı).
+        thr_z, thr_mad, thr_iqr = st.columns(3)
+        with thr_z:
+            z_threshold_ui = st.number_input(
+                "Z-score eşiği",
+                min_value=0.5,
+                max_value=10.0,
+                value=3.0,
+                step=0.1,
+                key="sidebar_z_threshold",
+                help="Z-score ve grup içi Z-score için eşik.",
+            )
+        with thr_mad:
+            mad_threshold_ui = st.number_input(
+                "Medyan / MAD eşiği",
+                min_value=0.5,
+                max_value=15.0,
+                value=3.5,
+                step=0.1,
+                key="sidebar_mad_threshold",
+                help="Medyan merkezli robust modified z-score eşiği.",
+            )
+        with thr_iqr:
+            iqr_multiplier_ui = st.number_input(
+                "IQR katsayısı",
+                min_value=0.5,
+                max_value=5.0,
+                value=1.5,
+                step=0.1,
+                key="sidebar_iqr_multiplier",
+            )
         data_tab, data_review_tab, data_report_tab = st.tabs(["Veri analizi", "İnceleme", "Rapor"])
 
     # TAB 1 ------------------------------------------------------------------
@@ -824,7 +837,6 @@ def run_streamlit() -> None:
         if st.button("Tüm self-testleri yeniden çalıştır"):
             result = run_self_tests()
             render_self_test_result(result)
-        render_llm_settings()
         if st.button("Ollama durumunu kontrol et"):
             st.json(ollama_health())
 
