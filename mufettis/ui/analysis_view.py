@@ -214,6 +214,24 @@ _CHECK_STATE_KEEP = {"analysis_ui_llm_verification", "credit_file_authority", "c
                      "check_upload_nonce"}
 
 
+SAMPLE_TEMPLATES = {
+    "📑 Örnek Tüketici Şikayeti": (SAMPLE_COMPLAINT_TEXT, "Hesap İşletim Ücreti Kesintisi İtirazı",
+                                  "Tüketici Şikayet Başvurusu"),
+    "🏢 Örnek İç Denetim Notu": (SAMPLE_INTERNAL_TEXT, "Şube Kredi Tahsis Yetki Aşımı Denetimi", "Teftiş Kurulu Notu"),
+    "⚖️ Örnek Dayanıksız İddia (Negatif)": (SAMPLE_UNSUPPORTED_TEXT, "Müşteri Memnuniyeti Şikayeti",
+                                           "Genel Şikayet Dilekçesi"),
+}
+
+
+def _load_template(sample) -> None:
+    """Hızlı şablon (M15.8: mevzuat yardımcısı bölümünde): düğmenin geri çağrısında metin alanları doldurulur."""
+    text, title, source = sample
+    st.session_state["analysis_ui_text"] = text
+    st.session_state["analysis_ui_title"] = title
+    st.session_state["analysis_ui_source"] = source
+    st.session_state["analysis_exec_result"] = None
+
+
 def reset_check() -> None:
     """"Yeni kontrol başlat": yüklenenler, metin, cevaplar, tür seçimleri ve sonuçlar silinir; yükleyici boşalsın
     diye anahtarı yenilenir. Düğmenin geri çağrısında çalışır (widget değerleri ancak çizimden önce değişebilir)."""
@@ -243,6 +261,19 @@ def _read_uploads(files) -> List[Any]:
                 continue
         out.append((f.name, cache[fid].text, cache[fid]))
     return out
+
+
+def _assistant_sentence(result: AnalysisResult) -> str:
+    """Mevzuat yardımcısının kısa sonucu (M15.8)."""
+    if result.findings:
+        text = f"{len(result.findings)} olası bulgu mevzuat kanıtıyla eşleşti"
+    elif result.status == "completed_insufficient_evidence":
+        text = "Mevzuat kütüphanesinde ilgili kanıt bulunamadı; değerlendirme yapılamadı (uygunluk teyidi değildir)"
+    else:
+        text = "Doğrulanmış bulgu üretilemedi (uygunluk teyidi değildir)"
+    if result.unsupported_claims:
+        text += f"; {len(result.unsupported_claims)} iddia için mevzuat dayanağı bulunamadı"
+    return text + "."
 
 
 def render_analysis_page(
@@ -296,29 +327,6 @@ def render_analysis_page(
         if "analysis_presenter" not in st.session_state:
             st.session_state["analysis_presenter"] = AnalysisPresenter()
         presenter = st.session_state["analysis_presenter"]
-
-    # ── Sample Templates Row ──────────────────────────────────────────────────
-    st.markdown("##### Hızlı Şablonlar")
-    col_t1, col_t2, col_t3 = st.columns(3)
-    if col_t1.button("📑 Örnek Tüketici Şikayeti", use_container_width=True):
-        st.session_state["analysis_ui_text"] = SAMPLE_COMPLAINT_TEXT
-        st.session_state["analysis_ui_title"] = "Hesap İşletim Ücreti Kesintisi İtirazı"
-        st.session_state["analysis_ui_source"] = "Tüketici Şikayet Başvurusu"
-        st.session_state["analysis_exec_result"] = None
-
-    if col_t2.button("🏢 Örnek İç Denetim Notu", use_container_width=True):
-        st.session_state["analysis_ui_text"] = SAMPLE_INTERNAL_TEXT
-        st.session_state["analysis_ui_title"] = "Şube Kredi Tahsis Yetki Aşımı Denetimi"
-        st.session_state["analysis_ui_source"] = "Teftiş Kurulu Notu"
-        st.session_state["analysis_exec_result"] = None
-
-    if col_t3.button("⚖️ Örnek Dayanıksız İddia (Negatif)", use_container_width=True):
-        st.session_state["analysis_ui_text"] = SAMPLE_UNSUPPORTED_TEXT
-        st.session_state["analysis_ui_title"] = "Müşteri Memnuniyeti Şikayeti"
-        st.session_state["analysis_ui_source"] = "Genel Şikayet Dilekçesi"
-        st.session_state["analysis_exec_result"] = None
-
-    st.divider()
 
     # ── Input Area (M15.6: tek giriş) ────────────────────────────────────────
     st.markdown("### 1. Belge Girişi")
@@ -382,6 +390,16 @@ def render_analysis_page(
         st.info("Başlamak için belge yükleyin: tek belge (ör. kefalet sözleşmesi) ya da kredi dosyasının bütün "
                 "belgeleri.")
 
+    st.divider()
+    st.markdown("### Mevzuat yardımcısı")
+    st.caption("Belgedeki iddiaları yerel mevzuat kütüphanesiyle karşılaştırır ve olası bulguları kanıtıyla "
+               "listeler. Kural kontrolünden ayrıdır; sonuçları karar desteğidir.")
+    with st.expander("Örnek metinle dene (şikâyet / iç not)", expanded=False):
+        col_t1, col_t2, col_t3 = st.columns(3)
+        for col, (label, sample) in zip((col_t1, col_t2, col_t3), SAMPLE_TEMPLATES.items()):
+            col.button(label, use_container_width=True, on_click=_load_template, args=(sample,),
+                       key=f"analysis_template_{label}")
+
     from mufettis.llm.client import ollama_health
     llm_health = ollama_health()
     use_llm = st.checkbox(
@@ -440,12 +458,17 @@ def render_analysis_page(
     # ── Display Analysis Results ──────────────────────────────────────────────
     exec_result: Optional[AnalysisExecutionResult] = st.session_state.get("analysis_exec_result")
     if not exec_result or not exec_result.result:
-        st.info("Analiz başlatmak için bir belge yükleyin veya metni yapıştırıp 'ANALİZİ BAŞLAT' butonuna basınız.")
+        st.caption("Mevzuat yardımcısı için 'ANALİZİ BAŞLAT'a basın.")
         return
 
     result: AnalysisResult = exec_result.result
 
     st.divider()
+    # ── Kısa sonuç (M15.8) ──
+    st.markdown(f"**{_assistant_sentence(result)}**")
+    cited_note = cited_missing_note(result.cited_regulations or [], has_findings=bool(result.findings))
+    if cited_note:
+        st.warning(f"📥 {cited_note}")
 
     # ── Safety / Insufficient Evidence Warnings ───────────────────────────────
     if result.status == "completed_insufficient_evidence" or result.warnings:
@@ -458,122 +481,8 @@ def render_analysis_page(
             for warn in result.warnings:
                 st.caption(f"ℹ️ {warn}")
 
-    # ── Section 1: Document Summary ───────────────────────────────────────────
-    st.markdown("### 2. Belge Özeti & Sınıflandırma")
-    doc_u: DocumentUnderstanding = result.document
-    doc_c: DocumentClassification = result.classification
-
-    # Document type badges
-    doc_type_labels = {
-        "complaint": ("🔴 Tüketici Şikayeti", "Şikayet / İtiraz Metni"),
-        "consumer_complaint": ("🔴 Tüketici Şikayeti", "Şikayet / İtiraz Metni"),
-        "internal_correspondence": ("🟡 İç Denetim / Yazışma", "Kurum İçi Not / Rapor"),
-        "unknown": ("⚪ Bilinmeyen Doküman Türü", "Genel / Sınıflandırılamayan Metin"),
-    }
-    badge_label, badge_desc = doc_type_labels.get(
-        doc_c.document_type,
-        ("⚪ " + doc_c.document_type, "Belge")
-    )
-
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Doküman Türü", badge_label)
-    main_subject = doc_u.subjects[0] if doc_u.subjects else "Genel"
-    c2.metric("Tespit Edilen Konu", main_subject.replace("_", " ").title())
-    c3.metric(
-        "Sınıflandırma Güveni",
-        f"%{doc_c.confidence * 100:.0f}",
-        help="Modelin kural/sezgisel eşleşme skoru. Kalibre edilmiş genel olasılık değildir.",
-    )
-    c4.metric("İddia / Olay Sayısı", len(doc_u.claims))
-
-    with st.expander("🔍 Belge Varlıkları ve İddia Detayları", expanded=False):
-        st.markdown(f"**Başlık:** {doc_u.title or 'Belirtilmemiş'}")
-        if doc_u.source:
-            st.markdown(f"**Kaynak:** {doc_u.source}")
-        if doc_u.date:
-            st.markdown(f"**Tarih:** {doc_u.date}")
-
-        if doc_c.signals:
-            st.markdown("**Sınıflandırma Sinyalleri:**")
-            st.write(doc_c.signals)
-
-        st.markdown("**Çıkarılan Varlıklar (Entities):**")
-        if doc_u.entities:
-            entity_rows = [
-                {"Varlık": e.text, "Tür": e.entity_type, "Değer / Bilgi": str(e.normalized_value or "-")}
-                for e in doc_u.entities
-            ]
-            st.table(entity_rows)
-        else:
-            st.caption("Özel varlık tespit edilmedi.")
-
-        st.markdown("**Belgedeki İddialar (Claims):**")
-        if doc_u.claims:
-            for idx, cl in enumerate(doc_u.claims, 1):
-                st.markdown(f"- **İddia #{idx} ({cl.subject}):** {cl.statement}")
-        else:
-            st.caption("Spesifik iddia çıkarılmadı.")
-
-    # ── Section 2: Analysis Plan ──────────────────────────────────────────────
-    st.markdown("### 3. Analiz & Arama Planı")
-    plan: AnalysisPlan = result.analysis_plan
-    with st.expander(f"📋 Plan: {plan.analysis_type} ({plan.objective[:60]}...)", expanded=False):
-        st.markdown(f"**Analiz Türü:** `{plan.analysis_type}`")
-        st.markdown(f"**Hedef:** {plan.objective}")
-        if plan.parameters.scope:
-            st.markdown(f"**Kapsam:** {', '.join(plan.parameters.scope)}")
-        if plan.parameters.target_entities:
-            st.markdown(f"**Hedef Varlıklar:** {', '.join(plan.parameters.target_entities)}")
-        if plan.parameters.constraints:
-            st.markdown(f"**Kısıtlar:** {plan.parameters.constraints}")
-        if plan.parameters.requested_outputs:
-            st.markdown(f"**Beklenen Çıktılar:** {', '.join(plan.parameters.requested_outputs)}")
-
-        st.markdown("---")
-        st.markdown(f"**Retrieval Planı Sorguları ({len(result.retrieval_plan.queries)} adet):**")
-        for q in result.retrieval_plan.queries:
-            st.code(q, language="text")
-        if result.retrieval_plan.source_scope:
-            st.caption(f"Hedef kaynaklar: {', '.join(result.retrieval_plan.source_scope)}")
-        if result.retrieval_plan.evidence_requirements:
-            st.caption(f"Delil kriterleri: {', '.join(result.retrieval_plan.evidence_requirements)}")
-        st.caption(f"Maksimum kanıt sayısı: {result.retrieval_plan.max_evidence_items}")
-
-    # ── Section 3: Retrieved Evidence ─────────────────────────────────────────
-    st.markdown("### 4. İlgili Mevzuat Kanıtları (Retrieved Evidence)")
-    # Kopya: aşağıdaki yedek doldurma oturumda saklanan listeyi değiştirmemeli.
-    evidence_items = list(exec_result.retrieved_evidence)
-    if not evidence_items:
-        # Fallback to evidence attached to findings if retrieved_evidence pool was empty
-        seen_ev = set()
-        for f in result.findings:
-            for ev in f.evidence:
-                k = (ev.document_identity, ev.chunk_reference)
-                if k not in seen_ev:
-                    seen_ev.add(k)
-                    evidence_items.append(ev)
-
-    st.caption(f"Toplam {len(evidence_items)} adet mevzuat kanıt parçası incelendi.")
-
-    if not evidence_items:
-        st.info("Bu analiz için mevzuat kanıtı getirilemedi.")
-    else:
-        for i, ev in enumerate(evidence_items, 1):
-            with st.expander(
-                f"📜 Kanıt #{i}: {ev.source_document} — {ev.chunk_reference} (ID: {ev.document_identity})",
-                expanded=False,
-            ):
-                meta_cols = st.columns(3)
-                meta_cols[0].markdown(f"**Kaynak:** {ev.source_document}")
-                meta_cols[1].markdown(f"**Mevzuat Kimliği:** `{ev.document_identity}`")
-                meta_cols[2].markdown(f"**Referans:** {ev.chunk_reference}")
-
-                st.markdown("**Kanıt Metni (Resmi Mevzuat Hükmü):**")
-                st.code(ev.text_span or "", language="text")
-
-    # ── Section 4: Findings ───────────────────────────────────────────────────
-    st.markdown("### 5. Müfettiş Denetim Bulguları")
-    render_cited_regulations(result)
+    # ── Bulgular (M15.8: sonuç önce, mevzuat kanıtı bulgunun altında açılır) ──
+    st.markdown(f"#### Olası bulgular ({len(result.findings)})")
     if not result.findings:
         # Bulgu olmaması uygunluk teyidi değildir; kanıt yokluğu ile eşleşme yokluğu ayrı gösterilir.
         if result.status == "completed_insufficient_evidence":
@@ -588,48 +497,27 @@ def render_analysis_page(
                 "doğrulanabilir biçimde eşleşmedi. Bu sonuç bir uygunluk teyidi değildir; "
                 "nihai değerlendirme denetçiye aittir."
             )
-    else:
-        for idx, finding in enumerate(result.findings, 1):
-            risk_color = {
-                "Yüksek": "🔴",
-                "Orta": "🟡",
-                "Düşük": "🟢",
-                "Belirsiz": "⚪",
-            }.get(finding.risk_level or "Orta", "🟡")
-
-            with st.container():
-                confidence_badge = {
-                    "yüksek": " `Dayanak güveni: yüksek`",
-                    "düşük": " `⚠ Dayanak güveni: düşük — atfı doğrulayın`",
-                }.get(finding.match_confidence or "", "")
-                st.markdown(
-                    f"#### Bulgu #{idx}: {risk_color} {finding.issue} "
-                    f"`Risk: {finding.risk_level or 'Orta'}`{confidence_badge}"
+    for idx, finding in enumerate(result.findings, 1):
+        risk_color = {"Yüksek": "🔴", "Orta": "🟡", "Düşük": "🟢", "Belirsiz": "⚪"}.get(finding.risk_level or "Orta", "🟡")
+        confidence_badge = {
+            "yüksek": " `Dayanak güveni: yüksek`",
+            "düşük": " `⚠ Dayanak güveni: düşük — atfı doğrulayın`",
+        }.get(finding.match_confidence or "", "")
+        with st.container(border=True):
+            st.markdown(f"**{idx}. {risk_color} {finding.issue}** `Risk: {finding.risk_level or 'Orta'}`"
+                        f"{confidence_badge}")
+            st.markdown(f"**Gözlem:** {finding.explanation}")
+            st.markdown(f"**Yapılacak iş:** 👉 {finding.inspector_action}")
+            with st.expander("Mevzuat dayanağı, model yorumu ve alıntılar", expanded=False):
+                st.markdown("**Mevzuat atfı:**")
+                st.code(finding.regulation_reference, language="text")
+                st.markdown("**Model yorumu:**")
+                st.caption(
+                    finding.model_interpretation
+                    or "Model, olay ile ilgili mevzuat hükmü arasında uyumsuzluk değerlendirmiştir."
                 )
-
-                # Strict Separation of the 5 Inspector Dimensions
-                b_col1, b_col2 = st.columns([1, 1])
-
-                with b_col1:
-                    st.markdown("**1. Gözlem (Observation / Somut Olay):**")
-                    st.info(finding.explanation)
-
-                    st.markdown("**2. Model Yorumu (Model Interpretation):**")
-                    st.caption(
-                        finding.model_interpretation
-                        or "Model, olay ile ilgili mevzuat hükmü arasında uyumsuzluk değerlendirmiştir."
-                    )
-
-                with b_col2:
-                    st.markdown("**3. Mevzuat Atfı (Regulation Reference):**")
-                    st.code(finding.regulation_reference, language="text")
-
-                    st.markdown("**4. Müfettiş Takip Aksiyonu (Inspector Follow-up):**")
-                    st.warning(f"👉 {finding.inspector_action}")
-
-                # Citations Sub-Panel
                 if finding.citations:
-                    st.markdown("**5. Mevzuat Alıntıları (Citations):**")
+                    st.markdown("**Mevzuat alıntıları:**")
                     for c_idx, cit in enumerate(finding.citations, 1):
                         val_badge = citation_badge(cit)
                         st.markdown(
@@ -639,25 +527,8 @@ def render_analysis_page(
                         )
                     st.caption(CITATION_SCOPE_NOTE)
 
-                st.divider()
-
-    # ── Section 5: Unsupported Claims Panel ───────────────────────────────────
-    if result.unsupported_claims:
-        st.markdown("### 6. Kökeni Doğrulanamayan İddialar (Dayanıksız İddia Guard)")
-        st.warning(
-            "🛡️ **Dayanıksız İddia Koruması:** Aşağıdaki iddialar dokümanda yer almakta olup, "
-            "yerel mevzuat tabanında bu iddiayı doğrudan destekleyen doğrulanabilir bir mevzuat hükmü "
-            "bulunamamıştır. Halüsinasyonu önlemek amacıyla bu iddialar için sahte bulgu üretilmemiştir."
-        )
-        for u_idx, u_cl in enumerate(result.unsupported_claims, 1):
-            st.markdown(
-                f"- **İddia #{u_idx} ({u_cl.subject}):** {u_cl.statement} "
-                f"→ *Mevzuatsal kanıt yetersiz.*"
-            )
-        st.divider()
-
     # ── Section 6: Inspector Review & Actions Panel ───────────────────────────
-    st.markdown("### 7. İnceleme & Müfettiş Değerlendirme Paneli")
+    st.markdown("#### Müfettiş değerlendirmesi")
     st.caption(
         "Kaydedilen inceleme kararları (durum, denetçi, maskelenmiş not) denetim kaydına yazılır. "
         "Yapay zeka analizleri kesin karar niteliğinde olmayıp insan denetçinin onayına tabidir."
@@ -721,6 +592,142 @@ def render_analysis_page(
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             key=f"analysis_docx_{report_result.analysis_id}",
         )
+
+
+    # ── Teknik ayrıntı (kapalı; M15.8) ──
+    st.divider()
+    if st.toggle("Teknik ayrıntıları göster", value=False, key=f"analysis_technical_{result.analysis_id}",
+                 help="Belge özeti, arama planı, getirilen bütün mevzuat kanıtları, belgede atıf yapılan mevzuat ve "
+                      "dayanağı bulunamayan iddialar."):
+        # ── Section 1: Document Summary ───────────────────────────────────────────
+        st.markdown("#### Belge özeti ve sınıflandırma")
+        doc_u: DocumentUnderstanding = result.document
+        doc_c: DocumentClassification = result.classification
+
+        # Document type badges
+        doc_type_labels = {
+            "complaint": ("🔴 Tüketici Şikayeti", "Şikayet / İtiraz Metni"),
+            "consumer_complaint": ("🔴 Tüketici Şikayeti", "Şikayet / İtiraz Metni"),
+            "internal_correspondence": ("🟡 İç Denetim / Yazışma", "Kurum İçi Not / Rapor"),
+            "unknown": ("⚪ Bilinmeyen Doküman Türü", "Genel / Sınıflandırılamayan Metin"),
+        }
+        badge_label, badge_desc = doc_type_labels.get(
+            doc_c.document_type,
+            ("⚪ " + doc_c.document_type, "Belge")
+        )
+
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Doküman Türü", badge_label)
+        main_subject = doc_u.subjects[0] if doc_u.subjects else "Genel"
+        c2.metric("Tespit Edilen Konu", main_subject.replace("_", " ").title())
+        c3.metric(
+            "Sınıflandırma Güveni",
+            f"%{doc_c.confidence * 100:.0f}",
+            help="Modelin kural/sezgisel eşleşme skoru. Kalibre edilmiş genel olasılık değildir.",
+        )
+        c4.metric("İddia / Olay Sayısı", len(doc_u.claims))
+
+        with st.expander("🔍 Belge Varlıkları ve İddia Detayları", expanded=False):
+            st.markdown(f"**Başlık:** {doc_u.title or 'Belirtilmemiş'}")
+            if doc_u.source:
+                st.markdown(f"**Kaynak:** {doc_u.source}")
+            if doc_u.date:
+                st.markdown(f"**Tarih:** {doc_u.date}")
+
+            if doc_c.signals:
+                st.markdown("**Sınıflandırma Sinyalleri:**")
+                st.write(doc_c.signals)
+
+            st.markdown("**Çıkarılan Varlıklar (Entities):**")
+            if doc_u.entities:
+                entity_rows = [
+                    {"Varlık": e.text, "Tür": e.entity_type, "Değer / Bilgi": str(e.normalized_value or "-")}
+                    for e in doc_u.entities
+                ]
+                st.table(entity_rows)
+            else:
+                st.caption("Özel varlık tespit edilmedi.")
+
+            st.markdown("**Belgedeki İddialar (Claims):**")
+            if doc_u.claims:
+                for idx, cl in enumerate(doc_u.claims, 1):
+                    st.markdown(f"- **İddia #{idx} ({cl.subject}):** {cl.statement}")
+            else:
+                st.caption("Spesifik iddia çıkarılmadı.")
+
+        # ── Section 2: Analysis Plan ──────────────────────────────────────────────
+        st.markdown("#### Analiz ve arama planı")
+        plan: AnalysisPlan = result.analysis_plan
+        with st.expander(f"📋 Plan: {plan.analysis_type} ({plan.objective[:60]}...)", expanded=False):
+            st.markdown(f"**Analiz Türü:** `{plan.analysis_type}`")
+            st.markdown(f"**Hedef:** {plan.objective}")
+            if plan.parameters.scope:
+                st.markdown(f"**Kapsam:** {', '.join(plan.parameters.scope)}")
+            if plan.parameters.target_entities:
+                st.markdown(f"**Hedef Varlıklar:** {', '.join(plan.parameters.target_entities)}")
+            if plan.parameters.constraints:
+                st.markdown(f"**Kısıtlar:** {plan.parameters.constraints}")
+            if plan.parameters.requested_outputs:
+                st.markdown(f"**Beklenen Çıktılar:** {', '.join(plan.parameters.requested_outputs)}")
+
+            st.markdown("---")
+            st.markdown(f"**Retrieval Planı Sorguları ({len(result.retrieval_plan.queries)} adet):**")
+            for q in result.retrieval_plan.queries:
+                st.code(q, language="text")
+            if result.retrieval_plan.source_scope:
+                st.caption(f"Hedef kaynaklar: {', '.join(result.retrieval_plan.source_scope)}")
+            if result.retrieval_plan.evidence_requirements:
+                st.caption(f"Delil kriterleri: {', '.join(result.retrieval_plan.evidence_requirements)}")
+            st.caption(f"Maksimum kanıt sayısı: {result.retrieval_plan.max_evidence_items}")
+
+        # ── Section 3: Retrieved Evidence ─────────────────────────────────────────
+        st.markdown("#### Getirilen bütün mevzuat kanıtları")
+        # Kopya: aşağıdaki yedek doldurma oturumda saklanan listeyi değiştirmemeli.
+        evidence_items = list(exec_result.retrieved_evidence)
+        if not evidence_items:
+            # Fallback to evidence attached to findings if retrieved_evidence pool was empty
+            seen_ev = set()
+            for f in result.findings:
+                for ev in f.evidence:
+                    k = (ev.document_identity, ev.chunk_reference)
+                    if k not in seen_ev:
+                        seen_ev.add(k)
+                        evidence_items.append(ev)
+
+        st.caption(f"Toplam {len(evidence_items)} adet mevzuat kanıt parçası incelendi.")
+
+        if not evidence_items:
+            st.info("Bu analiz için mevzuat kanıtı getirilemedi.")
+        else:
+            for i, ev in enumerate(evidence_items, 1):
+                with st.expander(
+                    f"📜 Kanıt #{i}: {ev.source_document} — {ev.chunk_reference} (ID: {ev.document_identity})",
+                    expanded=False,
+                ):
+                    meta_cols = st.columns(3)
+                    meta_cols[0].markdown(f"**Kaynak:** {ev.source_document}")
+                    meta_cols[1].markdown(f"**Mevzuat Kimliği:** `{ev.document_identity}`")
+                    meta_cols[2].markdown(f"**Referans:** {ev.chunk_reference}")
+
+                    st.markdown("**Kanıt Metni (Resmi Mevzuat Hükmü):**")
+                    st.code(ev.text_span or "", language="text")
+
+        render_cited_regulations(result)
+
+        # ── Section 5: Unsupported Claims Panel ───────────────────────────────────
+        if result.unsupported_claims:
+            st.markdown("#### Mevzuat dayanağı bulunamayan iddialar")
+            st.warning(
+                "🛡️ **Dayanıksız İddia Koruması:** Aşağıdaki iddialar dokümanda yer almakta olup, "
+                "yerel mevzuat tabanında bu iddiayı doğrudan destekleyen doğrulanabilir bir mevzuat hükmü "
+                "bulunamamıştır. Halüsinasyonu önlemek amacıyla bu iddialar için sahte bulgu üretilmemiştir."
+            )
+            for u_idx, u_cl in enumerate(result.unsupported_claims, 1):
+                st.markdown(
+                    f"- **İddia #{u_idx} ({u_cl.subject}):** {u_cl.statement} "
+                    f"→ *Mevzuatsal kanıt yetersiz.*"
+                )
+            st.divider()
 
 
 __all__ = ["render_analysis_page", "render_evidence_text_html", "citation_badge", "load_uploaded_document"]
