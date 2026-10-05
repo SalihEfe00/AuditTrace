@@ -22,6 +22,14 @@ def _markdown(at):
     return "\n".join(m.value for m in at.markdown)
 
 
+def _status(md, rule_id):
+    """Bütün kurallar tablosunda kuralın ekrandaki sonucu (M15.7: sade ad, ör. "karar verilemedi")."""
+    for line in md.splitlines():
+        if line.startswith("|") and f"`{rule_id}`" in line:
+            return line.split("|")[1].strip().split(" ", 1)[1]
+    return None
+
+
 def test_unrecognised_document_gets_type_choice_and_is_checked():
     at = _app("Sözleşme\nTaraf: Kaya Tekstil Ltd. Şti.\nTutar: 800.000,00 TL\n").run()
     assert not at.exception
@@ -47,11 +55,11 @@ def test_event_date_can_be_changed_and_rules_follow_it():
     from mufettis.rules.mutation_cases import BASE
     import datetime as dt
     at = _app(BASE).run()
-    assert "uygulanmaz** — `TBK584-es-rizasi-2013-oncesi`" in _markdown(at)
+    assert _status(_markdown(at), "TBK584-es-rizasi-2013-oncesi") == "bu dosyaya uygulanmaz"
     at.date_input[0].set_value(dt.date(2013, 3, 15)).run()
     assert not at.exception
     assert any("Olay tarihi: 15.03.2013 (sizin girdiğiniz tarih)" in c.value for c in at.caption)
-    assert "uygulanmaz** — `TBK584-es-rizasi`" in _markdown(at)
+    assert _status(_markdown(at), "TBK584-es-rizasi") == "bu dosyaya uygulanmaz"
 
 
 def test_new_check_clears_documents_and_answers_but_keeps_settings():

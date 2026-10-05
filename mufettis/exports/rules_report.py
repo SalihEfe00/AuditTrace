@@ -12,13 +12,15 @@ from typing import Dict, Optional, Sequence, Tuple
 
 from mufettis.common.utils import mask_sensitive, now_iso
 from mufettis.config import APP_VERSION
+from mufettis.rules.display import plain_text, status_label
 from mufettis.rules.findings import Finding
 
 STATUS_ORDER = ("karşılanmadı", "manuel kontrol", "belirsiz", "karşılandı", "istisna", "uygulanmaz")
 DISCLAIMER = (
     "Bu çalışma kağıdı karar destek amaçlıdır. Sonuçlar belgeden okunan alanlara ve kural katalogundaki mevzuat "
     "dayanaklarına göre belirlenimci olarak üretilmiştir; alıntılar korpustaki madde metniyle birebir doğrulanmıştır. "
-    "\"Belirsiz\" sonuç ihlal değildir, belgeden karar verilemediğini gösterir. Nihai tespit yetkili denetçiye aittir."
+    "\"Karar verilemedi\" sonucu ihlal değildir, belgenin bu kontrol için yetmediğini gösterir. \"Sizin cevabınız\" "
+    "notu, belgeden okunamayan bilginin denetçi tarafından girildiğini gösterir. Nihai tespit yetkili denetçiye aittir."
 )
 
 
@@ -50,7 +52,8 @@ def create_rules_docx(title: str, documents: Sequence[Tuple[str, str]], findings
     meta.style = "Table Grid"
     rows = [("Oluşturma", generated_at or now_iso()), ("Sürüm", APP_VERSION),
             ("Olay tarihi", event_date.strftime("%d.%m.%Y") if event_date else "-"),
-            ("Kontrol özeti", ", ".join(f"{s}: {counts[s]}" for s in STATUS_ORDER if counts.get(s)) or "-")]
+            ("Kontrol özeti", ", ".join(f"{status_label(s)}: {counts[s]}" for s in STATUS_ORDER if counts.get(s))
+             or "-")]
     for label, value in rows:
         cells = meta.add_row().cells
         cells[0].text, cells[1].text = label, mask_sensitive(str(value))
@@ -65,11 +68,12 @@ def create_rules_docx(title: str, documents: Sequence[Tuple[str, str]], findings
     if not findings:
         doc.add_paragraph("Bulgu yok: bütün kontroller karşılandı ya da uygulanmadı.")
     for i, f in enumerate(findings, 1):
-        doc.add_heading(f"{i}. [{f.status}] {f.title}", level=3)
+        doc.add_heading(f"{i}. [{status_label(f.status)}] {f.title}", level=3)
         table = doc.add_table(rows=0, cols=2)
         table.style = "Table Grid"
-        lines = [("Tespit", f.detection), ("Ölçüt", f.criterion), ("Dayanak metni", f"“{f.quote}”"),
-                 ("Kanıt", "\n".join(f.evidence) or "-"), ("Sonuç sınıfı", f"{f.status}; {f.result_class}"),
+        lines = [("Tespit", plain_text(f.detection)), ("Ölçüt", f.criterion), ("Dayanak metni", f"“{f.quote}”"),
+                 ("Kanıt", plain_text("\n".join(f.evidence)) or "-"),
+                 ("Sonuç sınıfı", f"{status_label(f.status)}; {f.result_class}"),
                  ("Öneri", f.recommendation), ("Kural", f.rule_id)]
         if f.documents:
             lines.insert(4, ("Belgeler", ", ".join(f.documents)))

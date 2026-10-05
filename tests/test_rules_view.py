@@ -23,19 +23,27 @@ def _markdown(at):
     return "\n".join(m.value for m in at.markdown)
 
 
+def _status(md, rule_id):
+    """Bütün kurallar tablosunda kuralın ekrandaki sonucu (M15.7: sade ad, ör. "karar verilemedi")."""
+    for line in md.splitlines():
+        if line.startswith("|") and f"`{rule_id}`" in line:
+            return line.split("|")[1].strip().split(" ", 1)[1]
+    return None
+
+
 def test_pledge_question_answer_changes_result():
     at = _app(REHIN).run()
     assert not at.exception
     assert any("taşınır rehni" in c.value for c in at.caption)
-    assert "❔ **belirsiz** — `6750-4-imza-onayi`" in _markdown(at)
+    assert _status(_markdown(at), "6750-4-imza-onayi") == "karar verilemedi"
     radio = next(r for r in at.radio if "imzalar nasıl onaylanmış" in r.label)
     radio.set_value("noter onayı").run()
     assert not at.exception
-    assert "✅ **karşılandı** — `6750-4-imza-onayi`" in _markdown(at)
+    assert _status(_markdown(at), "6750-4-imza-onayi") == "karşılandı"
     # Karara bağlanan kuralın sorusu kalır; müfettiş cevabını değiştirebilir
     radio = next(r for r in at.radio if "imzalar nasıl onaylanmış" in r.label)
     radio.set_value("onaysız").run()
-    assert "❌ **karşılanmadı** — `6750-4-imza-onayi`" in _markdown(at)
+    assert _status(_markdown(at), "6750-4-imza-onayi") == "karşılanmadı"
 
 
 def test_typed_amount_triggers_second_report_check():
@@ -45,19 +53,19 @@ def test_typed_amount_triggers_second_report_check():
     radio.set_value("yazacağım").run()
     at.text_input[0].input("12.500.000").run()
     assert not at.exception
-    assert "📝 **manuel kontrol** — `BDDK-DHY20-iki-rapor`" in _markdown(at)
+    assert _status(_markdown(at), "BDDK-DHY20-iki-rapor") == "manuel kontrol"
 
 
 def test_kefalet_handwriting_answer_and_answers_bound_to_document():
     from mufettis.rules.mutation_cases import BASE
     at = _app(BASE).run()
-    assert "❔ **belirsiz** — `TBK583-muteselsil-el-yazisi`" in _markdown(at)
+    assert _status(_markdown(at), "TBK583-muteselsil-el-yazisi") == "karar verilemedi"
     radio = next(r for r in at.radio if "'Müteselsil kefil' ibaresi" in r.label)
     radio.set_value("hayır").run()
-    assert "❌ **karşılanmadı** — `TBK583-muteselsil-el-yazisi`" in _markdown(at)
+    assert _status(_markdown(at), "TBK583-muteselsil-el-yazisi") == "karşılanmadı"
     # Başka belge: önceki belgenin beyanı taşınmaz
     at2 = _app(BASE.replace("Ali Veli", "Can Demir")).run()
-    assert "❔ **belirsiz** — `TBK583-muteselsil-el-yazisi`" in _markdown(at2)
+    assert _status(_markdown(at2), "TBK583-muteselsil-el-yazisi") == "karar verilemedi"
 
 
 def test_personal_guarantee_under_another_name_follows_kefalet_rules():
@@ -81,8 +89,8 @@ def test_event_date_comes_from_the_document():
     assert not at.exception
     assert any("Olay tarihi: 15.03.2013" in c.value for c in at.caption)
     md = _markdown(at)
-    assert "`TBK584-es-rizasi-2013-oncesi`" in md and "uygulanmaz** — `TBK584-es-rizasi-2013-oncesi`" not in md
-    assert "uygulanmaz** — `TBK584-es-rizasi`" in md
+    assert "`TBK584-es-rizasi-2013-oncesi`" in md and _status(md, "TBK584-es-rizasi-2013-oncesi") != "bu dosyaya uygulanmaz"
+    assert _status(md, "TBK584-es-rizasi") == "bu dosyaya uygulanmaz"
     at2 = _app_today("TAŞINIR REHİN SÖZLEŞMESİ\nRehin Tutarı: ……\n").run()
     assert any("bugün varsayıldı" in c.value for c in at2.caption)
 
@@ -115,13 +123,13 @@ def test_credit_file_view_places_documents_asks_and_shows_cross_document_results
     md = _markdown(at)
     assert "kredi teklif / onay" in md and "⚠️ tanınmadı" in md
     # kullandırılan tutar okunamadı → soru; cevapla karşılandı / karşılanmadı
-    assert "❔ **belirsiz** — `ONAY-kullandirim-tutari`" in md
+    assert _status(md, "ONAY-kullandirim-tutari") == "karar verilemedi"
     radio = next(r for r in at.radio if "[kul.pdf] Kullandırılan tutar" in r.label)  # M15.6: teknik etiket yerine belge adı
     radio.set_value("yazacağım").run()
     box = next(t for t in at.text_input if "para birimi" in t.label)
     box.input("1.200.000").run()
     assert not at.exception
-    assert "❌ **karşılanmadı** — `ONAY-kullandirim-tutari`" in _markdown(at)
+    assert _status(_markdown(at), "ONAY-kullandirim-tutari") == "karşılanmadı"
     # tanınmayan belgeye tür seçilince dosyaya girer
     at.selectbox[3].set_value("imza_sirkuleri").run()
     assert not at.exception
@@ -143,9 +151,9 @@ def test_credit_file_view_uses_authority_table():
             "Onay Mercii: Şube Kredi Komitesi\n")
     at = _file_app([("onay.pdf", onay)], table=[("Şube Kredi Komitesi", "500000 TRY")]).run()
     assert not at.exception
-    assert "❌ **karşılanmadı** — `YETKI-onay-siniri`" in _markdown(at)
+    assert _status(_markdown(at), "YETKI-onay-siniri") == "karşılanmadı"
     at = _file_app([("onay.pdf", onay)]).run()  # tablo yok: sınır sorulur
     radio = next(r for r in at.radio if r.label.startswith("[yetki tablosu]"))
     radio.set_value("yazacağım").run()
     next(t for t in at.text_input if "para birimi" in t.label).input("2.000.000").run()
-    assert "✅ **karşılandı** — `YETKI-onay-siniri`" in _markdown(at)
+    assert _status(_markdown(at), "YETKI-onay-siniri") == "karşılandı"

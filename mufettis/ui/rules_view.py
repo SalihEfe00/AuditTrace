@@ -18,6 +18,7 @@ except Exception:  # pragma: no cover
     st = None
 
 from mufettis.rules.catalog import load_catalog
+from mufettis.rules.display import TERM_HELP, plain_text, status_label
 from mufettis.rules.doctype import detect_collateral_type
 from mufettis.rules.event_date import document_event_date
 from mufettis.rules.engine import EXEMPT, MANUAL, MET, NOT_APPLICABLE, NOT_MET, UNKNOWN, evaluate
@@ -108,11 +109,11 @@ def render_collateral_check(text: str, event_date: Optional[dt.date] = None) -> 
             st.rerun()
 
     def full_list():
-        for res in results:
-            _result_line(res)
+        _rules_table({r.id: r for r in rules}, [(res, ()) for res in results])
 
     _findings_section(rules, results, "Teminat Belgesi Kontrolü", [("belge", TYPE_NAMES[kind])], event_date,
-                      f"rules_{doc_key}", questions=ask, full_list=full_list)
+                      f"rules_{doc_key}", questions=ask, full_list=full_list, texts={"belge": text},
+                      pending=len(questions))
 
 
 FILE_TYPE_NAMES = {**TYPE_NAMES, "senet_gks": "senet / genel kredi sözleşmesi", "kredi_onay": "kredi teklif / onay",
@@ -153,17 +154,29 @@ def _questions(questions, answers, key, prefix, names=None):
     return changed
 
 
-def _result_line(res, documents=()):
-    line = f"{ICON.get(res.status, '•')} **{res.status}** — `{res.rule_id}` ({res.basis})"
-    if documents:
-        line += f" [{', '.join(documents)}]"
-    if res.finding:
-        line += f": {res.finding}"
-    st.markdown(line)
+def _cell(text: str) -> str:
+    """Markdown tablo hücresi: dikey çizgi ve satır sonu tabloyu bozmasın."""
+    return html.escape(str(text or "")).replace("|", "&#124;").replace("\n", "<br>")
+
+
+def _evidence_note(res) -> str:
     shown = [e for e in res.evidence if e[1] != "bulunamadı"]
-    if shown:
-        st.caption(" · ".join(f"{name}={value if value is not None else '(boş)'} [{source}; {where}]"
-                              for name, _state, value, where, source in shown))
+    return " · ".join(f"{name}={value if value is not None else '(boş)'} [{plain_text(source)}; {where}]"
+                      for name, _state, value, where, source in shown)
+
+
+def _rules_table(rules_by_id, rows) -> None:
+    """Bütün kurallar tablosu (M15.7c): Sonuç · Kural · Dayanak · Belge · Not. Not = bulgu metni + kanıt
+    (kısaltılmaz). `rows`: (RuleResult, belgeler)."""
+    lines = ["| Sonuç | Kural | Dayanak | Belge | Not |", "|---|---|---|---|---|"]
+    for res, documents in rows:
+        rule = rules_by_id.get(res.rule_id)
+        title = rule.title if rule else res.rule_id
+        note = " — ".join(x for x in (plain_text(res.finding or ""), _evidence_note(res)) if x)
+        lines.append(f"| {ICON.get(res.status, '•')} {_cell(status_label(res.status))} | {_cell(title)} "
+                     f"`{res.rule_id}` | {_cell(res.basis)} | {_cell(', '.join(documents)) or '—'} | "
+                     f"{_cell(note) or '—'} |")
+    st.markdown("\n".join(lines), unsafe_allow_html=True)
 
 
 def _group(results):
@@ -202,28 +215,71 @@ _TILES = (("finding", "Bulgu", "255,75,75"), ("undecided", "Karar verilemeyen", 
 def _summary_tiles(groups) -> None:
     cells = "".join(
         f'<div style="flex:1;min-width:130px;padding:10px 14px;border-radius:10px;background:rgba({rgb},.12);'
-        f'border:1px solid rgba({rgb},.45)"><div style="font-size:13px;opacity:.85">{label}</div>'
+        f'border:1px solid rgba({rgb},.45)"><div style="font-size:13px;opacity:.85">{label} '
+        f'<span title="{html.escape(TERM_HELP.get(label, ""))}" style="cursor:help;opacity:.7">(?)</span></div>'
         f'<div style="font-size:26px;font-weight:600;line-height:1.2">{len(groups[name])}</div></div>'
         for name, label, rgb in _TILES)
     st.markdown(f'<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 12px">{cells}</div>',
                 unsafe_allow_html=True)
 
 
-def _finding_card(f) -> None:
+_WHERE = re.compile(r"^(?:(?P<doc>.+?), )?satır (?P<line>\d+)(?:: (?P<snippet>.*))?$")
+
+
+def _locations(evidence, texts):
+    """Kanıtın belgedeki yeri (M15.7d): "belge.docx, satır 6: Tescil Tarihi: …" → (belge adı, satır no, metin)."""
+    out = []
+    for _name, _state, _value, where, source in evidence:
+        m = _WHERE.match(where or "")
+        if not m or source != "belge":
+            continue
+        doc = m.group("doc") if m.group("doc") in texts else (next(iter(texts)) if len(texts) == 1 else None)
+        if doc is None:
+            continue
+        lines = texts[doc].splitlines()
+        n = int(m.group("line"))
+        snippet = (m.group("snippet") or "").strip()
+        if snippet and not (0 < n <= len(lines) and lines[n - 1].strip().startswith(snippet[:20])):
+            n = next((k for k, ln in enumerate(lines, 1) if snippet[:20] and snippet[:20] in ln), n)
+        if 0 < n <= len(lines) and (doc, n) not in [(d, k) for d, k, _ in out]:
+            out.append((doc, n, lines))
+    return out
+
+
+def _show_in_document(locations) -> str:
+    """Kanıt satırı belgenin metninde, iki satır önce ve sonrasıyla, vurgulu."""
+    esc = html.escape
+    blocks = []
+    for doc, n, lines in locations:
+        rows = []
+        for k in range(max(1, n - 2), min(len(lines), n + 2) + 1):
+            text = esc(lines[k - 1]) or "&nbsp;"
+            rows.append(f"<span style='opacity:.5'>{k:>3}</span>  "
+                        + (f"<mark>{text}</mark>" if k == n else text))
+        blocks.append(f"<div style='opacity:.75;margin-top:4px'>{esc(doc)}</div>"
+                      f"<pre style='white-space:pre-wrap;margin:2px 0 6px;font-size:13px'>{'<br>'.join(rows)}</pre>")
+    return ("<details><summary style='cursor:pointer'>Belgede göster</summary>" + "".join(blocks) + "</details>"
+            if blocks else "")
+
+
+def _finding_card(f, locations=()) -> None:
     """Bulgu kartı: tek satır başlık + kısa dayanak; tespit, ölçüt, kanıt ve öneri açılır bölümde."""
     esc = html.escape
     with st.container(border=True):
         st.markdown(f"{ICON.get(f.status, '•')} **{_headline(f.detection)}**"
                     + (" — *elle kontrol edilmeli*" if f.status == MANUAL else ""))
         st.caption(" · ".join(x for x in (_short_ref(f.criterion), ", ".join(f.documents)) if x))
-        evidence = "".join(f"<li>{esc(e)}</li>" for e in f.evidence)
+        evidence = "".join(f"<li>{esc(plain_text(e))}</li>" for e in f.evidence)
         st.markdown(
             '<details><summary style="cursor:pointer;font-size:14px;opacity:.8">Ölçüt, kanıt ve öneri</summary>'
             '<div style="font-size:14px;line-height:1.55;margin-top:6px">'
-            f"<b>Tespit:</b> {esc(f.detection)}<br><b>Ölçüt:</b> {esc(f.criterion)} — “{esc(f.quote)}”<br>"
+            f"<b>Tespit:</b> {esc(plain_text(f.detection))}<br><b>Ölçüt:</b> {esc(f.criterion)} — "
+            f"“{esc(f.quote)}”<br>"
             + (f"<b>Kanıt:</b><ul style='margin:2px 0 4px'>{evidence}</ul>" if evidence else "")
+            + _show_in_document(locations)
             + f"<b>Öneri:</b> {esc(f.recommendation)}<br>"
-            f'<span style="opacity:.7">Kural: {esc(f.title)} · {esc(f.rule_id)} · sonuç sınıfı {esc(f.result_class)}'
+            f'<span style="opacity:.7">Kural: {esc(f.title)} · {esc(f.rule_id)} · {esc(status_label(f.status))} · '
+            f'sonuç sınıfı {esc(f.result_class)}'
             "</span></div></details>", unsafe_allow_html=True)
 
 
@@ -236,20 +292,51 @@ def _brief_line(rules_by_id, item, note: str = "") -> None:
                 + (f" · {html.escape(note)}" if note else "") + "</span>", unsafe_allow_html=True)
 
 
-def _findings_section(rules, results, title, documents, event_date, key, questions=None, full_list=None):
-    """M11 + M15.1: özet sayılar → bulgular (tek satır, ayrıntı açılır) → müfettişe sorular → geri kalanlar
-    sekmelerde (karar verilemeyen, uygun, yapılamayan, bütün kurallar) → DOCX çalışma kağıdı.
-    `questions()` soruları çizer, `full_list()` bütün kuralları çizer (çağıranın kendi biçimiyle)."""
+def _status_sentence(groups, finding_count: int, pending: int) -> str:
+    """Dört sayının üstündeki tek cümle (M15.7b)."""
+    head = f"{finding_count} bulgu bulundu" if finding_count else "Belgeden açık bir aykırılık bulunmadı"
+    rest = [f"{count} {text}" for count, text in ((len(groups["undecided"]), "kontrolde karar verilemedi"),
+                                                  (pending, "soru cevabınızı bekliyor"),
+                                                  (len(groups["missing"]), "kontrol eksik belge yüzünden yapılamadı"))
+            if count]
+    return head + ("; " + ", ".join(rest) if rest else "") + "."
+
+
+def _findings_section(rules, results, title, documents, event_date, key, questions=None, full_list=None,
+                      texts=None, pending: int = 0):
+    """M11 + M15.1 + M15.7: tek cümlelik durum ve Word düğmesi → özet sayılar → bulgular (tek satır, ayrıntı ve
+    belgedeki yeri açılır) → müfettişe sorular → geri kalanlar sekmelerde (karar verilemeyen, uygun, yapılamayan,
+    bütün kurallar tablosu). `questions()` soruları, `full_list()` bütün kurallar tablosunu çizer; `texts`: belge adı
+    → metin ("belgede göster" için), `pending`: bekleyen soru sayısı."""
     from mufettis.exports.rules_report import create_rules_docx
     from mufettis.rules.findings import absent_collateral, build_findings, summary
     groups = _group(results)
     findings = build_findings(rules, groups["finding"])
+    head, button = st.columns([3, 1])
+    head.markdown(f"**{_status_sentence(groups, len(findings), pending)}**")
+    counts = summary(results)
+    absent = sorted({k for item in results for k in absent_collateral(item)})
+    notes = ["Dosyada olmayan teminat türleri (kuralları bulgu sayılmadı; teminat varsa belgesini ekleyin): "
+             + ", ".join(FILE_TYPE_NAMES.get(k, k) for k in absent)] if absent else []
+    try:
+        data = create_rules_docx(title, documents, build_findings(rules, results), counts, event_date, notes=notes)
+    except RuntimeError as exc:
+        button.caption(f"DOCX oluşturulamadı: {exc}")
+    else:
+        button.download_button("📄 Word çalışma kâğıdı", data, file_name=f"{title.replace(' ', '_')}.docx",
+                               mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                               key=f"{key}_docx", use_container_width=True)
     _summary_tiles(groups)
     st.markdown(f"#### Bulgular ({len(findings)})")
     if not findings:
         st.caption("Belgeden açık bir aykırılık bulunmadı. Karar verilemeyen kontroller aşağıda.")
+    evidence_by_rule = {}
+    for item in groups["finding"]:
+        res = getattr(item, "result", item)
+        evidence_by_rule[(res.rule_id, tuple(getattr(item, "documents", ())))] = res.evidence
     for f in findings:
-        _finding_card(f)
+        evidence = evidence_by_rule.get((f.rule_id, tuple(f.documents)), ())
+        _finding_card(f, _locations(evidence, texts or {}))
     if questions is not None:
         questions()
     by_id = {r.id: r for r in rules}
@@ -260,7 +347,7 @@ def _findings_section(rules, results, title, documents, event_date, key, questio
             st.caption("Yok.")
         for item in groups["undecided"]:
             res = getattr(item, "result", item)
-            _brief_line(by_id, item, _headline(res.finding) if res.finding else "")
+            _brief_line(by_id, item, _headline(plain_text(res.finding)) if res.finding else "")
         if groups["undecided"]:
             st.caption("Belge bu kontroller için yetmedi: sorulan bilgiyi cevaplayın ya da belge aslından kontrol edin.")
     with tabs[1]:
@@ -279,18 +366,6 @@ def _findings_section(rules, results, title, documents, event_date, key, questio
     with tabs[3]:
         if full_list is not None:
             full_list()
-    counts = summary(results)
-    absent = sorted({k for item in results for k in absent_collateral(item)})
-    notes = ["Dosyada olmayan teminat türleri (kuralları bulgu sayılmadı; teminat varsa belgesini ekleyin): "
-             + ", ".join(FILE_TYPE_NAMES.get(k, k) for k in absent)] if absent else []
-    try:
-        data = create_rules_docx(title, documents, build_findings(rules, results), counts, event_date, notes=notes)
-    except RuntimeError as exc:
-        st.caption(f"DOCX oluşturulamadı: {exc}")
-        return
-    st.download_button("📄 Çalışma kağıdını indir (DOCX)", data, file_name=f"{title.replace(' ', '_')}.docx",
-                       mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                       key=f"{key}_docx")
 
 
 def current_authority_table():
@@ -402,19 +477,17 @@ def render_credit_file_check(items=None, event_date: Optional[dt.date] = None, a
     everything = list(results) + [FileResult((d.name,), r) for d, res in own for r in res]
 
     def full_list():
+        by_id = {r.id: r for r in rules}
         st.markdown("**Belgeler arası kurallar**")
-        for fr in results:
-            _result_line(fr.result, fr.documents)
+        _rules_table(by_id, [(fr.result, fr.documents) for fr in results])
         if own:
             st.markdown("**Belgelerin kendi kuralları** (sorular belgenin tek başına kontrolünde)")
-            for doc, res in own:
-                st.markdown(f"*{doc.name}*")
-                for r in res:
-                    _result_line(r)
+            _rules_table(by_id, [(r, (doc.name,)) for doc, res in own for r in res])
 
     _findings_section(rules, everything, "Kredi Dosyası Kontrolü",
                       [(d.name, FILE_TYPE_NAMES.get(d.kind, "tanınmadı")) for d in documents], event_date,
-                      f"credit_file_{file_key}", questions=ask, full_list=full_list)
+                      f"credit_file_{file_key}", questions=ask, full_list=full_list,
+                      texts={d.name: d.text for d in documents}, pending=len(questions))
 
 
 __all__ = ["render_collateral_check", "render_credit_file_check", "FILE_TYPE_NAMES"]
