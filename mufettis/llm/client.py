@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import os
+import re
 from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
@@ -35,10 +37,49 @@ def _installed(model: str, names: List[str]) -> bool:
     return wanted in names or model in names
 
 
-def ollama_health(model: Optional[str] = DEFAULT_LLM) -> Dict[str, Any]:
+# Arayüzde seçilen model (Admin → Ayarlar); None ise kendiliğinden seçilir.
+_chosen_model: Optional[str] = None
+_EMBEDDING_MODEL = re.compile(r"embed|bge|minilm", re.IGNORECASE)  # metin üretmeyen modeller seçilmez
+
+
+def set_model(name: Optional[str]) -> None:
+    global _chosen_model
+    _chosen_model = (name or "").strip() or None
+
+
+def installed_models() -> Optional[List[str]]:
+    """Kurulu Ollama modelleri; sunucuya ulaşılamazsa None."""
+    try:
+        r = requests.get(f"{OLLAMA_URL}/api/tags", timeout=3)
+        if r.status_code != 200:
+            return None
+        return [str(m.get("name", "")) for m in (r.json() or {}).get("models", [])]
+    except Exception:
+        return None
+
+
+def active_model(names: Optional[List[str]] = None) -> str:
+    """Kullanılacak model (M15.2): seçilen ya da varsayılan model kuruluysa o; MUFETTIS_LLM_MODEL açıkça
+    verilmişse o (kurulu değilse sağlık denetimi söyler); değilse kurulu ilk metin modeli. Hiç model yoksa
+    varsayılan ad döner, sağlık denetimi kurulmasını söyler."""
+    names = installed_models() if names is None else names
+    names = names or []
+    for candidate in (_chosen_model, DEFAULT_LLM):
+        if candidate and _installed(candidate, names):
+            return candidate
+    if _chosen_model or os.environ.get("MUFETTIS_LLM_MODEL", "").strip():
+        return _chosen_model or DEFAULT_LLM
+    usable = [n for n in names if not _EMBEDDING_MODEL.search(n)]
+    return usable[0] if usable else DEFAULT_LLM
+
+
+AUTO = "auto"
+
+
+def ollama_health(model: Optional[str] = AUTO) -> Dict[str, Any]:
     """Sunucu yanıt veriyor mu ve istenen model kurulu mu? Yalnızca sunucuya bakmak yetmez: model
     yoksa her üretim çağrısı 404 döner ve çağıranlar (ör. iddia doğrulayıcısı) sessizce devre dışı
-    kalırdı. model=None yalnızca sunucuyu denetler."""
+    kalırdı. model=None yalnızca sunucuyu denetler; varsayılan (AUTO) kullanılacak modeli denetler."""
     try:
         r = requests.get(f"{OLLAMA_URL}/api/tags", timeout=3)
         if r.status_code != 200:
@@ -46,12 +87,17 @@ def ollama_health(model: Optional[str] = DEFAULT_LLM) -> Dict[str, Any]:
         names = [str(m.get("name", "")) for m in (r.json() or {}).get("models", [])]
     except Exception as exc:
         return {"ok": False, "error": str(exc)}
+    if model == AUTO:
+        model = active_model(names)
     if model and not _installed(model, names):
         return {"ok": False, "status_code": 200, "models": names,
                 "error": f"'{model}' modeli kurulu değil (kurulu: {', '.join(names) or 'yok'}); "
                          f"'ollama pull {model}' ile kurun ya da MUFETTIS_LLM_MODEL ile kurulu bir model seçin"}
-    return {"ok": True, "status_code": 200, "models": names}
-def ollama_generate(prompt: str, model: str = DEFAULT_LLM, temperature: float = 0.1, timeout: int = 300) -> str:
+    return {"ok": True, "status_code": 200, "models": names, "model": model}
+
+
+def ollama_generate(prompt: str, model: Optional[str] = None, temperature: float = 0.1, timeout: int = 300) -> str:
+    model = model or active_model()
     payload = {
         "model": model,
         # Tek LLM taşıma noktası: çağıran maskelemeyi unutsa bile kişisel veri gönderilmez.
@@ -222,6 +268,9 @@ def report_mevzuat_preflight(
 __all__ = [
     "OLLAMA_SYSTEM_PROMPT",
     "ollama_health",
+    "active_model",
+    "installed_models",
+    "set_model",
     "ollama_generate",
     "build_ai_report_prompt",
     "prepare_report_findings",

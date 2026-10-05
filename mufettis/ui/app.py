@@ -52,7 +52,10 @@ from mufettis.extraction.text_repair import (
 )
 from mufettis.harvesting.web_harvester import sync_playwright
 from mufettis.llm.client import (
+    active_model,
     build_ai_report_prompt,
+    installed_models,
+    set_model,
     ollama_generate,
     ollama_health,
     prepare_report_findings,
@@ -129,6 +132,23 @@ def render_self_test_result(result: unittest.result.TestResult) -> None:
         test_name = str(test)
         with st.expander(f"❌ {test_name}", expanded=False):
             st.code(traceback_text, language="text")
+def render_llm_settings() -> None:
+    """Yerel dil modeli (M15.2): kurulu modellerden seçim ve hazır / kurulu değil durumu. Seçim oturumda tutulur."""
+    names = installed_models()
+    if names is None:
+        st.caption("Yerel dil modeli: Ollama çalışmıyor (isteğe bağlı; kural kontrolü bunsuz çalışır).")
+        return
+    usable = [n for n in names if n]
+    if not usable:
+        st.caption(f"Yerel dil modeli: Ollama çalışıyor ama kurulu model yok ('ollama pull {DEFAULT_LLM}').")
+        return
+    current = active_model(names)
+    chosen = st.selectbox("Yerel dil modeli (Ollama)", usable,
+                          index=usable.index(current) if current in usable else 0, key="llm_model_choice")
+    set_model(chosen)
+    st.caption(f"Yerel dil modeli hazır: {chosen}")
+
+
 def run_streamlit() -> None:
     if st is None:
         raise RuntimeError("Streamlit kurulu değil")
@@ -141,6 +161,8 @@ def run_streamlit() -> None:
     if "rag_answer" not in st.session_state:
         st.session_state["rag_answer"] = ""
 
+    if st.session_state.get("llm_model_choice"):
+        set_model(st.session_state["llm_model_choice"])
     with st.sidebar:
         st.header("Sistem")
         local_only = st.checkbox("Tam yerel mod", value=True, help="Resmî Gazete senkronizasyonu ve ilk model indirmeyi kapatır.")
@@ -690,7 +712,7 @@ def run_streamlit() -> None:
             )
             st.divider()
             st.markdown("### Yerel LLM ile rapor taslağı")
-            model = st.text_input("Ollama model", value=DEFAULT_LLM)
+            model = st.text_input("Ollama model", value=active_model())
             health = ollama_health(model)
             st.write(f"Ollama: {'hazır' if health.get('ok') else (health.get('error') or 'ulaşılamıyor')}")
             if st.button("AI rapor taslağı oluştur"):
@@ -729,6 +751,7 @@ def run_streamlit() -> None:
             "review_registry": str(REVIEW_FILE),
             "embedding_model": EMBEDDING_MODEL,
             "default_llm": DEFAULT_LLM,
+            "active_llm": active_model(),
             "local_only": local_only,
             "bulk_state_file": str(BULK_STATE_FILE),
             "bulk_error_file": str(BULK_ERROR_FILE),
@@ -742,6 +765,7 @@ def run_streamlit() -> None:
         if st.button("Tüm self-testleri yeniden çalıştır"):
             result = run_self_tests()
             render_self_test_result(result)
+        render_llm_settings()
         if st.button("Ollama durumunu kontrol et"):
             st.json(ollama_health())
 

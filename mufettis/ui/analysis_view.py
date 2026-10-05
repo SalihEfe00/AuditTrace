@@ -332,13 +332,18 @@ def render_analysis_page(
     # M10: kredi dosyası (birden çok belge, belgeler arası kurallar)
     render_credit_file_check()
 
+    from mufettis.llm.client import ollama_health
+    llm_health = ollama_health()
     use_llm = st.checkbox(
-        "Yerel dil modeliyle kanıt doğrulaması (Ollama)",
+        "Yerel dil modeliyle kanıt doğrulaması (Ollama)"
+        + (f" — {llm_health['model']}" if llm_health.get("ok") else " — model hazır değil"),
         value=False,
         key="analysis_ui_llm_verification",
+        disabled=not llm_health.get("ok"),
         help="Model, yalnızca getirilen mevzuat parçaları arasından iddiaya uygulanabilir hükmü seçer ve "
-             "alıntısı birebir doğrulanır. Model erişilemezse sözcüksel eşleştirme kullanılır.",
-    )
+             "alıntısı birebir doğrulanır. Kullanılan model Admin sekmesinden seçilir; Ollama çalışmıyorsa "
+             "ya da model kurulu değilse sözcüksel eşleştirme kullanılır.",
+    ) and bool(llm_health.get("ok"))
     analyze_clicked = st.button("🚀 ANALİZİ BAŞLAT", type="primary", use_container_width=True)
 
     # ── Pipeline Execution ────────────────────────────────────────────────────
