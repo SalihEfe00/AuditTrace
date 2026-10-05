@@ -23,8 +23,8 @@ class TestRagUnavailableReason(unittest.TestCase):
 
     def test_ui_records_logs_and_shows_reason(self):
         fake_st = types.SimpleNamespace(session_state={})
-        with mock.patch.object(app, "SentenceTransformer", None), \
-                mock.patch.object(app, "SENTENCE_TRANSFORMERS_ERROR", self.REASON), \
+        with mock.patch.object(engine, "SentenceTransformer", None), \
+                mock.patch.object(engine, "SENTENCE_TRANSFORMERS_ERROR", self.REASON), \
                 mock.patch.object(app, "st", fake_st), mock.patch.object(admin, "st", fake_st), \
                 self.assertLogs("mufettis.ui.app", level="WARNING") as logs:
             self.assertIsNone(app._get_rag())

@@ -13,7 +13,14 @@ from .importers.bulk_importer import BulkRegulationImporter
 from .importers.bootstrapper import RegulationBootstrapper
 from .scheduler.scheduler import BackgroundUpdateScheduler
 from .analysis.risk_engine import run_analysis
-from .tests.runner import run_self_tests
+
+
+def run_self_tests(*args, **kwargs):
+    """Self-test çalıştırıcısı ilk çağrıda yüklenir (M15.3): test modülleri torch / chromadb'yi yükler,
+    paket her içe aktarıldığında bunu ödememek için."""
+    from .tests.runner import run_self_tests as _fn
+    return _fn(*args, **kwargs)
+
 
 __version__ = APP_VERSION
 __all__ = [

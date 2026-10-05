@@ -61,7 +61,8 @@ from mufettis.llm.client import (
     prepare_report_findings,
     report_mevzuat_preflight,
 )
-from mufettis.rag.engine import SENTENCE_TRANSFORMERS_ERROR, LocalRAG, SentenceTransformer, chromadb
+from mufettis.rag import engine as rag_engine
+from mufettis.rag.engine import LocalRAG
 from mufettis.rag.maintenance import (
     _diagnostic_focus_text,
     run_rag_diagnostic,
@@ -93,14 +94,13 @@ def _get_rag(
     if allow_embedding_download is not None:
         # Geriye dönük uyumluluk: eski çağrı adı da kabul edilir.
         allow_download = bool(allow_embedding_download)
-    if SentenceTransformer is None:
-        return _rag_unavailable(f"sentence-transformers yüklenemedi: {SENTENCE_TRANSFORMERS_ERROR}")
-    if chromadb is None:
-        from mufettis.config import DB_PATH
-        from mufettis.rag.store import resolve_store_kind
+    # Ağır kütüphaneler burada, RAG ilk istendiğinde yüklenir (M15.3).
+    if rag_engine.sentence_transformer_class() is None:
+        return _rag_unavailable(f"sentence-transformers yüklenemedi: {rag_engine.SENTENCE_TRANSFORMERS_ERROR}")
+    from mufettis.rag.store import resolve_store_kind
 
-        if resolve_store_kind(None, DB_PATH) == "chroma":
-            return _rag_unavailable("Eski Chroma veritabanı seçili ama chromadb kurulu değil.")
+    if resolve_store_kind(None, DB_PATH) == "chroma" and rag_engine.chromadb_module() is None:
+        return _rag_unavailable("Eski Chroma veritabanı seçili ama chromadb kurulu değil.")
     try:
         rag = _create_rag_cached(bool(allow_download))
     except Exception as exc:
@@ -116,6 +116,31 @@ def _rag_unavailable(reason: str) -> None:
     if st is not None:
         st.session_state["rag_error"] = reason
     return None
+
+
+def _rag_when_needed(allow_download: bool, needed: bool = False) -> Optional[LocalRAG]:
+    """M15.3: mevzuat kütüphanesi sayfa açılırken kurulmaz (Streamlit bütün sekmeleri her seferinde çalıştırır).
+    İlk gerektiğinde (needed=True: analiz, sorgu, teşhis, "yükle" düğmesi) kurulur ve oturum boyunca açık kalır."""
+    if st is None:
+        return _get_rag(allow_download=allow_download)
+    if needed:
+        st.session_state["rag_requested"] = True
+    if not st.session_state.get("rag_requested"):
+        return None
+    with st.spinner("Mevzuat kütüphanesi yükleniyor (ilk seferde birkaç saniye sürer)..."):
+        return _get_rag(allow_download=allow_download)
+
+
+def _rag_load_button(key: str) -> None:
+    """Kütüphane henüz yüklenmediyse kısa bir not ve "yükle" düğmesi gösterir; basılınca sayfa yüklü hâliyle
+    yeniden çizilir."""
+    if st.session_state.get("rag_requested"):
+        return
+    st.info("Mevzuat kütüphanesi henüz yüklenmedi; ilk aramada ya da bu düğmeyle yüklenir.")
+    if st.button("Mevzuat kütüphanesini yükle", key=key):
+        st.session_state["rag_requested"] = True
+        st.rerun()  # bütün sekmeler kütüphane yüklü hâliyle yeniden çizilir
+
 
 def render_self_test_result(result: unittest.result.TestResult) -> None:
     """Self-test sonucunu UI'da test isimleri ve hata özetiyle gösterir."""
@@ -387,14 +412,17 @@ def run_streamlit() -> None:
 
     # TAB 2 (Müfettiş AI Belge Analizi) --------------------------------------
     with tabs[1]:
-        rag_analysis = _get_rag(allow_download=allow_embedding_download)
-        render_analysis_page(rag_client=rag_analysis)
+        render_analysis_page(rag_provider=lambda: _rag_when_needed(allow_embedding_download, needed=True))
 
     # TAB 3 ------------------------------------------------------------------
     with tabs[2]:
         st.subheader("Mevzuat RAG")
-        rag = _get_rag(allow_download=allow_embedding_download)
-        st.write(f"Parça (kayıt) sayısı: {rag.count() if rag else 0}")
+        # Durum satırı sekmenin sonunda yazılır: sorgu / teşhis kütüphaneyi bu çizimde yüklediyse "henüz
+        # yüklenmedi" notu kalmaz.
+        rag_status = st.empty()
+        with rag_status.container():
+            _rag_load_button("rag_load_search")
+        rag = _rag_when_needed(allow_embedding_download)
         st.caption(
             f"Aktif chunk şeması: {CHUNK_SCHEMA_VERSION}. "
             "Kaynak yönetimi ve indeksleme işlemleri Admin sekmesindedir."
@@ -410,6 +438,8 @@ def run_streamlit() -> None:
             diagnostic_account = dcol2.text_input("Hesap kodu", value="280", key="rag_diag_account")
             run_diag = st.button("Teşhisi çalıştır", key="rag_diag_run")
             if run_diag:
+                if rag is None:
+                    rag = _rag_when_needed(allow_embedding_download, needed=True)
                 if rag is None:
                     st.error("RAG kullanılamıyor.")
                 else:
@@ -489,6 +519,8 @@ def run_streamlit() -> None:
             run_prov = st.button("Cache / Chroma karşılaştır", key="rag_prov_run")
             if run_prov:
                 if rag is None:
+                    rag = _rag_when_needed(allow_embedding_download, needed=True)
+                if rag is None:
                     st.error("RAG kullanılamıyor.")
                 else:
                     try:
@@ -533,6 +565,8 @@ def run_streamlit() -> None:
         query = st.text_input("Mevzuat RAG sorgusu", value="")
         k = st.slider("Top-K", 1, 10, 5)
         if st.button("RAG sorgula") and query:
+            if rag is None:
+                rag = _rag_when_needed(allow_embedding_download, needed=True)
             if rag is None:
                 st.error("RAG kullanılamıyor.")
             else:
@@ -613,6 +647,10 @@ def run_streamlit() -> None:
                 except Exception as exc:
                     st.error(f"RAG sorgu hatası: {exc}")
 
+        if rag is not None:
+            rag_status.write(f"Parça (kayıt) sayısı: {rag.count()}")
+        elif st.session_state.get("rag_requested"):
+            rag_status.error("RAG kullanılamıyor.")
 
 
     # TAB 4 ------------------------------------------------------------------
@@ -732,13 +770,17 @@ def run_streamlit() -> None:
             "Yerel mevzuat yükleme, toplu içe aktarma, resmi kaynak senkronizasyonu, "
             "bootstrap, RAG rebuild ve sistem testleri."
         )
-        rag_admin = _get_rag(allow_download=allow_embedding_download)
-        render_mevzuat_admin(
-            rag=rag_admin,
-            local_only=local_only,
-            use_browser_bddk=use_browser_bddk,
-            allow_embedding_download=allow_embedding_download,
-        )
+        if not st.session_state.get("rag_requested"):
+            st.subheader("Mevzuat kaynak yönetimi")  # yüklenince başlığı render_mevzuat_admin yazar
+        _rag_load_button("rag_load_admin")
+        rag_admin = _rag_when_needed(allow_embedding_download)
+        if st.session_state.get("rag_requested"):
+            render_mevzuat_admin(
+                rag=rag_admin,
+                local_only=local_only,
+                use_browser_bddk=use_browser_bddk,
+                allow_embedding_download=allow_embedding_download,
+            )
 
         st.divider()
         st.subheader("Sistem / güvenlik / test")

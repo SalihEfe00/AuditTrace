@@ -12,18 +12,38 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
-try:
-    import chromadb
-except Exception:
-    chromadb = None
+# M15.3: ağır kütüphaneler (sentence-transformers / torch ~5 sn, chromadb ~0,6 sn) modül yüklenirken değil,
+# RAG ilk kurulduğunda yüklenir; arayüz böylece mevzuat kütüphanesine ihtiyaç duymadan hızlı açılır.
+_NOT_LOADED: Any = object()
+chromadb: Any = _NOT_LOADED
+SentenceTransformer: Any = _NOT_LOADED
+SENTENCE_TRANSFORMERS_ERROR = ""
 
-try:
-    from sentence_transformers import SentenceTransformer
-    SENTENCE_TRANSFORMERS_ERROR = ""
-except Exception as _exc:
-    # Sebep saklanır ve kullanıcıya gösterilir (ör. temiz makinede eksik bir DLL torch'u yükletmez).
-    SentenceTransformer = None
-    SENTENCE_TRANSFORMERS_ERROR = f"{type(_exc).__name__}: {_exc}"
+
+def chromadb_module() -> Any:
+    """chromadb modülü; kurulu değilse None."""
+    global chromadb
+    if chromadb is _NOT_LOADED:
+        try:
+            import chromadb as _chromadb
+            chromadb = _chromadb
+        except Exception:
+            chromadb = None
+    return chromadb
+
+
+def sentence_transformer_class() -> Any:
+    """SentenceTransformer sınıfı; yüklenemezse None ve sebep SENTENCE_TRANSFORMERS_ERROR'da."""
+    global SentenceTransformer, SENTENCE_TRANSFORMERS_ERROR
+    if SentenceTransformer is _NOT_LOADED:
+        try:
+            from sentence_transformers import SentenceTransformer as _cls
+            SentenceTransformer = _cls
+        except Exception as exc:
+            # Sebep saklanır ve kullanıcıya gösterilir (ör. temiz makinede eksik bir DLL torch'u yükletmez).
+            SentenceTransformer = None
+            SENTENCE_TRANSFORMERS_ERROR = f"{type(exc).__name__}: {exc}"
+    return SentenceTransformer
 
 from mufettis.config import (
     CHROMA_COLLECTION,
@@ -93,9 +113,9 @@ class LocalRAG:
         from mufettis.rag.store import SqliteStoreClient, resolve_store_kind, store_root_for
 
         self.store_kind = resolve_store_kind(store, db_path)
-        if self.store_kind == "chroma" and chromadb is None:
+        if self.store_kind == "chroma" and chromadb_module() is None:
             raise RuntimeError("chromadb kurulu değil. `pip install chromadb`")
-        if SentenceTransformer is None:
+        if sentence_transformer_class() is None:
             raise RuntimeError(f"sentence-transformers yüklenemedi: {SENTENCE_TRANSFORMERS_ERROR}")
         self.db_path = Path(db_path)
         self.db_path.mkdir(parents=True, exist_ok=True)
@@ -105,7 +125,7 @@ class LocalRAG:
         if self.store_kind == "sqlite":
             self.client = SqliteStoreClient(store_root_for(self.db_path))
         else:
-            self.client = chromadb.PersistentClient(path=str(self.db_path))
+            self.client = chromadb_module().PersistentClient(path=str(self.db_path))
         self.collection = self.client.get_or_create_collection(name=CHROMA_COLLECTION, embedding_function=None)
 
     def _load_model(self):
@@ -115,7 +135,7 @@ class LocalRAG:
             # İndirme izni yoksa yalnızca yerel önbellek kullanılır. HF_HUB_OFFLINE ortam
             # değişkeni huggingface_hub import edilirken okunduğu için çalışma anında
             # ayarlanması etkisizdir; çevrimdışı mod burada zorlanır.
-            self._model = SentenceTransformer(self.model_name, local_files_only=not self.allow_download)
+            self._model = sentence_transformer_class()(self.model_name, local_files_only=not self.allow_download)
             return self._model
         except Exception as exc:
             if not self.allow_download:

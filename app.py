@@ -31,7 +31,6 @@ from mufettis.rag.maintenance import (
 )
 from mufettis.scheduler.scheduler import BackgroundUpdateScheduler, run_automatic_update
 from mufettis.ui.app import run_streamlit, st
-from mufettis.tests.runner import run_self_tests
 
 # -----------------------------------------------------------------------------
 # CLI / Streamlit Entry Point
@@ -79,6 +78,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.self_test:
+        from mufettis.tests.runner import run_self_tests  # ağır test modülleri yalnız burada yüklenir
         result = run_self_tests()
         print(getattr(result, "output", ""), end="")
         for test, detail in result.errors:

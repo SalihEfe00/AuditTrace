@@ -25,7 +25,7 @@ import html
 import hashlib
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 try:
     import streamlit as st
@@ -209,8 +209,11 @@ def render_evidence_text_html(text_span: str) -> str:
 def render_analysis_page(
     rag_client: Optional[Any] = None,
     presenter: Optional[AnalysisPresenter] = None,
+    rag_provider: Optional[Callable[[], Any]] = None,
 ) -> None:
-    """Renders the main Analysis Intelligence screen inside Streamlit."""
+    """Renders the main Analysis Intelligence screen inside Streamlit.
+
+    rag_provider (M15.3): mevzuat kütüphanesi sayfa açılırken değil, ANALİZİ BAŞLAT'a basılınca kurulur."""
     if st is None:
         return
 
@@ -351,6 +354,8 @@ def render_analysis_page(
         doc_text = st.session_state.get("analysis_ui_text", "")
         doc_title = st.session_state.get("analysis_ui_title", "")
         doc_source = st.session_state.get("analysis_ui_source", "")
+        if rag_client is None and rag_provider is not None:
+            rag_client = rag_provider()
         llm_note = presenter.configure_llm_verification(use_llm is True)
         if llm_note:
             st.warning(llm_note)
