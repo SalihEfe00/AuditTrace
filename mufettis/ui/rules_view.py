@@ -123,7 +123,7 @@ _AUTO = "(otomatik tanı)"
 
 def _questions_header(title: str, extra: str = "") -> None:
     st.markdown(f"#### ✍️ Sizden cevap bekleyen — {title.lower()}")
-    st.caption("Cevaplarınız *müfettiş beyanı* olarak kanıta yazılır ve ilgili kontrol yeniden yapılır"
+    st.caption("Cevaplarınız kanıta *sizin cevabınız* olarak yazılır ve ilgili kontrol yeniden yapılır"
                + (f" ({extra})" if extra else "") + ".")
 
 
