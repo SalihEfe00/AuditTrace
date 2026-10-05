@@ -70,7 +70,7 @@ from mufettis.rag.maintenance import (
 )
 from mufettis.scheduler.scheduler import BackgroundUpdateScheduler
 from mufettis.ui.admin import render_mevzuat_admin
-from mufettis.ui.analysis_view import render_analysis_page
+from mufettis.ui.analysis_view import render_analysis_page, render_review_history
 
 logger = logging.getLogger(__name__)
 def run_self_tests(*args, **kwargs):
@@ -262,17 +262,34 @@ def run_streamlit() -> None:
             result = run_self_tests()
             render_self_test_result(result)
 
-    tabs = st.tabs([
-        "1. Veri Analizi",
-        "2. Belge Analizi (Müfettiş AI)",
-        "3. Mevzuat RAG",
-        "4. İnceleme",
-        "5. Rapor",
-        "6. Admin",
+    # M15.4: dört ana sekme; Mevzuat Arama, Admin'den önceki son sekme. Eski Veri Analizi / İnceleme / Rapor
+    # sekmeleri silinmedi, Admin → Gelişmiş araçlar → İşlem verisi analizi (deneysel) altına taşındı; mevzuat
+    # teşhis araçları Admin'de.
+    tab_check, tab_history, tab_search, tab_admin = st.tabs([
+        "1. Kredi Dosyası Kontrolü",
+        "2. İnceleme Geçmişi",
+        "3. Mevzuat Arama",
+        "4. Admin",
     ])
+    with tab_admin:
+        st.subheader("Admin")
+        st.caption(
+            "Yerel mevzuat yükleme, toplu içe aktarma, resmi kaynak senkronizasyonu, "
+            "bootstrap, RAG rebuild, sistem testleri ve gelişmiş araçlar."
+        )
+        admin_main, admin_diag, admin_advanced = st.tabs(
+            ["Mevzuat yönetimi ve sistem", "Mevzuat teşhis araçları", "Gelişmiş araçlar"]
+        )
+    with admin_advanced:
+        st.markdown("#### İşlem verisi analizi (deneysel)")
+        st.caption(
+            "Excel / CSV işlem verisinde istatistiksel aykırılık taraması. Kredi dosyası kontrolünün parçası "
+            "değildir; eşik ayarları (Z-score, MAD, IQR) kenar çubuğundadır."
+        )
+        data_tab, data_review_tab, data_report_tab = st.tabs(["Veri analizi", "İnceleme", "Rapor"])
 
     # TAB 1 ------------------------------------------------------------------
-    with tabs[0]:
+    with data_tab:
         upload = st.file_uploader("Excel / CSV yükle", type=["xlsx", "xls", "csv"], accept_multiple_files=False)
         if upload:
             if upload.size > MAX_UPLOAD_MB * 1024 * 1024:
@@ -411,160 +428,165 @@ def run_streamlit() -> None:
                 st.dataframe(view[display_cols], use_container_width=True)
 
     # TAB 2 (Müfettiş AI Belge Analizi) --------------------------------------
-    with tabs[1]:
+    with tab_check:
         render_analysis_page(rag_provider=lambda: _rag_when_needed(allow_embedding_download, needed=True))
 
     # TAB 3 ------------------------------------------------------------------
-    with tabs[2]:
-        st.subheader("Mevzuat RAG")
+    with tab_history:
+        render_review_history()
+
+    with tab_search:
+        st.subheader("Mevzuat Arama")
+        st.caption("Sorunuzu ya da aradığınız konuyu yazın; ilgili kanun ve yönetmelik maddeleri listelenir.")
         # Durum satırı sekmenin sonunda yazılır: sorgu / teşhis kütüphaneyi bu çizimde yüklediyse "henüz
         # yüklenmedi" notu kalmaz.
         rag_status = st.empty()
         with rag_status.container():
             _rag_load_button("rag_load_search")
         rag = _rag_when_needed(allow_embedding_download)
-        st.caption(
-            f"Aktif chunk şeması: {CHUNK_SCHEMA_VERSION}. "
-            "Kaynak yönetimi ve indeksleme işlemleri Admin sekmesindedir."
-        )
-        st.divider()
-        with st.expander("RAG DIAGNOSTIC — zinciri değiştirmeden incele", expanded=False):
+        with admin_diag:
             st.caption(
-                "Bu bölüm yalnızca teşhis içindir. Chroma silmez, indexlemez, source cache'i değiştirmez. "
-                "Önce exact belge + hesap eşleşmesini, ardından PDF extraction adaylarını gösterir."
+                f"Aktif chunk şeması: {CHUNK_SCHEMA_VERSION}. "
+                "Geliştirici teşhis araçları (önceden Mevzuat RAG sekmesindeydi); mevzuatı değiştirmez."
             )
-            dcol1, dcol2 = st.columns(2)
-            diagnostic_doc = dcol1.text_input("Belge kimliği", value="1043", key="rag_diag_doc")
-            diagnostic_account = dcol2.text_input("Hesap kodu", value="280", key="rag_diag_account")
-            run_diag = st.button("Teşhisi çalıştır", key="rag_diag_run")
-            if run_diag:
-                if rag is None:
-                    rag = _rag_when_needed(allow_embedding_download, needed=True)
-                if rag is None:
-                    st.error("RAG kullanılamıyor.")
-                else:
-                    try:
-                        diag = run_rag_diagnostic(rag, diagnostic_doc, diagnostic_account)
-                        if not diag.get("ok"):
-                            st.error(diag.get("error", "Teşhis başarısız."))
-                        else:
-                            st.success(
-                                f"Exact Chroma eşleşmesi: {diag.get('match_count', 0)} | "
-                                f"Toplam kayıt: {diag.get('chroma_count', 0)}"
+            with st.expander("RAG DIAGNOSTIC — zinciri değiştirmeden incele", expanded=False):
+                st.caption(
+                    "Bu bölüm yalnızca teşhis içindir. Chroma silmez, indexlemez, source cache'i değiştirmez. "
+                    "Önce exact belge + hesap eşleşmesini, ardından PDF extraction adaylarını gösterir."
+                )
+                dcol1, dcol2 = st.columns(2)
+                diagnostic_doc = dcol1.text_input("Belge kimliği", value="1043", key="rag_diag_doc")
+                diagnostic_account = dcol2.text_input("Hesap kodu", value="280", key="rag_diag_account")
+                run_diag = st.button("Teşhisi çalıştır", key="rag_diag_run")
+                if run_diag:
+                    if rag is None:
+                        rag = _rag_when_needed(allow_embedding_download, needed=True)
+                    if rag is None:
+                        st.error("RAG kullanılamıyor.")
+                    else:
+                        try:
+                            diag = run_rag_diagnostic(rag, diagnostic_doc, diagnostic_account)
+                            if not diag.get("ok"):
+                                st.error(diag.get("error", "Teşhis başarısız."))
+                            else:
+                                st.success(
+                                    f"Exact Chroma eşleşmesi: {diag.get('match_count', 0)} | "
+                                    f"Toplam kayıt: {diag.get('chroma_count', 0)}"
+                                )
+                                src = diag.get("source", {})
+                                st.write({
+                                    "file_hash": src.get("file_hash", ""),
+                                    "cache_exists": src.get("cache_exists", False),
+                                    "cache_chars": src.get("cache_chars", 0),
+                                    "source_url": src.get("url", ""),
+                                    "source_fetch": src.get("fetch", {}),
+                                })
+
+                                st.markdown("**Exact kayıtlar — belge/kod kimliği**")
+                                for item in diag.get("exact_matches", []):
+                                    st.code(
+                                        json.dumps(item, ensure_ascii=False, indent=2),
+                                        language="json",
+                                    )
+
+                                st.markdown("**PDF extraction adayları — RAW → REPAIRED**")
+                                extraction_rows = diag.get("extraction", [])
+                                if not extraction_rows:
+                                    st.warning(
+                                        "Kaynak PDF bu oturumda indirilemedi; aşağıdaki cache/chunk/Chroma "
+                                        "aşamaları yine de gösteriliyor."
+                                    )
+                                for candidate in extraction_rows:
+                                    st.markdown(f"`{candidate.get('name')}`")
+                                    st.code(
+                                        "RAW\n" + _diagnostic_focus_text(candidate.get("raw", ""), diagnostic_account) +
+                                        "\n\nREPAIRED\n" + _diagnostic_focus_text(candidate.get("repaired", ""), diagnostic_account),
+                                        language="text",
+                                    )
+                                    st.write({
+                                        "raw_quality": candidate.get("quality_raw", {}),
+                                        "repaired_quality": candidate.get("quality_repaired", {}),
+                                    })
+
+                                st.markdown("**Aşamalar**")
+                                for stage in diag.get("stages", []):
+                                    with st.expander(stage.get("stage", "stage"), expanded=False):
+                                        st.write(stage.get("quality", {}))
+                                        st.code(stage.get("text", "[BOŞ]"), language="text")
+                                        if stage.get("metadata"):
+                                            st.json(stage.get("metadata"))
+
+                                st.markdown("**Semantic retrieval — exact teşhisin ayrı çıktısı**")
+                                sem = diag.get("semantic_results", [])
+                                if sem:
+                                    st.code(json.dumps(sem, ensure_ascii=False, indent=2), language="json")
+                                else:
+                                    st.info("Semantic retrieval sonucu yok.")
+                        except Exception as exc:
+                            st.error(f"RAG diagnostic hatası: {type(exc).__name__}: {exc}")
+
+            st.divider()
+            with st.expander("CACHE / CHROMA PROVENANCE — iki belgeyi yan yana karşılaştır", expanded=False):
+                st.caption(
+                    "Bu test de yalnızca okur. İki belge+hesap eşleşmesinin source_cache ve Chroma metinlerini "
+                    "hash ve hedef çevresiyle karşılaştırır; indexleme, silme veya cache güncelleme yapmaz."
+                )
+                pcol1, pcol2 = st.columns(2)
+                prov_doc_a = pcol1.text_input("Belge A", value="1043", key="rag_prov_doc_a")
+                prov_doc_b = pcol2.text_input("Belge B", value="1045", key="rag_prov_doc_b")
+                pcol3, pcol4 = st.columns(2)
+                prov_acc_a = pcol3.text_input("Hesap A", value="280", key="rag_prov_acc_a")
+                prov_acc_b = pcol4.text_input("Hesap B", value="280", key="rag_prov_acc_b")
+                run_prov = st.button("Cache / Chroma karşılaştır", key="rag_prov_run")
+                if run_prov:
+                    if rag is None:
+                        rag = _rag_when_needed(allow_embedding_download, needed=True)
+                    if rag is None:
+                        st.error("RAG kullanılamıyor.")
+                    else:
+                        try:
+                            prov = run_rag_provenance_compare(
+                                rag,
+                                prov_doc_a,
+                                prov_acc_a,
+                                prov_doc_b,
+                                prov_acc_b,
                             )
-                            src = diag.get("source", {})
-                            st.write({
-                                "file_hash": src.get("file_hash", ""),
-                                "cache_exists": src.get("cache_exists", False),
-                                "cache_chars": src.get("cache_chars", 0),
-                                "source_url": src.get("url", ""),
-                                "source_fetch": src.get("fetch", {}),
-                            })
-
-                            st.markdown("**Exact kayıtlar — belge/kod kimliği**")
-                            for item in diag.get("exact_matches", []):
-                                st.code(
-                                    json.dumps(item, ensure_ascii=False, indent=2),
-                                    language="json",
-                                )
-
-                            st.markdown("**PDF extraction adayları — RAW → REPAIRED**")
-                            extraction_rows = diag.get("extraction", [])
-                            if not extraction_rows:
-                                st.warning(
-                                    "Kaynak PDF bu oturumda indirilemedi; aşağıdaki cache/chunk/Chroma "
-                                    "aşamaları yine de gösteriliyor."
-                                )
-                            for candidate in extraction_rows:
-                                st.markdown(f"`{candidate.get('name')}`")
-                                st.code(
-                                    "RAW\n" + _diagnostic_focus_text(candidate.get("raw", ""), diagnostic_account) +
-                                    "\n\nREPAIRED\n" + _diagnostic_focus_text(candidate.get("repaired", ""), diagnostic_account),
-                                    language="text",
-                                )
-                                st.write({
-                                    "raw_quality": candidate.get("quality_raw", {}),
-                                    "repaired_quality": candidate.get("quality_repaired", {}),
-                                })
-
-                            st.markdown("**Aşamalar**")
-                            for stage in diag.get("stages", []):
-                                with st.expander(stage.get("stage", "stage"), expanded=False):
-                                    st.write(stage.get("quality", {}))
-                                    st.code(stage.get("text", "[BOŞ]"), language="text")
-                                    if stage.get("metadata"):
-                                        st.json(stage.get("metadata"))
-
-                            st.markdown("**Semantic retrieval — exact teşhisin ayrı çıktısı**")
-                            sem = diag.get("semantic_results", [])
-                            if sem:
-                                st.code(json.dumps(sem, ensure_ascii=False, indent=2), language="json")
+                            if not prov.get("ok"):
+                                st.error(prov.get("error", "Provenance karşılaştırması başarısız."))
                             else:
-                                st.info("Semantic retrieval sonucu yok.")
-                    except Exception as exc:
-                        st.error(f"RAG diagnostic hatası: {type(exc).__name__}: {exc}")
-
-        st.divider()
-        with st.expander("CACHE / CHROMA PROVENANCE — iki belgeyi yan yana karşılaştır", expanded=False):
-            st.caption(
-                "Bu test de yalnızca okur. İki belge+hesap eşleşmesinin source_cache ve Chroma metinlerini "
-                "hash ve hedef çevresiyle karşılaştırır; indexleme, silme veya cache güncelleme yapmaz."
-            )
-            pcol1, pcol2 = st.columns(2)
-            prov_doc_a = pcol1.text_input("Belge A", value="1043", key="rag_prov_doc_a")
-            prov_doc_b = pcol2.text_input("Belge B", value="1045", key="rag_prov_doc_b")
-            pcol3, pcol4 = st.columns(2)
-            prov_acc_a = pcol3.text_input("Hesap A", value="280", key="rag_prov_acc_a")
-            prov_acc_b = pcol4.text_input("Hesap B", value="280", key="rag_prov_acc_b")
-            run_prov = st.button("Cache / Chroma karşılaştır", key="rag_prov_run")
-            if run_prov:
-                if rag is None:
-                    rag = _rag_when_needed(allow_embedding_download, needed=True)
-                if rag is None:
-                    st.error("RAG kullanılamıyor.")
-                else:
-                    try:
-                        prov = run_rag_provenance_compare(
-                            rag,
-                            prov_doc_a,
-                            prov_acc_a,
-                            prov_doc_b,
-                            prov_acc_b,
-                        )
-                        if not prov.get("ok"):
-                            st.error(prov.get("error", "Provenance karşılaştırması başarısız."))
-                        else:
-                            if str(prov.get("diagnosis", "")).startswith("KIRILMA ADAYI"):
-                                st.error(prov.get("diagnosis"))
-                            else:
-                                st.info(prov.get("diagnosis"))
-                            st.write({
-                                "toplam_chroma": prov.get("chroma_count", 0),
-                                "aynı_cache_icerigi": prov.get("same_cache_content", False),
-                                "ayni_chunk_icerigi": prov.get("same_chunk_content", False),
-                            })
-                            for label, side_key in (("BELGE A", "document_a"), ("BELGE B", "document_b")):
-                                side = prov.get(side_key, {})
-                                st.markdown(f"**{label}: {side.get('document_ref', '')} / {side.get('account_ref', '')}**")
+                                if str(prov.get("diagnosis", "")).startswith("KIRILMA ADAYI"):
+                                    st.error(prov.get("diagnosis"))
+                                else:
+                                    st.info(prov.get("diagnosis"))
                                 st.write({
-                                    "exact_match_count": side.get("exact_match_count", 0),
+                                    "toplam_chroma": prov.get("chroma_count", 0),
+                                    "aynı_cache_icerigi": prov.get("same_cache_content", False),
+                                    "ayni_chunk_icerigi": prov.get("same_chunk_content", False),
                                 })
-                                st.markdown("Cache kayıtları")
-                                st.code(
-                                    json.dumps(side.get("source_caches", []), ensure_ascii=False, indent=2),
-                                    language="json",
-                                )
-                                st.markdown("Exact Chroma chunk kayıtları")
-                                st.code(
-                                    json.dumps(side.get("exact_chunks", []), ensure_ascii=False, indent=2),
-                                    language="json",
-                                )
-                    except Exception as exc:
-                        st.error(f"Provenance karşılaştırma hatası: {type(exc).__name__}: {exc}")
+                                for label, side_key in (("BELGE A", "document_a"), ("BELGE B", "document_b")):
+                                    side = prov.get(side_key, {})
+                                    st.markdown(f"**{label}: {side.get('document_ref', '')} / {side.get('account_ref', '')}**")
+                                    st.write({
+                                        "exact_match_count": side.get("exact_match_count", 0),
+                                    })
+                                    st.markdown("Cache kayıtları")
+                                    st.code(
+                                        json.dumps(side.get("source_caches", []), ensure_ascii=False, indent=2),
+                                        language="json",
+                                    )
+                                    st.markdown("Exact Chroma chunk kayıtları")
+                                    st.code(
+                                        json.dumps(side.get("exact_chunks", []), ensure_ascii=False, indent=2),
+                                        language="json",
+                                    )
+                        except Exception as exc:
+                            st.error(f"Provenance karşılaştırma hatası: {type(exc).__name__}: {exc}")
 
-        query = st.text_input("Mevzuat RAG sorgusu", value="")
-        k = st.slider("Top-K", 1, 10, 5)
-        if st.button("RAG sorgula") and query:
+
+        query = st.text_input("Sorunuz ya da aradığınız konu", value="", key="rag_search_query")
+        k = st.slider("Gösterilecek sonuç sayısı", 1, 10, 5, key="rag_search_k")
+        if st.button("Ara", key="rag_search_run") and query:
             if rag is None:
                 rag = _rag_when_needed(allow_embedding_download, needed=True)
             if rag is None:
@@ -654,7 +676,7 @@ def run_streamlit() -> None:
 
 
     # TAB 4 ------------------------------------------------------------------
-    with tabs[3]:
+    with data_review_tab:
         st.subheader("İnsan inceleme / yanlış pozitif yönetimi")
         analysis = st.session_state.get("analysis")
         if not analysis:
@@ -686,7 +708,7 @@ def run_streamlit() -> None:
                 st.dataframe(apply_reviews(fdf), use_container_width=True)
 
     # TAB 5 ------------------------------------------------------------------
-    with tabs[4]:
+    with data_report_tab:
         st.subheader("Rapor / çıktı")
         analysis = st.session_state.get("analysis")
         if not analysis:
@@ -764,12 +786,7 @@ def run_streamlit() -> None:
                 st.download_button("AI taslağını TXT indir", data=st.session_state["rag_answer"].encode("utf-8"), file_name=f"ai_taslak_{summary['audit_run_id']}.txt", mime="text/plain")
 
     # TAB 6 ------------------------------------------------------------------
-    with tabs[5]:
-        st.subheader("Admin")
-        st.caption(
-            "Yerel mevzuat yükleme, toplu içe aktarma, resmi kaynak senkronizasyonu, "
-            "bootstrap, RAG rebuild ve sistem testleri."
-        )
+    with admin_main:
         if not st.session_state.get("rag_requested"):
             st.subheader("Mevzuat kaynak yönetimi")  # yüklenince başlığı render_mevzuat_admin yazar
         _rag_load_button("rag_load_admin")

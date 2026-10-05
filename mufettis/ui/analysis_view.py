@@ -144,24 +144,26 @@ def review_history_rows(history: List[Dict[str, Any]], status: str = "") -> List
 
 
 def render_review_history() -> None:
+    """İnceleme Geçmişi sekmesi (M15.4; önceden belge sayfasının altında kapalı bölümdü)."""
     from mufettis.audit.service import analysis_review_history
 
-    with st.expander("📚 İnceleme geçmişi (kaydedilmiş denetçi kararları)", expanded=False):
-        try:
-            history, unreadable = analysis_review_history()
-        except Exception as exc:
-            st.error(f"Denetim kaydı okunamadı: {exc}")
-            return
-        if unreadable:
-            st.warning(f"Denetim kaydında okunamayan {unreadable} satır atlandı.")
-        if not isinstance(history, list) or not history:
-            st.caption("Henüz kaydedilmiş inceleme yok.")
-            return
-        statuses = sorted({str(r.get("reviewer_status") or "") for r in history} - {""})
-        status = st.selectbox("Karara göre süz", [""] + statuses, format_func=lambda s: s or "Tümü",
-                              key="analysis_review_history_filter")
-        st.dataframe(review_history_rows(history, status if isinstance(status, str) else ""),
-                     use_container_width=True, hide_index=True)
+    st.subheader("İnceleme geçmişi")
+    st.caption("Kaydedilmiş denetçi kararları (yalnız okunur).")
+    try:
+        history, unreadable = analysis_review_history()
+    except Exception as exc:
+        st.error(f"Denetim kaydı okunamadı: {exc}")
+        return
+    if unreadable:
+        st.warning(f"Denetim kaydında okunamayan {unreadable} satır atlandı.")
+    if not isinstance(history, list) or not history:
+        st.caption("Henüz kaydedilmiş inceleme yok.")
+        return
+    statuses = sorted({str(r.get("reviewer_status") or "") for r in history} - {""})
+    status = st.selectbox("Karara göre süz", [""] + statuses, format_func=lambda s: s or "Tümü",
+                          key="analysis_review_history_filter")
+    st.dataframe(review_history_rows(history, status if isinstance(status, str) else ""),
+                 use_container_width=True, hide_index=True)
 
 
 CITED_STATUS_ICONS = {IN_CORPUS: "✅", NOT_IN_CORPUS: "⚠️", INTERNAL: "🏢", NOT_CHECKED: "⚪"}
@@ -389,8 +391,6 @@ def render_analysis_page(
                 st.error(exec_result.error_message or "Bilinmeyen bir hata oluştu.")
                 st.session_state["analysis_exec_result"] = None
                 return
-
-    render_review_history()
 
     # ── Display Analysis Results ──────────────────────────────────────────────
     exec_result: Optional[AnalysisExecutionResult] = st.session_state.get("analysis_exec_result")
