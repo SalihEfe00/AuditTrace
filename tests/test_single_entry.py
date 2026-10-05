@@ -74,3 +74,28 @@ def test_new_check_clears_documents_and_answers_but_keeps_settings():
     assert set(state) == {"analysis_ui_llm_verification", "credit_file_authority", "sidebar_z_threshold",
                           "auditor_name", "check_upload_nonce"}
     assert state["check_upload_nonce"] == 3
+
+
+def test_sample_credit_file_is_fictional_and_checked():
+    """M15.9: "Örnek dosyayla dene" uygulamanın içindeki 4 uydurma belgeyi dosya olarak kontrol eder."""
+    from mufettis.ui import analysis_view
+    state = {}
+    with mock.patch.object(analysis_view, "st", types.SimpleNamespace(session_state=state)):
+        items = analysis_view.sample_items()
+        analysis_view._load_sample()
+    assert [n for n, _, _ in items] == ["a_kredi_onay.docx", "b_kullandirim_talimati.docx", "c_ipotek.docx",
+                                        "d_imza_sirkuleri.docx"]
+    assert all("TEST AMAÇLI ÖRNEK" in text for _, text, _ in items)
+    assert state["check_sample"] is True
+    with mock.patch.object(analysis_view, "st", types.SimpleNamespace(session_state=state)):
+        analysis_view.reset_check()
+    assert "check_sample" not in state
+
+    def script():
+        from mufettis.ui import analysis_view
+        from mufettis.ui.rules_view import render_credit_file_check
+        render_credit_file_check([(n, t) for n, t, _ in analysis_view.sample_items()])
+
+    at = AppTest.from_function(script, default_timeout=60).run()
+    assert not at.exception
+    assert "#### Bulgular (4)" in _markdown(at)

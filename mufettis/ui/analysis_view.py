@@ -232,6 +232,40 @@ def _load_template(sample) -> None:
     st.session_state["analysis_exec_result"] = None
 
 
+SAMPLE_DIR = Path(__file__).resolve().parent / "samples" / "kredi_dosyasi"
+
+
+def sample_items() -> List[Any]:
+    """Örnek kredi dosyası (M15.9): uydurma bilgili 4 belge (onay, kullandırım, ipotek, imza sirküleri)."""
+    cache = st.session_state.setdefault("check_texts", {})
+    out = []
+    for path in sorted(SAMPLE_DIR.glob("*.docx")):
+        key = f"sample:{path.name}"
+        if key not in cache:
+            cache[key] = load_uploaded_document(path.name, path.read_bytes())
+        out.append((path.name, cache[key].text, cache[key]))
+    return out
+
+
+def _load_sample() -> None:
+    st.session_state["check_sample"] = True
+    st.session_state["analysis_exec_result"] = None
+
+
+def render_first_steps() -> None:
+    """Boş ekran (M15.9): üç adım ve örnek dosya."""
+    with st.container(border=True):
+        st.markdown("**Başlamak için belge yükleyin:** tek belge (ör. kefalet sözleşmesi) ya da kredi dosyasının "
+                    "bütün belgeleri.")
+        st.markdown("1. **Belgeleri yükleyin** — üstteki alana sürükleyin ya da \"Dosya seç\" ile seçin.\n"
+                    "2. **Sonucu okuyun** — en üstte tek cümlelik durum ve bulgular; belgeden okunamayan bilgiler "
+                    "size sorulur, cevabınızla kontrol yenilenir.\n"
+                    "3. **Word çalışma kâğıdını indirin** — bulgular, dayanakları ve kanıtlarıyla.")
+        st.button("🧪 Örnek dosyayla dene", key="check_sample_button", on_click=_load_sample,
+                  help="Uydurma bilgili 4 belgelik örnek kredi dosyası (onay, kullandırım, ipotek, imza sirküleri) "
+                       "yüklenmiş gibi kontrol edilir.")
+
+
 def reset_check() -> None:
     """"Yeni kontrol başlat": yüklenenler, metin, cevaplar, tür seçimleri ve sonuçlar silinir; yükleyici boşalsın
     diye anahtarı yenilenir. Düğmenin geri çağrısında çalışır (widget değerleri ancak çizimden önce değişebilir)."""
@@ -287,12 +321,7 @@ def render_analysis_page(
     if st is None:
         return
 
-    st.subheader("📋 Müfettiş Belge Analizi & Mevzuat Uyum Denetimi")
-    st.caption(
-        "Operasyonel belgelerin (müşteri şikayetleri, teftiş notları, iç yazışmalar) "
-        "mevzuat uygunluğunu analiz eden, kanıtları yerel RAG ile doğrulayan ve "
-        "denetim bulgusu üreten karar destek sistemi."
-    )
+    # M15.9: sayfa başlığı işi anlatıyor; eski "Belge Analizi & Mevzuat Uyum Denetimi" başlığı kalktı.
 
     # Scoped contrast and theme protection for code/evidence blocks
     st.markdown(
@@ -338,6 +367,8 @@ def render_analysis_page(
         key=f"check_upload_{nonce}",
     )
     items = _read_uploads(files if isinstance(files, list) else [])
+    if not items and st.session_state.get("check_sample"):
+        items = sample_items()
     st.button("🔄 Yeni kontrol başlat", key="check_new", on_click=reset_check,
               help="Yüklenen belgeleri, metni, cevaplarınızı ve sonuçları temizler; ayarlar ve yetki tablosu kalır.")
     # Yükleyici metin alanından önce: metin alanının anahtarına yalnızca widget oluşmadan yazılabilir.
@@ -387,8 +418,7 @@ def render_analysis_page(
     elif isinstance(doc_text, str) and doc_text.strip():
         render_collateral_check(doc_text)
     else:
-        st.info("Başlamak için belge yükleyin: tek belge (ör. kefalet sözleşmesi) ya da kredi dosyasının bütün "
-                "belgeleri.")
+        render_first_steps()
 
     st.divider()
     st.markdown("### Mevzuat yardımcısı")

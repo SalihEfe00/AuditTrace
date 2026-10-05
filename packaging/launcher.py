@@ -90,6 +90,7 @@ def serve(port: int, open_browser: bool) -> None:
         "global_developmentMode": False,
         "browser_gatherUsageStats": False,
         "browser_serverAddress": "127.0.0.1",
+        "client_toolbarMode": "minimal",  # M15.9: Deploy düğmesi görünmez
     }
     bootstrap.load_config_options(flag_options=flags)
     bootstrap.run(str(BUNDLE / "app.py"), False, [], flags)

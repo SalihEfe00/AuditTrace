@@ -15,6 +15,7 @@ class TestStreamlitConfig(unittest.TestCase):
         cfg = tomllib.loads((ROOT / ".streamlit" / "config.toml").read_text(encoding="utf-8"))
         self.assertEqual(cfg["server"]["address"], "127.0.0.1")
         self.assertIs(cfg["browser"]["gatherUsageStats"], False)
+        self.assertEqual(cfg["client"]["toolbarMode"], "minimal")  # M15.9: Deploy gizli
 
     def test_package_launcher_passes_the_same_settings(self):
         tree = ast.parse((ROOT / "packaging" / "launcher.py").read_text(encoding="utf-8"))
@@ -24,6 +25,7 @@ class TestStreamlitConfig(unittest.TestCase):
                 flags = {k.value: v for k, v in zip(node.value.keys, node.value.values)}
         self.assertEqual(ast.literal_eval(flags["server_address"]), "127.0.0.1")
         self.assertIs(ast.literal_eval(flags["browser_gatherUsageStats"]), False)
+        self.assertEqual(ast.literal_eval(flags["client_toolbarMode"]), "minimal")
 
 
 if __name__ == "__main__":

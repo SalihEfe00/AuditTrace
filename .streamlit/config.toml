@@ -9,3 +9,7 @@ address = "127.0.0.1"
 serverAddress = "127.0.0.1"
 # Kullanım istatistiği gönderilmez (uygulama internetsiz ve yerel çalışır).
 gatherUsageStats = false
+
+[client]
+# M15.9: araç çubuğu en sade kipte; Streamlit'in "Deploy" düğmesi görünmez.
+toolbarMode = "minimal"

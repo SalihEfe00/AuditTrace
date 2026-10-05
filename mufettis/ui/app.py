@@ -175,12 +175,27 @@ def render_llm_settings() -> None:
     st.caption(f"Yerel dil modeli hazır: {chosen}")
 
 
+# M15.9: Streamlit yükleme alanının İngilizce yazıları Türkçe (bileşenin metin ayarı yok; CSS ile). Düğme bütün
+# yükleyicilerde; alan yazısı yalnız ana yükleyicide (diğerleri dosya türlerini bu yazıda gösteriyor).
+UPLOADER_CSS = """<style>
+[data-testid="stFileUploaderDropzone"] button [data-testid="stMarkdownContainer"] p {font-size: 0;}
+[data-testid="stFileUploaderDropzone"] button [data-testid="stMarkdownContainer"] p::after {
+  content: "Dosya seç"; font-size: 14px;}
+section[aria-label^="Belge yükle"] [data-testid="stFileUploaderDropzoneInstructions"] span {font-size: 0;}
+section[aria-label^="Belge yükle"] [data-testid="stFileUploaderDropzoneInstructions"] span::after {
+  content: "Dosyaları buraya sürükleyin ya da seçin · PDF, DOCX, TXT · dosya başına en fazla 200 MB"; font-size: 14px;}
+</style>"""
+
+
 def run_streamlit() -> None:
     if st is None:
         raise RuntimeError("Streamlit kurulu değil")
-    st.set_page_config(page_title=f"Müfettiş AI {APP_VERSION}", layout="wide")
-    st.title(f"Müfettiş AI — v{APP_VERSION}")
-    st.caption("Yerel karar destek / anomali analizi / aday mevzuat eşleştirme")
+    st.set_page_config(page_title="Müfettiş AI", layout="wide")
+    # M15.9: başlık bugünkü işi anlatır; sürüm Admin → Mevzuat yönetimi ve sistem bilgisinde.
+    st.title("Müfettiş AI — Kredi dosyası ve teminat kontrolü")
+    st.caption("Belgeleri yükleyin; teminat ve kredi dosyası kuralları mevzuata göre kontrol edilir. Sonuçlar karar "
+               "desteğidir, nihai değerlendirme müfettişe aittir.")
+    st.markdown(UPLOADER_CSS, unsafe_allow_html=True)
 
     if "analysis" not in st.session_state:
         st.session_state["analysis"] = None
