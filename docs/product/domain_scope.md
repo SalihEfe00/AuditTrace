@@ -306,6 +306,21 @@ bir alan uzmanının gözden geçirmesini gerektirir (katalog veri olduğu için
 v1'de yapılmayacak, sonraya kalan işler buraya yazılır.
 
 **v1.1:**
+- **Ana başlık — Kitle ve örnekleme motoru ("hangi dosyayı incelemeliyim?", kullanıcı kararı 2026-10-06).**
+  Bugünkü motor önüne konan dosyayı inceler; gerçek denetimde önce incelenecek dosyalar seçilir. Zincir:
+  kitle → risk değerlendirmesi → örnek seçimi → prosedür → istisna → değerlendirme. v1 (M16, M17) bitmeden başlanmaz.
+  Alt adımlar (her biri ayrı commit, tam test takımı ve kural ölçümleri aynı kalmalı):
+
+  | Adım | İş | Kabul ölçütü |
+  |---|---|---|
+  | S1 | Uydurma kredi portföyü üreteci: CSV / Excel (dosya no, müşteri, tutar, ürün, onay makamı, onay / kullandırım / teminat tarihleri, kefiller, şube). Bilinçli gömülü hatalı dosyalar ve etiket listesi ayrı dosyada; bütün bilgiler uydurma | Tohumla tekrarlanabilir; gömülü hata türleri kural kataloğundaki bulgulara karşılık gelir |
+  | S2 | Kitle yükleme ve doğrulama: sütun eşleme, eksik / bozuk satır raporu, kitle özeti (adet, toplam tutar, dağılım) | Bozuk satır sessizce atılmaz, listelenir |
+  | S3 | Risk değerlendirmesi: belirlenimci, açıklanabilir göstergeler (yetki limitine yakınlık, aynı gün teminat / kullandırım, aynı kefil birden çok dosyada, teminat / kredi oranı düşük, olağandışı tutar — mevcut Z-skor / MAD / IQR modülü) → dosya başına puan + gerekçe satırları | Her puanın gerekçesi görünür; ağırlıklar düzenlenebilir tablo |
+  | S4 | Örnek seçimi: riske dayalı (en riskli N), tutara göre katmanlı rastgele, parasal birim örneklemesi (MUS); tohum, yöntem ve parametreler kaydedilir | Aynı tohum aynı örneği verir; seçim gerekçesi her dosyada yazılı |
+  | S5 | Prosedür: seçilen dosyalar bugünkü dosya inceleme motoruna bağlanır (dosya belgeleri klasörden), sonuçlar örnek listesine işlenir | Motor değerleri değişmez |
+  | S6 | Değerlendirme: istisna oranı, öznitelik örneklemesinde üst sapma sınırı / MUS'ta üst hata sınırı (standart formül ve tablolarla, kaynağı yazılı), güven düzeyi; önem skoruyla (v2 risk katmanı) birleşik özet | Hesaplar yayımlanmış tablolarla birebir; "kitle hakkında güvence verilebilir mi" cümlesi |
+  | S7 | Arayüz ve çalışma kâğıdı: yeni sekme (Kitle ve örnekleme), Word'e örnekleme planı + seçim gerekçeleri + sonuç | Uygulama tarafı müfettişin dosya seçimini değiştirmesine izin verir, değişiklik kaydedilir |
+  | S8 | Ölçüm: uydurma portföylerde riske dayalı seçimin gömülü hatalı dosyaları yakalama oranı rastgele seçimle karşılaştırılır | Sonuç sunuma; gerçek veri olmadığı açıkça yazılır |
 - tüketici kredisi kuralları;
 - ücret / komisyon kontrolleri;
 - yetki tablosu (M10.4 v1'de yapılmazsa).
