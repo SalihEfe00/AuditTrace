@@ -321,6 +321,14 @@ v1'de yapılmayacak, sonraya kalan işler buraya yazılır.
 - El yazısı ve imza tanıma modeli.
 - Geniş korpusun kusursuz elemesi (`corpus_plan.md` K3–K4, K8).
 - 2000 öncesi İBK ve tam yargı OCR'ı.
+- **Bulgu önem skoru / risk katmanı (kullanıcı fikri 2026-10-06).** Bugün bulgular eşit ağırlıkta; yetki limitinin
+  1 TL aşılması, kritik teminatın hiç tesis edilmemesi ve imza sirkülerinde küçük uyumsuzluk aynı "bulgu" olur.
+  Taslak: skor = kural başına katalogda **doğal ağırlık** (hukuki sonuç: geçersizlik > usul eksikliği > biçim) ×
+  **büyüklük** (aşım oranı, teminatsız kalan tutar / kredi tutarı) × **telafi edilebilirlik** (sonradan düzeltilebilir
+  mi) × **kanıt kesinliği** (belgeden mi, müfettiş beyanından mı); çıktı Yüksek / Orta / Düşük + gerekçe satırı.
+  Skor belirlenimci ve açıklanabilir olur (dil modeli değil); müfettiş derecesini değiştirebilir, değişiklik
+  kaydedilir. Ağırlıklar hukuki ve iç denetim gözden geçirmesi ister (bankanın risk metodolojisine uyarlanabilir
+  tablo). Sıralama, özet cümle ve Word raporu dereceye göre.
 
 ## Kaynaklar
 
