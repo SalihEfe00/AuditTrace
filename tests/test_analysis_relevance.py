@@ -265,9 +265,12 @@ class TestRetrievalErrorsAreNotHidden(unittest.TestCase):
 class TestOfflineModelLoading(unittest.TestCase):
     def test_model_load_is_local_only_without_download_permission(self):
         from mufettis.rag import engine as rag_engine
+        from mufettis.rag import onnx_backend
 
         for allow_download, expected_local_only in ((False, True), (True, False)):
+            # torch yolu (ONNX modeli kuruluysa indirme sorusu hiç doğmaz, M17.1)
             with tempfile.TemporaryDirectory() as tmp, \
+                    patch.object(onnx_backend, "onnx_dir", lambda name: None), \
                     patch.object(rag_engine, "SentenceTransformer") as st_cls, \
                     patch.object(rag_engine, "chromadb"):
                 rag = rag_engine.LocalRAG(db_path=Path(tmp), allow_download=allow_download)

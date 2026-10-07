@@ -132,9 +132,18 @@ class CrossEncoderReranker:
         self.confident_score = confident_score
         self._model = None
         self._lock = threading.Lock()
+        # M17.1: bu modelin ONNX kopyası kuruluysa o kullanılır (pakette torch yok). Kopya torch ile birebir aynı
+        # puanı verir (fp32 + birleşim; fark ~1e-5), eşikler ortaktır.
+        from mufettis.rag.onnx_backend import onnx_dir
+
+        self.backend = "onnx" if onnx_dir(self.name) is not None else "torch"
 
     def _load(self):
         with self._lock:
+            if self._model is None and self.backend == "onnx":
+                from mufettis.rag.onnx_backend import OnnxCrossEncoder, onnx_dir
+
+                self._model = OnnxCrossEncoder(onnx_dir(self.name))
             if self._model is None:
                 import torch
                 from sentence_transformers import CrossEncoder
@@ -159,13 +168,15 @@ _DEFAULT_LOCK = threading.Lock()
 
 
 def default_model_dir() -> Optional[Path]:
-    """config.RERANKER_MODEL_DIR (zorlanmışsa) ya da RERANKER_MODELS_ROOT altında kurulu ilk model (MODELS sırası)."""
+    """config.RERANKER_MODEL_DIR (zorlanmışsa) ya da RERANKER_MODELS_ROOT altında kurulu ilk model (MODELS sırası).
+    Pakette yalnızca ONNX kopyası vardır (M17.1); o da kurulu sayılır."""
     from mufettis.config import RERANKER_MODEL_DIR, RERANKER_MODELS_ROOT
+    from mufettis.rag.onnx_backend import onnx_dir
 
     if RERANKER_MODEL_DIR is not None:
         return Path(RERANKER_MODEL_DIR)
     for name in MODELS:
-        if (Path(RERANKER_MODELS_ROOT) / name / "config.json").is_file():
+        if (Path(RERANKER_MODELS_ROOT) / name / "config.json").is_file() or onnx_dir(name) is not None:
             return Path(RERANKER_MODELS_ROOT) / name
     return None
 
@@ -195,14 +206,17 @@ def corpus_min_score(model_name: str, default: Optional[float]) -> Optional[floa
 def load_reranker(model_dir: Optional[Path] = None) -> Optional[CrossEncoderReranker]:
     """Model klasörü kuruluysa (paylaşılan) yeniden sıralayıcı, değilse None. Model ilk puanlamada yüklenir."""
     global _DEFAULT
+    from mufettis.rag.onnx_backend import onnx_dir
+
     path = Path(model_dir) if model_dir else default_model_dir()
-    if path is None or not (path / "config.json").is_file():
+    if path is None or not ((path / "config.json").is_file() or onnx_dir(path.name) is not None):
         return None
-    try:
-        import sentence_transformers  # noqa: F401
-    except Exception as exc:
-        logger.warning("Yeniden sıralayıcı kullanılamıyor (sentence-transformers): %s", exc)
-        return None
+    if onnx_dir(path.name) is None:
+        try:
+            import sentence_transformers  # noqa: F401
+        except Exception as exc:
+            logger.warning("Yeniden sıralayıcı kullanılamıyor (sentence-transformers): %s", exc)
+            return None
     with _DEFAULT_LOCK:
         if _DEFAULT is None or _DEFAULT.model_dir != path:
             min_score = corpus_min_score(path.name, MIN_SCORES.get(path.name))

@@ -11,8 +11,9 @@ gösterilir.** Sunucu yalnızca 127.0.0.1'i dinler (M3.6). Edge bulunamazsa vars
 **Paketleme: PyInstaller, onedir** (tek dosya kipi 2 GB'ı her açılışta geçici klasöre açar — elenir), üzerine
 kurulum programı M17'de.
 
-**Model çalışma zamanı: ONNX Runtime, "eager + birleşim + yalnızca kelime tablosu int8"** (M3.5); torch,
-transformers, sentence-transformers, sklearn ve scipy pakete girmez.
+**Model çalışma zamanı: ONNX Runtime** (M3.5); torch, transformers, sentence-transformers, sklearn ve scipy pakete
+girmez. Varyant M17.1'de **"eager + birleşim, fp32"** olarak değişti: M3.5'in "gather8" varyantı tam korpusta bir dev
+vakasının sonucunu değiştirdi (aşağıda "M17.1").
 
 Gerekçe (ölçümler aşağıdaki bölümlerde):
 
@@ -39,6 +40,27 @@ Hedef makinede (8 GB, GPU'suz) beklenen toplam: sunucu ~1,2 GB (ONNX) + Edge pen
   taraması testi; günlükler ve yazılabilir veri `%LOCALAPPDATA%`; derleme her zaman `--clean`; kurulum sırasında
   bir kez ısıtma (Defender taraması kullanıcının ilk açılışına kalmasın); sunucu alt süreci iş nesnesine
   (Job Object) bağlı; Streamlit dosya izleyicisi kapalı; chromadb pakette yok.
+
+## M17.1 ONNX arka ucu (2026-10-08)
+
+`mufettis/rag/onnx_backend.py`: gömme (`OnnxEmbedder`, ortalama havuzlama + L2) ve sıralayıcı (`OnnxCrossEncoder`, ham
+logit) `onnxruntime` + `tokenizers` ile; torch / transformers / sentence-transformers yüklenmez. Modeller
+`scripts/onnx_models/export.py` → `install.py` ile `RERANKER_MODELS_ROOT/<ad>-onnx/` (model.onnx, tokenizer.json,
+manifest.json: kaynak ağırlık, ONNX ve tokenizer özetleri, en uzun token, havuzlama). Klasör varsa geliştirme ortamı da
+ONNX kullanır (paketle aynı sonuç); `MUFETTIS_MODEL_BACKEND=torch` torch'u zorlar.
+
+Tam korpusta (110 bin parça, `datacopy_m17`) doğruluk ölçümü:
+
+| Varyant | Model başına | torch'a göre fark | dev | holdout | toplam |
+|---|---|---|---|---|---|
+| torch (taban) | 449 MB | — | 10/1/0 | 19/2/0 | 29/3/0 |
+| gather8 (M3.5), eşik dev'den −2,98 | 174 MB | sıralayıcı 0,11, gömme kosinüs ≥ 0,998 | 9/1/0 | 19/2/0 | 28/3/0 ✗ |
+| **eager + birleşim, fp32** | 449 MB | sıralayıcı 1e-5, gömme ~1 | 10/1/0 | 19/2/0 | **29/3/0 ✓ taban aynen** |
+
+gather8'de `dev-internal-audit-scope` iki adayın sırası çevrildi (doğru → yanlış dayanak); fark eşikten değil
+sıralamadan. fp32 varyantı birebir olduğundan eşikler (−2,95, `reranker_calibration.json`) ortaktır. Bedeli: modeller
+347 → 897 MB, model belleği ~0,94 → ~1,5 GB (M3.5 tablosu: fp32, havuz kapalı); 8 GB hedefte sorun değil. Hız aynı
+(64 çift ~9 sn, geliştirme makinesinde).
 
 ## M3.1 Mevcut yükün ölçümü (2026-09-30)
 

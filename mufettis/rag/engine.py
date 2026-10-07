@@ -45,6 +45,19 @@ def sentence_transformer_class() -> Any:
             SENTENCE_TRANSFORMERS_ERROR = f"{type(exc).__name__}: {exc}"
     return SentenceTransformer
 
+
+def embedding_backend_error(model_name: str = "") -> Optional[str]:
+    """Gömme modeli çalıştırılamıyorsa sebebi, çalıştırılabiliyorsa None. ONNX modeli kuruluysa (M17.1) torch /
+    sentence-transformers hiç yüklenmez; yoksa sentence-transformers denenir."""
+    from mufettis.config import EMBEDDING_MODEL
+    from mufettis.rag.onnx_backend import onnx_dir
+
+    if onnx_dir(model_name or EMBEDDING_MODEL) is not None:
+        return None
+    if sentence_transformer_class() is None:
+        return f"sentence-transformers yüklenemedi: {SENTENCE_TRANSFORMERS_ERROR}"
+    return None
+
 from mufettis.config import (
     CHROMA_COLLECTION,
     CHROMA_UPSERT_BATCH_SIZE,
@@ -115,8 +128,9 @@ class LocalRAG:
         self.store_kind = resolve_store_kind(store, db_path)
         if self.store_kind == "chroma" and chromadb_module() is None:
             raise RuntimeError("chromadb kurulu değil. `pip install chromadb`")
-        if sentence_transformer_class() is None:
-            raise RuntimeError(f"sentence-transformers yüklenemedi: {SENTENCE_TRANSFORMERS_ERROR}")
+        reason = embedding_backend_error(model_name)
+        if reason:
+            raise RuntimeError(reason)
         self.db_path = Path(db_path)
         self.db_path.mkdir(parents=True, exist_ok=True)
         self.model_name = model_name
@@ -130,6 +144,11 @@ class LocalRAG:
 
     def _load_model(self):
         if self._model is not None:
+            return self._model
+        from mufettis.rag.onnx_backend import OnnxEmbedder, onnx_dir
+
+        if onnx_dir(self.model_name) is not None:  # M17.1: pakette torch yok; ONNX kuruluysa her yerde o
+            self._model = OnnxEmbedder(onnx_dir(self.model_name))
             return self._model
         try:
             # İndirme izni yoksa yalnızca yerel önbellek kullanılır. HF_HUB_OFFLINE ortam

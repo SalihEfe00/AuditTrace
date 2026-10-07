@@ -7,7 +7,7 @@ import types
 import unittest
 from unittest import mock
 
-from mufettis.rag import engine
+from mufettis.rag import engine, onnx_backend
 from mufettis.ui import admin, app
 
 
@@ -15,7 +15,9 @@ class TestRagUnavailableReason(unittest.TestCase):
     REASON = "ImportError: DLL load failed while importing torch_cpu"
 
     def test_engine_error_carries_import_reason(self):
+        # torch yolu sınanır: kurulu bir ONNX modeli (M17.1) torch'u gereksiz kılar.
         with mock.patch.object(engine, "SentenceTransformer", None), \
+                mock.patch.object(onnx_backend, "onnx_dir", lambda name: None), \
                 mock.patch.object(engine, "SENTENCE_TRANSFORMERS_ERROR", self.REASON):
             with self.assertRaises(RuntimeError) as ctx:  # hata dizin oluşturmadan önce atılır; diske yazılmaz
                 engine.LocalRAG(store="sqlite")
@@ -24,6 +26,7 @@ class TestRagUnavailableReason(unittest.TestCase):
     def test_ui_records_logs_and_shows_reason(self):
         fake_st = types.SimpleNamespace(session_state={})
         with mock.patch.object(engine, "SentenceTransformer", None), \
+                mock.patch.object(onnx_backend, "onnx_dir", lambda name: None), \
                 mock.patch.object(engine, "SENTENCE_TRANSFORMERS_ERROR", self.REASON), \
                 mock.patch.object(app, "st", fake_st), mock.patch.object(admin, "st", fake_st), \
                 self.assertLogs("mufettis.ui.app", level="WARNING") as logs:

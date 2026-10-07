@@ -96,8 +96,9 @@ def _get_rag(
         # Geriye dönük uyumluluk: eski çağrı adı da kabul edilir.
         allow_download = bool(allow_embedding_download)
     # Ağır kütüphaneler burada, RAG ilk istendiğinde yüklenir (M15.3).
-    if rag_engine.sentence_transformer_class() is None:
-        return _rag_unavailable(f"sentence-transformers yüklenemedi: {rag_engine.SENTENCE_TRANSFORMERS_ERROR}")
+    reason = rag_engine.embedding_backend_error()
+    if reason:
+        return _rag_unavailable(reason)
     from mufettis.rag.store import resolve_store_kind
 
     if resolve_store_kind(None, DB_PATH) == "chroma" and rag_engine.chromadb_module() is None:
