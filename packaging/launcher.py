@@ -12,9 +12,11 @@ Kipler:
     launcher.exe --measure D  ölçüm (M3.3): sunucunun hazır olma süresi, uygulama içe aktarma, örnek belgelerle analiz
                               süreleri ve bellek; sonuç D/olcum.json (tıklamasız, ör. Windows Sandbox içinde)
 
-Veri ve modeller paketin yanındaki klasörlerden okunur (varsa): data/ -> MUFETTIS_DATA_DIR,
-models/ -> MUFETTIS_MODELS_DIR, hf/ -> HF_HOME. Yoksa ortam değişkenleri / varsayılanlar geçerlidir.
-Açılış süreleri launcher.log'a yazılır (pakette exe'nin yanında, kaynakta %TEMP%/mufettis_launcher).
+Yerler (M17.2): program ve modeller kurulum klasöründe (salt okunur olabilir); yazılan her şey kullanıcı klasöründe
+(%LOCALAPPDATA%/MufettisAI): veri (data/ -> MUFETTIS_DATA_DIR; kurulum programı ilk kurulumda buraya koyar, güncellemede
+dokunmaz), günlükler (logs/) ve Edge profili. Kullanıcı klasöründe veri yoksa kurulum klasörünün yanındaki data/
+kullanılır (M3 deneme paketi düzeni). models/ -> MUFETTIS_MODELS_DIR, hf/ -> HF_HOME (varsa). Kaynaktan çalışırken
+kullanıcı klasörü %TEMP%/mufettis_launcher'dır (repo kirlenmesin).
 """
 from __future__ import annotations
 
@@ -31,8 +33,25 @@ HOME = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resol
 BUNDLE = Path(getattr(sys, "_MEIPASS", HOME))
 if not FROZEN and str(HOME) not in sys.path:
     sys.path.insert(0, str(HOME))  # kaynaktan: mufettis paketi repo kökünde
-# Günlükler: pakette exe'nin yanında; kaynaktan çalışırken repo kirlenmesin diye geçici klasörde.
-LOG_DIR = HOME if FROZEN else Path(os.environ.get("TEMP", "/tmp")) / "mufettis_launcher"
+
+
+def user_dir(frozen: bool, env) -> Path:
+    """Yazılabilir kullanıcı klasörü: pakette %LOCALAPPDATA%/MufettisAI (M3.3: kurulum klasörü salt okunur olabilir)."""
+    if frozen and env.get("LOCALAPPDATA"):
+        return Path(env["LOCALAPPDATA"]) / "MufettisAI"
+    return Path(env.get("TEMP", "/tmp")) / "mufettis_launcher"
+
+
+def data_dir(home: Path, user: Path):
+    """Uygulama verisi: kullanıcı klasöründeki data/ (kurulumun yeri), yoksa kurulum klasörünün yanındaki data/."""
+    for path in (user / "data", home / "data"):
+        if path.is_dir():
+            return path
+    return None
+
+
+USER = user_dir(FROZEN, os.environ)
+LOG_DIR = USER / "logs" if FROZEN else USER
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG = LOG_DIR / "launcher.log"
 
@@ -52,9 +71,14 @@ def capture_output() -> None:
 
 
 def environment() -> None:
-    for folder, var in (("data", "MUFETTIS_DATA_DIR"), ("models", "MUFETTIS_MODELS_DIR"), ("hf", "HF_HOME")):
+    data = data_dir(HOME, USER)
+    if data is not None:
+        os.environ.setdefault("MUFETTIS_DATA_DIR", str(data))
+    for folder, var in (("models", "MUFETTIS_MODELS_DIR"), ("hf", "HF_HOME")):
         if (HOME / folder).is_dir():
             os.environ.setdefault(var, str(HOME / folder))
+    if (HOME / "tesseract" / "tesseract.exe").is_file():  # M17.3: taranmış PDF'ler için pakete gömülü OCR
+        os.environ.setdefault("MUFETTIS_TESSERACT_CMD", str(HOME / "tesseract" / "tesseract.exe"))
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("OMP_NUM_THREADS", "2")
 
@@ -143,7 +167,7 @@ def edge_app() -> int:
             return 1
         log("sunucu hazır; Edge uygulama penceresi açılıyor")
         window_proc = subprocess.Popen([
-            str(edge), f"--app=http://127.0.0.1:{port}", f"--user-data-dir={LOG_DIR / 'edge_profile'}",
+            str(edge), f"--app=http://127.0.0.1:{port}", f"--user-data-dir={USER / 'edge_profile'}",
             "--no-first-run", "--no-default-browser-check", "--window-size=1280,860"])
         window_proc.wait()
         log("pencere kapandı")

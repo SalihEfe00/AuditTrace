@@ -15,3 +15,7 @@ launcher_output.log
 
 # Banka şablonları (telif): yerelde tutulur, repoya girmez (M9.4a)
 benchmarks/rules/scans/sablon/*.pdf
+
+# Paket çıktıları (M17.3): packaging/build.py ile üretilir
+/dist/
+/build/
