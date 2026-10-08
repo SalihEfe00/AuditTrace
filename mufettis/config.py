@@ -7,6 +7,7 @@ from pathlib import Path
 
 PDFIUM_LOCK = threading.RLock()
 
+APP_NAME = "AuditTrace"  # M16.1 (2026-10-08); eski ad Müfettiş AI. İç paket adı `mufettis` değişmez.
 APP_VERSION = "0.13.81"
 BASE_DIR = Path(__file__).resolve().parent.parent
 # MUFETTIS_DATA_DIR verilirse tüm veri yolları oraya yönlenir (ör. testlerde izole kopya).

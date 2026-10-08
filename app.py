@@ -37,7 +37,7 @@ from mufettis.ui.app import run_streamlit, st
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description=f"Müfettiş AI v{APP_VERSION}")
+    parser = argparse.ArgumentParser(description=f"AuditTrace v{APP_VERSION}")
     parser.add_argument("--self-test", action="store_true")
     parser.add_argument("--run", action="store_true", help="Streamlit arayüzünü bu dosya üzerinden çalıştır")
     parser.add_argument("--update-now", action="store_true", help="BDDK + Resmî Gazete güncellemesini tek sefer çalıştır")

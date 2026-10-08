@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Müfettiş AI deneme paketi başlatıcısı (M3.2). Paketin (PyInstaller) giriş noktasıdır; kaynaktan da çalışır.
+"""AuditTrace (eski adı Müfettiş AI) paket başlatıcısı (M3.2). Paketin (PyInstaller) giriş noktasıdır; kaynaktan da çalışır.
 
 Kipler:
     launcher.exe              uygulama penceresi: sunucu alt süreçte, arayüz Edge'in --app penceresinde (sekmesiz,
@@ -13,7 +13,7 @@ Kipler:
                               süreleri ve bellek; sonuç D/olcum.json (tıklamasız, ör. Windows Sandbox içinde)
 
 Yerler (M17.2): program ve modeller kurulum klasöründe (salt okunur olabilir); yazılan her şey kullanıcı klasöründe
-(%LOCALAPPDATA%/MufettisAI): veri (data/ -> MUFETTIS_DATA_DIR; kurulum programı ilk kurulumda buraya koyar, güncellemede
+(%LOCALAPPDATA%/AuditTrace): veri (data/ -> MUFETTIS_DATA_DIR; kurulum programı ilk kurulumda buraya koyar, güncellemede
 dokunmaz), günlükler (logs/) ve Edge profili. Kullanıcı klasöründe veri yoksa kurulum klasörünün yanındaki data/
 kullanılır (M3 deneme paketi düzeni). models/ -> MUFETTIS_MODELS_DIR, hf/ -> HF_HOME (varsa). Kaynaktan çalışırken
 kullanıcı klasörü %TEMP%/mufettis_launcher'dır (repo kirlenmesin).
@@ -36,9 +36,9 @@ if not FROZEN and str(HOME) not in sys.path:
 
 
 def user_dir(frozen: bool, env) -> Path:
-    """Yazılabilir kullanıcı klasörü: pakette %LOCALAPPDATA%/MufettisAI (M3.3: kurulum klasörü salt okunur olabilir)."""
+    """Yazılabilir kullanıcı klasörü: pakette %LOCALAPPDATA%/AuditTrace (M3.3: kurulum klasörü salt okunur olabilir)."""
     if frozen and env.get("LOCALAPPDATA"):
-        return Path(env["LOCALAPPDATA"]) / "MufettisAI"
+        return Path(env["LOCALAPPDATA"]) / "AuditTrace"
     return Path(env.get("TEMP", "/tmp")) / "mufettis_launcher"
 
 
@@ -136,7 +136,7 @@ def window() -> int:
             log("sunucu açılmadı")
             return 1
         log("sunucu hazır; pencere açılıyor")
-        webview.create_window("Müfettiş AI", f"http://127.0.0.1:{port}", width=1280, height=860)
+        webview.create_window("AuditTrace", f"http://127.0.0.1:{port}", width=1280, height=860)
         webview.start()
         log("pencere kapandı")
         return 0
@@ -252,6 +252,56 @@ def measure(out_dir: Path) -> int:
     return 0 if result["tamam"] else 1
 
 
+def selftest() -> dict:
+    """M17.3 öz-test: paketin kendi modelleri (ONNX), gömülü OCR ve örnek kredi dosyası kontrolü gerçekten çalışıyor mu.
+    Kaynaktan çalıştırılınca da aynı sonucu vermeli (kural sonuçları karşılaştırılır)."""
+    import io
+
+    from PIL import Image, ImageDraw, ImageFont
+
+    from mufettis.config import EMBEDDING_MODEL, RERANKER_MODELS_ROOT
+    from mufettis.extraction import ocr
+    from mufettis.rag.onnx_backend import onnx_dir
+    from mufettis.rag.reranker import load_reranker
+    from mufettis.rules.catalog import load_catalog
+    from mufettis.rules.credit_file import CreditFile, evaluate_file, load_document
+    from mufettis.ui.analysis_view import SAMPLE_DIR, load_uploaded_document
+
+    out = {"modeller_klasoru": str(RERANKER_MODELS_ROOT)}
+    embed = onnx_dir(EMBEDDING_MODEL)
+    out["gomme_onnx"] = str(embed) if embed else None
+    if embed:
+        from mufettis.rag.onnx_backend import OnnxEmbedder
+
+        vec = OnnxEmbedder(embed).encode(["kredi teminatı ipotek"])
+        out["gomme_boyut"] = int(vec.shape[1])
+    reranker = load_reranker()
+    out["yeniden_siralayici"] = getattr(reranker, "backend", None)
+    if reranker is not None:
+        out["yeniden_siralayici_esik"] = getattr(reranker, "min_score", None)
+
+    out["ocr_komutu"] = ocr.tesseract_cmd()
+    img = Image.new("L", (1400, 300), 255)
+    try:
+        font = ImageFont.truetype("arial.ttf", 64)
+    except OSError:
+        font = ImageFont.load_default()
+    ImageDraw.Draw(img).text((40, 100), "IPOTEK BELGESI 2026", fill=0, font=font)
+    pdf = io.BytesIO()
+    img.save(pdf, format="PDF", resolution=150)
+    pages = ocr.ocr_pdf_pages(pdf.getvalue())
+    out["ocr_metni"] = " ".join(pages).strip()
+
+    documents = []
+    for path in sorted(SAMPLE_DIR.glob("*.docx")):
+        loaded = load_uploaded_document(path.name, path.read_bytes())
+        documents.append(load_document(path.name, loaded.text))
+    out["ornek_belge_turleri"] = {d.name: d.kind for d in documents}
+    results = evaluate_file(load_catalog(), CreditFile(documents))
+    out["ornek_kural_sonuclari"] = sorted(f"{r.result.rule_id}={r.result.status}" for r in results)
+    return out
+
+
 def main() -> int:
     capture_output()
     environment()
@@ -272,6 +322,17 @@ def main() -> int:
         return 0
     if args[:1] == ["--measure"]:
         return measure(Path(args[1]))
+    if args[:1] == ["--selftest"]:
+        import json
+
+        try:
+            report = selftest()
+        except Exception as exc:  # rapor her durumda yazılsın
+            import traceback
+
+            report = {"hata": repr(exc), "iz": traceback.format_exc()}
+        Path(args[1]).write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
+        return 1 if "hata" in report else 0
     return edge_app()
 
 

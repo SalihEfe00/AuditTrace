@@ -23,7 +23,7 @@ def _get_rag(**kwargs):
     return _canonical_get_rag(**kwargs)
 
 OLLAMA_SYSTEM_PROMPT = """
-Sen Müfettiş AI için yerel bir rapor taslağı yardımcısısın.
+Sen AuditTrace için yerel bir rapor taslağı yardımcısısın.
 Yalnızca verilen istatistiksel bulguları ve aday mevzuat kaynaklarını yorumlarsın.
 Kesin hukuki ihlal, suç, şüpheli işlem, denetim görüşü veya bağlayıcı sonuç ilan etme.
 Semantik mevzuat eşleşmelerini 'aday dayanak' olarak belirt.

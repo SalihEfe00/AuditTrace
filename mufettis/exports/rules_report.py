@@ -11,7 +11,7 @@ import io
 from typing import Dict, Optional, Sequence, Tuple
 
 from mufettis.common.utils import mask_sensitive, now_iso
-from mufettis.config import APP_VERSION
+from mufettis.config import APP_NAME, APP_VERSION
 from mufettis.rules.display import plain_text, status_label
 from mufettis.rules.findings import Finding
 
@@ -44,7 +44,7 @@ def create_rules_docx(title: str, documents: Sequence[Tuple[str, str]], findings
 
     heading = doc.add_paragraph()
     heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = heading.add_run(f"Müfettiş AI – {title}")
+    run = heading.add_run(f"{APP_NAME} – {title}")
     run.bold = True
     run.font.size = Pt(15)
 

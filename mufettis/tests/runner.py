@@ -237,7 +237,7 @@ def run_self_tests(test_names: Optional[Sequence[str]] = None) -> unittest.TestR
 
 def _main(argv: Optional[Sequence[str]] = None) -> int:
     """Alt süreç girişi: suite'i bu süreçte çalıştırır ve sonucu JSON'a yazar."""
-    parser = argparse.ArgumentParser(description="Müfettiş AI self-test (alt süreç girişi)")
+    parser = argparse.ArgumentParser(description="AuditTrace self-test (alt süreç girişi)")
     parser.add_argument("--json-out", required=True, help="Sonucun yazılacağı JSON dosyası")
     parser.add_argument("--tests", nargs="*", default=None, help="Yalnızca bu unittest adlarını çalıştır")
     args = parser.parse_args(argv)

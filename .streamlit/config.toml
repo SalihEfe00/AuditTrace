@@ -1,4 +1,4 @@
-# Müfettiş AI — kaynaktan çalıştırma (`streamlit run app.py`) için Streamlit ayarları.
+# AuditTrace — kaynaktan çalıştırma (`streamlit run app.py`) için Streamlit ayarları.
 # Paket başlatıcısı (packaging/launcher.py) aynı ayarları kendisi verir. tests/test_streamlit_config.py korur.
 
 [server]

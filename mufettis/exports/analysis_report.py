@@ -12,7 +12,7 @@ from typing import Any
 from mufettis.analysis.cited_references import describe as describe_cited, missing_note
 from mufettis.analysis.models import AnalysisResult
 from mufettis.common.utils import mask_sensitive, now_iso
-from mufettis.config import APP_VERSION
+from mufettis.config import APP_NAME, APP_VERSION
 
 DOCUMENT_TYPE_LABELS = {
     "complaint": "Tüketici şikâyeti",
@@ -48,7 +48,7 @@ def create_analysis_docx(result: AnalysisResult, generated_at: str = "") -> byte
 
     heading = doc.add_paragraph()
     heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = heading.add_run("Müfettiş AI – Belge Analizi Çalışma Kağıdı")
+    run = heading.add_run(f"{APP_NAME} – Belge Analizi Çalışma Kağıdı")
     run.bold = True
     run.font.size = Pt(15)
 

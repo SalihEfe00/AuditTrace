@@ -15,7 +15,7 @@ try:
 except Exception:
     Document = None
 
-from mufettis.config import EXPORT_DIR, APP_VERSION
+from mufettis.config import EXPORT_DIR, APP_NAME, APP_VERSION
 from mufettis.common.utils import article_label, now_iso, mask_sensitive
 from mufettis.audit.service import load_reviews
 from mufettis.extraction.text_repair import clean_evidence_text
@@ -54,7 +54,7 @@ def create_docx_report(
 
     title=doc.add_paragraph()
     title.alignment=WD_ALIGN_PARAGRAPH.CENTER
-    rr=title.add_run("Müfettiş AI – Denetim Çalışma Kağıdı")
+    rr=title.add_run(f"{APP_NAME} – Denetim Çalışma Kağıdı")
     rr.bold=True
     rr.font.size=Pt(16)
 
@@ -240,7 +240,7 @@ def create_docx_report(
     footer=doc.sections[0].footer.paragraphs[0]
     footer.alignment=WD_ALIGN_PARAGRAPH.CENTER
     footer.add_run(
-        f"Müfettiş AI {APP_VERSION} | Deterministik karar destek çıktısı"
+        f"{APP_NAME} {APP_VERSION} | Deterministik karar destek çıktısı"
     ).font.size=Pt(8)
 
     output=io.BytesIO()

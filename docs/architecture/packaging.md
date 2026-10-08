@@ -273,3 +273,36 @@ listedeki 59 belge).
 - Analiz yaklaşık 1 sn (%25–40) uzuyor.
 - Paketlenecek ONNX arka ucuyla beklenen toplam aynı kalır: sunucu yaklaşık 1,2 GB + Edge penceresi 0,3–0,5 GB.
   8 GB bütçesinin çok altında. Küçültme alt adımı gerekmiyor.
+
+## M17.3 Ürün paketi (2026-10-08)
+
+Derleme: `python packaging/build.py --data <veri kopyası>` (PyInstaller `--clean`, ardından modeller, Tesseract,
+veri ve denetim). Çıktı `dist/AuditTrace/`, içerik raporu `dist/AuditTrace_icerik.json`.
+
+| Bölüm | Boyut | İçerik |
+|---|---|---|
+| `_internal` + `AuditTrace.exe` | 286 MB | Python, Streamlit, onnxruntime, tokenizers, belge okuyucular; torch / transformers / sklearn / scipy / chromadb yok |
+| `models/` | 922 MB | gömme ve sıralayıcı ONNX (fp32 birleşik, M17.1), manifest özetleri derlemede doğrulanır |
+| `tesseract/` | 108 MB | `tesseract.exe` + DLL'ler + `tur`, `osd` (Apache 2.0) |
+| `data/` | 1 160 MB | parça deposu, sözcük dizini, alım dizini, kaynak önbelleği, terim istatistikleri, sıralayıcı eşiği; kullanıcı kayıtları yok |
+| Toplam | 2,48 GB | |
+
+Denetim (derlemede): yasak kütüphane klasörü yok; paketteki her PE dosyasının içe aktardığı DLL ya pakette ya her
+Windows'ta hazır (VC++ çalışma zamanı hazır sayılmaz, M3.3 dersi). İkisi de temiz.
+
+Öz-test (`AuditTrace.exe --selftest <json>`, kaynaktan `python packaging/launcher.py --selftest <json>`): paket kendi
+`models/` klasörünü ve kendi `tesseract.exe`'sini kullanıyor; sıralayıcı ONNX, eşik −2,95; OCR "IPOTEK BELGESİ 2026"
+görüntüsünü doğru okuyor; örnek kredi dosyasının 4 belgesi doğru türde, 13 kural sonucu kaynaktakiyle birebir aynı.
+
+Süre ve bellek (`--measure`, aynı makine, `OMP_NUM_THREADS=2`, düşük öncelik):
+
+| | Paket (ONNX) | Kaynak ONNX | Kaynak torch |
+|---|---|---|---|
+| Sunucu hazır | 2,0 sn | 1,0 sn | 1,0 sn |
+| Analiz 1 (soğuk) | 20,8 sn | 27,3 sn | 20,4 sn |
+| Analiz 2 (ılık) | 16,3 sn | 17,4 sn | 17,2 sn |
+| Analiz 3 | 7,9 sn | 8,9 sn | 5,7 sn |
+| Özel bellek | 1 648 MB | 1 649 MB | 2 147 MB |
+
+ONNX torch kadar hızlı ve yaklaşık 500 MB daha az bellek kullanıyor. Analizler M6.9'a göre (ılık 3,8 sn) belirgin
+yavaş; arka uçtan bağımsız olduğu için M17.3a'da incelenecek.

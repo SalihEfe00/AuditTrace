@@ -27,6 +27,7 @@ from mufettis.audit.service import append_audit, apply_reviews, load_reviews, sa
 from mufettis.common.utils import article_label, check_disk_health
 from mufettis.corpus import canonical_view
 from mufettis.config import (
+    APP_NAME,
     APP_VERSION,
     BASE_DIR,
     BULK_ERROR_FILE,
@@ -191,9 +192,9 @@ section[aria-label^="Belge yükle"] [data-testid="stFileUploaderDropzoneInstruct
 def run_streamlit() -> None:
     if st is None:
         raise RuntimeError("Streamlit kurulu değil")
-    st.set_page_config(page_title="Müfettiş AI", layout="wide")
+    st.set_page_config(page_title=APP_NAME, layout="wide")
     # M15.9: başlık bugünkü işi anlatır; sürüm Admin → Mevzuat yönetimi ve sistem bilgisinde.
-    st.title("Müfettiş AI — Kredi dosyası ve teminat kontrolü")
+    st.title(f"{APP_NAME} — Kredi dosyası ve teminat kontrolü")
     st.caption("Belgeleri yükleyin; teminat ve kredi dosyası kuralları mevzuata göre kontrol edilir. Sonuçlar karar "
                "desteğidir, nihai değerlendirme müfettişe aittir.")
     st.markdown(UPLOADER_CSS, unsafe_allow_html=True)
@@ -456,7 +457,7 @@ def run_streamlit() -> None:
                 ]
                 st.dataframe(view[display_cols], use_container_width=True)
 
-    # TAB 2 (Müfettiş AI Belge Analizi) --------------------------------------
+    # TAB 2 (Belge Analizi) --------------------------------------
     with tab_check:
         render_analysis_page(rag_provider=lambda: _rag_when_needed(allow_embedding_download, needed=True))
 
@@ -831,6 +832,7 @@ def run_streamlit() -> None:
         st.divider()
         st.subheader("Sistem / güvenlik / test")
         st.write({
+            "uygulama": APP_NAME,
             "app_version": APP_VERSION,
             "base_dir": str(BASE_DIR),
             "db_path": str(DB_PATH),

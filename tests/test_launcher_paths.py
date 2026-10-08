@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""M17.2: paket yazılan her şeyi kullanıcı klasörüne (%LOCALAPPDATA%/MufettisAI) koyar; kurulum klasörü salt okunur
+"""M17.2: paket yazılan her şeyi kullanıcı klasörüne (%LOCALAPPDATA%/AuditTrace) koyar; kurulum klasörü salt okunur
 olabilir (M3.3'te başlatıcı exe'nin yanına günlük yazmaya çalışırken çökmüştü)."""
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ spec.loader.exec_module(launcher)
 class TestLauncherPaths(unittest.TestCase):
     def test_package_writes_under_localappdata(self):
         env = {"LOCALAPPDATA": r"C:\Users\x\AppData\Local", "TEMP": r"C:\t"}
-        self.assertEqual(launcher.user_dir(True, env), Path(env["LOCALAPPDATA"]) / "MufettisAI")
+        self.assertEqual(launcher.user_dir(True, env), Path(env["LOCALAPPDATA"]) / "AuditTrace")
 
     def test_source_run_uses_temp(self):
         env = {"LOCALAPPDATA": r"C:\Users\x\AppData\Local", "TEMP": r"C:\t"}
