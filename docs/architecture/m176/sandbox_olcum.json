@@ -1,0 +1,59 @@
+{
+ "makine": "7f8f3a96-2417-422b-813e-89b7bab1aa05",
+ "windows": "Windows-11-10.0.26100-SP0",
+ "cpu_sayisi": 24,
+ "webview2": "",
+ "asamalar": [
+  {
+   "asama": "başlatıcı",
+   "sn": 0.02,
+   "ws_mb": 35,
+   "peak_ws_mb": 35,
+   "private_mb": 23
+  },
+  {
+   "asama": "sunucu hazır (alt süreç)",
+   "sn": 1.54,
+   "ws_mb": 35,
+   "peak_ws_mb": 36,
+   "private_mb": 23,
+   "hazir": true
+  },
+  {
+   "asama": "uygulama içe aktarma",
+   "sn": 0.75,
+   "ws_mb": 139,
+   "peak_ws_mb": 139,
+   "private_mb": 143
+  },
+  {
+   "asama": "analiz 1: şikâyet (soğuk)",
+   "sn": 132.79,
+   "ws_mb": 1600,
+   "peak_ws_mb": 1956,
+   "private_mb": 1636,
+   "basarili": true,
+   "hata": ""
+  },
+  {
+   "asama": "analiz 2: şikâyet (ılık)",
+   "sn": 127.39,
+   "ws_mb": 1611,
+   "peak_ws_mb": 1956,
+   "private_mb": 1647,
+   "basarili": true,
+   "hata": ""
+  },
+  {
+   "asama": "analiz 3: iç denetim notu",
+   "sn": 46.86,
+   "ws_mb": 1613,
+   "peak_ws_mb": 1956,
+   "private_mb": 1649,
+   "basarili": true,
+   "hata": ""
+  }
+ ],
+ "tamam": true,
+ "toplam_sn": 309.42
+}

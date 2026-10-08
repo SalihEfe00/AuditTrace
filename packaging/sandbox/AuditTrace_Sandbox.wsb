@@ -1,0 +1,27 @@
+<Configuration>
+  <!-- M17.6: temiz, internetsiz Windows; 8 GB bellek (hedef dizüstü). Kurulum klasörü salt okunur, sonuç klasörü yazılabilir. -->
+  <Networking>Disable</Networking>
+  <vGPU>Disable</vGPU>
+  <MemoryInMB>8192</MemoryInMB>
+  <ClipboardRedirection>Disable</ClipboardRedirection>
+  <MappedFolders>
+    <MappedFolder>
+      <HostFolder>C:\Users\Salih Efe\Desktop\PROJECT 1\dist</HostFolder>
+      <SandboxFolder>C:\Kurulum</SandboxFolder>
+      <ReadOnly>true</ReadOnly>
+    </MappedFolder>
+    <MappedFolder>
+      <HostFolder>C:\Users\Salih Efe\Desktop\PROJECT 1\packaging\sandbox</HostFolder>
+      <SandboxFolder>C:\Betik</SandboxFolder>
+      <ReadOnly>true</ReadOnly>
+    </MappedFolder>
+    <MappedFolder>
+      <HostFolder>C:\Users\Salih Efe\Desktop\AuditTrace_Sandbox_Sonuc</HostFolder>
+      <SandboxFolder>C:\Sonuc</SandboxFolder>
+      <ReadOnly>false</ReadOnly>
+    </MappedFolder>
+  </MappedFolders>
+  <LogonCommand>
+    <Command>powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\Betik\sandbox_test.ps1</Command>
+  </LogonCommand>
+</Configuration>

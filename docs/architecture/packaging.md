@@ -334,3 +334,20 @@ yavaş; arka uçtan bağımsız olduğu için M17.3a'da incelenecek.
 - **Kaldırma:** program, kısayollar, Edge profili ve günlükler silinir. Kullanıcının kayıtları kalır.
 - **Deneme (bu bilgisayar):** sessiz kurulum 97 sn sürdü. Isıtma öz-testinde 13 kural sonucu doğru çıktı, sıralayıcı
   ONNX, OCR doğru. Kaldırma 3 sn sürdü; program klasörü, kısayol ve kaldırma kaydı kalmadı.
+
+## M17.6 Temiz ortamda deneme (2026-10-08)
+
+Windows Sandbox: internetsiz, 8 GB bellek, Windows 10.0.26100. Kullanıcı `packaging/sandbox/AuditTrace_Sandbox.wsb`
+dosyasını açtı; `sandbox_test.ps1` kendiliğinden çalıştı. Sonuç dosyaları `docs/architecture/m176/` altında.
+
+| | Sandbox | Bu bilgisayar (M17.3/M17.5) |
+|---|---|---|
+| Sessiz kurulum (ısıtma dahil) | 479 sn, çıkış 0 | 97 sn |
+| Isıtma öz-testi | 13 kural, ONNX, OCR doğru | aynı |
+| Sunucu hazır | 1,5 sn | 2,0 sn |
+| Analiz 1 / 2 / 3 | 133 / 127 / 47 sn | 21 / 16 / 8 sn |
+| En yüksek bellek | 1 956 MB | 1 960 MB |
+
+Uygulama temiz ve internetsiz Windows'ta kuruluyor ve çalışıyor; bellek 8 GB hedefinin çok altında. Sandbox'ta kurulum
+ve analiz 5–8 kat yavaş. Sanal disk ve Defender etkisi ile analizin kendi maliyeti M17.6a'da (M17.3a ile birlikte)
+ayrılacak. Betiğin sonundaki otomatik pencere açılışı görünmedi; masaüstü simgesiyle açıldı (M17.6b).

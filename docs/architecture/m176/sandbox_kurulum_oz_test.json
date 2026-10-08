@@ -1,0 +1,30 @@
+{
+ "modeller_klasoru": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\Programs\\AuditTrace\\models",
+ "gomme_onnx": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\Programs\\AuditTrace\\models\\paraphrase-multilingual-MiniLM-L12-v2-onnx",
+ "gomme_boyut": 384,
+ "yeniden_siralayici": "onnx",
+ "yeniden_siralayici_esik": -2.95,
+ "ocr_komutu": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\Programs\\AuditTrace\\tesseract\\tesseract.exe",
+ "ocr_metni": "IPOTEK BELGESİ 2026",
+ "ornek_belge_turleri": {
+  "a_kredi_onay.docx": "kredi_onay",
+  "b_kullandirim_talimati.docx": "kullandirim",
+  "c_ipotek.docx": "ipotek",
+  "d_imza_sirkuleri.docx": "imza_sirkuleri"
+ },
+ "ornek_kural_sonuclari": [
+  "6305-11-dask-ipotek-baslangic=belirsiz",
+  "6305-11-dask-ipotek-bitis=belirsiz",
+  "MASAK-7-gks-imzalayan-yetkili=belirsiz",
+  "MASAK-7-gks-musterek-imza=belirsiz",
+  "MASAK-7-imzalayan-yetkili=karşılanmadı",
+  "MASAK-7-musterek-imza=karşılanmadı",
+  "MASAK-7-yetki-suresi-gks=belirsiz",
+  "MASAK-7-yetki-suresi-kullandirim=karşılandı",
+  "ONAY-kullandirim-tutari=karşılanmadı",
+  "ONAY-teminat-once-ipotek=karşılanmadı",
+  "ONAY-teminat-once-kefalet=belirsiz",
+  "ONAY-teminat-once-rehin=belirsiz",
+  "YETKI-onay-siniri=belirsiz"
+ ]
+}
