@@ -54,7 +54,7 @@ class SpecTests(unittest.TestCase):
         spec = (ROOT / "packaging" / "audittrace.spec").read_text(encoding="utf-8")
         for name in ("torch", "transformers", "sentence_transformers", "sklearn", "scipy", "chromadb"):
             self.assertIn(f'"{name}"', spec)
-        for part in ('"rules" / "catalog"', '"ui" / "samples"', 'name="AuditTrace"'):
+        for part in ('"rules" / "catalog"', '"ui" / "samples"', '"ui" / "brand"', 'name="AuditTrace"', "icon.ico"):
             self.assertIn(part, spec)
 
 

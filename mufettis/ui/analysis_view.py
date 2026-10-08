@@ -261,7 +261,7 @@ def render_first_steps() -> None:
                     "2. **Sonucu okuyun** — en üstte tek cümlelik durum ve bulgular; belgeden okunamayan bilgiler "
                     "size sorulur, cevabınızla kontrol yenilenir.\n"
                     "3. **Word çalışma kâğıdını indirin** — bulgular, dayanakları ve kanıtlarıyla.")
-        st.button("🧪 Örnek dosyayla dene", key="check_sample_button", on_click=_load_sample,
+        st.button("Örnek dosyayla dene", key="check_sample_button", on_click=_load_sample,
                   help="Uydurma bilgili 4 belgelik örnek kredi dosyası (onay, kullandırım, ipotek, imza sirküleri) "
                        "yüklenmiş gibi kontrol edilir.")
 
@@ -317,7 +317,7 @@ def render_analysis_page(
 ) -> None:
     """Renders the main Analysis Intelligence screen inside Streamlit.
 
-    rag_provider (M15.3): mevzuat kütüphanesi sayfa açılırken değil, ANALİZİ BAŞLAT'a basılınca kurulur."""
+    rag_provider (M15.3): mevzuat kütüphanesi sayfa açılırken değil, "Analizi başlat"a basılınca kurulur."""
     if st is None:
         return
 
@@ -369,7 +369,7 @@ def render_analysis_page(
     items = _read_uploads(files if isinstance(files, list) else [])
     if not items and st.session_state.get("check_sample"):
         items = sample_items()
-    st.button("🔄 Yeni kontrol başlat", key="check_new", on_click=reset_check,
+    st.button("Yeni kontrol başlat", key="check_new", on_click=reset_check,
               help="Yüklenen belgeleri, metni, cevaplarınızı ve sonuçları temizler; ayarlar ve yetki tablosu kalır.")
     # Yükleyici metin alanından önce: metin alanının anahtarına yalnızca widget oluşmadan yazılabilir.
     if items:
@@ -389,7 +389,7 @@ def render_analysis_page(
             st.session_state["analysis_exec_result"] = None
         info = st.session_state.get("analysis_ui_upload_info")
         if info:
-            st.caption(f"📄 Yüklenen: {info}.")
+            st.caption(f"Yüklenen: {info}.")
 
     with st.expander("Metni yapıştırarak kontrol (dosya yerine) ve metni düzeltme", expanded=False):
         in_col1, in_col2 = st.columns(2)
@@ -442,7 +442,7 @@ def render_analysis_page(
              "alıntısı birebir doğrulanır. Kullanılan model Admin sekmesinden seçilir; Ollama çalışmıyorsa "
              "ya da model kurulu değilse sözcüksel eşleştirme kullanılır.",
     ) and bool(llm_health.get("ok"))
-    analyze_clicked = st.button("🚀 ANALİZİ BAŞLAT", type="primary", use_container_width=True)
+    analyze_clicked = st.button("Analizi başlat", type="primary")
 
     # ── Pipeline Execution ────────────────────────────────────────────────────
     if analyze_clicked:
@@ -488,7 +488,7 @@ def render_analysis_page(
     # ── Display Analysis Results ──────────────────────────────────────────────
     exec_result: Optional[AnalysisExecutionResult] = st.session_state.get("analysis_exec_result")
     if not exec_result or not exec_result.result:
-        st.caption("Mevzuat yardımcısı için 'ANALİZİ BAŞLAT'a basın.")
+        st.caption("Mevzuat yardımcısı için \"Analizi başlat\" düğmesine basın.")
         return
 
     result: AnalysisResult = exec_result.result
@@ -616,7 +616,7 @@ def render_analysis_page(
         st.error(f"DOCX çalışma kağıdı oluşturulamadı: {exc}")
     else:
         st.download_button(
-            "📄 Çalışma kağıdını indir (DOCX)",
+            "Çalışma kâğıdını indir (Word)",
             data=report_bytes,
             file_name=f"mufettis_analiz_{report_result.analysis_id[:8]}.docx",
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",

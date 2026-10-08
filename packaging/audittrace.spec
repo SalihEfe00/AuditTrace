@@ -13,6 +13,8 @@ datas = [(str(ROOT / "app.py"), ".")]
 datas += [(str(p), "mufettis/rules/catalog") for p in (ROOT / "mufettis" / "rules" / "catalog").glob("*.json")]
 datas += [(str(p), str(p.parent.relative_to(ROOT)).replace("\\", "/"))
           for p in (ROOT / "mufettis" / "ui" / "samples").rglob("*") if p.is_file()]
+# M16: amblem, simge ve favicon (arayüz başlığı ve Word raporu kullanır).
+datas += [(str(p), "mufettis/ui/brand") for p in (ROOT / "mufettis" / "ui" / "brand").iterdir() if p.is_file()]
 datas += collect_data_files("streamlit")
 datas += copy_metadata("streamlit")
 for pkg in ("onnxruntime", "tokenizers", "numpy", "pandas", "pydantic", "requests", "packaging", "python-docx",
@@ -43,5 +45,6 @@ a = Analysis(
     noarchive=False,
 )
 pyz = PYZ(a.pure)
-exe = EXE(pyz, a.scripts, [], exclude_binaries=True, name="AuditTrace", console=False)
+exe = EXE(pyz, a.scripts, [], exclude_binaries=True, name="AuditTrace", console=False,
+          icon=str(ROOT / "mufettis" / "ui" / "brand" / "icon.ico"))
 coll = COLLECT(exe, a.binaries, a.datas, name="AuditTrace")

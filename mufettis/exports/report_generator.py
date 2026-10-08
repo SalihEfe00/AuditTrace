@@ -16,6 +16,7 @@ except Exception:
     Document = None
 
 from mufettis.config import EXPORT_DIR, APP_NAME, APP_VERSION
+from mufettis.exports.brand_docx import finish, style_document, title_block
 from mufettis.common.utils import article_label, now_iso, mask_sensitive
 from mufettis.audit.service import load_reviews
 from mufettis.extraction.text_repair import clean_evidence_text
@@ -52,11 +53,8 @@ def create_docx_report(
     except Exception:
         pass
 
-    title=doc.add_paragraph()
-    title.alignment=WD_ALIGN_PARAGRAPH.CENTER
-    rr=title.add_run(f"{APP_NAME} – Denetim Çalışma Kağıdı")
-    rr.bold=True
-    rr.font.size=Pt(16)
+    style_document(doc)
+    title_block(doc, "Denetim Çalışma Kâğıdı")  # M16.4
 
     p=doc.add_paragraph()
     p.add_run("Sürüm: ").bold=True
@@ -243,6 +241,7 @@ def create_docx_report(
         f"{APP_NAME} {APP_VERSION} | Deterministik karar destek çıktısı"
     ).font.size=Pt(8)
 
+    finish(doc)
     output=io.BytesIO()
     doc.save(output)
     data=output.getvalue()

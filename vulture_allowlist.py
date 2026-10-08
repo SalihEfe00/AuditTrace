@@ -132,3 +132,5 @@ _.graph_optimization_level
 _.forward
 # SentenceTransformer.encode / CrossEncoder.predict ile aynı imza (ONNX yerine geçenler, scripts/onnx_models/).
 show_progress_bar
+# python-docx Table.autofit yazılan özellik (M16.4: Word'de sütun genişlikleri sabit, mufettis/exports/brand_docx.py).
+_.autofit

@@ -12,7 +12,8 @@ from typing import Any
 from mufettis.analysis.cited_references import describe as describe_cited, missing_note
 from mufettis.analysis.models import AnalysisResult
 from mufettis.common.utils import mask_sensitive, now_iso
-from mufettis.config import APP_NAME, APP_VERSION
+from mufettis.config import APP_VERSION
+from mufettis.exports.brand_docx import finish, style_document, title_block
 
 DOCUMENT_TYPE_LABELS = {
     "complaint": "Tüketici şikâyeti",
@@ -34,7 +35,6 @@ def _text(value: Any) -> str:
 def create_analysis_docx(result: AnalysisResult, generated_at: str = "") -> bytes:
     try:
         from docx import Document
-        from docx.enum.text import WD_ALIGN_PARAGRAPH
         from docx.shared import Inches, Pt
     except Exception as exc:
         raise RuntimeError("python-docx kurulu değil") from exc
@@ -46,11 +46,8 @@ def create_analysis_docx(result: AnalysisResult, generated_at: str = "") -> byte
     doc.styles["Normal"].font.name = "Arial"
     doc.styles["Normal"].font.size = Pt(10)
 
-    heading = doc.add_paragraph()
-    heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = heading.add_run(f"{APP_NAME} – Belge Analizi Çalışma Kağıdı")
-    run.bold = True
-    run.font.size = Pt(15)
+    style_document(doc)
+    title_block(doc, "Belge Analizi Çalışma Kâğıdı")  # M16.4
 
     document = result.document
     classification = result.classification
@@ -131,6 +128,7 @@ def create_analysis_docx(result: AnalysisResult, generated_at: str = "") -> byte
     note_run.italic = True
     note_run.font.size = Pt(8)
 
+    finish(doc)
     buffer = io.BytesIO()
     doc.save(buffer)
     return buffer.getvalue()

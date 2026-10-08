@@ -11,7 +11,8 @@ import io
 from typing import Dict, Optional, Sequence, Tuple
 
 from mufettis.common.utils import mask_sensitive, now_iso
-from mufettis.config import APP_NAME, APP_VERSION
+from mufettis.config import APP_VERSION
+from mufettis.exports.brand_docx import finish, style_document, title_block
 from mufettis.rules.display import plain_text, status_label
 from mufettis.rules.findings import Finding
 
@@ -30,7 +31,6 @@ def create_rules_docx(title: str, documents: Sequence[Tuple[str, str]], findings
     """`documents`: (belge adı, tür); `counts`: sonuç → kural sayısı (kontrol listesi özeti)."""
     try:
         from docx import Document
-        from docx.enum.text import WD_ALIGN_PARAGRAPH
         from docx.shared import Inches, Pt
     except Exception as exc:
         raise RuntimeError("python-docx kurulu değil") from exc
@@ -42,11 +42,8 @@ def create_rules_docx(title: str, documents: Sequence[Tuple[str, str]], findings
     doc.styles["Normal"].font.name = "Arial"
     doc.styles["Normal"].font.size = Pt(10)
 
-    heading = doc.add_paragraph()
-    heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = heading.add_run(f"{APP_NAME} – {title}")
-    run.bold = True
-    run.font.size = Pt(15)
+    style_document(doc)
+    title_block(doc, title)  # M16.4: amblem + AuditTrace + kâğıdın adı
 
     meta = doc.add_table(rows=0, cols=2)
     meta.style = "Table Grid"
@@ -85,6 +82,7 @@ def create_rules_docx(title: str, documents: Sequence[Tuple[str, str]], findings
     doc.add_paragraph()
     note = doc.add_paragraph(DISCLAIMER)
     note.runs[0].italic = True
+    finish(doc)
     buffer = io.BytesIO()
     doc.save(buffer)
     return buffer.getvalue()

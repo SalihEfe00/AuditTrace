@@ -25,10 +25,15 @@ from mufettis.rules.engine import EXEMPT, MANUAL, MET, NOT_APPLICABLE, NOT_MET, 
 from mufettis.rules.fields_kefalet import extract_kefalet_fields
 from mufettis.rules.fields_teminat import extract_teminat_fields
 from mufettis.rules.review import UNKNOWN_ANSWER, apply_answers, pending_questions
+from mufettis.ui.theme import STATUS, status_style
 
 TYPE_NAMES = {"kefalet_sozlesmesi": "kefalet sözleşmesi", "ipotek": "ipotek", "rehin": "taşınır rehni",
               "ekspertiz": "ekspertiz / değerleme raporu", "dask": "DASK poliçesi", "bono": "bono"}
-ICON = {MET: "✅", NOT_MET: "❌", UNKNOWN: "❔", MANUAL: "📝", EXEMPT: "➖", NOT_APPLICABLE: "➖"}
+# M16.3: durum işaretleri müfettişin kalem işaretleri gibi (tik, çarpı, soru, kalem); renkler theme.STATUS'tan.
+_MARKS = {MET: ("✓", "uygun"), NOT_MET: ("✕", "bulgu"), UNKNOWN: ("?", "karar_verilemedi"),
+          MANUAL: ("✎", "karar_verilemedi"), EXEMPT: ("–", "yapilamayan"), NOT_APPLICABLE: ("–", "yapilamayan")}
+ICON = {status: f'<span class="at-mark" style="color:{STATUS[kind][2]}">{mark}</span>'
+        for status, (mark, kind) in _MARKS.items()}
 
 
 def _plain_source(source: str) -> str:
@@ -122,7 +127,7 @@ _AUTO = "(otomatik tanı)"
 
 
 def _questions_header(title: str, extra: str = "") -> None:
-    st.markdown(f"#### ✍️ Sizden cevap bekleyen — {title.lower()}")
+    st.markdown(f"#### Sizden cevap bekleyen — {title.lower()}")
     st.caption("Cevaplarınız kanıta *sizin cevabınız* olarak yazılır ve ilgili kontrol yeniden yapılır"
                + (f" ({extra})" if extra else "") + ".")
 
@@ -208,19 +213,17 @@ def _short_ref(criterion: str) -> str:
     return m.group(1) if m else criterion.split(":", 1)[0]
 
 
-_TILES = (("finding", "Bulgu", "255,75,75"), ("undecided", "Karar verilemeyen", "255,170,40"),
-          ("passed", "Uygun", "60,180,110"), ("missing", "Yapılamayan (belge yok)", "140,140,150"))
+_TILES = (("finding", "Bulgu", "bulgu"), ("undecided", "Karar verilemeyen", "karar_verilemedi"),
+          ("passed", "Uygun", "uygun"), ("missing", "Yapılamayan (belge yok)", "yapilamayan"))
 
 
 def _summary_tiles(groups) -> None:
     cells = "".join(
-        f'<div style="flex:1;min-width:130px;padding:10px 14px;border-radius:10px;background:rgba({rgb},.12);'
-        f'border:1px solid rgba({rgb},.45)"><div style="font-size:13px;opacity:.85">{label} '
-        f'<span title="{html.escape(TERM_HELP.get(label, ""))}" style="cursor:help;opacity:.7">(?)</span></div>'
-        f'<div style="font-size:26px;font-weight:600;line-height:1.2">{len(groups[name])}</div></div>'
-        for name, label, rgb in _TILES)
-    st.markdown(f'<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 12px">{cells}</div>',
-                unsafe_allow_html=True)
+        f'<div class="at-tile" style="{status_style(kind)}"><div class="n">{len(groups[name])}</div>'
+        f'<div class="l">{label} <span title="{html.escape(TERM_HELP.get(label, ""))}" '
+        f'style="cursor:help;opacity:.7">(?)</span></div></div>'
+        for name, label, kind in _TILES)
+    st.markdown(f'<div class="at-tiles">{cells}</div>', unsafe_allow_html=True)
 
 
 _WHERE = re.compile(r"^(?:(?P<doc>.+?), )?satır (?P<line>\d+)(?:: (?P<snippet>.*))?$")
@@ -262,12 +265,13 @@ def _show_in_document(locations) -> str:
             if blocks else "")
 
 
-def _finding_card(f, locations=()) -> None:
-    """Bulgu kartı: tek satır başlık + kısa dayanak; tespit, ölçüt, kanıt ve öneri açılır bölümde."""
+def _finding_card(f, locations=(), key: str = "") -> None:
+    """Bulgu kartı: tek satır başlık + kısa dayanak; tespit, ölçüt, kanıt ve öneri açılır bölümde. Kartın sol
+    kenarı durum rengindedir (M16.3: anahtar adı `at-finding-*` / `at-manual-*` CSS'te)."""
     esc = html.escape
-    with st.container(border=True):
-        st.markdown(f"{ICON.get(f.status, '•')} **{_headline(f.detection)}**"
-                    + (" — *elle kontrol edilmeli*" if f.status == MANUAL else ""))
+    with st.container(border=True, key=f"at-{'manual' if f.status == MANUAL else 'finding'}-{key}"):
+        st.markdown(f"{ICON.get(f.status, '•')} **{esc(_headline(f.detection))}**"
+                    + (" — *elle kontrol edilmeli*" if f.status == MANUAL else ""), unsafe_allow_html=True)
         st.caption(" · ".join(x for x in (_short_ref(f.criterion), ", ".join(f.documents)) if x))
         evidence = "".join(f"<li>{esc(plain_text(e))}</li>" for e in f.evidence)
         st.markdown(
@@ -323,9 +327,9 @@ def _findings_section(rules, results, title, documents, event_date, key, questio
     except RuntimeError as exc:
         button.caption(f"DOCX oluşturulamadı: {exc}")
     else:
-        button.download_button("📄 Word çalışma kâğıdı", data, file_name=f"{title.replace(' ', '_')}.docx",
+        button.download_button("Word çalışma kâğıdı", data, file_name=f"{title.replace(' ', '_')}.docx",
                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                               key=f"{key}_docx", use_container_width=True)
+                               key=f"{key}_docx", type="primary", use_container_width=True)
     _summary_tiles(groups)
     st.markdown(f"#### Bulgular ({len(findings)})")
     if not findings:
@@ -334,9 +338,9 @@ def _findings_section(rules, results, title, documents, event_date, key, questio
     for item in groups["finding"]:
         res = getattr(item, "result", item)
         evidence_by_rule[(res.rule_id, tuple(getattr(item, "documents", ())))] = res.evidence
-    for f in findings:
+    for i, f in enumerate(findings):
         evidence = evidence_by_rule.get((f.rule_id, tuple(f.documents)), ())
-        _finding_card(f, _locations(evidence, texts or {}))
+        _finding_card(f, _locations(evidence, texts or {}), f"{key}-{i}")
     if questions is not None:
         questions()
     by_id = {r.id: r for r in rules}
@@ -423,8 +427,8 @@ def render_credit_file_check(items=None, event_date: Optional[dt.date] = None, a
         col1, col2 = st.columns([3, 2])
         # Otomatik tanının puanı teknik ayrıntı; yalnız kullanıcının seçimi gibi açıklamalar gösterilir
         why = "" if doc.reason.startswith("puan") else f" ({doc.reason})"
-        col1.markdown(f"📄 **{name}** — " + (f"{FILE_TYPE_NAMES.get(doc.kind, doc.kind)}{why}" if doc.kind
-                                            else f"⚠️ tanınmadı ({doc.reason}); türünü seçin"))
+        col1.markdown(f"**{name}** — " + (f"{FILE_TYPE_NAMES.get(doc.kind, doc.kind)}{why}" if doc.kind
+                                            else f":orange[**tanınmadı**] ({doc.reason}); türünü seçin"))
         with col2:  # tür seçimi yalnız tanınmayan belgede doğrudan, tanınanda "türü değiştir" altında
             picked = _type_choice("Tür", options[1:], chosen, f"credit_file_kind_{file_key}_{i}",
                                   ask=doc.kind is None)

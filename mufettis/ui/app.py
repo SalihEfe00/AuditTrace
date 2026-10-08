@@ -192,12 +192,15 @@ section[aria-label^="Belge yükle"] [data-testid="stFileUploaderDropzoneInstruct
 def run_streamlit() -> None:
     if st is None:
         raise RuntimeError("Streamlit kurulu değil")
-    st.set_page_config(page_title=APP_NAME, layout="wide")
+    from mufettis.ui.theme import BRAND_CSS, BRAND_DIR, header_html
+
+    st.set_page_config(page_title=APP_NAME, page_icon=str(BRAND_DIR / "favicon.png"), layout="wide")
     # M15.9: başlık bugünkü işi anlatır; sürüm Admin → Mevzuat yönetimi ve sistem bilgisinde.
-    st.title(f"{APP_NAME} — Kredi dosyası ve teminat kontrolü")
-    st.caption("Belgeleri yükleyin; teminat ve kredi dosyası kuralları mevzuata göre kontrol edilir. Sonuçlar karar "
-               "desteğidir, nihai değerlendirme müfettişe aittir.")
-    st.markdown(UPLOADER_CSS, unsafe_allow_html=True)
+    # M16.3: başlık amblem + AuditTrace yazısı; kimlik katmanı (BRAND_CSS) bütün sekmelere uygulanır.
+    st.markdown(BRAND_CSS + UPLOADER_CSS, unsafe_allow_html=True)
+    st.markdown(header_html("Kredi dosyası ve teminat kontrolü · Belgeleri yükleyin; kurallar mevzuata göre kontrol "
+                            "edilir. Sonuçlar karar desteğidir, nihai değerlendirme müfettişe aittir."),
+                unsafe_allow_html=True)
 
     if "analysis" not in st.session_state:
         st.session_state["analysis"] = None

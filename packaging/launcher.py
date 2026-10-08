@@ -116,6 +116,9 @@ def serve(port: int, open_browser: bool) -> None:
         "browser_serverAddress": "127.0.0.1",
         "client_toolbarMode": "minimal",  # M15.9: Deploy düğmesi görünmez
     }
+    from mufettis.ui.theme import theme_flags
+
+    flags.update(theme_flags())  # M16.3: AuditTrace teması (kaynaktan çalıştırmada .streamlit/config.toml)
     bootstrap.load_config_options(flag_options=flags)
     bootstrap.run(str(BUNDLE / "app.py"), False, [], flags)
 

@@ -27,7 +27,7 @@ def _status(md, rule_id):
     """Bütün kurallar tablosunda kuralın ekrandaki sonucu (M15.7: sade ad, ör. "karar verilemedi")."""
     for line in md.splitlines():
         if line.startswith("|") and f"`{rule_id}`" in line:
-            return line.split("|")[1].strip().split(" ", 1)[1]
+            return line.split("|")[1].strip().split("</span> ", 1)[1]  # M16.3: işaret renkli <span>
     return None
 
 
@@ -121,7 +121,7 @@ def test_credit_file_view_places_documents_asks_and_shows_cross_document_results
     at = _file_app([("onay.pdf", onay), ("kul.pdf", kul), ("ip.pdf", ipotek), ("not.txt", "Merhaba dünya")]).run()
     assert not at.exception
     md = _markdown(at)
-    assert "kredi teklif / onay" in md and "⚠️ tanınmadı" in md
+    assert "kredi teklif / onay" in md and ":orange[**tanınmadı**]" in md
     # kullandırılan tutar okunamadı → soru; cevapla karşılandı / karşılanmadı
     assert _status(md, "ONAY-kullandirim-tutari") == "karar verilemedi"
     radio = next(r for r in at.radio if "[kul.pdf] Kullandırılan tutar" in r.label)  # M15.6: teknik etiket yerine belge adı

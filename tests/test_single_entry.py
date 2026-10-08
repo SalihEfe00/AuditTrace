@@ -26,7 +26,7 @@ def _status(md, rule_id):
     """Bütün kurallar tablosunda kuralın ekrandaki sonucu (M15.7: sade ad, ör. "karar verilemedi")."""
     for line in md.splitlines():
         if line.startswith("|") and f"`{rule_id}`" in line:
-            return line.split("|")[1].strip().split(" ", 1)[1]
+            return line.split("|")[1].strip().split("</span> ", 1)[1]  # M16.3: işaret renkli <span>
     return None
 
 
