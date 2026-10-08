@@ -86,7 +86,9 @@ def shell_css(page: str) -> str:
 section[data-testid="stSidebar"] {{width:376px !important; min-width:376px !important; max-width:376px !important;
   background:{PAPER_2};}}
 [data-testid="stSidebarHeader"], [data-testid="stSidebarCollapseButton"] {{display:none;}}
-[data-testid="stSidebarUserContent"] {{padding:24px 22px 24px 98px; position:relative; min-height:100vh;}}
+[data-testid="stSidebarContent"] {{padding:0 !important; scrollbar-gutter:auto !important;}}
+[data-testid="stSidebarUserContent"] {{padding:24px 22px 24px 98px; margin:0 !important; width:100% !important; position:relative;
+  min-height:100vh;}}
 .st-key-at-rail {{position:absolute; left:0; top:0; bottom:0; width:76px; background:#fff;
   border-right:1px solid {LINE}; padding:18px 8px; align-items:center; gap:6px; z-index:5;}}
 .st-key-at-rail .at-rail-mark {{margin-bottom:12px;}}
