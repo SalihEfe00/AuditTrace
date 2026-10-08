@@ -16,7 +16,7 @@
       <ReadOnly>true</ReadOnly>
     </MappedFolder>
     <MappedFolder>
-      <HostFolder>C:\Users\Salih Efe\Desktop\AuditTrace_Sandbox_Sonuc</HostFolder>
+      <HostFolder>C:\Users\Salih Efe\Desktop\AuditTrace_Yan_Dosyalar\08_Sandbox_Denemeleri\AuditTrace_Sandbox_Sonuc</HostFolder>
       <SandboxFolder>C:\Sonuc</SandboxFolder>
       <ReadOnly>false</ReadOnly>
     </MappedFolder>
