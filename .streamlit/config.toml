@@ -4,6 +4,8 @@
 [server]
 # Yalnızca bu bilgisayar: belgeler yerel ağdaki başka makinelerden açılamaz.
 address = "127.0.0.1"
+# M19.1: yazı tipleri app.py'nin yanındaki static/fonts klasöründen (yalnız bu bilgisayara) sunulur.
+enableStaticServing = true
 
 [browser]
 serverAddress = "127.0.0.1"
@@ -28,8 +30,8 @@ dataframeHeaderBackgroundColor = "#EFEBE3"
 showWidgetBorder = true
 baseRadius = "6px"
 buttonRadius = "6px"
-font = "sans-serif"
-headingFont = "serif"
+font = "Libre Franklin, sans-serif"
+headingFont = "Libre Baskerville, serif"
 codeFont = "monospace"
 redColor = "#B5382B"
 redBackgroundColor = "#F6E5E1"
@@ -49,3 +51,27 @@ blueTextColor = "#1A4F47"
 grayColor = "#7A8289"
 grayBackgroundColor = "#EAE8E3"
 grayTextColor = "#434C54"
+
+[[theme.fontFaces]]
+family = "Libre Franklin"
+url = "app/static/fonts/LibreFranklin-wght.ttf"
+weight = "100 900"
+style = "normal"
+
+[[theme.fontFaces]]
+family = "Libre Franklin"
+url = "app/static/fonts/LibreFranklin-Italic-wght.ttf"
+weight = "100 900"
+style = "italic"
+
+[[theme.fontFaces]]
+family = "Libre Baskerville"
+url = "app/static/fonts/LibreBaskerville-wght.ttf"
+weight = "400 700"
+style = "normal"
+
+[[theme.fontFaces]]
+family = "Libre Baskerville"
+url = "app/static/fonts/LibreBaskerville-Italic-wght.ttf"
+weight = "400 700"
+style = "italic"

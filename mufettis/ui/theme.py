@@ -2,15 +2,25 @@
 """M16.2 AuditTrace görsel kimliği: renkler, yazı tipleri ve Streamlit teması tek yerde.
 
 Fikir "kalem izi": müfettişin çalışma kâğıdına attığı tik işareti ve ona varan iz. Kâğıt zemin, mavi-siyah mürekkep,
-yeşil kalem (birincil işlem), kırmızı kalem yalnızca bulgu ve amblemdeki iz için. Yazı tipleri Streamlit'le gelen
-açık lisanslı (SIL OFL) Source ailesi: başlıklar Source Serif, metin Source Sans, sayılar ve madde atıfları Source Code
-Pro; internetsiz çalışır, ayrıca indirme yok. Paket başlatıcısı temayı bayrak olarak verir (`theme_flags`), kaynaktan
+yeşil kalem (birincil işlem), kırmızı kalem yalnızca bulgu ve amblemdeki iz için. Yazı tipleri açık lisanslı (SIL
+OFL): başlıklar Libre Baskerville, metin Libre Franklin (M19.1, uygulamayla gelir), sayılar ve madde atıfları
+Streamlit'in Source Code Pro'su; internetsiz çalışır. Paket başlatıcısı temayı bayrak olarak verir (`theme_flags`), kaynaktan
 çalıştırmada `.streamlit/config.toml` aynı değerleri taşır (tests/test_theme.py ikisini eşit tutar).
 """
 from __future__ import annotations
 
 from mufettis.brand import (  # noqa: F401 (BRAND_DIR, RED_PENCIL dışarıya da)
     BRAND_DIR, GREEN_INK, INK, INK_MUTED, LINE, PAPER, PAPER_2, RED_PENCIL, STATUS,
+)
+
+
+# M19.1: metin Libre Franklin, başlıklar Libre Baskerville (SIL OFL, google/fonts deposundan). Dosyalar app.py'nin
+# yanındaki static/fonts klasöründe; Streamlit statik dosya sunumuyla (yalnız 127.0.0.1) internetsiz yüklenir.
+FONT_FACES = tuple(
+    {"family": family, "url": f"app/static/fonts/{family.replace(' ', '')}{suffix}-wght.ttf", "weight": weight,
+     "style": style}
+    for family, weight in (("Libre Franklin", "100 900"), ("Libre Baskerville", "400 700"))
+    for suffix, style in (("", "normal"), ("-Italic", "italic"))
 )
 
 
@@ -29,8 +39,8 @@ def theme_flags() -> dict:
         "theme_showWidgetBorder": True,
         "theme_baseRadius": "6px",
         "theme_buttonRadius": "6px",
-        "theme_font": "sans-serif",
-        "theme_headingFont": "serif",
+        "theme_font": "Libre Franklin, sans-serif",
+        "theme_headingFont": "Libre Baskerville, serif",
         "theme_codeFont": "monospace",
         "theme_redColor": STATUS["bulgu"][2],
         "theme_redBackgroundColor": STATUS["bulgu"][1],
@@ -50,6 +60,7 @@ def theme_flags() -> dict:
         "theme_grayColor": STATUS["yapilamayan"][2],
         "theme_grayBackgroundColor": STATUS["yapilamayan"][1],
         "theme_grayTextColor": STATUS["yapilamayan"][0],
+        "theme_fontFaces": [dict(face) for face in FONT_FACES],
     }
 
 

@@ -24,6 +24,15 @@ class ThemeTests(unittest.TestCase):
     def test_launcher_passes_theme(self):
         self.assertIn("flags.update(theme_flags())", (ROOT / "packaging" / "launcher.py").read_text(encoding="utf-8"))
 
+    def test_font_files_are_served_and_packaged(self):
+        # M19.1: yazı tipleri app.py'nin yanındaki static/ klasöründe, statik sunum açık, paket aynı klasörü taşır
+        for face in theme.FONT_FACES:
+            self.assertTrue((ROOT / face["url"].removeprefix("app/")).is_file(), face["url"])
+        self.assertTrue(tomllib.loads((ROOT / ".streamlit" / "config.toml").read_text(encoding="utf-8"))
+                        ["server"]["enableStaticServing"])
+        self.assertIn('"server_enableStaticServing": True', (ROOT / "packaging" / "launcher.py").read_text(encoding="utf-8"))
+        self.assertIn('"static/fonts"', (ROOT / "packaging" / "audittrace.spec").read_text(encoding="utf-8"))
+
     def test_text_contrast(self):
         self.assertGreaterEqual(theme.contrast(theme.INK, theme.PAPER), 7)
         self.assertGreaterEqual(theme.contrast(theme.INK_MUTED, theme.PAPER), 4.5)

@@ -102,9 +102,9 @@ section[data-testid="stSidebar"] {{width:376px !important; min-width:376px !impo
 .st-key-at-rail button[kind="primary"] {{background:{PAPER_2}; color:{INK};}}
 .st-key-at-rail button[kind="primary"] p {{font-weight:600;}}
 .st-key-at-nav-admin {{margin-top:auto;}}
-.at-panel-brand {{font-family:"Source Serif", Georgia, serif; font-size:15px; color:{INK_MUTED};}}
+.at-panel-brand {{font-family:"Libre Baskerville", Georgia, serif; font-size:15px; color:{INK_MUTED};}}
 .at-panel-brand i {{color:{GREEN_INK};}}
-.at-panel-title {{font-family:"Source Serif", Georgia, serif; font-weight:600; font-size:21px; line-height:1.25;
+.at-panel-title {{font-family:"Libre Baskerville", Georgia, serif; font-weight:600; font-size:21px; line-height:1.25;
   color:{INK}; margin:4px 0 2px;}}
 .at-steps {{margin:14px 0 6px;}}
 .at-step {{display:flex; gap:12px; padding:0 0 16px; position:relative;}}
@@ -123,7 +123,7 @@ section[data-testid="stSidebar"] {{width:376px !important; min-width:376px !impo
 [class*="st-key-at-questions"] h4 a, .at-headline a {{display:none;}}
 .st-key-at-panel-foot {{border-top:1px solid {LINE}; padding-top:12px; margin-top:18px;}}
 .at-result-head {{margin:0 0 4px;}}
-.at-headline {{font-family:"Source Serif", Georgia, serif; font-weight:600; font-size:28px; line-height:1.2;
+.at-headline {{font-family:"Libre Baskerville", Georgia, serif; font-weight:600; font-size:28px; line-height:1.2;
   color:{INK};}}
 .at-bar {{display:flex; height:10px; border-radius:5px; overflow:hidden; margin:10px 0 6px; max-width:440px;
   background:{LINE};}}

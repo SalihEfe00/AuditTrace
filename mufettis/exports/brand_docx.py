@@ -2,7 +2,7 @@
 """M16.4: Word çalışma kâğıtlarında AuditTrace kimliği — içerik değişmez, yalnız görünüm.
 
 Kapak satırı: amblem + "Audit" (mürekkep) "Trace" (yeşil kalem, italik) + kâğıdın adı, altında ince çizgi.
-Başlıklar Georgia (her Windows'ta var; arayüzdeki Source Serif Word'de olmayabilir), mürekkep rengi. İki sütunlu
+Başlıklar Georgia (her Windows'ta var; arayüzdeki Libre Baskerville Word'de olmayabilir), mürekkep rengi. İki sütunlu
 bilgi tablolarında etiket sütunu kâğıt rengi zeminli. Alt bilgi: ad, sürüm, "karar destek çıktısı".
 """
 from __future__ import annotations

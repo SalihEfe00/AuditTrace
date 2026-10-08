@@ -162,8 +162,10 @@ def write_notices(dist_dir: Path, build_dir: Path, webview2_version: str = "") -
                 + "\n\nKaynak: https://github.com/tesseract-ocr/tesseract ve https://packages.msys2.org "
                   "(GPL / LGPL bileşenlerin kaynak kodu oradan alınabilir).",
                 "5. Modeller (models/)\n\n" + "\n".join(f"- {path}: {what} - {lic}" for path, what, lic in MODELS),
-                "6. Yazı tipleri\n\nSource Serif 4, Source Sans 3, Source Code Pro (Adobe) - SIL Open Font License 1.1; "
-                "Streamlit ile gelir."]
+                "6. Yazı tipleri\n\nLibre Franklin (The Libre Franklin Project Authors) ve Libre Baskerville (The Libre "
+                "Baskerville Project Authors, Reserved Font Name Libre Baskerville) - SIL Open Font License 1.1; "
+                "static/fonts/ (lisans metinleri OFL-*.txt aynı klasörde). Source Code Pro (Adobe) - SIL Open Font "
+                "License 1.1; Streamlit ile gelir."]
     out = dist_dir / "THIRD_PARTY_NOTICES.txt"
     out.write_text(sep.join(sections) + "\n", encoding="utf-8")
     return {"dosya": str(out), "python_dagitimlari": len(dists), "boyut_kb": round(out.stat().st_size / 1024)}

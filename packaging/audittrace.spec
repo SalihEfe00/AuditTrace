@@ -15,6 +15,8 @@ datas += [(str(p), str(p.parent.relative_to(ROOT)).replace("\\", "/"))
           for p in (ROOT / "mufettis" / "ui" / "samples").rglob("*") if p.is_file()]
 # M16: amblem, simge ve favicon (arayüz başlığı ve Word raporu kullanır).
 datas += [(str(p), "mufettis/ui/brand") for p in (ROOT / "mufettis" / "ui" / "brand").iterdir() if p.is_file()]
+# M19.1: yazı tipleri (SIL OFL) app.py'nin yanındaki static/ klasöründen sunulur.
+datas += [(str(p), "static/fonts") for p in (ROOT / "static" / "fonts").iterdir() if p.is_file()]
 datas += collect_data_files("streamlit")
 datas += copy_metadata("streamlit")
 for pkg in ("onnxruntime", "tokenizers", "numpy", "pandas", "pydantic", "requests", "packaging", "python-docx",

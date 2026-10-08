@@ -420,3 +420,13 @@ OCR'ın yüklediği 33 DLL kopyalanır (eğitim araçlarının 22 DLL'i, 46,7 MB
 LGPL-3+ ya da GPL-2+) yalnız ayrı program olarak çağrılan Tesseract'ta; AuditTrace koduna bağlanmaz, ücret
 gerektirmez, kaynakları projelerinden ve packages.msys2.org'dan alınabilir. Model kartları Apache-2.0; yeniden
 sıralayıcının temel modeli mMARCO (MS MARCO çevirisi) ile eğitildi, ticari satışta ayrıca değerlendirilmeli.
+
+## M19.1: Yazı tipleri
+
+Metin Libre Franklin, başlıklar Libre Baskerville (SIL OFL 1.1). Dosyalar resmî `google/fonts` deposundan (`ofl/librefranklin`,
+`ofl/librebaskerville`; değişken ağırlıklı TTF, düz ve italik); git blob karmaları depodakilerle aynı, Defender taraması temiz.
+`static/fonts/` klasöründe, lisans metinleriyle (`OFL-*.txt`). Streamlit statik dosya sunumu (`server.enableStaticServing`,
+yalnız 127.0.0.1) `app/static/fonts/...` adresinden verir; tema `fontFaces` ile tanımlar (`mufettis/ui/theme.py`
+`FONT_FACES`, `.streamlit/config.toml` aynı). Paket aynı klasörü `app.py`'nin yanına koyar. İnternet gerekmez.
+Word çalışma kâğıdı başlıkları Georgia kalır (yazı tipi Word'e gömülmez). Sayılar ve madde atıfları Source Code Pro
+(Streamlit ile gelir).
