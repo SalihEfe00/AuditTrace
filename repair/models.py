@@ -733,7 +733,7 @@ class AuditEvent:
     environment: str = "production"
     actor: str = "system"
     trigger: str = "manual"
-    app_version: str = "0.13.81"
+    app_version: str = "1.0"
     audit_schema_version: str = "1.0.0"
 
     previous_event_hash: str = "0" * 64
