@@ -113,6 +113,24 @@ CURRENT_CORPUS_CLAUSES = ({"chunk_schema_version": CHUNK_SCHEMA_VERSION},
                           {"status": {"$nin": sorted(HISTORICAL_STATUSES)}})
 
 
+def _literal_prefilter(document_ref: Optional[str], account_ref: Optional[str]) -> Tuple[str, ...]:
+    """Kimlik eşleşmesinin gerektirdiği, parçada aynen geçmesi şart dizgiler (M17.3a ön süzgeci).
+
+    Hesap kodu (`_chunk_matches_account_ref`): meta verideki account_code ya da metinde kodun kendisi (onarım yalnız
+    koddan sonra boşluk ekler). Belge kimliği (`_chunk_matches_document_ref`): meta veri alanları, URL ya da metin;
+    URL büyük/küçük harf duyarsız karşılaştırıldığından harf içeren kimlik süzgece girmez. JSON'da kaçışlanan
+    karakter (tırnak, ters bölü, denetim) içeren kimlik de girmez."""
+    out = []
+    for ref, letters_ok in ((account_ref, True), (document_ref, False)):
+        ref = str(ref or "").strip()
+        if not ref or any(ch in ref for ch in '"\\') or any(ord(ch) < 32 for ch in ref):
+            continue
+        if not letters_ok and ref.lower() != ref.upper():
+            continue
+        out.append(ref)
+    return tuple(out)
+
+
 def current_where(*clauses: Dict[str, Any]) -> Dict[str, Any]:
     """Güncel korpus süzgeci (+ ek koşullar)."""
     return {"$and": [*CURRENT_CORPUS_CLAUSES, *clauses]}
@@ -541,8 +559,10 @@ class LocalRAG:
                 return prefer_official_matches(fast, limit=limit, query=query, resolved_refs=(document_ref, account_ref))
             out=[]
             try:
-                # Sayfalı tarama: yalnızca eşleşen parçalar bellekte tutulur.
-                for _ids,docs,metas in iter_pages(self.collection, where=current_where()):
+                # Sayfalı tarama: yalnızca eşleşen parçalar bellekte tutulur. Ön süzgeç (M17.3a): kimlik metinde ya
+                # da meta veride aynen geçmeyen parça aşağıdaki kontrollerden geçemez; SQLite deposunda okunmaz.
+                for _ids,docs,metas in iter_pages(self.collection, where=current_where(),
+                                                  contains=_literal_prefilter(document_ref, account_ref)):
                     for doc,meta in zip(docs,metas):
                         if not _chunk_is_retrievable(meta, doc):
                             continue

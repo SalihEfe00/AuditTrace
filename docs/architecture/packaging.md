@@ -351,3 +351,29 @@ dosyasını açtı; `sandbox_test.ps1` kendiliğinden çalıştı. Sonuç dosyal
 Uygulama temiz ve internetsiz Windows'ta kuruluyor ve çalışıyor; bellek 8 GB hedefinin çok altında. Sandbox'ta kurulum
 ve analiz 5–8 kat yavaş. Sanal disk ve Defender etkisi ile analizin kendi maliyeti M17.6a'da (M17.3a ile birlikte)
 ayrılacak. Betiğin sonundaki otomatik pencere açılışı görünmedi; masaüstü simgesiyle açıldı (M17.6b).
+
+## M17.3a: Analiz süresi
+
+Ilık analizin profili (veri kopyası, `OMP_NUM_THREADS=2`): sürenin en büyük payı `document_ref` / `account_ref`
+kimliği verilen sorgularda güncel külliyatın (110 236 parça) tam taranmasıydı. `iter_pages` her sayfayı
+`get(LIMIT/OFFSET)` ile okuyordu; SQLite her sayfada öncekileri baştan saydığı için tarama sayfa sayısının karesiyle
+büyüyordu (111 sayfa, profilde 10,5 sn).
+
+Değişiklik (sonuç aynı, yalnız okuma yolu):
+
+- `SqliteVectorCollection.iter_get`: `seq > son` ile keyset sayfalama; aynı satırlar, aynı sıra (silme ve güncelleme
+  sonrası dahil, `tests/test_keyset_scan.py`).
+- `contains` ön süzgeci: hesap kodu ve harf içermeyen belge kimliği, parça metninde ya da (taban dahil) meta verinin
+  JSON'unda `instr` ile aranır; son karar eskisi gibi `_chunk_matches_*` fonksiyonlarındadır. Harf içeren kimlikler
+  (URL harfe duyarsız karşılaştırılır) ve JSON'da kaçışlanan karakterler süzgece girmez.
+
+| | Önce | Sonra |
+|---|---|---|
+| Güncel külliyat tam tarama | 13,9 sn | 8,3 sn |
+| Tüm satırlar (391 381) tarama | 39,5 sn | 12,5 sn |
+| Kimlik taraması (17 kimlik, ön süzgeçli) | ~7 sn | ~1 sn, 0 fark |
+| Soğuk / ılık analiz (`prof_analysis`) | — / 17 sn | 18,5 / 10,7 sn |
+
+Kural ölçümleri değişmedi (müfettiş 557/568, dosya 467/468); `eval_accuracy --check-baseline` tabanı korunuyor
+(29 doğru / 3 yanlış dayanak / 0 yanlış pozitif). Kalan süre çoğunlukla sözcük dizini postings okuması (~6,8 sn,
+profil altında) ve ONNX yeniden sıralayıcı (~4,3 sn); bunlar sonuç değiştirmeden ayrıca ele alınabilir.

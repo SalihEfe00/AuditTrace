@@ -21,22 +21,40 @@ def iter_pages(
     where: Optional[Dict[str, Any]] = None,
     include: Sequence[str] = ("documents", "metadatas"),
     page_size: int = READ_PAGE_SIZE,
+    contains: Sequence[str] = (),
 ) -> Iterator[Page]:
-    """(ids, documents, metadatas) sayfaları. İstenmeyen alanlar boş liste yerine None listesidir."""
+    """(ids, documents, metadatas) sayfaları. İstenmeyen alanlar boş liste yerine None listesidir.
+    Koleksiyon `iter_get` sunuyorsa (SQLite deposu) sayfalar ondan gelir: aynı satırlar, aynı sıra, ama her sayfa
+    öncekileri yeniden taramaz (M17.3a). `contains` yalnız orada kullanılan kaba ön süzgeçtir (metinde ya da meta
+    veride geçen dizgiler); diğer koleksiyonlar her şeyi verir, son kararı çağıran verir."""
+    if callable(getattr(collection, "iter_get", None)):
+        for got in collection.iter_get(where=where, include=list(include), page_size=page_size, contains=contains):
+            page = _page(got)
+            if page is None:
+                return
+            yield page
+        return
     offset = 0
     while True:
         got = collection.get(where=where, include=list(include), limit=page_size, offset=offset)
-        # Satır sayısı dönen listelerin herhangi birinden alınır (kimlik listesi eksik olsa da).
-        size = max((len(got.get(key) or []) for key in ("ids", "documents", "metadatas")), default=0)
-        if not size:
+        page = _page(got)
+        if page is None:
             return
-        ids = list(got.get("ids") or [None] * size)
-        docs = list(got.get("documents") or [None] * size)
-        metas = [m or {} for m in (got.get("metadatas") or [None] * size)]
-        yield ids, docs, metas
-        if len(ids) < page_size:
+        yield page
+        if len(page[0]) < page_size:
             return
-        offset += len(ids)
+        offset += len(page[0])
+
+
+def _page(got: Dict[str, Any]) -> Optional[Page]:
+    # Satır sayısı dönen listelerin herhangi birinden alınır (kimlik listesi eksik olsa da).
+    size = max((len(got.get(key) or []) for key in ("ids", "documents", "metadatas")), default=0)
+    if not size:
+        return None
+    ids = list(got.get("ids") or [None] * size)
+    docs = list(got.get("documents") or [None] * size)
+    metas = [m or {} for m in (got.get("metadatas") or [None] * size)]
+    return ids, docs, metas
 
 
 __all__ = ["READ_PAGE_SIZE", "iter_pages"]

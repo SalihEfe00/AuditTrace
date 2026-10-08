@@ -394,6 +394,35 @@ class SqliteVectorCollection:
         embeddings = self._embeddings([r[3] for r in rows], fileset) if "embeddings" in include else None
         return _result(include, [(r[0], r[1], r[2]) for r in rows], embeddings)
 
+    def iter_get(self, where: Optional[Dict[str, Any]] = None, include: Sequence[str] = GET_DEFAULT_INCLUDE,
+                 page_size: int = 1000, contains: Sequence[str] = ()) -> Iterator[Dict[str, Any]]:
+        """`get` sonuçları sayfa sayfa, ekleme sırasıyla (`get(limit, offset)` sayfalarıyla aynı satırlar, aynı sıra).
+        Sayfalar son okunan `seq`'ten devam eder: LIMIT/OFFSET'te n. sayfa önceki bütün satırları süzgeçten yeniden
+        geçirir ve tam tarama sayfa sayısının karesiyle uzar (M17.3a: 46 sayfalık taramada analiz başına ~9 sn).
+        `contains`: her biri parça metninde ya da meta verisinin (taban dahil) JSON yazımında geçmeli — kaba ön
+        süzgeç; asıl eşleşmeyi çağıran yapar."""
+        last = 0
+        while True:
+            with self._txn() as con:
+                clause, params = self._where(con, where)
+                clauses = [clause] if clause else []
+                for text in contains:
+                    clauses.append("(instr(c.document, ?) > 0 OR instr(json(c.metadata), ?) > 0 OR "
+                                   "instr(IFNULL((SELECT json(b.metadata) FROM bases b WHERE b.id = c.base), ''), ?) > 0)")
+                    params.extend([str(text)] * 3)
+                sql = (f"SELECT {_ROW_COLUMNS}, c.seq FROM chunks c WHERE " + "".join(f"{c} AND " for c in clauses)
+                       + "c.seq > ? ORDER BY c.seq LIMIT ?")
+                raw = list(con.execute(sql, [*params, last, int(page_size)]))
+                rows = self._merged(con, [(r[0], r[1], r[2], json.loads(r[3]), int(r[4])) for r in raw])
+                fileset = self._state(con)[1]
+            if not raw:
+                return
+            last = int(raw[-1][5])
+            embeddings = self._embeddings([r[3] for r in rows], fileset) if "embeddings" in include else None
+            yield _result(include, [(r[0], r[1], r[2]) for r in rows], embeddings)
+            if len(raw) < page_size:
+                return
+
     def _embeddings(self, vec_rows: List[int], fileset: int) -> np.ndarray:
         if not vec_rows:
             return np.empty((0, self.dim or 0), dtype=np.float32)
