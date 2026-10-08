@@ -77,6 +77,7 @@ class InstallerScriptTests(unittest.TestCase):
         for line in deleting:
             self.assertNotIn(r"AuditTrace\data", line)
             self.assertTrue(r"{app}" in line or r"{localappdata}\AuditTrace\edge_profile" in line
+                            or r"{localappdata}\AuditTrace\webview" in line  # M17.7a WebView2 verisi
                             or r"{localappdata}\AuditTrace\logs" in line, line)
 
     def test_warm_up_and_shortcuts(self):

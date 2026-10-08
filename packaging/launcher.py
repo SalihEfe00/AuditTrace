@@ -2,12 +2,13 @@
 """AuditTrace (eski adı Müfettiş AI) paket başlatıcısı (M3.2). Paketin (PyInstaller) giriş noktasıdır; kaynaktan da çalışır.
 
 Kipler:
-    launcher.exe              uygulama penceresi: sunucu alt süreçte, arayüz Edge'in --app penceresinde (sekmesiz,
-                              ayrı profil); pencere kapanınca sunucu da kapanır. Edge yoksa --browser'a düşer.
+    launcher.exe              uygulama penceresi: sunucu alt süreçte; arayüz WebView2 varsa kendi penceresinde
+                              (pywebview, M17.7a: Microsoft hesabına oturum açmaz), yoksa Edge'in --app penceresinde
+                              (sekmesiz, ayrı profil); pencere kapanınca sunucu da kapanır. Edge de yoksa --browser.
     launcher.exe --browser    Streamlit sunucusu + varsayılan tarayıcı (M3.3: temiz Windows'ta varsayılan tarayıcı
                               atanmamış olabilir; "http bağlantısını açamıyoruz")
-    launcher.exe --window     pywebview penceresi (Edge WebView2; M3.3: temiz Windows'ta WebView2 yok, pywebview eski
-                              MSHTML motoruna düşüyor ve Streamlit boş sayfa kalıyor)
+    launcher.exe --window     yalnız WebView2 penceresi (yedeksiz; M3.3: temiz Windows'ta WebView2 yok, pywebview
+                              eski MSHTML motoruna düşüyor ve Streamlit boş sayfa kalıyor)
     launcher.exe --serve P    yalnızca sunucu, P portunda (pencere kipinin alt süreci)
     launcher.exe --measure D  ölçüm (M3.3): sunucunun hazır olma süresi, uygulama içe aktarma, örnek belgelerle analiz
                               süreleri ve bellek; sonuç D/olcum.json (tıklamasız, ör. Windows Sandbox içinde)
@@ -249,21 +250,52 @@ def start_server() -> tuple:
     return proc, port
 
 
+# M17.7a: pywebview pencere metinleri (dosya kaydetme penceresi vb.) Türkçe
+WEBVIEW_TEXTS = {"global.quitConfirmation": "Çıkmak istiyor musunuz?", "global.ok": "Tamam", "global.quit": "Çık",
+                 "global.cancel": "Vazgeç", "global.saveFile": "Dosyayı kaydet",
+                 "windows.fileFilter.allFiles": "Tüm dosyalar", "windows.fileFilter.otherFiles": "Diğer dosya türleri"}
+
+
 def window() -> int:
+    """Arayüz WebView2 penceresinde (pywebview). Edge'in --app penceresinden farkı: Windows'taki Microsoft hesabıyla
+    kendiliğinden oturum açmaz, eşitleme ve çeviri sorusu yok (M17.7). Metin seçilebilir; Word indirme "kaydet"
+    penceresiyle; tarayıcı verisi kullanıcı klasöründe (webview/)."""
     import webview
 
+    webview.settings["ALLOW_DOWNLOADS"] = True
     server, port = start_server()
     try:
         if not wait_for_port(port, proc=server):
             error_box("uygulama sunucusu başlamadı")
             return 1
-        log("sunucu hazır; pencere açılıyor")
-        webview.create_window("AuditTrace", f"http://127.0.0.1:{port}", width=1280, height=860)
-        webview.start()
+        log("sunucu hazır; WebView2 penceresi açılıyor")
+        webview.create_window("AuditTrace", f"http://127.0.0.1:{port}", width=1280, height=860, min_size=(1024, 640),
+                              background_color="#F7F5F0", text_select=True, zoomable=True)
+        # Gizli kipte pywebview %TEMP%'te her açılışta yeni klasör açıyor ve her zaman silemiyor; bu yüzden uygulamaya
+        # ait kalıcı klasör (kaldırmada silinir). WebView2 burada da Microsoft hesabına oturum açmaz (denendi).
+        webview.start(gui="edgechromium", private_mode=False, storage_path=str(USER / "webview"),
+                      localization=WEBVIEW_TEXTS)
         log("pencere kapandı")
         return 0
     finally:
         server.terminate()
+
+
+def app_window() -> int:
+    """Varsayılan kip (M17.7a): WebView2 çalışma zamanı varsa kendi pencere, yoksa ya da pencere açılamazsa Edge --app
+    (M3.3: temiz Windows'ta WebView2 olmayabilir; pywebview o zaman boş sayfa gösteren eski motora düşer)."""
+    version = _webview2_version()
+    if version:
+        log(f"WebView2 {version}")
+        try:
+            return window()
+        except Exception:
+            import traceback
+
+            log("WebView2 penceresi açılamadı; Edge penceresine geçiliyor\n" + traceback.format_exc())
+    else:
+        log("WebView2 yok; Edge penceresi")
+    return edge_app()
 
 
 def edge_path():
@@ -318,13 +350,18 @@ def _memory_mb() -> dict:
 def _webview2_version() -> str:
     import winreg
 
-    key = r"SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
-    for hive in (winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER):
+    # Makine geneli kurulum WOW6432Node altında, kullanıcı başına kurulum HKCU'da (M17.7a); boş ya da 0.0.0.0 = yok
+    client = r"Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
+    for hive, key in ((winreg.HKEY_LOCAL_MACHINE, rf"SOFTWARE\WOW6432Node\{client}"),
+                      (winreg.HKEY_CURRENT_USER, rf"SOFTWARE\{client}"),
+                      (winreg.HKEY_CURRENT_USER, rf"SOFTWARE\WOW6432Node\{client}")):
         try:
             with winreg.OpenKey(hive, key) as k:
-                return str(winreg.QueryValueEx(k, "pv")[0])
+                version = str(winreg.QueryValueEx(k, "pv")[0])
         except OSError:
             continue
+        if version and version != "0.0.0.0":
+            return version
     return ""
 
 
@@ -460,7 +497,7 @@ def main() -> int:
         log("ikinci açılış: açık pencere öne getirildi")
         return 0
     try:
-        return edge_app()
+        return app_window()
     except Exception as exc:  # konsolsuz pakette görünmeyen hatalar kullanıcıya söylensin
         import traceback
 

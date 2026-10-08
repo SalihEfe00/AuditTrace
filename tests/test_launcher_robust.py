@@ -76,5 +76,39 @@ class FailureTests(unittest.TestCase):
         self.assertIn('"server_fileWatcherType": "none"', source)
 
 
+class WindowChoiceTests(unittest.TestCase):
+    """M17.7a: WebView2 varsa kendi pencere (Microsoft hesabına oturum açmaz), yoksa ya da açılamazsa Edge --app."""
+
+    def test_webview2_present_uses_own_window(self):
+        with mock.patch.object(launcher, "_webview2_version", return_value="154.0.1"),                 mock.patch.object(launcher, "window", return_value=0) as window,                 mock.patch.object(launcher, "edge_app", return_value=0) as edge:
+            self.assertEqual(launcher.app_window(), 0)
+        window.assert_called_once()
+        edge.assert_not_called()
+
+    def test_no_webview2_uses_edge(self):
+        with mock.patch.object(launcher, "_webview2_version", return_value=""),                 mock.patch.object(launcher, "window") as window,                 mock.patch.object(launcher, "edge_app", return_value=0) as edge:
+            self.assertEqual(launcher.app_window(), 0)
+        window.assert_not_called()
+        edge.assert_called_once()
+
+    def test_window_failure_falls_back_to_edge(self):
+        with mock.patch.object(launcher, "_webview2_version", return_value="154.0.1"),                 mock.patch.object(launcher, "window", side_effect=RuntimeError("WebView2 açılamadı")),                 mock.patch.object(launcher, "edge_app", return_value=0) as edge:
+            self.assertEqual(launcher.app_window(), 0)
+        edge.assert_called_once()
+
+    def test_window_settings(self):
+        source = (ROOT / "packaging" / "launcher.py").read_text(encoding="utf-8")
+        for needle in ('gui="edgechromium"', "text_select=True", 'webview.settings["ALLOW_DOWNLOADS"] = True',
+                       'storage_path=str(USER / "webview")', "return app_window()"):
+            self.assertIn(needle, source)
+        self.assertEqual(launcher.WEBVIEW_TEXTS["windows.fileFilter.allFiles"], "Tüm dosyalar")
+
+    def test_unsigned_webview_files_stay_out_of_the_package(self):
+        spec_text = (ROOT / "packaging" / "audittrace.spec").read_text(encoding="utf-8")
+        self.assertIn('"webview.platforms.edgechromium"', spec_text)
+        for name in ("webbrowserinterop", "pywebview-android", "win-x86", "win-arm64"):
+            self.assertIn(f'"{name}"', spec_text)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -68,4 +68,5 @@ Filename: "{app}\AuditTrace.exe"; Description: "AuditTrace'i şimdi aç"; Flags:
 [UninstallDelete]
 ; Önbellekler silinir; kullanıcının kayıtları (%LOCALAPPDATA%\AuditTrace\data) kalır.
 Type: filesandordirs; Name: "{localappdata}\AuditTrace\edge_profile"
+Type: filesandordirs; Name: "{localappdata}\AuditTrace\webview"
 Type: filesandordirs; Name: "{localappdata}\AuditTrace\logs"

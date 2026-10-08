@@ -5,7 +5,7 @@
 2. models/: kurulu ONNX modelleri (manifest özetleri doğrulanır; torch modelleri girmez).
 3. tesseract/: tesseract.exe, DLL'leri ve tessdata (tur, osd) — taranmış PDF'ler için OCR.
 4. data/: `scripts/build_package_data.py` ile seçilmiş mevzuat kütüphanesi (kullanıcı kayıtları girmez).
-5. Denetim: pakette torch / transformers yok; System32 dışından beklenen her DLL pakette (M3.3: eksik
+5. Denetim ve lisans bildirimi (M17.7b, THIRD_PARTY_NOTICES.txt): pakette torch / transformers yok; System32 dışından beklenen her DLL pakette (M3.3: eksik
    vcruntime140_threads.dll temiz Windows'ta torch'u yükletmemişti); boyut raporu dist/AuditTrace_icerik.json.
 
 6. --installer: Inno Setup ile tek kurulum dosyası (M17.5, `packaging/audittrace.iss`; dist/AuditTrace_Kurulum_<sürüm>).
@@ -65,17 +65,53 @@ def copy_models() -> None:
         shutil.copytree(src, DIST / "models" / src.name, dirs_exist_ok=True)
 
 
+def pe_imports(path: Path) -> list:
+    """PE dosyasının içe aktardığı DLL adları (küçük harf)."""
+    import pefile
+
+    pe = pefile.PE(str(path), fast_load=True)
+    pe.parse_data_directories(directories=[pefile.DIRECTORY_ENTRY["IMAGE_DIRECTORY_ENTRY_IMPORT"]])
+    names = [e.dll.decode("ascii", "ignore").lower() for e in getattr(pe, "DIRECTORY_ENTRY_IMPORT", [])]
+    pe.close()
+    return names
+
+
+def dll_closure(exe: Path) -> list:
+    """`exe`'nin kendi klasöründeki DLL'lerden gerçekten yüklediklerinin kapanışı (M17.7b: Tesseract klasöründeki
+    eğitim araçlarının DLL'leri — glib, pango, cairo, ICU vb., LGPL ağırlıklı, ~47 MB — OCR için gerekmiyor)."""
+    have = {p.name.lower(): p for p in exe.parent.glob("*.dll")}
+    need, todo = set(), [exe]
+    while todo:
+        for name in pe_imports(todo.pop()):
+            if name in have and name not in need:
+                need.add(name)
+                todo.append(have[name])
+    return sorted(have[n].name for n in need)
+
+
 def copy_tesseract(src: Path) -> None:
     target = DIST / "tesseract"
+    if target.exists():  # önceki derlemenin fazla DLL'leri kalmasın
+        shutil.rmtree(target)
     (target / "tessdata").mkdir(parents=True, exist_ok=True)
     shutil.copy2(src / "tesseract.exe", target / "tesseract.exe")
-    for dll in src.glob("*.dll"):
-        shutil.copy2(dll, target / dll.name)
+    for name in dll_closure(src / "tesseract.exe"):
+        shutil.copy2(src / name, target / name)
     for name in TESSDATA:
         shutil.copy2(src / "tessdata" / name, target / "tessdata" / name)
     for lic in ("LICENSE", "doc/LICENSE", "doc/AUTHORS"):
         if (src / lic).is_file():
             shutil.copy2(src / lic, target / Path(lic).name)
+
+
+def third_party_notices() -> dict:
+    """M17.7b: THIRD_PARTY_NOTICES.txt (paket kökünde; kurulum programı da taşır). Ücretli / ticari kısıtlı lisans
+    görülürse derleme durur (packaging/notices.py)."""
+    sys.path.insert(0, str(ROOT / "packaging"))
+    from launcher import _webview2_version
+    from notices import write_notices
+
+    return write_notices(DIST, ROOT / "build" / "audittrace", _webview2_version())
 
 
 def copy_data(src: Path) -> None:
@@ -173,6 +209,7 @@ def main() -> int:
     copy_tesseract(args.tesseract)
     copy_data(args.data)
     print(json.dumps(audit(), ensure_ascii=False, indent=1))
+    print(json.dumps(third_party_notices(), ensure_ascii=False))
     if args.installer:
         print(installer())
     return 0
