@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 """M16.2 AuditTrace görsel kimliği: renkler, yazı tipleri ve Streamlit teması tek yerde.
 
-Fikir "kalem izi": müfettişin çalışma kâğıdına attığı tik işareti ve ona varan iz. Kâğıt zemin, mavi-siyah mürekkep,
-yeşil kalem (birincil işlem), kırmızı kalem yalnızca bulgu ve amblemdeki iz için. Yazı tipleri açık lisanslı (SIL
-OFL): başlıklar Libre Baskerville, metin Libre Franklin (M19.1, uygulamayla gelir), sayılar ve madde atıfları
-Streamlit'in Source Code Pro'su; internetsiz çalışır. Paket başlatıcısı temayı bayrak olarak verir (`theme_flags`), kaynaktan
-çalıştırmada `.streamlit/config.toml` aynı değerleri taşır (tests/test_theme.py ikisini eşit tutar).
+Fikir "kalem izi": müfettişin çalışma kâğıdına attığı tik işareti ve ona varan iz. M19.2 paleti: beyaz sayfa, sıcak
+gri panel, koyu gri mürekkep (metin ve birincil işlem); kırmızı kalem yalnızca bulgu ve amblemdeki iz için. Yazı
+tipleri açık lisanslı (SIL OFL): başlıklar Libre Baskerville, metin Libre Franklin (M19.1, uygulamayla gelir),
+sayılar ve madde atıfları Streamlit'in Source Code Pro'su; internetsiz çalışır. Paket başlatıcısı temayı bayrak
+olarak verir (`theme_flags`), kaynaktan çalıştırmada `.streamlit/config.toml` aynı değerleri taşır
+(tests/test_theme.py ikisini eşit tutar).
 """
 from __future__ import annotations
 
 from mufettis.brand import (  # noqa: F401 (BRAND_DIR, RED_PENCIL dışarıya da)
-    BRAND_DIR, GREEN_INK, INK, INK_MUTED, LINE, PAPER, PAPER_2, RED_PENCIL, STATUS,
+    BRAND_DIR, PRIMARY, INK, INK_MUTED, LINE, PAPER, PAPER_2, RED_PENCIL, STATUS,
 )
 
 
@@ -28,11 +29,11 @@ def theme_flags() -> dict:
     """Streamlit tema ayarları, `bootstrap.load_config_options` bayrak biçiminde (bölüm_ayar)."""
     return {
         "theme_base": "light",
-        "theme_primaryColor": GREEN_INK,
+        "theme_primaryColor": PRIMARY,
         "theme_backgroundColor": PAPER,
         "theme_secondaryBackgroundColor": PAPER_2,
         "theme_textColor": INK,
-        "theme_linkColor": GREEN_INK,
+        "theme_linkColor": PRIMARY,
         "theme_borderColor": LINE,
         "theme_dataframeBorderColor": LINE,
         "theme_dataframeHeaderBackgroundColor": PAPER_2,
@@ -54,9 +55,9 @@ def theme_flags() -> dict:
         "theme_greenColor": STATUS["uygun"][2],
         "theme_greenBackgroundColor": STATUS["uygun"][1],
         "theme_greenTextColor": STATUS["uygun"][0],
-        "theme_blueColor": GREEN_INK,
-        "theme_blueBackgroundColor": "#E4ECEA",
-        "theme_blueTextColor": "#1A4F47",
+        "theme_blueColor": PRIMARY,
+        "theme_blueBackgroundColor": "#EFEEEB",
+        "theme_blueTextColor": "#2B2B2B",
         "theme_grayColor": STATUS["yapilamayan"][2],
         "theme_grayBackgroundColor": STATUS["yapilamayan"][1],
         "theme_grayTextColor": STATUS["yapilamayan"][0],
@@ -95,9 +96,9 @@ h1, h2, h3, h4 {{letter-spacing:-.005em;}}
   vertical-align:top;}}
 [data-testid="stMarkdownContainer"] code {{color:{INK_MUTED}; background:{PAPER_2}; font-size:.85em;}}
 [data-testid="stMarkdownContainer"] mark {{background:#F3DDA8; color:{INK}; padding:0 2px;}}
-details > summary {{color:{GREEN_INK};}}
-[class*="st-key-at-finding"] {{border-left:3px solid {STATUS["bulgu"][2]} !important; background:#FFFDFA;}}
-[class*="st-key-at-manual"] {{border-left:3px solid {STATUS["karar_verilemedi"][2]} !important; background:#FFFDFA;}}
+details > summary {{color:{PRIMARY};}}
+[class*="st-key-at-finding"] {{border-left:3px solid {STATUS["bulgu"][2]} !important; background:{PAPER};}}
+[class*="st-key-at-manual"] {{border-left:3px solid {STATUS["karar_verilemedi"][2]} !important; background:{PAPER};}}
 .at-mark {{font-weight:700; display:inline-block; width:1.1em; text-align:center;}}
 section[data-testid="stSidebar"] {{border-right:1px solid {LINE};}}
 </style>"""

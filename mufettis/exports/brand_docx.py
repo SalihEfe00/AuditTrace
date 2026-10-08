@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """M16.4: Word çalışma kâğıtlarında AuditTrace kimliği — içerik değişmez, yalnız görünüm.
 
-Kapak satırı: amblem + "Audit" (mürekkep) "Trace" (yeşil kalem, italik) + kâğıdın adı, altında ince çizgi.
+Kapak satırı: amblem + "Audit" (mürekkep) "Trace" (mürekkep, italik) + kâğıdın adı, altında ince çizgi.
 Başlıklar Georgia (her Windows'ta var; arayüzdeki Libre Baskerville Word'de olmayabilir), mürekkep rengi. İki sütunlu
 bilgi tablolarında etiket sütunu kâğıt rengi zeminli. Alt bilgi: ad, sürüm, "karar destek çıktısı".
 """
 from __future__ import annotations
 
 from mufettis.config import APP_NAME, APP_VERSION
-from mufettis.brand import BRAND_DIR, GREEN_INK, INK, INK_MUTED, LINE, PAPER_2
+from mufettis.brand import BRAND_DIR, PRIMARY, INK, INK_MUTED, LINE, PAPER_2
 
 HEADING_FONT = "Georgia"
 
@@ -48,7 +48,7 @@ def title_block(doc, title: str) -> None:
     if icon.is_file():
         head.add_run().add_picture(str(icon), width=Inches(0.42))
         head.add_run("  ")
-    for text, color, italic in (("Audit", INK, False), ("Trace", GREEN_INK, True)):
+    for text, color, italic in (("Audit", INK, False), ("Trace", PRIMARY, True)):
         run = head.add_run(text)
         run.font.name, run.font.size, run.bold, run.italic = HEADING_FONT, Pt(20), not italic, italic
         run.font.color.rgb = _rgb(color)

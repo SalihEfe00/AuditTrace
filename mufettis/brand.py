@@ -7,18 +7,20 @@ from pathlib import Path
 
 BRAND_DIR = Path(__file__).resolve().parent / "ui" / "brand"
 
-PAPER = "#F7F5F0"          # zemin
-PAPER_2 = "#EFEBE3"        # ikincil zemin (kenar çubuğu, giriş kutuları, tablo başlığı)
-LINE = "#DDD6C8"           # çizgi ve kenarlık
-INK = "#1E2A32"            # metin, amblem
-INK_MUTED = "#5B6770"      # ikincil metin
-GREEN_INK = "#1F5E55"      # birincil işlem, bağlantı, "Trace"
-RED_PENCIL = "#E0654A"     # amblemdeki iz
+# M19.2 palet "mürekkep, kırmızı yalnız bulguda": beyaz sayfa, sıcak gri panel, koyu gri mürekkep; kırmızı yalnız
+# bulgu durumunda ve amblemdeki izde.
+PAPER = "#FFFFFF"          # zemin
+PAPER_2 = "#F5F4F1"        # ikincil zemin (kenar çubuğu, giriş kutuları, tablo başlığı)
+LINE = "#DCDAD5"           # çizgi ve kenarlık
+INK = "#1A1A1A"            # metin, amblem
+INK_MUTED = "#5E5C57"      # ikincil metin
+PRIMARY = "#1A1A1A"        # birincil işlem, bağlantı, "Trace"
+RED_PENCIL = "#C8102E"     # amblemdeki iz (bulgu kırmızısı)
 
 # Kural sonucu durumları: (metin, zemin, kenar). Metin/zemin karşıtlığı WCAG AA (4,5:1) üstünde (test edilir).
 STATUS = {
-    "bulgu": ("#8E2B21", "#F6E5E1", "#B5382B"),
-    "karar_verilemedi": ("#6E4C10", "#F5ECD8", "#A3741E"),
-    "uygun": ("#245640", "#E3EEE6", "#2F6B52"),
-    "yapilamayan": ("#434C54", "#EAE8E3", "#7A8289"),
+    "bulgu": ("#A30D25", "#FBE6E9", "#C8102E"),
+    "karar_verilemedi": ("#6B5300", "#F7F0D6", "#A88600"),
+    "uygun": ("#2D5A2D", "#E7F0E4", "#3F7A3F"),
+    "yapilamayan": ("#444444", "#EFEEEB", "#8A8A86"),
 }

@@ -36,7 +36,7 @@ class ThemeTests(unittest.TestCase):
     def test_text_contrast(self):
         self.assertGreaterEqual(theme.contrast(theme.INK, theme.PAPER), 7)
         self.assertGreaterEqual(theme.contrast(theme.INK_MUTED, theme.PAPER), 4.5)
-        self.assertGreaterEqual(theme.contrast("#FFFFFF", theme.GREEN_INK), 4.5)
+        self.assertGreaterEqual(theme.contrast("#FFFFFF", theme.PRIMARY), 4.5)
         for kind, (text, bg, edge) in theme.STATUS.items():
             self.assertGreaterEqual(theme.contrast(text, bg), 4.5, kind)
             self.assertGreaterEqual(theme.contrast(edge, theme.PAPER), 3, kind)

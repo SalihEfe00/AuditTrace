@@ -200,7 +200,7 @@ def render_evidence_text_html(text_span: str) -> str:
     escaped_text = html.escape(text_span)
     return (
         f'<div style="background-color: #f8f9fa !important; color: #111827 !important; '
-        f'border: 1px solid #e2e8f0; border-left: 4px solid #0d6efd !important; '
+        f'border: 1px solid #e2e8f0; border-left: 4px solid #5E5C57 !important; '
         f'border-radius: 4px; padding: 0.85rem; margin-top: 0.5rem; margin-bottom: 0.5rem; '
         f'white-space: pre-wrap; font-family: -apple-system, BlinkMacSystemFont, '
         f'\'Segoe UI\', Roboto, sans-serif; font-size: 0.92rem; line-height: 1.6; '

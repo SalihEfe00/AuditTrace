@@ -18,7 +18,7 @@ try:
 except Exception:  # pragma: no cover
     st = None
 
-from mufettis.brand import GREEN_INK, INK, INK_MUTED, LINE, PAPER, PAPER_2, RED_PENCIL, STATUS
+from mufettis.brand import PRIMARY, INK, INK_MUTED, LINE, PAPER, PAPER_2, STATUS
 
 # (anahtar, şeritteki ad, Material simgesi, paneldeki başlık, paneldeki açıklama)
 PAGES: Tuple[Tuple[str, str, str, str, str], ...] = (
@@ -103,7 +103,7 @@ section[data-testid="stSidebar"] {{width:376px !important; min-width:376px !impo
 .st-key-at-rail button[kind="primary"] p {{font-weight:600;}}
 .st-key-at-nav-admin {{margin-top:auto;}}
 .at-panel-brand {{font-family:"Libre Baskerville", Georgia, serif; font-size:15px; color:{INK_MUTED};}}
-.at-panel-brand i {{color:{GREEN_INK};}}
+.at-panel-brand i {{color:{PRIMARY};}}
 .at-panel-title {{font-family:"Libre Baskerville", Georgia, serif; font-weight:600; font-size:21px; line-height:1.25;
   color:{INK}; margin:4px 0 2px;}}
 .at-steps {{margin:14px 0 6px;}}
@@ -112,8 +112,8 @@ section[data-testid="stSidebar"] {{width:376px !important; min-width:376px !impo
 .at-step:last-child::before {{display:none;}}
 .at-step .n {{width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
   font-size:12.5px; font-weight:700; flex:none; background:#fff; border:2px solid {LINE}; color:{INK_MUTED};}}
-.at-step.done .n {{background:{GREEN_INK}; border-color:{GREEN_INK}; color:#fff;}}
-.at-step.current .n {{border-color:{RED_PENCIL}; color:{RED_PENCIL};}}
+.at-step.done .n {{background:{PRIMARY}; border-color:{PRIMARY}; color:#fff;}}
+.at-step.current .n {{border-color:{INK}; color:{INK};}}
 .at-step .t {{font-weight:600; color:{INK}; font-size:14.5px;}}
 .at-step .s {{font-size:12.5px; color:{INK_MUTED};}}
 .at-label {{font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:{INK_MUTED}; margin:6px 0 2px;}}
@@ -129,12 +129,12 @@ section[data-testid="stSidebar"] {{width:376px !important; min-width:376px !impo
   background:{LINE};}}
 .at-legend {{display:flex; flex-wrap:wrap; gap:16px; font-size:13px; color:{INK_MUTED};}}
 .at-legend i {{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px;}}
-[class*="st-key-at-questions"] {{background:{STATUS["karar_verilemedi"][1]} !important; border-color:#E6D3A9 !important;}}
+[class*="st-key-at-questions"] {{background:{STATUS["karar_verilemedi"][1]} !important; border-color:#E2D5A6 !important;}}
 .at-table {{width:100%; border-collapse:separate; border-spacing:0; background:#fff; border:1px solid {LINE};
   border-radius:8px; overflow:hidden; font-size:14px; margin:4px 0 12px;}}
 .at-table th {{text-align:left; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase;
-  color:{INK_MUTED}; font-weight:600; background:{PAPER}; padding:9px 14px; border-bottom:1px solid {LINE};}}
-.at-table td {{padding:10px 14px; border-bottom:1px solid #EEE9DF; vertical-align:top; color:{INK};}}
+  color:{INK_MUTED}; font-weight:600; background:{PAPER_2}; padding:9px 14px; border-bottom:1px solid {LINE};}}
+.at-table td {{padding:10px 14px; border-bottom:1px solid #ECEAE6; vertical-align:top; color:{INK};}}
 .at-table tr:last-child td {{border-bottom:0;}}
 .at-table td.ref {{font-family:"Source Code Pro", monospace; font-size:12px; color:{INK_MUTED};
   border-left:4px solid transparent; white-space:nowrap;}}
