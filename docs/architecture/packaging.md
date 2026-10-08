@@ -306,3 +306,14 @@ Süre ve bellek (`--measure`, aynı makine, `OMP_NUM_THREADS=2`, düşük öncel
 
 ONNX torch kadar hızlı ve yaklaşık 500 MB daha az bellek kullanıyor. Analizler M6.9'a göre (ılık 3,8 sn) belirgin
 yavaş; arka uçtan bağımsız olduğu için M17.3a'da incelenecek.
+
+## M17.4 Başlatıcı sağlamlığı (2026-10-08)
+
+- **Job Object** (`JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`): sunucu alt süreci ve Edge `--app` penceresi başlatıcının
+  işine bağlı. Canlı denemede başlatıcı Görev Yöneticisi'nden zorla kapatıldı; 4 sn içinde kalan sunucu 0, pencere
+  süreci 0.
+- **Tek örnek:** `Local\AuditTrace.tek_ornek` adlı mutex. İkinci çift tıklama 1 sn'de çıkar ve başlığı
+  "AuditTrace" olan açık pencereyi öne getirir; yeni sunucu açılmaz.
+- **Hata kutusu:** sunucu süreci erken kapanırsa 180 sn beklenmez. Türkçe mesaj kutusu çıkar ve günlük dosyasının
+  yolunu gösterir. Beklenmeyen hatalar da aynı kutuyla bildirilir ve iz kaydı günlüğe yazılır.
+- **Streamlit dosya izleyicisi** kapalı (`server_fileWatcherType = none`).

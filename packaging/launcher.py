@@ -89,14 +89,125 @@ def free_port() -> int:
         return s.getsockname()[1]
 
 
-def wait_for_port(port: int, timeout: float = 180.0) -> bool:
+def wait_for_port(port: int, timeout: float = 180.0, proc=None) -> bool:
+    """Port açılana dek bekler; `proc` (sunucu alt süreci) erken kapanırsa beklemeden False (M17.4)."""
     end = time.monotonic() + timeout
     while time.monotonic() < end:
         with socket.socket() as s:
             if s.connect_ex(("127.0.0.1", port)) == 0:
                 return True
+        if proc is not None and proc.poll() is not None:
+            log(f"sunucu alt süreci kapandı (çıkış {proc.returncode})")
+            return False
         time.sleep(0.2)
     return False
+
+
+# --- M17.4: süreç güvenliği, tek örnek ve hata kutusu (yalnız Windows; başka sistemde etkisiz) ---------------------
+
+def kill_on_close_job():
+    """Windows Job Object: başlatıcı kapanınca (çökse ya da Görev Yöneticisi'nden kapatılsa da) içine konan
+    süreçler de kapanır; sunucu öksüz kalıp portu ve belleği tutmaz. Windows dışında None."""
+    if os.name != "nt":
+        return None
+    import ctypes
+    from ctypes import wintypes
+
+    class Basic(ctypes.Structure):
+        _fields_ = [("PerProcessUserTimeLimit", ctypes.c_int64), ("PerJobUserTimeLimit", ctypes.c_int64),
+                    ("LimitFlags", wintypes.DWORD), ("MinimumWorkingSetSize", ctypes.c_size_t),
+                    ("MaximumWorkingSetSize", ctypes.c_size_t), ("ActiveProcessLimit", wintypes.DWORD),
+                    ("Affinity", ctypes.c_size_t), ("PriorityClass", wintypes.DWORD),
+                    ("SchedulingClass", wintypes.DWORD)]
+
+    class Extended(ctypes.Structure):
+        _fields_ = [("BasicLimitInformation", Basic), ("IoInfo", ctypes.c_ulonglong * 6),
+                    ("ProcessMemoryLimit", ctypes.c_size_t), ("JobMemoryLimit", ctypes.c_size_t),
+                    ("PeakProcessMemoryUsed", ctypes.c_size_t), ("PeakJobMemoryUsed", ctypes.c_size_t)]
+
+    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    k32.CreateJobObjectW.restype = wintypes.HANDLE
+    k32.SetInformationJobObject.argtypes = [wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD]
+    k32.CloseHandle.argtypes = [wintypes.HANDLE]
+    job = k32.CreateJobObjectW(None, None)
+    if not job:
+        return None
+    info = Extended()
+    info.BasicLimitInformation.LimitFlags = 0x2000  # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+    if not k32.SetInformationJobObject(job, 9, ctypes.byref(info), ctypes.sizeof(info)):  # 9: genişletilmiş bilgi
+        k32.CloseHandle(job)
+        return None
+    return job
+
+
+def add_to_job(job, proc) -> bool:
+    if not job:
+        return False
+    import ctypes
+    from ctypes import wintypes
+
+    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    k32.AssignProcessToJobObject.argtypes = [wintypes.HANDLE, wintypes.HANDLE]
+    return bool(k32.AssignProcessToJobObject(job, int(proc._handle)))
+
+
+INSTANCE_NAME = "Local\\AuditTrace.tek_ornek"
+_INSTANCE_MUTEX = None  # süreç boyunca açık kalmalı (kapanınca yeni açılış serbest)
+
+
+def first_instance(name: str = INSTANCE_NAME) -> bool:
+    """İlk örnek mi? Değilse açık AuditTrace penceresi öne getirilir (ikinci çift tıklama yeni sunucu açmaz)."""
+    global _INSTANCE_MUTEX
+    if os.name != "nt":
+        return True
+    import ctypes
+    from ctypes import wintypes
+
+    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    k32.CreateMutexW.restype = wintypes.HANDLE
+    _INSTANCE_MUTEX = k32.CreateMutexW(None, False, name)
+    if ctypes.get_last_error() != 183:  # ERROR_ALREADY_EXISTS
+        return True
+    bring_to_front("AuditTrace")
+    return False
+
+
+def bring_to_front(title_prefix: str) -> bool:
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.WinDLL("user32", use_last_error=True)
+    found = []
+
+    @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    def visit(hwnd, _lparam):
+        if user32.IsWindowVisible(hwnd):
+            buf = ctypes.create_unicode_buffer(256)
+            user32.GetWindowTextW(hwnd, buf, 256)
+            if buf.value.startswith(title_prefix):
+                found.append(hwnd)
+                return False
+        return True
+
+    user32.EnumWindows(visit, 0)
+    if found:
+        user32.ShowWindow(found[0], 9)  # SW_RESTORE
+        user32.SetForegroundWindow(found[0])
+    return bool(found)
+
+
+def error_text(reason: str) -> str:
+    return (f"AuditTrace açılamadı: {reason}.\n\nAyrıntılar şu günlük dosyasında:\n{LOG}\n\n"
+            "Bilgisayarı yeniden başlatıp tekrar deneyin. Sorun sürerse bu dosyayı paylaşın.")
+
+
+def error_box(reason: str) -> None:
+    """Kullanıcıya Türkçe hata kutusu (konsolsuz pakette hata başka türlü görünmez); günlüğe de yazılır."""
+    log(f"HATA: {reason}")
+    if os.name == "nt" and not os.environ.get("AUDITTRACE_NO_DIALOG"):
+        import ctypes
+
+        ctypes.WinDLL("user32").MessageBoxW(None, error_text(reason), "AuditTrace", 0x10 | 0x40000)  # hata, en üstte
 
 
 def serve(port: int, open_browser: bool) -> None:
@@ -123,11 +234,19 @@ def serve(port: int, open_browser: bool) -> None:
     bootstrap.run(str(BUNDLE / "app.py"), False, [], flags)
 
 
+_JOB = None
+
+
 def start_server() -> tuple:
-    """Sunucuyu alt süreçte başlatır: (süreç, port)."""
+    """Sunucuyu alt süreçte başlatır: (süreç, port). Süreç başlatıcının Job Object'ine bağlanır (M17.4)."""
+    global _JOB
     port = free_port()
     cmd = [sys.executable, "--serve", str(port)] if FROZEN else [sys.executable, __file__, "--serve", str(port)]
-    return subprocess.Popen(cmd, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)), port
+    proc = subprocess.Popen(cmd, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    _JOB = _JOB or kill_on_close_job()
+    if not add_to_job(_JOB, proc):
+        log("sunucu Job Object'e bağlanamadı (başlatıcı çökerse elle kapatılması gerekebilir)")
+    return proc, port
 
 
 def window() -> int:
@@ -135,8 +254,8 @@ def window() -> int:
 
     server, port = start_server()
     try:
-        if not wait_for_port(port):
-            log("sunucu açılmadı")
+        if not wait_for_port(port, proc=server):
+            error_box("uygulama sunucusu başlamadı")
             return 1
         log("sunucu hazır; pencere açılıyor")
         webview.create_window("AuditTrace", f"http://127.0.0.1:{port}", width=1280, height=860)
@@ -165,13 +284,14 @@ def edge_app() -> int:
         return 0
     server, port = start_server()
     try:
-        if not wait_for_port(port):
-            log("sunucu açılmadı")
+        if not wait_for_port(port, proc=server):
+            error_box("uygulama sunucusu başlamadı")
             return 1
         log("sunucu hazır; Edge uygulama penceresi açılıyor")
         window_proc = subprocess.Popen([
             str(edge), f"--app=http://127.0.0.1:{port}", f"--user-data-dir={USER / 'edge_profile'}",
             "--no-first-run", "--no-default-browser-check", "--window-size=1280,860"])
+        add_to_job(_JOB, window_proc)  # M17.4: başlatıcı ölürse sunucusuz kalan pencere de kapanır (ayrı profil)
         window_proc.wait()
         log("pencere kapandı")
         return 0
@@ -336,7 +456,17 @@ def main() -> int:
             report = {"hata": repr(exc), "iz": traceback.format_exc()}
         Path(args[1]).write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
         return 1 if "hata" in report else 0
-    return edge_app()
+    if not first_instance():
+        log("ikinci açılış: açık pencere öne getirildi")
+        return 0
+    try:
+        return edge_app()
+    except Exception as exc:  # konsolsuz pakette görünmeyen hatalar kullanıcıya söylensin
+        import traceback
+
+        log(traceback.format_exc())
+        error_box(f"beklenmeyen hata ({type(exc).__name__})")
+        return 1
 
 
 if __name__ == "__main__":

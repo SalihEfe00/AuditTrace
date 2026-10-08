@@ -134,3 +134,5 @@ _.forward
 show_progress_bar
 # python-docx Table.autofit yazılan özellik (M16.4: Word'de sütun genişlikleri sabit, mufettis/exports/brand_docx.py).
 _.autofit
+# ctypes yapı alanı; Windows okur (M17.4 Job Object, packaging/launcher.py).
+_.LimitFlags
