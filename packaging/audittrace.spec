@@ -47,9 +47,9 @@ a = Analysis(
               "webview.platforms.qt", "webview.platforms.android", "webview.platforms.cef"],
     noarchive=False,
 )
-# M17.7a: yalnız Windows x64 WebView2 DLL'leri (Microsoft imzalı) kalır; imzasız MSHTML yedeği (WebBrowserInterop),
-# Android dosyası ve x86 / arm64 kopyaları pakete girmez.
-_DROP = ("webbrowserinterop", "pywebview-android", "win-x86", "win-arm64")
+# M17.7a: Microsoft imzalı WebView2 DLL'leri kalır (pywebview üç mimarinin klasörünü de arar); imzasız MSHTML yedeği
+# (WebBrowserInterop) ve Android dosyası pakete girmez.
+_DROP = ("webbrowserinterop", "pywebview-android")
 a.binaries = [b for b in a.binaries if not any(d in b[0].replace("\\", "/").lower() for d in _DROP)]
 a.datas = [d for d in a.datas if not any(x in d[0].replace("\\", "/").lower() for x in _DROP)]
 pyz = PYZ(a.pure)

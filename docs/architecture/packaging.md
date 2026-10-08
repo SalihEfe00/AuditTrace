@@ -391,3 +391,32 @@ M17.3a sonrası paket yeniden derlendi (`--selftest` geçti, kurulum dosyası ye
 Sandbox'ta yeniden ölçüm kullanıcı kararıyla yapılmadı. Sandbox'taki 5–8 kat fark kurulumda da görüldüğü için
 analizin kendisinden değil, sanal disk ve Defender taramasından geliyor; uygulamanın kendi maliyeti yarıdan fazla
 azaldı. Gerçek ofis bilgisayarında ölçüm fırsatı olursa bu tabloya eklenir.
+
+## M17.7: Pencere ve lisans bildirimi
+
+**Bulgu (M16.5d denemesi).** Uygulamanın ayrı Edge profili (`--app` penceresi) ilk açılışta Windows'taki Microsoft
+hesabıyla kendiliğinden oturum açtı ("göz atma verileriniz eşitleniyor") ve sayfa İngilizce göründüğü için çeviri
+sordu. `--inprivate`, `--disable-sync`, `--disable-features=Translate`, profile önceden `signin.allowed=false` yazmak
+ve `--guest` bunu durdurmadı. Deneme profilleri (hesap bilgisi taşıdıkları için) silindi.
+
+**Karar (kullanıcı).** Varsayılan pencere WebView2 (pywebview, `gui="edgechromium"`). WebView2 profilinde hesap yok
+(denendi); veri `%LOCALAPPDATA%\AuditTrace\webview` (kaldırmada silinir; pywebview'in gizli kipi `%TEMP%`'te her
+açılışta yeni klasör bırakıyordu). Metin seçilebilir, Word indirme Türkçe "kaydet" penceresiyle. WebView2 çalışma
+zamanı yoksa (M3.3 temiz Sandbox) ya da pencere açılamazsa eski Edge `--app` yolu.
+
+| Bileşen | Lisans | Not |
+|---|---|---|
+| pywebview 6.2.1 | BSD-3-Clause | zaten kuruluydu; indirme yok |
+| pythonnet 3.2.0, clr_loader 0.3.1 | MIT | |
+| bottle, proxy_tools, cffi, pycparser | MIT / MIT-0 / BSD-3 | |
+| Microsoft.Web.WebView2 DLL'leri | BSD-3 tarzı (Microsoft) | Microsoft imzalı; imzasız MSHTML yedeği pakete girmez |
+
+**Lisans bildirimi.** MIT / BSD / Apache ikili dağıtımda bildirim ister; pakette yoktu. `build.py` artık
+`THIRD_PARTY_NOTICES.txt` yazar: pakete giren Python dağıtımları (PyInstaller TOC + `_internal`; 81 dağıtım, hepsi
+MIT / BSD / Apache / PSF / MPL), Python, WebView2 SDK, Tesseract bileşenleri, modeller, yazı tipleri. Ücretli,
+ticari olmayan, AGPL / SSPL / BUSL ya da istisnasız GPL lisans görülürse derleme durur. Tesseract klasöründen yalnız
+OCR'ın yüklediği 33 DLL kopyalanır (eğitim araçlarının 22 DLL'i, 46,7 MB, çoğu LGPL glib / pango / cairo ve ICU,
+çıkarıldı). Kalan GPL / LGPL bileşenler (libjbig GPL-2+, libiconv / libintl LGPL-2.1+, libunistring / libidn2
+LGPL-3+ ya da GPL-2+) yalnız ayrı program olarak çağrılan Tesseract'ta; AuditTrace koduna bağlanmaz, ücret
+gerektirmez, kaynakları projelerinden ve packages.msys2.org'dan alınabilir. Model kartları Apache-2.0; yeniden
+sıralayıcının temel modeli mMARCO (MS MARCO çevirisi) ile eğitildi, ticari satışta ayrıca değerlendirilmeli.

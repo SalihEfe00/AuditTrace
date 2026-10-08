@@ -106,8 +106,10 @@ class WindowChoiceTests(unittest.TestCase):
     def test_unsigned_webview_files_stay_out_of_the_package(self):
         spec_text = (ROOT / "packaging" / "audittrace.spec").read_text(encoding="utf-8")
         self.assertIn('"webview.platforms.edgechromium"', spec_text)
-        for name in ("webbrowserinterop", "pywebview-android", "win-x86", "win-arm64"):
+        for name in ("webbrowserinterop", "pywebview-android"):
             self.assertIn(f'"{name}"', spec_text)
+        # pywebview win-arm64 / x64 / x86 klasörlerinin hepsini arar; biri eksikse pencere açılmaz (M17.7a)
+        self.assertNotIn('"win-arm64"', spec_text)
 
 
 if __name__ == "__main__":
