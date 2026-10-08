@@ -377,3 +377,17 @@ Değişiklik (sonuç aynı, yalnız okuma yolu):
 Kural ölçümleri değişmedi (müfettiş 557/568, dosya 467/468); `eval_accuracy --check-baseline` tabanı korunuyor
 (29 doğru / 3 yanlış dayanak / 0 yanlış pozitif). Kalan süre çoğunlukla sözcük dizini postings okuması (~6,8 sn,
 profil altında) ve ONNX yeniden sıralayıcı (~4,3 sn); bunlar sonuç değiştirmeden ayrıca ele alınabilir.
+
+## M17.6a: Sandbox'ta analiz süresi (gerekçeli karar)
+
+M17.3a sonrası paket yeniden derlendi (`--selftest` geçti, kurulum dosyası yeniden üretildi) ve bu bilgisayarda
+`--measure` ile ölçüldü:
+
+| | M17.5 paketi | M17.3a paketi |
+|---|---|---|
+| Analiz 1 (soğuk) / 2 (ılık) / 3 | 21 / 16 / 8 sn | 9,7 / 6,7 / 7,4 sn |
+| En yüksek bellek | 1 960 MB | 1 957 MB |
+
+Sandbox'ta yeniden ölçüm kullanıcı kararıyla yapılmadı. Sandbox'taki 5–8 kat fark kurulumda da görüldüğü için
+analizin kendisinden değil, sanal disk ve Defender taramasından geliyor; uygulamanın kendi maliyeti yarıdan fazla
+azaldı. Gerçek ofis bilgisayarında ölçüm fırsatı olursa bu tabloya eklenir.
