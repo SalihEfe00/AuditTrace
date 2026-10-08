@@ -257,7 +257,9 @@ def render_first_steps() -> None:
     with st.container(border=True):
         st.markdown("**Başlamak için belge yükleyin:** tek belge (ör. kefalet sözleşmesi) ya da kredi dosyasının "
                     "bütün belgeleri.")
-        st.markdown("1. **Belgeleri yükleyin** — üstteki alana sürükleyin ya da \"Dosya seç\" ile seçin.\n"
+        from mufettis.ui import layout
+        where = "soldaki paneldeki" if layout.has_slot("upload") else "üstteki"
+        st.markdown(f"1. **Belgeleri yükleyin** — {where} alana sürükleyin ya da \"Dosya seç\" ile seçin.\n"
                     "2. **Sonucu okuyun** — en üstte tek cümlelik durum ve bulgular; belgeden okunamayan bilgiler "
                     "size sorulur, cevabınızla kontrol yenilenir.\n"
                     "3. **Word çalışma kâğıdını indirin** — bulgular, dayanakları ve kanıtlarıyla.")
@@ -357,20 +359,27 @@ def render_analysis_page(
             st.session_state["analysis_presenter"] = AnalysisPresenter()
         presenter = st.session_state["analysis_presenter"]
 
-    # ── Input Area (M15.6: tek giriş) ────────────────────────────────────────
-    st.markdown("### 1. Belge Girişi")
+    # ── Input Area (M15.6: tek giriş; M16.5: kabukta soldaki panelde) ─────────
+    from mufettis.ui import layout
+    in_panel = layout.has_slot("upload")
+    if not in_panel:
+        st.markdown("### 1. Belge Girişi")
     nonce = st.session_state.get("check_upload_nonce", 0)
-    files = st.file_uploader(
-        "Belge yükle (PDF, DOCX, TXT) — kredi dosyasının bütün belgelerini birlikte seçebilirsiniz",
-        type=UPLOAD_TYPES,
-        accept_multiple_files=True,
-        key=f"check_upload_{nonce}",
-    )
+    with layout.slot("upload"):
+        files = st.file_uploader(
+            "Belge yükle (PDF, DOCX, TXT) — kredi dosyasının bütün belgelerini birlikte seçebilirsiniz",
+            type=UPLOAD_TYPES,
+            accept_multiple_files=True,
+            key=f"check_upload_{nonce}",
+            label_visibility="collapsed" if in_panel else "visible",
+        )
     items = _read_uploads(files if isinstance(files, list) else [])
     if not items and st.session_state.get("check_sample"):
         items = sample_items()
-    st.button("Yeni kontrol başlat", key="check_new", on_click=reset_check,
-              help="Yüklenen belgeleri, metni, cevaplarınızı ve sonuçları temizler; ayarlar ve yetki tablosu kalır.")
+    with layout.slot("paste"):
+        st.button("Yeni kontrol başlat", key="check_new", on_click=reset_check,
+                  help="Yüklenen belgeleri, metni, cevaplarınızı ve sonuçları temizler; ayarlar ve yetki tablosu "
+                       "kalır.")
     # Yükleyici metin alanından önce: metin alanının anahtarına yalnızca widget oluşmadan yazılabilir.
     if items:
         upload_id = hashlib.sha256("\n".join(t for _, t, _ in items).encode("utf-8")).hexdigest()
@@ -388,10 +397,11 @@ def render_analysis_page(
                 st.session_state["analysis_ui_upload_info"] = f"{len(items)} belge"
             st.session_state["analysis_exec_result"] = None
         info = st.session_state.get("analysis_ui_upload_info")
-        if info:
+        if info and not in_panel:  # panelde belgeler zaten listeleniyor
             st.caption(f"Yüklenen: {info}.")
 
-    with st.expander("Metni yapıştırarak kontrol (dosya yerine) ve metni düzeltme", expanded=False):
+    with layout.slot("paste"), st.expander("Metni yapıştırarak kontrol (dosya yerine) ve metni düzeltme",
+                                           expanded=False):
         in_col1, in_col2 = st.columns(2)
         doc_title = in_col1.text_input(
             "Belge Başlığı (Opsiyonel)",
@@ -418,6 +428,9 @@ def render_analysis_page(
     elif isinstance(doc_text, str) and doc_text.strip():
         render_collateral_check(doc_text)
     else:
+        layout.show_steps([("current", "Belgeler", "Belge yükleyin ya da örnek dosyayı açın"),
+                           ("todo", "Olay tarihi", "Belgeden okunur"), ("todo", "Sorular", "Belgeden anlaşılamayanlar"),
+                           ("todo", "Çalışma kâğıdı", "Word olarak indir")])
         render_first_steps()
 
     st.divider()

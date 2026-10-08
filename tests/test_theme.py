@@ -35,7 +35,7 @@ class ThemeTests(unittest.TestCase):
     def test_brand_files(self):
         for name in ("mark.svg", "mark_small.svg", "logo.svg", "icon.ico", "favicon.png"):
             self.assertTrue((theme.BRAND_DIR / name).is_file(), name)
-        self.assertIn("<svg", theme.header_html("x"))
+        self.assertIn("<svg", theme.mark_svg(38))
         self.assertIn(theme.RED_PENCIL, theme.mark_svg())
 
 

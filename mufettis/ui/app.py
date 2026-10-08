@@ -185,22 +185,25 @@ UPLOADER_CSS = """<style>
   content: "Dosya seç"; font-size: 14px;}
 section[aria-label^="Belge yükle"] [data-testid="stFileUploaderDropzoneInstructions"] span {font-size: 0;}
 section[aria-label^="Belge yükle"] [data-testid="stFileUploaderDropzoneInstructions"] span::after {
-  content: "Dosyaları buraya sürükleyin ya da seçin · PDF, DOCX, TXT · dosya başına en fazla 200 MB"; font-size: 14px;}
+  content: "Sürükleyin · PDF, DOCX, TXT"; font-size: 13px;}
 </style>"""
 
 
 def run_streamlit() -> None:
     if st is None:
         raise RuntimeError("Streamlit kurulu değil")
-    from mufettis.ui.theme import BRAND_CSS, BRAND_DIR, header_html
+    from mufettis.ui import layout
+    from mufettis.ui.theme import BRAND_CSS, BRAND_DIR
 
-    st.set_page_config(page_title=APP_NAME, page_icon=str(BRAND_DIR / "favicon.png"), layout="wide")
-    # M15.9: başlık bugünkü işi anlatır; sürüm Admin → Mevzuat yönetimi ve sistem bilgisinde.
-    # M16.3: başlık amblem + AuditTrace yazısı; kimlik katmanı (BRAND_CSS) bütün sekmelere uygulanır.
-    st.markdown(BRAND_CSS + UPLOADER_CSS, unsafe_allow_html=True)
-    st.markdown(header_html("Kredi dosyası ve teminat kontrolü · Belgeleri yükleyin; kurallar mevzuata göre kontrol "
-                            "edilir. Sonuçlar karar desteğidir, nihai değerlendirme müfettişe aittir."),
-                unsafe_allow_html=True)
+    st.set_page_config(page_title=APP_NAME, page_icon=str(BRAND_DIR / "favicon.png"), layout="wide",
+                       initial_sidebar_state="expanded")
+    # M16.3: kimlik katmanı (BRAND_CSS) bütün sayfalara uygulanır. M16.5: başlık yerine solda simge şeridi ve panel;
+    # sürüm Admin → Mevzuat yönetimi ve sistem bilgisinde.
+    page = layout.current_page()
+    # Tek <style>: art arda iki blok markdown'da birleşince ikincinin ilk kuralı "</style><style>" ile bozuluyordu.
+    css = "".join(block.replace("<style>", "").replace("</style>", "")
+                  for block in (BRAND_CSS, UPLOADER_CSS, layout.shell_css(page)))
+    st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
     if "analysis" not in st.session_state:
         st.session_state["analysis"] = None
@@ -210,6 +213,21 @@ def run_streamlit() -> None:
     if st.session_state.get("llm_model_choice"):
         set_model(st.session_state["llm_model_choice"])
     with st.sidebar:
+        # M16.5: şerit + sayfaya göre panel. Kontrol sayfasının yükleme, belgeler, olay tarihi ve adımları panelin
+        # yuvalarına yazılır (layout.slot); yuvaların sırası buradaki sıradır.
+        layout.render_rail(page)
+        slots = {}
+        for key, *_ in layout.PAGES:
+            with st.container(key=f"at-panel-{key}"):
+                layout.panel_header(key)
+                if key == "kontrol":
+                    slots["steps"] = st.container()
+                    st.markdown('<div class="at-label">Belgeler</div>', unsafe_allow_html=True)
+                    for name in ("upload", "docs", "date", "paste"):
+                        slots[name] = st.container()
+        layout.set_slots(slots)
+        foot = st.container(key="at-panel-foot")
+    with foot:
         # M15.5: kenar çubuğunda yalnız denetçi adı ve mevzuatın güncelliği; diğer ayarlar Admin → Ayarlar'da.
         auditor = st.text_input("Denetçi adı", value="", key="auditor_name")
         # M6.16: korpusun güncelliği; eskiyse sonuçların hangi tarihteki mevzuata göre olduğu söylenir.
@@ -233,12 +251,8 @@ def run_streamlit() -> None:
     # M15.4: dört ana sekme; Mevzuat Arama, Admin'den önceki son sekme. Eski Veri Analizi / İnceleme / Rapor
     # sekmeleri silinmedi, Admin → Gelişmiş araçlar → İşlem verisi analizi (deneysel) altına taşındı; mevzuat
     # teşhis araçları Admin'de.
-    tab_check, tab_history, tab_search, tab_admin = st.tabs([
-        "1. Kredi Dosyası Kontrolü",
-        "2. İnceleme Geçmişi",
-        "3. Mevzuat Arama",
-        "4. Admin",
-    ])
+    # M16.5: sekmeler yerine dört sayfa kabı; hepsi eskisi gibi çizilir, yalnız seçili olan görünür (layout).
+    tab_check, tab_history, tab_search, tab_admin = (st.container(key=f"at-page-{key}") for key in layout.PAGE_KEYS)
     with tab_admin:
         st.subheader("Admin")
         st.caption(

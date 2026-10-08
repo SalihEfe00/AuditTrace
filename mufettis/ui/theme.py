@@ -69,36 +69,12 @@ def mark_svg(size: int = 40) -> str:
     return body.replace('width="64" height="64"', f'width="{size}" height="{size}" aria-hidden="true"', 1)
 
 
-def header_html(subtitle: str) -> str:
-    """Sayfa başı: amblem + AuditTrace yazısı + işin tek cümlesi (st.title'ın yerine)."""
-    import html
-
-    return (
-        '<div class="at-header">' + mark_svg(44)
-        + '<div><div class="at-wordmark">Audit<i>Trace</i></div>'
-        f'<div class="at-sub">{html.escape(subtitle)}</div></div></div>'
-    )
-
-
-def status_style(kind: str) -> str:
-    """Durum kutusu ve kartı için satır içi stil (sol kenar şeridi, zemin, metin rengi)."""
-    text, bg, edge = STATUS[kind]
-    return f"background:{bg};border-left:3px solid {edge};color:{text}"
-
-
 # Streamlit bileşenlerine kimlik katmanı. Seçiciler Streamlit 1.64'ün data-testid adları; sürüm yükseltmesinde
 # ekran görüntüsüyle denetlenir (M16.3).
 BRAND_CSS = f"""<style>
 [data-testid="stDecoration"] {{display:none;}}
 header[data-testid="stHeader"] {{background:transparent;}}
 .block-container {{padding-top:2.2rem; max-width:1180px;}}
-.at-header {{display:flex; align-items:center; gap:14px; padding:4px 0 18px; margin-bottom:6px;
-  border-bottom:1px solid {LINE};}}
-.at-header svg {{flex:none;}}
-.at-wordmark {{font-family:"Source Serif", Georgia, serif; font-weight:600; font-size:30px; line-height:1;
-  letter-spacing:-.01em; color:{INK};}}
-.at-wordmark i {{font-weight:500; color:{GREEN_INK};}}
-.at-sub {{font-size:14px; color:{INK_MUTED}; margin-top:6px;}}
 h1, h2, h3, h4 {{letter-spacing:-.005em;}}
 [data-testid="stTabs"] [role="tab"] p {{font-size:15px;}}
 [data-testid="stTabs"] [role="tab"][aria-selected="true"] p {{color:{INK}; font-weight:600;}}
@@ -111,10 +87,6 @@ h1, h2, h3, h4 {{letter-spacing:-.005em;}}
 details > summary {{color:{GREEN_INK};}}
 [class*="st-key-at-finding"] {{border-left:3px solid {STATUS["bulgu"][2]} !important; background:#FFFDFA;}}
 [class*="st-key-at-manual"] {{border-left:3px solid {STATUS["karar_verilemedi"][2]} !important; background:#FFFDFA;}}
-.at-tiles {{display:flex; gap:10px; flex-wrap:wrap; margin:4px 0 14px;}}
-.at-tile {{flex:1; min-width:140px; padding:10px 14px; border-radius:4px;}}
-.at-tile .n {{font-family:"Source Serif", Georgia, serif; font-size:28px; font-weight:600; line-height:1.15;}}
-.at-tile .l {{font-size:13px;}}
 .at-mark {{font-weight:700; display:inline-block; width:1.1em; text-align:center;}}
 section[data-testid="stSidebar"] {{border-right:1px solid {LINE};}}
 </style>"""
