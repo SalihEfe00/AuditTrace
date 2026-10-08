@@ -58,5 +58,33 @@ class SpecTests(unittest.TestCase):
             self.assertIn(part, spec)
 
 
+class InstallerScriptTests(unittest.TestCase):
+    """M17.5: kullanıcı başına kurulum; AppId sabit (güncelleme üstüne kurar); kullanıcı verisi silinmez; ısıtma."""
+
+    def setUp(self):
+        self.iss = (ROOT / "packaging" / "audittrace.iss").read_text(encoding="utf-8")
+
+    def test_per_user_without_admin(self):
+        self.assertIn("PrivilegesRequired=lowest", self.iss)
+        self.assertIn(r"DefaultDirName={autopf}\{#AppName}", self.iss)
+
+    def test_app_id_is_fixed(self):
+        self.assertIn("AppId={{E92EE63D-AAEC-41D8-98DB-AE008C9663B4}", self.iss)
+
+    def test_user_data_survives_update_and_uninstall(self):
+        deleting = [line for line in self.iss.splitlines() if line.startswith("Type: filesandordirs")]
+        self.assertTrue(deleting)
+        for line in deleting:
+            self.assertNotIn(r"AuditTrace\data", line)
+            self.assertTrue(r"{app}" in line or r"{localappdata}\AuditTrace\edge_profile" in line
+                            or r"{localappdata}\AuditTrace\logs" in line, line)
+
+    def test_warm_up_and_shortcuts(self):
+        self.assertIn("--selftest", self.iss)
+        self.assertIn(r"{autoprograms}\{#AppName}", self.iss)
+        self.assertIn(r"{autodesktop}\{#AppName}", self.iss)
+        self.assertIn("Turkish.isl", self.iss)
+
+
 if __name__ == "__main__":
     unittest.main()

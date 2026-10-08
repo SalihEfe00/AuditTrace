@@ -317,3 +317,20 @@ yavaş; arka uçtan bağımsız olduğu için M17.3a'da incelenecek.
 - **Hata kutusu:** sunucu süreci erken kapanırsa 180 sn beklenmez. Türkçe mesaj kutusu çıkar ve günlük dosyasının
   yolunu gösterir. Beklenmeyen hatalar da aynı kutuyla bildirilir ve iz kaydı günlüğe yazılır.
 - **Streamlit dosya izleyicisi** kapalı (`server_fileWatcherType = none`).
+
+## M17.5 Kurulum programı (2026-10-08)
+
+- **Araç:** Inno Setup 6.7.3, resmî sürüm, kullanıcı başına kuruldu. SHA-256 değeri winget kaydıyla aynı, imza
+  geçerli (Pyrsys B.V.; jrsoftware.org yayıncı adını böyle veriyor), Defender temiz.
+- **Derleme:** `python packaging/build.py --data <veri> --installer`; yalnız kurulum için `--installer-only`.
+  Betik `packaging/audittrace.iss`.
+- **Çıktı:** tek dosya `dist/AuditTrace_Kurulum_<sürüm>.exe`, 1,16 GB (2,48 GB'lık paket lzma2/normal, 2 iş
+  parçacığıyla sıkıştırıldı; işlemci en çok 82 °C).
+- **Kurulum:** Türkçe, yönetici yetkisi gerekmez, `%LOCALAPPDATA%\Programs\AuditTrace`. Başlat menüsü kısayolu
+  açılır; masaüstü kısayolu isteğe bağlıdır. Kurulumun sonunda `--selftest` ile ısıtma yapılır (Defender taraması
+  ilk açılışa kalmaz).
+- **Güncelleme:** AppId sabit olduğu için yeni sürüm eskinin üzerine kurulur. Eski `_internal`, `models`, `data` ve
+  `tesseract` klasörleri silinir; kullanıcının `%LOCALAPPDATA%\AuditTrace` klasörüne dokunulmaz.
+- **Kaldırma:** program, kısayollar, Edge profili ve günlükler silinir. Kullanıcının kayıtları kalır.
+- **Deneme (bu bilgisayar):** sessiz kurulum 97 sn sürdü. Isıtma öz-testinde 13 kural sonucu doğru çıktı, sıralayıcı
+  ONNX, OCR doğru. Kaldırma 3 sn sürdü; program klasörü, kısayol ve kaldırma kaydı kalmadı.

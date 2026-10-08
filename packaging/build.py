@@ -8,7 +8,10 @@
 5. Denetim: pakette torch / transformers yok; System32 dışından beklenen her DLL pakette (M3.3: eksik
    vcruntime140_threads.dll temiz Windows'ta torch'u yükletmemişti); boyut raporu dist/AuditTrace_icerik.json.
 
+6. --installer: Inno Setup ile tek kurulum dosyası (M17.5, `packaging/audittrace.iss`; dist/AuditTrace_Kurulum_<sürüm>).
+
 Kullanım: python packaging/build.py --data <veri dizini> [--tesseract C:\\mufettis_ai] [--skip-pyinstaller]
+          [--installer] | python packaging/build.py --installer-only
 """
 from __future__ import annotations
 
@@ -128,19 +131,50 @@ def system_dll(name: str) -> bool:
     return (Path(r"C:\Windows\System32") / name).is_file()
 
 
+def iscc_path() -> Path:
+    """Inno Setup derleyicisi (kullanıcı başına ya da sistem kurulumu)."""
+    import os
+
+    bases = (Path(os.environ.get("LOCALAPPDATA", ".")) / "Programs", Path(os.environ.get("ProgramFiles(x86)", ".")),
+             Path(os.environ.get("ProgramFiles", ".")))
+    for base in bases:
+        if (base / "Inno Setup 6" / "ISCC.exe").is_file():
+            return base / "Inno Setup 6" / "ISCC.exe"
+    raise SystemExit("Inno Setup 6 bulunamadı (https://jrsoftware.org/isdl.php)")
+
+
+def installer() -> Path:
+    from mufettis.config import APP_VERSION
+
+    if not (DIST / "AuditTrace.exe").is_file():
+        raise SystemExit("önce paket derlenmeli: dist/AuditTrace yok")
+    subprocess.run([str(iscc_path()), f"/DAppVersion={APP_VERSION}", "/Qp", str(ROOT / "packaging" / "audittrace.iss")],
+                   check=True, cwd=ROOT / "packaging")
+    return DIST.parent / f"AuditTrace_Kurulum_{APP_VERSION}.exe"
+
+
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data", type=Path, required=True)
+    parser.add_argument("--data", type=Path)
     parser.add_argument("--tesseract", type=Path, default=Path(r"C:\mufettis_ai"))
     parser.add_argument("--skip-pyinstaller", action="store_true")
+    parser.add_argument("--installer", action="store_true")
+    parser.add_argument("--installer-only", action="store_true")
     args = parser.parse_args()
+    if args.installer_only:
+        print(installer())
+        return 0
+    if args.data is None:
+        parser.error("--data gerekli")
     if not args.skip_pyinstaller:
         pyinstaller()
     copy_models()
     copy_tesseract(args.tesseract)
     copy_data(args.data)
     print(json.dumps(audit(), ensure_ascii=False, indent=1))
+    if args.installer:
+        print(installer())
     return 0
 
 
