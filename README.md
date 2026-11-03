@@ -1,5 +1,7 @@
 # AuditTrace
 
+[![CI](https://github.com/SalihEfe00/AuditTrace/actions/workflows/ci.yml/badge.svg)](https://github.com/SalihEfe00/AuditTrace/actions/workflows/ci.yml)
+
 Banka şubesi kredi dosyaları ve teminat belgeleri için kurallı kontrol aracı. Belgeleri okur, belirlenimci
 kurallarla denetler ve her bulguyu ölçüt, belgeden alıntılanan kanıt ve öneriyle verir. Tamamen yerel çalışır;
 belgeler bilgisayardan çıkmaz.
