@@ -20,7 +20,7 @@ RAG_LAB_DIR = DATA_DIR / "rag_lab"
 RAG_LAB_BASELINE_FILE = RAG_LAB_DIR / "retrieval_baseline.json"
 
 
-class TestFaz11BRetrievalQualityGate(unittest.TestCase):
+class TestRetrievalQualityGate(unittest.TestCase):
     def setUp(self):
         self.policy = RetrievalGatePolicy()
         self.dummy_base = {

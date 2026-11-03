@@ -131,7 +131,7 @@ def _make_verification_result(
     )
 
 
-class TestFaz16ControlledAutomationUnit(unittest.TestCase):
+class TestControlledAutomationUnit(unittest.TestCase):
     """Deterministic unit tests for Controlled Automation Orchestrator."""
 
     def setUp(self):
@@ -877,7 +877,7 @@ class TestFaz16ControlledAutomationUnit(unittest.TestCase):
 
 @unittest.skipUnless((DATA_DIR / "rag_lab" / "chroma").exists(),
                      "RAG laboratuvarı korpusu yok (data/rag_lab; depoda bulunmaz)")
-class TestFaz16IsolatedRagLabAutomation(unittest.TestCase):
+class TestRagLabAutomation(unittest.TestCase):
     """Integration tests running on an isolated sandbox copy of the RAG Lab corpus."""
 
     @classmethod

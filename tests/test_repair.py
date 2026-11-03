@@ -417,7 +417,7 @@ class TestRepairInfrastructure(unittest.TestCase):
         self.assertIn('"scanned_documents": 1', json_str)
 
 
-class TestFaz10VerifiedCandidateExtraction(unittest.TestCase):
+class TestVerifiedCandidateExtraction(unittest.TestCase):
     """Müfettiş AI - FAZ 10 Verified Source Candidate Extraction Test Suite."""
 
     def setUp(self):
@@ -663,7 +663,7 @@ class TestFaz10VerifiedCandidateExtraction(unittest.TestCase):
         self.assertEqual(cand.source_sha256, h)
 
 
-class TestFaz11AQualityGateCore(unittest.TestCase):
+class TestQualityGateCore(unittest.TestCase):
     """Müfettiş AI - FAZ 11A Quality Gate Core / RAG-Independent Comparison Test Suite."""
 
     def setUp(self):

@@ -247,7 +247,7 @@ class MockIsolatedRAG:
 # FAZ 18 Comprehensive Validation Tests
 # ---------------------------------------------------------------------------
 
-class TestFAZ18Validation(unittest.TestCase):
+class TestRepairPipelineRegression(unittest.TestCase):
     """FAZ 18: Regression, E2E ve Production-Safety Validation Suite."""
 
     def setUp(self):

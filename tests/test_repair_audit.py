@@ -46,7 +46,7 @@ _SAMPLE_HASH = "c" * 64
 _SAMPLE_DOC_ID = "doc_audit_test"
 
 
-class TestFaz15RepairAudit(unittest.TestCase):
+class TestRepairAudit(unittest.TestCase):
     def setUp(self):
         self.temp_dir = Path(tempfile.mkdtemp(prefix="faz15_audit_test_"))
         self.test_log_file = self.temp_dir / "audit" / "repair_audit.jsonl"
