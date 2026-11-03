@@ -323,12 +323,14 @@ class TestGluedTokenResolution(unittest.TestCase):
     def test_i_zero_production_writes_during_unit_tests(self):
         """Test I: Confirms test operations do not mutate production audit, store, or cache."""
         audit_file = (DATA_DIR / "audit/repair_audit.jsonl")
-        self.assertTrue(audit_file.exists())
+        # Denetim kaydı yoksa (temiz kurulum) işlem onu oluşturmamalı; varsa boyutu değişmemeli
+        def size():
+            return audit_file.stat().st_size if audit_file.exists() else None
         # Check that importing and testing glued resolution did not append any live events
-        before_size = audit_file.stat().st_size
+        before_size = size()
         _ = _is_true_glued_token("kimliksizleştirildiğinde")
         _ = _is_true_glued_token("Kurumunpaylaşımöncesindeuygungörüşününalınmışolması")
-        after_size = audit_file.stat().st_size
+        after_size = size()
         self.assertEqual(before_size, after_size, "Audit log size must not change during inspection.")
 
 

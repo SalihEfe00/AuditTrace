@@ -131,6 +131,7 @@ class TestMixedPdfPages(unittest.TestCase):
         self.assertFalse(used)
 
 
+@unittest.skipUnless(ocr.available(), "Tesseract (Türkçe dil paketiyle) kurulu değil")
 class TestRealOcr(unittest.TestCase):
     def test_rendered_text_page_is_read(self):
         import pypdfium2 as pdfium

@@ -350,15 +350,18 @@ class TestAnalysisUI(unittest.TestCase):
         idx_p = (DATA_DIR / "ingest_index.json")
         aud_p = (DATA_DIR / "audit/repair_audit.jsonl")
 
-        idx_hash_before = hashlib.sha256(idx_p.read_bytes()).hexdigest()
-        aud_hash_before = hashlib.sha256(aud_p.read_bytes()).hexdigest()
+        def digest(path):  # dosya yoksa (temiz kurulum) None: arayüz onu oluşturmamalı
+            return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
+
+        idx_hash_before = digest(idx_p)
+        aud_hash_before = digest(aud_p)
 
         # Run multiple presenter executions
         self.presenter.execute_analysis(text=SAMPLE_COMPLAINT_TEXT, sample_evidence=[self.mock_fee_evidence])
         self.presenter.execute_analysis(text=SAMPLE_INTERNAL_TEXT, sample_evidence=[self.mock_credit_evidence])
 
-        idx_hash_after = hashlib.sha256(idx_p.read_bytes()).hexdigest()
-        aud_hash_after = hashlib.sha256(aud_p.read_bytes()).hexdigest()
+        idx_hash_after = digest(idx_p)
+        aud_hash_after = digest(aud_p)
 
         self.assertEqual(idx_hash_before, idx_hash_after)
         self.assertEqual(aud_hash_before, aud_hash_after)

@@ -18,6 +18,8 @@ RAG_LAB_INDEX_FILE = RAG_LAB_DIR / "ingest_index.json"
 RAG_LAB_BASELINE_FILE = RAG_LAB_DIR / "retrieval_baseline.json"
 
 
+@unittest.skipUnless(RAG_LAB_CHROMA.exists() and RAG_LAB_FIXTURES.exists(),
+                     "RAG laboratuvarı korpusu yok (data/rag_lab; depoda bulunmaz)")
 class TestFaz11BRagLabCorpus(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

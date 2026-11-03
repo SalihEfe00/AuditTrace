@@ -875,6 +875,8 @@ class TestFaz16ControlledAutomationUnit(unittest.TestCase):
         self.assertEqual(d_blocked.classification, "BLOCKED")
 
 
+@unittest.skipUnless((DATA_DIR / "rag_lab" / "chroma").exists(),
+                     "RAG laboratuvarı korpusu yok (data/rag_lab; depoda bulunmaz)")
 class TestFaz16IsolatedRagLabAutomation(unittest.TestCase):
     """Integration tests running on an isolated sandbox copy of the RAG Lab corpus."""
 

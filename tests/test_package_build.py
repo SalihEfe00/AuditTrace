@@ -2,6 +2,7 @@
 """M17.3: paket betikleri — veri seçimi kullanıcı kayıtlarını almaz; DLL denetimi VC++ çalışma zamanını hazır saymaz;
 spec torch ailesini dışarıda bırakır, kural kataloğu ve örnek dosyayı içeri alır."""
 import importlib.util
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -43,6 +44,7 @@ class DllAuditTests(unittest.TestCase):
         for name in ("vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll", "vcomp140.dll"):
             self.assertFalse(package.system_dll(name), name)
 
+    @unittest.skipUnless(sys.platform == "win32", "System32 DLL'leri yalnızca Windows'ta var")
     def test_api_sets_and_core_dlls_are_present(self):
         self.assertTrue(package.system_dll("api-ms-win-crt-runtime-l1-1-0.dll"))
         self.assertTrue(package.system_dll("kernel32.dll"))

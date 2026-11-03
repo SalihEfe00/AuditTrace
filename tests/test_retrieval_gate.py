@@ -300,6 +300,7 @@ class TestFaz11BRetrievalQualityGate(unittest.TestCase):
         self.assertEqual(final.final_status, ComparisonStatus.READY_TO_COMMIT.value)
 
     # 21. Real mini-RAG benchmark validation against data/rag_lab/retrieval_baseline.json
+    @unittest.skipUnless(RAG_LAB_BASELINE_FILE.exists(), "RAG laboratuvarı tabanı yok (data/rag_lab; depoda bulunmaz)")
     def test_21_real_mini_rag_baseline_comparison(self):
         self.assertTrue(RAG_LAB_BASELINE_FILE.exists())
         base_data = json.loads(RAG_LAB_BASELINE_FILE.read_text(encoding="utf-8"))
