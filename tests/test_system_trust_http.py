@@ -4,7 +4,7 @@ Aşama D1: resmî kaynaklara HTTPS erişimi işletim sistemi güven deposuyla ya
 
 BDDK ve Resmî Gazete ara sertifikayı göndermediği için certifi ile doğrulama
 başarısız oluyordu. Bu testler ağ gerektirmez; canlı doğrulama
-MUFETTIS_LIVE_TESTS=1 ile tests/test_faz19_live_pilot.py üzerinden yapılır.
+MUFETTIS_LIVE_TESTS=1 ile tests/test_live_ingestion_pilot.py üzerinden yapılır.
 """
 from __future__ import annotations
 

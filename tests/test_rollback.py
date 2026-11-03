@@ -3,8 +3,8 @@
 FAZ 14: Ultimate Safe Rollback / State Restoration / Recovery Gate — Test Suite.
 
 Two test classes:
-  TestFaz14RollbackUnit           — 26 unit tests (mock/filesystem, fast, deterministic)
-  TestFaz14IsolatedRagLabRollback — 6 live integration tests on isolated RAG Lab sandbox
+  TestRollbackUnit           — 26 unit tests (mock/filesystem, fast, deterministic)
+  TestRagLabRollback — 6 live integration tests on isolated RAG Lab sandbox
                                     including full E2E BEFORE -> COMMIT -> FAILURE -> ROLLBACK -> RESTORED
 
 Zero production mutation.
@@ -83,7 +83,7 @@ def _make_candidate(
 # CLASS 1 — Unit Tests (mock/ephemeral filesystem)
 # ============================================================================
 
-class TestFaz14RollbackUnit(unittest.TestCase):
+class TestRollbackUnit(unittest.TestCase):
     def setUp(self):
         self.temp_dir = Path(tempfile.mkdtemp(prefix="faz14_unit_"))
         self.staging_base = self.temp_dir / "repair_staging"
@@ -600,7 +600,7 @@ class TestFaz14RollbackUnit(unittest.TestCase):
 # CLASS 2 — Isolated RAG Lab Integration Tests (Real Chroma Sandbox)
 # ============================================================================
 
-class TestFaz14IsolatedRagLabRollback(unittest.TestCase):
+class TestRagLabRollback(unittest.TestCase):
     """
     Live integration tests on an isolated sandbox copy of data/rag_lab.
 

@@ -45,7 +45,7 @@ LIVE_TESTS_ENABLED = os.environ.get("MUFETTIS_LIVE_TESTS", "").strip() == "1"
     LIVE_TESTS_ENABLED,
     "Canlı ağ testi: çalıştırmak için MUFETTIS_LIVE_TESTS=1 ayarlayın.",
 )
-class TestFaz19LivePilot(unittest.TestCase):
+class TestLiveIngestionPilot(unittest.TestCase):
     """End-to-end controlled pilot tests for FAZ 19 live web ingestion and operations."""
 
     @classmethod
@@ -78,7 +78,7 @@ class TestFaz19LivePilot(unittest.TestCase):
         cls.extracted_text = re.sub(r"\n\s*\n", "\n", soup.get_text(separator="\n")).strip()
 
     def setUp(self):
-        self.temp_dir = tempfile.mkdtemp(prefix="faz19_live_pilot_")
+        self.temp_dir = tempfile.mkdtemp(prefix="live_ingestion_pilot_")
         self.temp_path = Path(self.temp_dir)
         self.index_file = self.temp_path / "ingest_index.json"
         self.audit_file = self.temp_path / "repair_audit.jsonl"

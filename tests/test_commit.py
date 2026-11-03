@@ -24,7 +24,7 @@ from repair.models import (
 )
 
 
-class TestFaz12SafeCommit(unittest.TestCase):
+class TestSafeCommit(unittest.TestCase):
     def setUp(self):
         self.temp_dir = Path(tempfile.mkdtemp(prefix="mufettis_commit_test_"))
         self.staging_dir = self.temp_dir / "staging"
@@ -480,7 +480,7 @@ class TestFaz12SafeCommit(unittest.TestCase):
         self.assertEqual(manifest.final_decision, ComparisonStatus.READY_TO_COMMIT.value)
 
 
-class TestFaz12IsolatedRagLabCommitHarness(unittest.TestCase):
+class TestRagLabCommitHarness(unittest.TestCase):
     """FAZ 12 Hardened Isolated Test Harness for RAG Lab & Safe Commit.
 
     Guarantees:

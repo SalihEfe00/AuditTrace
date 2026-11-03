@@ -3,8 +3,8 @@
 FAZ 13: Post-Repair Verification — Test Suite.
 
 Two test classes:
-  TestFaz13VerificationUnit      — 24 unit tests (mock-based, fast, deterministic)
-  TestFaz13IsolatedRagLabVerify  — 6 live harness tests against RAG Lab sandbox
+  TestVerificationUnit      — 24 unit tests (mock-based, fast, deterministic)
+  TestRagLabVerification  — 6 live harness tests against RAG Lab sandbox
                                    (BM-01..BM-10 baseline loaded once via setUpClass)
 
 Production mutation = 0.
@@ -117,7 +117,7 @@ def _mock_rag_with_chunks(
 # CLASS 1 — Unit Tests (mock-based, fast, deterministic)
 # ============================================================================
 
-class TestFaz13VerificationUnit(unittest.TestCase):
+class TestVerificationUnit(unittest.TestCase):
 
     def setUp(self):
         self.temp_dir = Path(tempfile.mkdtemp(prefix="faz13_unit_"))
@@ -575,7 +575,7 @@ class TestFaz13VerificationUnit(unittest.TestCase):
 # CLASS 2 — Live RAG Lab Harness Tests (real Chroma, BM-01..BM-10 once)
 # ============================================================================
 
-class TestFaz13IsolatedRagLabVerify(unittest.TestCase):
+class TestRagLabVerification(unittest.TestCase):
     """
     Integration tests against a temporary isolated copy of data/rag_lab.
 
