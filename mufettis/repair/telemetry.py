@@ -19,8 +19,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
 from mufettis.rag.index import IngestIndex
-from repair.audit import read_all_events
-from repair.models import AuditEvent, AuditEventType
+from mufettis.repair.audit import read_all_events
+from mufettis.repair.models import AuditEvent, AuditEventType
 
 logger = logging.getLogger(__name__)
 

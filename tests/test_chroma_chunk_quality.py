@@ -19,15 +19,15 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from mufettis.config import CHUNK_SCHEMA_VERSION
-from repair.classifier import classify_document
-from repair.comparator import build_snapshot, compare_quality
-from repair.models import (
+from mufettis.repair.classifier import classify_document
+from mufettis.repair.comparator import build_snapshot, compare_quality
+from mufettis.repair.models import (
     ClassificationType,
     ComparisonStatus,
     ExtractionCandidate,
     IssueCode,
 )
-from repair.scanner import scan_document
+from mufettis.repair.scanner import scan_document
 
 GLUED_SAMPLE_TOKEN = "bankadenetimvegozetimusulveesaslari"  # >= 24 alpha chars
 
@@ -63,7 +63,7 @@ class TestChromaChunkQualityLayer(unittest.TestCase):
         mock_rag.collection = mock_collection
         return mock_rag
 
-    @patch("repair.scanner.load_source_cache")
+    @patch("mufettis.repair.scanner.load_source_cache")
     def test_a_cache_clean_chroma_glued(self, mock_load_cache):
         """Test A: Cache clean + Chroma glued -> classified as REVIEW with CHROMA_GLUED_TEXT."""
         mock_load_cache.return_value = "Bu tamamen temiz bir mevzuat metnidir. Hicbir yapisik kelime yoktur."
@@ -84,7 +84,7 @@ class TestChromaChunkQualityLayer(unittest.TestCase):
         classification = classify_document(result)
         self.assertEqual(classification.classification, ClassificationType.REVIEW.value)
 
-    @patch("repair.scanner.load_source_cache")
+    @patch("mufettis.repair.scanner.load_source_cache")
     def test_b_cache_clean_chroma_mojibake(self, mock_load_cache):
         """Test B: Cache clean + Chroma mojibake -> classified as REVIEW with CHROMA_MOJIBAKE."""
         mock_load_cache.return_value = "Temiz metin örneği. Türkiye Bankalar Birliği düzenlemesi."
@@ -105,7 +105,7 @@ class TestChromaChunkQualityLayer(unittest.TestCase):
         classification = classify_document(result)
         self.assertEqual(classification.classification, ClassificationType.REVIEW.value)
 
-    @patch("repair.scanner.load_source_cache")
+    @patch("mufettis.repair.scanner.load_source_cache")
     def test_c_cache_clean_chroma_clean(self, mock_load_cache):
         """Test C: Cache clean + Chroma clean -> classified as SAFE."""
         clean_text = "MADDE 1 - (1) Bu Yönetmeliğin amacı bankaların iç denetim sistemlerini düzenlemektir."
@@ -126,7 +126,7 @@ class TestChromaChunkQualityLayer(unittest.TestCase):
         classification = classify_document(result)
         self.assertEqual(classification.classification, ClassificationType.SAFE.value)
 
-    @patch("repair.scanner.load_source_cache")
+    @patch("mufettis.repair.scanner.load_source_cache")
     def test_d_cache_corrupt_chroma_clean(self, mock_load_cache):
         """Test D: Cache corrupt + Chroma clean -> retains QUALITY_GLUED_TEXT detection."""
         corrupt_cache = f"MADDE 1 - {GLUED_SAMPLE_TOKEN} cercevesinde yapilacaktir."
@@ -146,7 +146,7 @@ class TestChromaChunkQualityLayer(unittest.TestCase):
         classification = classify_document(result)
         self.assertEqual(classification.classification, ClassificationType.REVIEW.value)
 
-    @patch("repair.scanner.load_source_cache")
+    @patch("mufettis.repair.scanner.load_source_cache")
     def test_e_mixed_corruption(self, mock_load_cache):
         """Test E: Mixed corruption (cache mojibake + chroma glued) -> both recorded."""
         cache_mojibake = "TÃ¼rkiye Ä± ÅŸ â€“ Denetim ve Gözetim Raporu."
@@ -166,7 +166,7 @@ class TestChromaChunkQualityLayer(unittest.TestCase):
         classification = classify_document(result)
         self.assertEqual(classification.classification, ClassificationType.REVIEW.value)
 
-    @patch("repair.scanner.load_source_cache")
+    @patch("mufettis.repair.scanner.load_source_cache")
     def test_f_source_hash_identity_fallback(self, mock_load_cache):
         """Test F: Chroma metadata fallback from file_hash to source_hash."""
         mock_load_cache.return_value = "Temiz mevzuat metni."
@@ -218,7 +218,7 @@ class TestChromaChunkQualityLayer(unittest.TestCase):
             self.assertNotEqual(res.quality_status, "chroma_glued_text")
             self.assertNotEqual(res.quality_status, "chroma_mojibake")
 
-    @patch("repair.scanner.load_source_cache")
+    @patch("mufettis.repair.scanner.load_source_cache")
     def test_h_zero_production_write(self, mock_load_cache):
         """Test H: Scanning with Chroma layer performs zero writes to collection or index."""
         mock_load_cache.return_value = "Temiz metin."
@@ -236,7 +236,7 @@ class TestChromaChunkQualityLayer(unittest.TestCase):
         self.assertFalse(rag.collection.delete.called)
         self.assertFalse(rag.collection.update.called)
 
-    @patch("repair.scanner.load_source_cache")
+    @patch("mufettis.repair.scanner.load_source_cache")
     def test_i_comparator_snapshot_reflects_chroma_degradation(self, mock_load_cache):
         """Test I: build_snapshot and compare_quality recognize Chroma glued text improvement."""
         mock_load_cache.return_value = "Temiz metin."

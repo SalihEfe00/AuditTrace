@@ -22,8 +22,8 @@ from mufettis.config import QUARANTINE_CACHE_DIR, QUARANTINE_MAX_PAYLOAD_MB
 from mufettis.common.utils import now_iso, sha256_bytes
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.engine import LocalRAG
-from repair.models import AuditEventType
-from repair.audit import RepairAuditLogger, get_audit_logger
+from mufettis.repair.models import AuditEventType
+from mufettis.repair.audit import RepairAuditLogger, get_audit_logger
 
 logger = logging.getLogger(__name__)
 

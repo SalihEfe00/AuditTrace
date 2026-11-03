@@ -29,7 +29,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from mufettis.config import APP_VERSION, DATA_DIR
 from mufettis.common.utils import now_iso, safe_json
-from repair.models import (
+from mufettis.repair.models import (
     AuditEvent,
     AuditEventType,
     RepairLifecycleSummary,

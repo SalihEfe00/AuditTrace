@@ -5,20 +5,20 @@ Package Initialization.
 """
 from __future__ import annotations
 
-from repair.classifier import classify_document
-from repair.comparator import (
+from mufettis.repair.classifier import classify_document
+from mufettis.repair.comparator import (
     QualityGatePolicy,
     build_snapshot,
     calculate_metric_deltas,
     compare_quality,
 )
-from repair.extractor import (
+from mufettis.repair.extractor import (
     CANONICAL_FALLBACK_CHAIN,
     create_repair_plan,
     extract_candidate,
     validate_source,
 )
-from repair.models import (
+from mufettis.repair.models import (
     ClassificationResult,
     ClassificationType,
     ComparisonResult,
@@ -41,7 +41,7 @@ from repair.models import (
     StagingManifest,
     CommitResult,
 )
-from repair.committer import (
+from mufettis.repair.committer import (
     CommitPolicy,
     atomic_commit_source_cache,
     cleanup_same_hash_chroma,
@@ -50,13 +50,13 @@ from repair.committer import (
     upsert_candidate_chroma,
     validate_pre_commit,
 )
-from repair.retrieval_comparator import (
+from mufettis.repair.retrieval_comparator import (
     RetrievalGatePolicy,
     compare_retrieval,
     evaluate_final_gate,
     evaluate_single_benchmark,
 )
-from repair.scanner import scan_document, scan_production
+from mufettis.repair.scanner import scan_document, scan_production
 
 __all__ = [
     # Enums & Constants
@@ -117,8 +117,8 @@ __all__ = [
     "AutomationCycleSummary",
 ]
 
-from repair.orchestrator import ControlledAutomationOrchestrator, ApprovalManager
-from repair.models import (
+from mufettis.repair.orchestrator import ControlledAutomationOrchestrator, ApprovalManager
+from mufettis.repair.models import (
     AutomationMode,
     AutomationStatus,
     AutomationPolicy,

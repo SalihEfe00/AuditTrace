@@ -74,7 +74,7 @@ pytest
 | Klasör | İçerik |
 |---|---|
 | `mufettis/` | Uygulama: belge okuma, alan çıkarma, kurallar, mevzuat arama, arayüz |
-| `repair/` | Mevzuat kütüphanesinin bakım ve onarım hattı (tarama, aday onarım, doğrulama, geri alma); yalnızca Admin ve CLI |
+| `mufettis/repair/` | Mevzuat kütüphanesinin bakım ve onarım hattı (tarama, aday onarım, doğrulama, geri alma); yalnızca Admin ve CLI |
 | `mufettis/rules/catalog/` | Kural kataloğu (JSON) |
 | `tests/` | Birim ve uçtan uca testler |
 | `benchmarks/` | Sentetik vakalar ve ölçüm betikleri |

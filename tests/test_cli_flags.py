@@ -38,7 +38,7 @@ class TestRollbackForceFlag(unittest.TestCase):
             status="ROLLBACK_ALREADY_RESTORED", cache_status="PASS", index_status="PASS",
             chroma_status="PASS", fingerprint_status="PASS", failures=[], warnings=[],
         )
-        with patch("repair.rollback.rollback_commit", return_value=fake_result) as rollback, \
+        with patch("mufettis.repair.rollback.rollback_commit", return_value=fake_result) as rollback, \
                 patch("mufettis.rag.engine.LocalRAG", MagicMock()), \
                 patch("mufettis.rag.index.IngestIndex", MagicMock()):
             code = _run_app(["--repair-rollback", "commit_abc", *extra_args])

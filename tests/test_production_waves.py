@@ -27,8 +27,8 @@ from mufettis.config import CHUNK_SCHEMA_VERSION, DATA_DIR, SOURCE_CACHE_DIR
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex
 
-from repair.audit import RepairAuditLogger
-from repair.models import (
+from mufettis.repair.audit import RepairAuditLogger
+from mufettis.repair.models import (
     AuditEventType,
     ClassificationResult,
     ClassificationType,
@@ -50,7 +50,7 @@ from repair.models import (
     WaveStatus,
     WaveSummary,
 )
-from repair.wave import WaveOrchestrator, check_production_corpus
+from mufettis.repair.wave import WaveOrchestrator, check_production_corpus
 
 SAMPLE_DOC_ID = "bddk_reg_01"
 SAMPLE_SHA256 = "c0ffee112233445566778899aabbccddeeff00112233445566778899aabbccdd"
@@ -502,7 +502,7 @@ class TestWaveSafetyGatesAndPrechecks(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    @patch("repair.wave.check_production_corpus", return_value=(False, "Corpus absent", {}))
+    @patch("mufettis.repair.wave.check_production_corpus", return_value=(False, "Corpus absent", {}))
     def test_production_blocked_when_corpus_absent(self, mock_check):
         cfg = WaveConfig(
             environment="production",
@@ -514,7 +514,7 @@ class TestWaveSafetyGatesAndPrechecks(unittest.TestCase):
         self.assertIn("ABSENT", summary.halt_reason)
         self.assertEqual(summary.production_mutation_count, 0)
 
-    @patch("repair.wave.check_production_corpus", return_value=(True, "Corpus present", {}))
+    @patch("mufettis.repair.wave.check_production_corpus", return_value=(True, "Corpus present", {}))
     def test_production_blocked_without_allow_production_flag(self, mock_check):
         cfg = WaveConfig(
             environment="production",
@@ -533,8 +533,8 @@ class TestWaveSafetyGatesAndPrechecks(unittest.TestCase):
             scope="PILOT",
         )
         items = [{"document_id": "test_doc", "source_hash": "dummy_hash"}]
-        with patch("repair.wave.scan_document") as mock_scan, \
-             patch("repair.wave.classify_document") as mock_class:
+        with patch("mufettis.repair.wave.scan_document") as mock_scan, \
+             patch("mufettis.repair.wave.classify_document") as mock_class:
             mock_scan.return_value = DocumentScanResult(document_id="test_doc", source_hash="dummy_hash")
             mock_class.return_value = ClassificationResult(document_id=SAMPLE_DOC_ID, status=ClassificationType.SAFE.value)
 
@@ -549,8 +549,8 @@ class TestWaveSafetyGatesAndPrechecks(unittest.TestCase):
     def test_blocked_classification_skips_repair_with_zero_write(self):
         cfg = WaveConfig(environment="rag_lab", dry_run=False)
         items = [{"document_id": "corrupt_doc", "source_hash": "bad_hash"}]
-        with patch("repair.wave.scan_document") as mock_scan, \
-             patch("repair.wave.classify_document") as mock_class:
+        with patch("mufettis.repair.wave.scan_document") as mock_scan, \
+             patch("mufettis.repair.wave.classify_document") as mock_class:
             mock_scan.return_value = DocumentScanResult(document_id="corrupt_doc")
             mock_class.return_value = ClassificationResult(document_id="corrupt_doc", status=ClassificationType.BLOCKED.value, blocking_issues=["File unreadable and corrupt"])
 
@@ -562,8 +562,8 @@ class TestWaveSafetyGatesAndPrechecks(unittest.TestCase):
     def test_review_without_approval_marked_waiting_approval(self):
         cfg = WaveConfig(environment="rag_lab", dry_run=False)
         items = [{"document_id": "review_doc", "source_hash": "hash123"}]
-        with patch("repair.wave.scan_document") as mock_scan, \
-             patch("repair.wave.classify_document") as mock_class:
+        with patch("mufettis.repair.wave.scan_document") as mock_scan, \
+             patch("mufettis.repair.wave.classify_document") as mock_class:
             mock_scan.return_value = DocumentScanResult(document_id="review_doc")
             mock_class.return_value = ClassificationResult(document_id="review_doc", status=ClassificationType.REVIEW.value, review_issues=["High risk article deletion"])
 
@@ -575,8 +575,8 @@ class TestWaveSafetyGatesAndPrechecks(unittest.TestCase):
     def test_review_with_invalid_approval_token_rejected(self):
         cfg = WaveConfig(environment="rag_lab", dry_run=False)
         items = [{"document_id": "review_doc", "source_hash": "hash123", "approval_id": "bad_token"}]
-        with patch("repair.wave.scan_document") as mock_scan, \
-             patch("repair.wave.classify_document") as mock_class:
+        with patch("mufettis.repair.wave.scan_document") as mock_scan, \
+             patch("mufettis.repair.wave.classify_document") as mock_class:
             mock_scan.return_value = DocumentScanResult(document_id="review_doc")
             mock_class.return_value = ClassificationResult(document_id="review_doc", status=ClassificationType.REVIEW.value, review_issues=["Token required"])
 
@@ -619,10 +619,10 @@ class TestEndToEndWaveExecutionSandbox(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
     def test_healthy_pilot_wave_success(self, mock_verify, mock_commit, mock_class, mock_scan):
         candidate = _make_candidate()
         mock_scan.return_value = DocumentScanResult(
@@ -657,10 +657,10 @@ class TestEndToEndWaveExecutionSandbox(unittest.TestCase):
         self.assertEqual(summary.documents[0].status, WaveDocumentStatus.VERIFIED_AND_RESCANNED.value)
         self.assertTrue(summary.documents[0].rescan_passed)
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
     def test_small_batch_multi_document_wave_success(self, mock_verify, mock_commit, mock_class, mock_scan):
         doc_ids = ["bddk_1", "bddk_2", "bddk_3"]
         candidates = {d: _make_candidate(doc_id=d) for d in doc_ids}
@@ -685,10 +685,10 @@ class TestEndToEndWaveExecutionSandbox(unittest.TestCase):
         self.assertEqual(summary.verified_count, 3)
         self.assertEqual(summary.rescanned_count, 3)
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
     def test_approved_review_document_repaired_successfully(self, mock_verify, mock_commit, mock_class, mock_scan):
         # Create approval record
         appr = self.orch.approval_manager.create_approval(
@@ -749,11 +749,11 @@ class TestMandatoryPostRepairRescan(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
-    @patch("repair.wave.rollback_commit")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.rollback_commit")
     def test_rescan_detecting_glued_text_triggers_rollback(self, mock_rollback, mock_verify, mock_commit, mock_class, mock_scan):
         # 1st scan healthy; 2nd scan (rescan) has QUALITY_GLUED_TEXT
         scan_before = DocumentScanResult(document_id=SAMPLE_DOC_ID, source_hash=SAMPLE_SHA256, issues=[])
@@ -781,11 +781,11 @@ class TestMandatoryPostRepairRescan(unittest.TestCase):
         self.assertTrue(summary.documents[0].rollback_occurred)
         mock_rollback.assert_called_once()
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
-    @patch("repair.wave.rollback_commit")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.rollback_commit")
     def test_rescan_detecting_mojibake_triggers_rollback(self, mock_rollback, mock_verify, mock_commit, mock_class, mock_scan):
         scan_before = DocumentScanResult(document_id=SAMPLE_DOC_ID, source_hash=SAMPLE_SHA256, issues=[])
         scan_rescan = DocumentScanResult(
@@ -808,11 +808,11 @@ class TestMandatoryPostRepairRescan(unittest.TestCase):
         self.assertEqual(summary.documents[0].status, WaveDocumentStatus.RESCAN_FAILED.value)
         self.assertIn(IssueCode.QUALITY_MOJIBAKE, summary.documents[0].regressions_detected)
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
-    @patch("repair.wave.rollback_commit")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.rollback_commit")
     def test_cross_document_mutation_triggers_immediate_rollback_and_halts_wave(
         self, mock_rollback, mock_verify, mock_commit, mock_class, mock_scan
     ):
@@ -872,11 +872,11 @@ class TestVerificationFailureAndRollback(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
-    @patch("repair.wave.rollback_commit")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.rollback_commit")
     def test_verify_failure_triggers_clean_restoration(self, mock_rollback, mock_verify, mock_commit, mock_class, mock_scan):
         mock_scan.return_value = DocumentScanResult(document_id=SAMPLE_DOC_ID, source_hash=SAMPLE_SHA256, issues=[])
         mock_class.return_value = ClassificationResult(document_id=SAMPLE_DOC_ID, status=ClassificationType.SAFE.value)
@@ -894,11 +894,11 @@ class TestVerificationFailureAndRollback(unittest.TestCase):
         self.assertTrue(summary.documents[0].rollback_occurred)
         mock_rollback.assert_called_once()
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
-    @patch("repair.wave.rollback_commit")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.rollback_commit")
     def test_verify_failure_with_rollback_failure_reported(self, mock_rollback, mock_verify, mock_commit, mock_class, mock_scan):
         mock_scan.return_value = DocumentScanResult(document_id=SAMPLE_DOC_ID, source_hash=SAMPLE_SHA256, issues=[])
         mock_class.return_value = ClassificationResult(document_id=SAMPLE_DOC_ID, status=ClassificationType.SAFE.value)
@@ -946,11 +946,11 @@ class TestCircuitBreakerAndFailureBudget(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
-    @patch("repair.wave.rollback_commit")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.rollback_commit")
     def test_consecutive_failures_trips_circuit_breaker(
         self, mock_rollback, mock_verify, mock_commit, mock_class, mock_scan
     ):
@@ -980,10 +980,10 @@ class TestCircuitBreakerAndFailureBudget(unittest.TestCase):
         self.assertEqual(summary.scanned_count, 2)
         self.assertEqual(len(summary.documents), 2)
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
     def test_consecutive_failures_reset_on_success(
         self, mock_verify, mock_commit, mock_class, mock_scan
     ):
@@ -1045,10 +1045,10 @@ class TestIsolationAndAuditProvenance(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
     def test_audit_trail_cryptographic_provenance(self, mock_verify, mock_commit, mock_class, mock_scan):
         mock_scan.return_value = DocumentScanResult(document_id=SAMPLE_DOC_ID, source_hash=SAMPLE_SHA256, issues=[])
         mock_class.return_value = ClassificationResult(document_id=SAMPLE_DOC_ID, status=ClassificationType.SAFE.value)
@@ -1077,7 +1077,7 @@ class TestIsolationAndAuditProvenance(unittest.TestCase):
 
     def test_production_audit_file_not_polluted_by_sandbox(self):
         # Ensure our test audit log is isolated from the production audit log
-        from repair.audit import REPAIR_AUDIT_LOG_FILE
+        from mufettis.repair.audit import REPAIR_AUDIT_LOG_FILE
         self.assertNotEqual(str(self.audit_file), str(REPAIR_AUDIT_LOG_FILE))
 
     def test_toctou_hash_mismatch_aborts_repair(self):
@@ -1088,8 +1088,8 @@ class TestIsolationAndAuditProvenance(unittest.TestCase):
         cfg = WaveConfig(environment="rag_lab", dry_run=False)
         target = [{"document_id": SAMPLE_DOC_ID, "source_hash": SAMPLE_SHA256, "source_path": str(source_p)}]
 
-        with patch("repair.wave.scan_document") as mock_scan, \
-             patch("repair.wave.classify_document") as mock_class:
+        with patch("mufettis.repair.wave.scan_document") as mock_scan, \
+             patch("mufettis.repair.wave.classify_document") as mock_class:
             mock_scan.return_value = DocumentScanResult(document_id=SAMPLE_DOC_ID, source_hash=SAMPLE_SHA256, issues=[])
             mock_class.return_value = ClassificationResult(document_id=SAMPLE_DOC_ID, status=ClassificationType.SAFE.value)
 
@@ -1110,8 +1110,8 @@ class TestIsolationAndAuditProvenance(unittest.TestCase):
         cfg = WaveConfig(environment="rag_lab", dry_run=False)
         target = [{"document_id": SAMPLE_DOC_ID, "source_hash": SAMPLE_SHA256, "approval_id": appr.approval_id}]
 
-        with patch("repair.wave.scan_document") as mock_scan, \
-             patch("repair.wave.classify_document") as mock_class:
+        with patch("mufettis.repair.wave.scan_document") as mock_scan, \
+             patch("mufettis.repair.wave.classify_document") as mock_class:
             mock_scan.return_value = DocumentScanResult(document_id=SAMPLE_DOC_ID, source_hash=SAMPLE_SHA256, issues=[])
             mock_class.return_value = ClassificationResult(document_id=SAMPLE_DOC_ID, status=ClassificationType.REVIEW.value, review_issues=["review needed"])
 
@@ -1119,11 +1119,11 @@ class TestIsolationAndAuditProvenance(unittest.TestCase):
             self.assertEqual(summary.failed_count, 1)
             self.assertEqual(summary.documents[0].status, WaveDocumentStatus.FAILED.value)
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
-    @patch("repair.wave.rollback_commit")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.rollback_commit")
     def test_halt_on_failure_false_continues_remaining_documents(
         self, mock_rollback, mock_verify, mock_commit, mock_class, mock_scan
     ):
@@ -1155,11 +1155,11 @@ class TestIsolationAndAuditProvenance(unittest.TestCase):
         self.assertEqual(summary.verified_count, 1)
         self.assertEqual(summary.status, WaveStatus.PARTIAL.value)
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
-    @patch("repair.wave.rollback_commit")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.rollback_commit")
     def test_total_failure_budget_exhaustion_halts_wave(
         self, mock_rollback, mock_verify, mock_commit, mock_class, mock_scan
     ):
@@ -1372,10 +1372,10 @@ class TestRescanIdentityAndCrossDocumentIsolation(unittest.TestCase):
 
         self.assertTrue(any(other_id in m for m in mutated), "Unintended mutation on other_doc must be detected")
 
-    @patch("repair.wave.scan_document")
-    @patch("repair.wave.classify_document")
-    @patch("repair.wave.commit_candidate")
-    @patch("repair.wave.verify_committed_repair")
+    @patch("mufettis.repair.wave.scan_document")
+    @patch("mufettis.repair.wave.classify_document")
+    @patch("mufettis.repair.wave.commit_candidate")
+    @patch("mufettis.repair.wave.verify_committed_repair")
     def test_E_normal_rescan_lifecycle_passes(self, mock_verify, mock_commit, mock_class, mock_scan):
         """E) Normal rescan flow where target document matches alias and no adjacent mutations occur -> PASS."""
         target_hash = "bb56d01f" + "0" * 56

@@ -38,8 +38,8 @@ from mufettis.extraction.text_repair import (
 )
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.maintenance import versioned_ingest_text
-from repair.audit import RepairAuditLogger
-from repair.ingestion_gate import AutoHealingIngestionGate
+from mufettis.repair.audit import RepairAuditLogger
+from mufettis.repair.ingestion_gate import AutoHealingIngestionGate
 
 
 # ---------------------------------------------------------------------------
@@ -744,7 +744,7 @@ class TestRepairPipelineRegression(unittest.TestCase):
 
         import unittest.mock
         with unittest.mock.patch("mufettis.rag.maintenance.save_source_cache"), \
-             unittest.mock.patch("repair.ingestion_gate.get_audit_logger", return_value=self.audit_logger):
+             unittest.mock.patch("mufettis.repair.ingestion_gate.get_audit_logger", return_value=self.audit_logger):
             res = versioned_ingest_text(
                 rag=self.rag,
                 index=self.index,

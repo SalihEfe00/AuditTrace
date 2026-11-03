@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
-OWN = {"mufettis", "repair", "launcher", "app"}
+OWN = {"mufettis", "launcher", "app"}
 BLOCKED = re.compile(r"\bAGPL|Affero|\bSSPL\b|Server Side Public|\bBUSL\b|Business Source|non[- ]?commercial|"
                      r"proprietary|\bcommercial license\b", re.I)
 GPL = re.compile(r"\bGPL\b|General Public License", re.I)

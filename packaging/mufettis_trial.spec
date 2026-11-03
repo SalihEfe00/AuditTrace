@@ -19,7 +19,7 @@ for pkg in ("sentence_transformers", "transformers", "tokenizers", "huggingface_
         pass
 
 hiddenimports = collect_submodules("mufettis", filter=lambda n: ".tests.test_" not in n)
-hiddenimports += collect_submodules("repair")
+hiddenimports += collect_submodules("mufettis.repair")
 hiddenimports += collect_submodules("streamlit")
 
 # PyInstaller System32'deki DLL'leri toplamaz. torch_cpu.dll, Visual C++ 2022 çalışma zamanının

@@ -17,7 +17,7 @@ from mufettis.config import CHUNK_SCHEMA_VERSION
 from mufettis.extraction.pdf import _pdf_generic_quality_metrics
 from mufettis.legal.parser import _chunk_is_retrievable
 from mufettis.rag.maintenance import load_source_cache
-from repair.models import (
+from mufettis.repair.models import (
     DocumentScanResult,
     IssueCode,
     IssueSeverity,
@@ -436,7 +436,7 @@ def scan_production(
 
     Asla Chroma veya source cache üzerine yazma işlemi yapmaz.
     """
-    from repair.classifier import classify_document
+    from mufettis.repair.classifier import classify_document
 
     report = ProductionScanReport(dry_run=True, production_write_enabled=False)
 

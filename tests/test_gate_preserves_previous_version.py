@@ -17,8 +17,8 @@ from typing import Any, Dict, List
 from unittest.mock import patch
 
 from mufettis.rag.index import IngestIndex
-from repair.audit import RepairAuditLogger
-from repair.ingestion_gate import RESCAN_MIN_SCORED_CHARS, AutoHealingIngestionGate
+from mufettis.repair.audit import RepairAuditLogger
+from mufettis.repair.ingestion_gate import RESCAN_MIN_SCORED_CHARS, AutoHealingIngestionGate
 
 HASH = "c" * 64
 GOOD_TEXT = (
@@ -158,7 +158,7 @@ class TestRescanLayoutTolerance(_Base):
     """E8: tek bir sayfa-numaralı kısa parça (0.85) yüzlerce temiz parçayı reddettiriyordu."""
 
     def _rescan_scores(self, scores: List[float], extra_doc: str = ""):
-        from repair import ingestion_gate
+        from mufettis.repair import ingestion_gate
 
         docs = [f"PARCA-{i} " + GOOD_TEXT for i in range(len(scores))] + ([extra_doc] if extra_doc else [])
         by_doc = {d: s for d, s in zip(docs, scores)}

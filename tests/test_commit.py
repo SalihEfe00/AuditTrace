@@ -9,14 +9,14 @@ from unittest.mock import MagicMock, patch
 
 from mufettis.config import CHUNK_SCHEMA_VERSION, EMBEDDING_MODEL, DB_PATH, DATA_DIR
 from mufettis.rag.engine import LocalRAG
-from repair.committer import (
+from mufettis.repair.committer import (
     atomic_commit_source_cache,
     cleanup_same_hash_chroma,
     commit_candidate,
     stage_candidate,
     upsert_candidate_chroma,
 )
-from repair.models import (
+from mufettis.repair.models import (
     CommitStatus,
     ComparisonStatus,
     ExtractionCandidate,
@@ -629,7 +629,7 @@ class TestRagLabCommitHarness(unittest.TestCase):
 
     def test_harness_02_cache_write_failure_isolated(self):
         """Simulated source cache write failure aborts commit; 0 Chroma mutation."""
-        with patch("repair.committer.atomic_commit_source_cache", side_effect=IOError("Simulated disk error")):
+        with patch("mufettis.repair.committer.atomic_commit_source_cache", side_effect=IOError("Simulated disk error")):
             res = commit_candidate(
                 self.valid_candidate,
                 self.valid_decision,
@@ -646,7 +646,7 @@ class TestRagLabCommitHarness(unittest.TestCase):
 
     def test_harness_03_chroma_cleanup_failure_isolated(self):
         """Simulated Chroma cleanup failure returns PARTIAL_FAILURE; upsert skipped."""
-        with patch("repair.committer.cleanup_same_hash_chroma", side_effect=RuntimeError("Simulated cleanup crash")):
+        with patch("mufettis.repair.committer.cleanup_same_hash_chroma", side_effect=RuntimeError("Simulated cleanup crash")):
             res = commit_candidate(
                 self.valid_candidate,
                 self.valid_decision,
@@ -662,7 +662,7 @@ class TestRagLabCommitHarness(unittest.TestCase):
 
     def test_harness_04_candidate_upsert_failure_isolated(self):
         """Simulated Chroma upsert failure returns PARTIAL_FAILURE explicitly."""
-        with patch("repair.committer.upsert_candidate_chroma", side_effect=RuntimeError("Simulated upsert crash")):
+        with patch("mufettis.repair.committer.upsert_candidate_chroma", side_effect=RuntimeError("Simulated upsert crash")):
             res = commit_candidate(
                 self.valid_candidate,
                 self.valid_decision,

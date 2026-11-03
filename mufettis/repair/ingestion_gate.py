@@ -30,8 +30,8 @@ from mufettis.extraction.text_repair import (
 )
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex
-from repair.audit import RepairAuditLogger, get_audit_logger
-from repair.models import AuditEventType
+from mufettis.repair.audit import RepairAuditLogger, get_audit_logger
+from mufettis.repair.models import AuditEventType
 
 logger = logging.getLogger(__name__)
 
@@ -188,7 +188,7 @@ class AutoHealingIngestionGate:
         if not eval_metrics["is_clean"] and (raw_bytes or source_path):
             try:
                 candidate_text = None
-                from repair.extractor import extract_candidate
+                from mufettis.repair.extractor import extract_candidate
                 candidate = extract_candidate(
                     source_path=source_path,
                     meta=meta,
@@ -381,7 +381,7 @@ class AutoHealingIngestionGate:
 
         # Isolated quarantine cache saving
         try:
-            from repair.quarantine import save_quarantine_payload
+            from mufettis.repair.quarantine import save_quarantine_payload
             cache_dir = None
             if index is not None and getattr(index, "path", None):
                 from mufettis.config import DATA_DIR

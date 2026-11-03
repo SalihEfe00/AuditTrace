@@ -14,13 +14,13 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import repair
+from mufettis import repair
 from mufettis.config import CHUNK_SCHEMA_VERSION
 from mufettis.rag.maintenance import scan_production_rag_quality
-from repair.classifier import classify_document
-from repair.comparator import compare_quality
-from repair.extractor import create_repair_plan, extract_candidate
-from repair.models import (
+from mufettis.repair.classifier import classify_document
+from mufettis.repair.comparator import compare_quality
+from mufettis.repair.extractor import create_repair_plan, extract_candidate
+from mufettis.repair.models import (
     ClassificationType,
     ComparisonStatus,
     DocumentScanResult,
@@ -29,7 +29,7 @@ from repair.models import (
     IssueSeverity,
     ProductionScanReport,
 )
-from repair.scanner import scan_document, scan_production
+from mufettis.repair.scanner import scan_document, scan_production
 
 
 def _real_pdf_fixture():
@@ -100,7 +100,7 @@ class TestRepairInfrastructure(unittest.TestCase):
     def test_03_scanner_no_production_write(self):
         col = DummyCollection({"h1": {"ids": ["c1"], "documents": ["doc"], "metadatas": [{}]}})
         rag = DummyRAG(collection=col)
-        with patch("repair.scanner.load_source_cache", return_value="Temiz metin"):
+        with patch("mufettis.repair.scanner.load_source_cache", return_value="Temiz metin"):
             res = scan_document("h1", meta={"document_id": "d1"}, rag=rag)
         self.assertFalse(col.mutated)
         self.assertEqual(res.document_id, "d1")
@@ -117,7 +117,7 @@ class TestRepairInfrastructure(unittest.TestCase):
 
     # TEST 5: missing cache detected
     def test_05_missing_cache_detected(self):
-        with patch("repair.scanner.load_source_cache", return_value=""):
+        with patch("mufettis.repair.scanner.load_source_cache", return_value=""):
             res = scan_document(
                 file_hash="dummy_hash_no_cache",
                 meta={"document_id": "doc_no_cache"},
@@ -148,7 +148,7 @@ class TestRepairInfrastructure(unittest.TestCase):
             }
         })
         rag = DummyRAG(collection=col)
-        with patch("repair.scanner.load_source_cache", return_value="MADDE 1 - Kanun kapsamı metni."):
+        with patch("mufettis.repair.scanner.load_source_cache", return_value="MADDE 1 - Kanun kapsamı metni."):
             res = scan_document("hash_stale", meta={"document_id": "doc_stale"}, rag=rag)
         self.assertIn(IssueCode.CHROMA_STALE_SCHEMA, res.issue_codes)
         self.assertEqual(res.schema_status, "stale")
@@ -156,21 +156,21 @@ class TestRepairInfrastructure(unittest.TestCase):
     # TEST 8: glued text detected
     def test_08_glued_text_detected(self):
         glued_sample = "BDDKKurulKararı bankacılıkdüzenlemevedenetlemekurumu 5411sayılıkanun"
-        with patch("repair.scanner.load_source_cache", return_value=glued_sample):
+        with patch("mufettis.repair.scanner.load_source_cache", return_value=glued_sample):
             res = scan_document("hash_glued", meta={"document_id": "doc_glued"})
         self.assertIn(IssueCode.QUALITY_GLUED_TEXT, res.issue_codes)
 
     # TEST 9: mojibake detected
     def test_09_mojibake_detected(self):
         mojibake_sample = "Bankacılık DÃ¼zenleme ve Denetleme Kurulu kararÄ± gereÄŸince"
-        with patch("repair.scanner.load_source_cache", return_value=mojibake_sample):
+        with patch("mufettis.repair.scanner.load_source_cache", return_value=mojibake_sample):
             res = scan_document("hash_mojibake", meta={"document_id": "doc_mojibake"})
         self.assertIn(IssueCode.QUALITY_MOJIBAKE, res.issue_codes)
 
     # TEST 10: replacement character detected
     def test_10_replacement_char_detected(self):
         rep_sample = "Bu maddede yer alan h\ufffdk\ufffdmler y\ufffdr\ufffdrl\ufffcktedir."
-        with patch("repair.scanner.load_source_cache", return_value=rep_sample):
+        with patch("mufettis.repair.scanner.load_source_cache", return_value=rep_sample):
             res = scan_document("hash_rep", meta={"document_id": "doc_rep"})
         self.assertIn(IssueCode.QUALITY_REPLACEMENT_CHAR, res.issue_codes)
 
@@ -188,7 +188,7 @@ class TestRepairInfrastructure(unittest.TestCase):
             }
         })
         rag = DummyRAG(collection=col)
-        with patch("repair.scanner.load_source_cache", return_value="Aynı metin içeriği burada."):
+        with patch("mufettis.repair.scanner.load_source_cache", return_value="Aynı metin içeriği burada."):
             res = scan_document("hash_dup", meta={"document_id": "doc_dup"}, rag=rag)
         self.assertIn(IssueCode.CHROMA_EMPTY_CHUNK, res.issue_codes)
         self.assertIn(IssueCode.STRUCTURE_DUPLICATE_CHUNK, res.issue_codes)
@@ -207,7 +207,7 @@ class TestRepairInfrastructure(unittest.TestCase):
             }
         })
         rag = DummyRAG(collection=col)
-        with patch("repair.scanner.load_source_cache", return_value="Kısa metin"):
+        with patch("mufettis.repair.scanner.load_source_cache", return_value="Kısa metin"):
             res = scan_document("hash_not_ret", meta={"document_id": "doc_not_ret"}, rag=rag)
         self.assertIn(IssueCode.RETRIEVAL_NOT_RETRIEVABLE, res.issue_codes)
         self.assertEqual(res.retrievability_status, "not_retrievable")
@@ -352,7 +352,7 @@ class TestRepairInfrastructure(unittest.TestCase):
                     "hash_b": {"source_id": "src2", "title": "Belge B"},
                 }
             }
-            with patch("repair.scanner.load_source_cache", return_value="Denetim metni."):
+            with patch("mufettis.repair.scanner.load_source_cache", return_value="Denetim metni."):
                 report = scan_production(index=dummy_index, rag=DummyRAG())
             self.assertEqual(report.scanned_documents, 2)
             mock_save.assert_not_called()
@@ -377,7 +377,7 @@ class TestRepairInfrastructure(unittest.TestCase):
             "metadata_content": [dict(m) for m in col.data["h_equal"]["metadatas"]],
         }
 
-        with patch("repair.scanner.load_source_cache", return_value="Korumalı mevzuat metni."):
+        with patch("mufettis.repair.scanner.load_source_cache", return_value="Korumalı mevzuat metni."):
             report = scan_production(index=dummy_index, rag=rag)
 
         # Fingerprint after scan
@@ -431,7 +431,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 1: Valid source PDF passes source validation
     def test_f10_01_valid_source_pdf_validation_pass(self):
-        from repair.extractor import validate_source
+        from mufettis.repair.extractor import validate_source
         val = validate_source(self.valid_pdf, expected_hash=self.valid_hash, document_id="doc1")
         self.assertEqual(val.status, "VERIFIED")
         self.assertTrue(val.exists)
@@ -441,7 +441,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 2: Missing PDF results in MISSING / no extraction
     def test_f10_02_missing_pdf_blocked(self):
-        from repair.extractor import extract_candidate, validate_source
+        from mufettis.repair.extractor import extract_candidate, validate_source
         missing_path = Path(self.test_dir) / "non_existent.pdf"
         val = validate_source(missing_path, expected_hash=self.valid_hash)
         self.assertEqual(val.status, "MISSING")
@@ -453,7 +453,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 3: Unreadable/invalid source (non-pdf or empty or invalid magic bytes)
     def test_f10_03_invalid_source_blocked(self):
-        from repair.extractor import validate_source
+        from mufettis.repair.extractor import validate_source
         bad_file = Path(self.test_dir) / "not_pdf.txt"
         bad_file.write_text("Metin dosyası", encoding="utf-8")
         val = validate_source(bad_file, expected_hash="dummy")
@@ -471,14 +471,14 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 4: Hash match verifies identity
     def test_f10_04_hash_match_verified(self):
-        from repair.extractor import validate_source
+        from mufettis.repair.extractor import validate_source
         val = validate_source(self.valid_pdf, expected_hash=self.valid_hash)
         self.assertEqual(val.status, "VERIFIED")
         self.assertEqual(val.actual_sha256, self.valid_hash)
 
     # FAZ 10 - TEST 5: Hash mismatch is BLOCKED and extraction does not run
     def test_f10_05_hash_mismatch_blocked_no_extraction(self):
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         mock_ext = MagicMock()
         different_hash = "1111111111111111111111111111111111111111111111111111111111111111"
         cand = extract_candidate(self.valid_pdf, expected_hash=different_hash, custom_extractor=mock_ext)
@@ -487,7 +487,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 6: Known valid PDF produces candidate successfully
     def test_f10_06_candidate_successfully_generated(self):
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         mock_ext = MagicMock(return_value=(
             "MADDE 1 - (1) Bu Kanunun amacı bankacılık sistemini düzenlemektir.\n"
             "MADDE 2 - (1) Bu Kanun tüm bankaları kapsar.", 2, False
@@ -501,7 +501,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 7: Fallback scenario tracking
     def test_f10_07_fallback_scenario_invoked(self):
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         # When custom extractor or pipeline uses fallback
         mock_ext = MagicMock(return_value=("Yedek metin", 1, False))
         cand = extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
@@ -510,7 +510,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 8: OCR scenario: OCR only when required and properly flagged
     def test_f10_08_ocr_scenario_flagged(self):
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         mock_ext = MagicMock(return_value=("OCR ile taranmış belge metni", 1, True))
         cand = extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
         self.assertTrue(cand.ocr_used)
@@ -518,7 +518,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 9: Normalization applied
     def test_f10_09_normalization_applied(self):
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         raw_input = "MADDE 1 - (1) BankacÄ±lÄ±k DÃ¼zenleme Kurumu."
         mock_ext = MagicMock(return_value=(raw_input, 1, False))
         cand = extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
@@ -528,7 +528,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 10: Glued token repair pipeline remains active
     def test_f10_10_glued_token_repair_active(self):
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         raw_glued = "BDDKKurulKararı 5411sayılıkanun"
         mock_ext = MagicMock(return_value=(raw_glued, 1, False))
         cand = extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
@@ -537,7 +537,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 11: Structure discovery preserved
     def test_f10_11_structure_discovery_preserved(self):
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         raw_text = (
             "BANKACILIK KANUNU\n"
             "MADDE 1 - (1) Amaç ve kapsam.\n"
@@ -551,7 +551,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 12: Legal chunk generation works
     def test_f10_12_legal_chunk_generation_works(self):
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         raw_text = (
             "MADDE 1 - (1) Bu Kanunun amacı finansal piyasalarda güveni sağlamaktır.\n"
             "MADDE 2 - (1) Bu Kanun hükümleri Türkiye'deki tüm bankalara uygulanır."
@@ -566,7 +566,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 13: Source SHA256 preserved throughout candidate
     def test_f10_13_source_hash_propagation(self):
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         mock_ext = MagicMock(return_value=("MADDE 1 - Test", 1, False))
         cand = extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
         self.assertEqual(cand.source_sha256, self.valid_hash)
@@ -575,7 +575,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 14: Candidate chunks have current schema version
     def test_f10_14_candidate_chunks_schema_version(self):
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         mock_ext = MagicMock(return_value=("MADDE 1 - Test", 1, False))
         cand = extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
         for chk in cand.legal_chunks:
@@ -583,7 +583,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 15: Candidate metadata contains extraction method
     def test_f10_15_candidate_metadata_contains_method(self):
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         mock_ext = MagicMock(return_value=("Metin", 1, False))
         cand = extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
         self.assertIn("method_info", cand.metadata)
@@ -593,7 +593,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
     def test_f10_16_production_chroma_untouched(self):
         col = DummyCollection({"hash_x": {"ids": ["c1"], "documents": ["doc1"], "metadatas": [{}]}})
         mock_ext = MagicMock(return_value=("MADDE 1 - Deneme", 1, False))
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         cand = extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
         self.assertEqual(cand.status, "SUCCESS")
         self.assertFalse(col.mutated)
@@ -601,7 +601,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
     # FAZ 10 - TEST 17: Production source cache untouched
     def test_f10_17_production_source_cache_untouched(self):
         with patch("mufettis.rag.maintenance.save_source_cache") as mock_save:
-            from repair.extractor import extract_candidate
+            from mufettis.repair.extractor import extract_candidate
             mock_ext = MagicMock(return_value=("MADDE 1 - Test", 1, False))
             cand = extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
             self.assertEqual(cand.status, "SUCCESS")
@@ -610,7 +610,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
     # FAZ 10 - TEST 18: No production file write
     def test_f10_18_no_production_file_write(self):
         with patch("builtins.open", side_effect=open) as spy_open:
-            from repair.extractor import extract_candidate
+            from mufettis.repair.extractor import extract_candidate
             mock_ext = MagicMock(return_value=("MADDE 1 - Test", 1, False))
             extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
             # Ensure open() was never called with 'w', 'a', or 'wb'
@@ -622,7 +622,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 19: Candidate extraction failure is explicit
     def test_f10_19_candidate_extraction_failure_explicit(self):
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         # When extractor returns empty text
         mock_ext = MagicMock(return_value=("   ", 1, False))
         cand = extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
@@ -637,7 +637,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
 
     # FAZ 10 - TEST 20: OCR and fallback metadata correctly recorded
     def test_f10_20_ocr_fallback_metadata_recorded(self):
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         mock_ext = MagicMock(return_value=("OCR metni", 3, True))
         cand = extract_candidate(self.valid_pdf, expected_hash=self.valid_hash, custom_extractor=mock_ext)
         self.assertTrue(cand.ocr_used)
@@ -649,7 +649,7 @@ class TestVerifiedCandidateExtraction(unittest.TestCase):
         real_pdf = _real_pdf_fixture()
         if real_pdf is None:
             self.skipTest("MUFETTIS_REPAIR_PDF ile gerçek bir PDF yolu verin")
-        from repair.extractor import extract_candidate, validate_source
+        from mufettis.repair.extractor import extract_candidate, validate_source
         from mufettis.common.utils import sha256_bytes
         h = sha256_bytes(real_pdf.read_bytes())
         val = validate_source(real_pdf, expected_hash=h)
@@ -667,7 +667,7 @@ class TestQualityGateCore(unittest.TestCase):
     """Müfettiş AI - FAZ 11A Quality Gate Core / RAG-Independent Comparison Test Suite."""
 
     def setUp(self):
-        from repair.models import QualitySnapshot
+        from mufettis.repair.models import QualitySnapshot
         self.base_current = QualitySnapshot(
             document_id="doc100",
             source_document_id="doc100",
@@ -694,8 +694,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 1. CLEAR IMPROVEMENT -> READY_TO_COMMIT
     def test_f11_01_clear_improvement(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         cand = QualitySnapshot(
             document_id="doc100",
             source_sha256="hash_base_123",
@@ -717,8 +717,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 2. CLEAR REGRESSION -> REJECT
     def test_f11_02_clear_regression(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         cand = QualitySnapshot(
             document_id="doc100",
             source_sha256="hash_base_123",
@@ -736,8 +736,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 3. MOJIBAKE INTRODUCED -> REJECT
     def test_f11_03_mojibake_introduced(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         clean_curr = QualitySnapshot(
             document_id="doc1", source_sha256="h1", quality_score=0.90, mojibake_sequence_count=0, chars=1000
         )
@@ -750,8 +750,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 4. REPLACEMENT CHAR INTRODUCED -> REJECT
     def test_f11_04_replacement_char_introduced(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         clean_curr = QualitySnapshot(
             document_id="doc1", source_sha256="h1", quality_score=0.90, replacement_char_count=0, chars=1000
         )
@@ -764,8 +764,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 5. GLUED TEXT IMPROVES -> positive signal
     def test_f11_05_glued_text_improves(self):
-        from repair.comparator import calculate_metric_deltas
-        from repair.models import MetricDirection, QualitySnapshot
+        from mufettis.repair.comparator import calculate_metric_deltas
+        from mufettis.repair.models import MetricDirection, QualitySnapshot
         curr = QualitySnapshot(glued_token_count=50)
         cand = QualitySnapshot(glued_token_count=2)
         deltas = calculate_metric_deltas(curr, cand)
@@ -774,8 +774,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 6. GLUED TEXT WORSE -> REVIEW / WARNING
     def test_f11_06_glued_text_worse(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.90, glued_token_count=2, chars=1000)
         cand = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.90, glued_token_count=25, chars=1000)
         res = compare_quality(curr, cand)
@@ -784,8 +784,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 7. STRUCTURE CATASTROPHIC LOSS -> REJECT
     def test_f11_07_structure_catastrophic_loss(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.80, article_count=50, chars=5000)
         cand = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.85, article_count=2, chars=5000)
         res = compare_quality(curr, cand)
@@ -794,8 +794,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 8. STRUCTURE MODERATE DRIFT -> REVIEW
     def test_f11_08_structure_moderate_drift(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.80, article_count=50, glued_token_count=10, chars=5000)
         cand = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.88, article_count=30, glued_token_count=0, chars=5000)
         res = compare_quality(curr, cand)
@@ -804,8 +804,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 9. CHUNK EXPLOSION -> REVIEW
     def test_f11_09_chunk_explosion(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.85, chunk_count=10, chars=2000)
         cand = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.88, chunk_count=45, chars=2100)
         res = compare_quality(curr, cand)
@@ -814,8 +814,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 10. EMPTY CHUNKS INCREASE -> REJECT
     def test_f11_10_empty_chunks_increase(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(document_id="doc1", source_sha256="h1", empty_chunk_count=0, chars=1000)
         cand = QualitySnapshot(document_id="doc1", source_sha256="h1", empty_chunk_count=3, chars=1000)
         res = compare_quality(curr, cand)
@@ -824,8 +824,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 11. DUPLICATE CHUNKS INCREASE -> REVIEW
     def test_f11_11_duplicate_chunks_increase(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(document_id="doc1", source_sha256="h1", duplicate_chunk_count=0, glued_token_count=10, chars=1000)
         cand = QualitySnapshot(document_id="doc1", source_sha256="h1", duplicate_chunk_count=3, glued_token_count=0, chars=1000)
         res = compare_quality(curr, cand)
@@ -834,8 +834,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 12. IDENTICAL CURRENT/CANDIDATE -> REVIEW ("No measurable improvement.")
     def test_f11_12_identical_current_candidate(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.90, chars=1000, chunk_count=5, article_count=5)
         cand = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.90, chars=1000, chunk_count=5, article_count=5)
         res = compare_quality(curr, cand)
@@ -844,8 +844,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 13. SOURCE HASH MISMATCH -> REJECT
     def test_f11_13_source_hash_mismatch(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(document_id="doc1", source_sha256="hash_original", quality_score=0.80)
         cand = QualitySnapshot(document_id="doc1", source_sha256="hash_different", quality_score=0.95)
         res = compare_quality(curr, cand)
@@ -854,8 +854,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 14. DOCUMENT IDENTITY MISMATCH -> REJECT
     def test_f11_14_document_identity_mismatch(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(document_id="doc_a", source_sha256="h1", quality_score=0.80)
         cand = QualitySnapshot(document_id="doc_b", source_sha256="h1", quality_score=0.95)
         res = compare_quality(curr, cand)
@@ -864,8 +864,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 15. MISSING METADATA / SCHEMA INCOMPATIBILITY -> REVIEW
     def test_f11_15_missing_metadata(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.80, glued_token_count=10)
         cand = QualitySnapshot(
             document_id="doc1", source_sha256="h1", quality_score=0.95, glued_token_count=0,
@@ -877,8 +877,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 16. QUALITY SCORE IMPROVES BUT HARD SAFETY FAILS -> REJECT
     def test_f11_16_score_improves_but_hard_safety_fails(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.70, mojibake_sequence_count=0, chars=1000)
         # Score jumps to 0.98, but introduces mojibake
         cand = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.98, mojibake_sequence_count=2, chars=1000)
@@ -887,8 +887,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 17. SCORE DECLINES SLIGHTLY BUT DEFECTS FIXED -> READY_TO_COMMIT
     def test_f11_17_score_declines_within_tolerance_defects_fixed(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(
             document_id="doc1", source_sha256="h1", quality_score=0.90, glued_token_count=10, mojibake_sequence_count=1, chars=1000
         )
@@ -900,8 +900,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 18. MIXED SIGNALS -> REVIEW
     def test_f11_18_mixed_signals(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.85, glued_token_count=10, duplicate_chunk_count=0, chars=1000)
         # Fixed glued tokens, but duplicate chunks increased
         cand = QualitySnapshot(document_id="doc1", source_sha256="h1", quality_score=0.88, glued_token_count=0, duplicate_chunk_count=2, chars=1000)
@@ -910,8 +910,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 19. CANDIDATE INCOMPLETE -> REJECT
     def test_f11_19_candidate_incomplete(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, ExtractionCandidate
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, ExtractionCandidate
         curr = self.base_current
         cand = ExtractionCandidate(
             document_id="doc100",
@@ -923,8 +923,8 @@ class TestQualityGateCore(unittest.TestCase):
 
     # 20. VALID CLEAR IMPROVEMENT WITH NO REGRESSION -> READY_TO_COMMIT
     def test_f11_20_valid_clear_improvement_no_regression(self):
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         curr = QualitySnapshot(
             document_id="doc200", source_sha256="h200", quality_score=0.72, glued_token_count=25, chars=1500, article_count=8, chunk_count=8
         )
@@ -939,9 +939,9 @@ class TestQualityGateCore(unittest.TestCase):
         real_pdf = _real_pdf_fixture()
         if real_pdf is None:
             self.skipTest("MUFETTIS_REPAIR_PDF ile gerçek bir PDF yolu verin")
-        from repair.extractor import extract_candidate
-        from repair.comparator import compare_quality
-        from repair.models import ComparisonStatus, QualitySnapshot
+        from mufettis.repair.extractor import extract_candidate
+        from mufettis.repair.comparator import compare_quality
+        from mufettis.repair.models import ComparisonStatus, QualitySnapshot
         from mufettis.common.utils import sha256_bytes
 
         h = sha256_bytes(real_pdf.read_bytes())

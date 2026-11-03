@@ -28,10 +28,10 @@ from mufettis.config import (
 )
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex
-from repair.committer import (
+from mufettis.repair.committer import (
     commit_candidate,
 )
-from repair.models import (
+from mufettis.repair.models import (
     BeforeSnapshot,
     CommitStatus,
     ComparisonStatus,
@@ -42,7 +42,7 @@ from repair.models import (
     VerificationResult,
     VerificationStatus,
 )
-from repair.rollback import (
+from mufettis.repair.rollback import (
     acquire_rollback_lock,
     calculate_state_fingerprint,
     restore_chroma_state,
@@ -555,7 +555,7 @@ class TestRollbackUnit(unittest.TestCase):
     # 25. Unexpected exception returns ROLLBACK_FAILED
     def test_25_unexpected_exception_fails(self):
         self._create_snapshot()
-        with patch("repair.rollback.restore_source_cache", side_effect=Exception("Catastrophic error")):
+        with patch("mufettis.repair.rollback.restore_source_cache", side_effect=Exception("Catastrophic error")):
             res = rollback_commit(
                 commit_id=self.commit_id,
                 staging_base_dir=self.staging_base,

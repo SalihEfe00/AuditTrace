@@ -30,7 +30,7 @@ datas += collect_data_files("pypdfium2_raw")
 binaries = collect_dynamic_libs("onnxruntime")
 
 hiddenimports = collect_submodules("mufettis", filter=lambda n: ".tests.test_" not in n)
-hiddenimports += collect_submodules("repair")
+hiddenimports += collect_submodules("mufettis.repair")
 hiddenimports += collect_submodules("streamlit")
 hiddenimports += ["onnxruntime", "tokenizers"]
 # M17.7a: WebView2 penceresi (pywebview + pythonnet); kanca webview/lib'i toplar, aşağıda süzülür.

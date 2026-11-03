@@ -9,9 +9,9 @@ Orchestrates the complete self-healing chain:
 Strictly adheres to:
 - Zero duplication: coordinates existing FAZ 9-15 components without reimplementing them.
 - Single write authorities preserved:
-    * Commit: repair/committer.py
-    * Rollback: repair/rollback.py
-    * Audit: repair/audit.py
+    * Commit: mufettis/repair/committer.py
+    * Rollback: mufettis/repair/rollback.py
+    * Audit: mufettis/repair/audit.py
 - Deterministic policy engine: zero LLM intervention in gates.
 - Production auto-repair disabled by default (allow_production_auto_repair=False).
 - Stale approval protection: approvals bound to document_id + source_sha256 + candidate_id.
@@ -39,12 +39,12 @@ from mufettis.config import (
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex
 
-from repair.audit import RepairAuditLogger
-from repair.classifier import classify_document
-from repair.committer import CommitPolicy, acquire_commit_lock, commit_candidate
-from repair.comparator import build_snapshot, compare_quality
-from repair.extractor import extract_candidate
-from repair.models import (
+from mufettis.repair.audit import RepairAuditLogger
+from mufettis.repair.classifier import classify_document
+from mufettis.repair.committer import CommitPolicy, acquire_commit_lock, commit_candidate
+from mufettis.repair.comparator import build_snapshot, compare_quality
+from mufettis.repair.extractor import extract_candidate
+from mufettis.repair.models import (
     ApprovalRecord,
     AuditEvent,
     AuditEventType,
@@ -64,12 +64,12 @@ from repair.models import (
     RollbackStatus,
     VerificationStatus,
 )
-from repair.retrieval_comparator import (
+from mufettis.repair.retrieval_comparator import (
     evaluate_final_gate,
 )
-from repair.rollback import rollback_commit
-from repair.scanner import _calc_sha256, scan_document
-from repair.verifier import verify_committed_repair
+from mufettis.repair.rollback import rollback_commit
+from mufettis.repair.scanner import _calc_sha256, scan_document
+from mufettis.repair.verifier import verify_committed_repair
 
 logger = logging.getLogger("mufettis.repair.orchestrator")
 

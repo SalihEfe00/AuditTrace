@@ -24,7 +24,7 @@ from mufettis.extraction.pdf import (
     _pdf_generic_quality_metrics,
     is_glued_token,
 )
-from repair.models import (
+from mufettis.repair.models import (
     CommitResult,
     CommitStatus,
     ComparisonStatus,
@@ -38,7 +38,7 @@ from repair.models import (
     WaveConfig,
     WaveDocumentStatus,
 )
-from repair.wave import WaveOrchestrator
+from mufettis.repair.wave import WaveOrchestrator
 from mufettis.config import DATA_DIR
 
 
@@ -130,10 +130,10 @@ class TestGluedTokenResolution(unittest.TestCase):
             {"glued_token_count": 1},
         )
 
-        with patch("repair.wave.scan_document", side_effect=[mock_init_scan, mock_rescan]), \
-             patch("repair.wave.compare_quality", return_value=ComparisonResult(document_id="test_doc_c", status=ComparisonStatus.READY_TO_COMMIT.value)), \
-             patch("repair.wave.commit_candidate", return_value=CommitResult(commit_id="com_c", document_id="test_doc_c", source_sha256="test_c_hash", status=CommitStatus.COMMITTED.value, candidate_id="cand_c")), \
-             patch("repair.wave.verify_committed_repair", return_value=VerificationResult(status=VerificationStatus.VERIFIED_REPAIR.value, commit_id="com_c", candidate_id="cand_c", document_id="test_doc_c", source_sha256="test_c_hash")), \
+        with patch("mufettis.repair.wave.scan_document", side_effect=[mock_init_scan, mock_rescan]), \
+             patch("mufettis.repair.wave.compare_quality", return_value=ComparisonResult(document_id="test_doc_c", status=ComparisonStatus.READY_TO_COMMIT.value)), \
+             patch("mufettis.repair.wave.commit_candidate", return_value=CommitResult(commit_id="com_c", document_id="test_doc_c", source_sha256="test_c_hash", status=CommitStatus.COMMITTED.value, candidate_id="cand_c")), \
+             patch("mufettis.repair.wave.verify_committed_repair", return_value=VerificationResult(status=VerificationStatus.VERIFIED_REPAIR.value, commit_id="com_c", candidate_id="cand_c", document_id="test_doc_c", source_sha256="test_c_hash")), \
              patch.object(orchestrator, "_capture_corpus_fingerprint", return_value={"total_chunks": 100, "documents": {}}):
 
             doc_res = orchestrator.execute_document(
@@ -204,11 +204,11 @@ class TestGluedTokenResolution(unittest.TestCase):
             {"glued_token_count": 20},
         )
 
-        with patch("repair.wave.scan_document", side_effect=[mock_init_scan, mock_rescan]), \
-             patch("repair.wave.compare_quality", return_value=ComparisonResult(document_id="test_doc_d", status=ComparisonStatus.READY_TO_COMMIT.value)), \
-             patch("repair.wave.commit_candidate", return_value=CommitResult(commit_id="com_d", document_id="test_doc_d", source_sha256="test_d_hash", status=CommitStatus.COMMITTED.value, candidate_id="cand_d")), \
-             patch("repair.wave.verify_committed_repair", return_value=VerificationResult(status=VerificationStatus.VERIFIED_REPAIR.value, commit_id="com_d", candidate_id="cand_d", document_id="test_doc_d", source_sha256="test_d_hash")), \
-             patch("repair.wave.rollback_commit", return_value=MagicMock(status="ROLLBACK_SUCCESS", rollback_id="rb_d")), \
+        with patch("mufettis.repair.wave.scan_document", side_effect=[mock_init_scan, mock_rescan]), \
+             patch("mufettis.repair.wave.compare_quality", return_value=ComparisonResult(document_id="test_doc_d", status=ComparisonStatus.READY_TO_COMMIT.value)), \
+             patch("mufettis.repair.wave.commit_candidate", return_value=CommitResult(commit_id="com_d", document_id="test_doc_d", source_sha256="test_d_hash", status=CommitStatus.COMMITTED.value, candidate_id="cand_d")), \
+             patch("mufettis.repair.wave.verify_committed_repair", return_value=VerificationResult(status=VerificationStatus.VERIFIED_REPAIR.value, commit_id="com_d", candidate_id="cand_d", document_id="test_doc_d", source_sha256="test_d_hash")), \
+             patch("mufettis.repair.wave.rollback_commit", return_value=MagicMock(status="ROLLBACK_SUCCESS", rollback_id="rb_d")), \
              patch.object(orchestrator, "_capture_corpus_fingerprint", return_value={"total_chunks": 100, "documents": {}}):
 
             doc_res = orchestrator.execute_document(
@@ -273,10 +273,10 @@ class TestGluedTokenResolution(unittest.TestCase):
             current_metrics={"score": 0.995, "glued_token_count": 0},
         )
 
-        with patch("repair.wave.scan_document", side_effect=[mock_init_scan, mock_rescan]), \
-             patch("repair.wave.compare_quality", return_value=ComparisonResult(document_id="test_doc_e", status=ComparisonStatus.READY_TO_COMMIT.value)), \
-             patch("repair.wave.commit_candidate", return_value=CommitResult(commit_id="com_e", document_id="test_doc_e", source_sha256="test_e_hash", status=CommitStatus.COMMITTED.value, candidate_id="cand_e")), \
-             patch("repair.wave.verify_committed_repair", return_value=VerificationResult(status=VerificationStatus.VERIFIED_REPAIR.value, commit_id="com_e", candidate_id="cand_e", document_id="test_doc_e", source_sha256="test_e_hash")), \
+        with patch("mufettis.repair.wave.scan_document", side_effect=[mock_init_scan, mock_rescan]), \
+             patch("mufettis.repair.wave.compare_quality", return_value=ComparisonResult(document_id="test_doc_e", status=ComparisonStatus.READY_TO_COMMIT.value)), \
+             patch("mufettis.repair.wave.commit_candidate", return_value=CommitResult(commit_id="com_e", document_id="test_doc_e", source_sha256="test_e_hash", status=CommitStatus.COMMITTED.value, candidate_id="cand_e")), \
+             patch("mufettis.repair.wave.verify_committed_repair", return_value=VerificationResult(status=VerificationStatus.VERIFIED_REPAIR.value, commit_id="com_e", candidate_id="cand_e", document_id="test_doc_e", source_sha256="test_e_hash")), \
              patch.object(orchestrator, "_capture_corpus_fingerprint", return_value={"total_chunks": 100, "documents": {}}):
 
             doc_res = orchestrator.execute_document(

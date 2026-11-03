@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from repair.models import (
+from mufettis.repair.models import (
     ComparisonResult,
     ComparisonStatus,
     FinalGateDecision,

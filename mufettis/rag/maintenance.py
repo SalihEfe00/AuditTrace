@@ -978,7 +978,7 @@ def versioned_ingest_text(
     effective_raw_bytes = raw_bytes if raw_bytes is not None else meta.pop("raw_bytes", None)
 
     if auto_heal:
-        from repair.ingestion_gate import AutoHealingIngestionGate
+        from mufettis.repair.ingestion_gate import AutoHealingIngestionGate
 
         gate = AutoHealingIngestionGate()
         gate_res = gate.ingest(

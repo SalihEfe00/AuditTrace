@@ -36,8 +36,8 @@ from mufettis.config import (
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex
 
-from repair.audit import RepairAuditLogger
-from repair.models import (
+from mufettis.repair.audit import RepairAuditLogger
+from mufettis.repair.models import (
     AuditEventType,
     AutomationCycleSummary,
     AutomationMode,
@@ -57,7 +57,7 @@ from repair.models import (
     VerificationResult,
     VerificationStatus,
 )
-from repair.orchestrator import (
+from mufettis.repair.orchestrator import (
     ControlledAutomationOrchestrator,
 )
 
@@ -243,8 +243,8 @@ class TestControlledAutomationUnit(unittest.TestCase):
         self.assertFalse(res.decision.allowed)
         self.assertEqual(len(list(self.cache_dir.glob("*"))), 0)
 
-    @patch("repair.orchestrator.commit_candidate")
-    @patch("repair.orchestrator.verify_committed_repair")
+    @patch("mufettis.repair.orchestrator.commit_candidate")
+    @patch("mufettis.repair.orchestrator.verify_committed_repair")
     def test_05_safe_happy_path(self, mock_verify, mock_commit):
         """SAFE candidate commits and verifies successfully -> VERIFIED_REPAIR."""
         candidate = _make_candidate()
@@ -266,8 +266,8 @@ class TestControlledAutomationUnit(unittest.TestCase):
         self.assertEqual(res.verification_status, VerificationStatus.VERIFIED_REPAIR.value)
         self.assertEqual(self.orchestrator.consecutive_failures, 0)
 
-    @patch("repair.orchestrator.commit_candidate")
-    @patch("repair.orchestrator.verify_committed_repair")
+    @patch("mufettis.repair.orchestrator.commit_candidate")
+    @patch("mufettis.repair.orchestrator.verify_committed_repair")
     def test_06_safe_verify_pass_resets_failures(self, mock_verify, mock_commit):
         """Verification PASS resets failure counter."""
         self.orchestrator.consecutive_failures = 2
@@ -285,9 +285,9 @@ class TestControlledAutomationUnit(unittest.TestCase):
         self.assertEqual(res.final_status, AutomationStatus.VERIFIED_REPAIR.value)
         self.assertEqual(self.orchestrator.consecutive_failures, 0)
 
-    @patch("repair.orchestrator.rollback_commit")
-    @patch("repair.orchestrator.commit_candidate")
-    @patch("repair.orchestrator.verify_committed_repair")
+    @patch("mufettis.repair.orchestrator.rollback_commit")
+    @patch("mufettis.repair.orchestrator.commit_candidate")
+    @patch("mufettis.repair.orchestrator.verify_committed_repair")
     def test_07_safe_verify_fail_triggers_rollback(self, mock_verify, mock_commit, mock_rollback):
         """Verification failure triggers canonical rollback."""
         candidate = _make_candidate()
@@ -316,9 +316,9 @@ class TestControlledAutomationUnit(unittest.TestCase):
         self.assertEqual(res.rollback_status, RollbackStatus.ROLLBACK_SUCCESS.value)
         self.assertEqual(self.orchestrator.consecutive_failures, 1)
 
-    @patch("repair.orchestrator.rollback_commit")
-    @patch("repair.orchestrator.commit_candidate")
-    @patch("repair.orchestrator.verify_committed_repair")
+    @patch("mufettis.repair.orchestrator.rollback_commit")
+    @patch("mufettis.repair.orchestrator.commit_candidate")
+    @patch("mufettis.repair.orchestrator.verify_committed_repair")
     def test_08_safe_verify_fail_and_rollback_restores(self, mock_verify, mock_commit, mock_rollback):
         """Verification failure + successful rollback returns FAILED_BUT_RESTORED."""
         candidate = _make_candidate()
@@ -335,9 +335,9 @@ class TestControlledAutomationUnit(unittest.TestCase):
         )
         self.assertEqual(res.final_status, AutomationStatus.FAILED_BUT_RESTORED.value)
 
-    @patch("repair.orchestrator.rollback_commit")
-    @patch("repair.orchestrator.commit_candidate")
-    @patch("repair.orchestrator.verify_committed_repair")
+    @patch("mufettis.repair.orchestrator.rollback_commit")
+    @patch("mufettis.repair.orchestrator.commit_candidate")
+    @patch("mufettis.repair.orchestrator.verify_committed_repair")
     def test_09_rollback_failure_handling(self, mock_verify, mock_commit, mock_rollback):
         """Rollback failure is clearly surfaced with status FAILED."""
         candidate = _make_candidate()
@@ -436,8 +436,8 @@ class TestControlledAutomationUnit(unittest.TestCase):
         self.assertFalse(appr.consumed)
         self.assertEqual(appr.document_id, SAMPLE_DOC_ID)
 
-    @patch("repair.orchestrator.commit_candidate")
-    @patch("repair.orchestrator.verify_committed_repair")
+    @patch("mufettis.repair.orchestrator.commit_candidate")
+    @patch("mufettis.repair.orchestrator.verify_committed_repair")
     def test_16_approval_valid_executes_repair(self, mock_verify, mock_commit):
         """Valid human approval token permits execution of review candidate."""
         appr = self.orchestrator.approval_manager.create_approval(
@@ -561,15 +561,15 @@ class TestControlledAutomationUnit(unittest.TestCase):
 
     def test_22_concurrency_lock_prevents_race(self):
         """Commit lock prevents overlapping mutations on the same target."""
-        from repair.committer import acquire_commit_lock
+        from mufettis.repair.committer import acquire_commit_lock
         with acquire_commit_lock(SAMPLE_DOC_ID, SAMPLE_SHA256):
             # Attempting to re-acquire with 0.1s timeout should raise TimeoutError
-            from repair.committer import _ACTIVE_COMMIT_TARGETS
+            from mufettis.repair.committer import _ACTIVE_COMMIT_TARGETS
             target_key = f"{SAMPLE_DOC_ID}:{SAMPLE_SHA256}"
             lock = _ACTIVE_COMMIT_TARGETS[target_key]
             self.assertFalse(lock.acquire(blocking=False))
 
-    @patch("repair.orchestrator.commit_candidate")
+    @patch("mufettis.repair.orchestrator.commit_candidate")
     def test_23_circuit_breaker_trips(self, mock_commit):
         """Circuit breaker trips to CIRCUIT_OPEN after threshold consecutive failures."""
         self.policy.circuit_breaker_threshold = 3
@@ -587,7 +587,7 @@ class TestControlledAutomationUnit(unittest.TestCase):
         self.assertTrue(self.orchestrator.circuit_open)
         self.assertEqual(self.orchestrator.consecutive_failures, 3)
 
-    @patch("repair.orchestrator.commit_candidate")
+    @patch("mufettis.repair.orchestrator.commit_candidate")
     def test_24_circuit_breaker_halts_subsequent(self, mock_commit):
         """Tripped circuit breaker halts subsequent candidates immediately."""
         self.orchestrator.circuit_open = True
@@ -606,7 +606,7 @@ class TestControlledAutomationUnit(unittest.TestCase):
         self.assertEqual(self.orchestrator.consecutive_failures, 0)
         self.assertEqual(self.orchestrator.total_failures, 0)
 
-    @patch("repair.orchestrator.commit_candidate")
+    @patch("mufettis.repair.orchestrator.commit_candidate")
     def test_26_failure_budget_exceeded(self, mock_commit):
         """Exceeding failure budget halts automation even with non-consecutive failures."""
         self.policy.circuit_breaker_threshold = 10
@@ -634,7 +634,7 @@ class TestControlledAutomationUnit(unittest.TestCase):
         self.assertEqual(decision.risk_level, "CRITICAL")
         self.assertIn("KILL_SWITCH_ACTIVE", decision.blocking_reasons)
 
-    @patch("repair.committer.capture_before_snapshot")
+    @patch("mufettis.repair.committer.capture_before_snapshot")
     def test_28_snapshot_unavailable_blocks_repair(self, mock_snapshot):
         """If pre-commit snapshot fails to create, commit aborts before mutation."""
         mock_snapshot.side_effect = RuntimeError("Snapshot disk failure")
@@ -660,8 +660,8 @@ class TestControlledAutomationUnit(unittest.TestCase):
             )
         # Should not raise exception
 
-    @patch("repair.orchestrator.commit_candidate")
-    @patch("repair.orchestrator.verify_committed_repair")
+    @patch("mufettis.repair.orchestrator.commit_candidate")
+    @patch("mufettis.repair.orchestrator.verify_committed_repair")
     def test_30_audit_correlation_across_cycle(self, mock_verify, mock_commit):
         """Cycle execution emits correlated audit events into audit log."""
         mock_commit.return_value = _make_commit_result(commit_id="com_audit_correl")
@@ -754,8 +754,8 @@ class TestControlledAutomationUnit(unittest.TestCase):
         self.assertEqual(summary.scanned_count, 2)
         self.assertEqual(len(summary.results), 2)
 
-    @patch("repair.orchestrator.commit_candidate")
-    @patch("repair.orchestrator.verify_committed_repair")
+    @patch("mufettis.repair.orchestrator.commit_candidate")
+    @patch("mufettis.repair.orchestrator.verify_committed_repair")
     def test_37_max_auto_repairs_limit(self, mock_verify, mock_commit):
         """max_auto_repairs_per_cycle limits number of committed repairs in a cycle."""
         self.policy.max_auto_repairs_per_cycle = 2
@@ -802,8 +802,8 @@ class TestControlledAutomationUnit(unittest.TestCase):
         posix_str = p.as_posix()
         self.assertTrue(Path(posix_str).resolve() == p.resolve())
 
-    @patch("repair.orchestrator.commit_candidate")
-    @patch("repair.orchestrator.verify_committed_repair")
+    @patch("mufettis.repair.orchestrator.commit_candidate")
+    @patch("mufettis.repair.orchestrator.verify_committed_repair")
     def test_40_critical_e2e_rag_lab_full_cycle(self, mock_verify, mock_commit):
         """E2E happy path: SAFE -> COMMIT -> VERIFY -> VERIFIED_REPAIR."""
         candidate = _make_candidate()
@@ -821,9 +821,9 @@ class TestControlledAutomationUnit(unittest.TestCase):
         self.assertEqual(res.action_taken, "REPAIR")
         self.assertEqual(self.orchestrator.consecutive_failures, 0)
 
-    @patch("repair.orchestrator.rollback_commit")
-    @patch("repair.orchestrator.commit_candidate")
-    @patch("repair.orchestrator.verify_committed_repair")
+    @patch("mufettis.repair.orchestrator.rollback_commit")
+    @patch("mufettis.repair.orchestrator.commit_candidate")
+    @patch("mufettis.repair.orchestrator.verify_committed_repair")
     def test_41_critical_e2e_verify_fail_rollback_cycle(self, mock_verify, mock_commit, mock_rollback):
         """E2E failure path: COMMIT -> VERIFY_FAIL -> ROLLBACK -> FAILED_BUT_RESTORED."""
         candidate = _make_candidate()
