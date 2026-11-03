@@ -9,7 +9,7 @@ from mufettis.config import APP_NAME
 ROOT = Path(__file__).resolve().parents[1]
 # Kullanıcının gördüğü metinleri üreten dosyalar: arayüz, Word raporları, başlatıcı, yerel dil modeli istemi.
 USER_FACING = [
-    "app.py", "packaging/launcher.py", "mufettis/llm/client.py",
+    "app.py", "mufettis/cli.py", "packaging/launcher.py", "mufettis/llm/client.py",
     *[str(p.relative_to(ROOT)) for p in (ROOT / "mufettis" / "ui").glob("*.py")],
     *[str(p.relative_to(ROOT)) for p in (ROOT / "mufettis" / "exports").glob("*.py")],
 ]
