@@ -39,6 +39,8 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description=f"AuditTrace v{APP_VERSION}")
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--demo", action="store_true",
+                        help="Örnek kredi dosyasını arayüzsüz kontrol et ve bulguları yaz (mevzuat verisi gerekmez)")
     parser.add_argument("--run", action="store_true", help="Streamlit arayüzünü bu dosya üzerinden çalıştır")
     parser.add_argument("--update-now", action="store_true", help="BDDK + Resmî Gazete güncellemesini tek sefer çalıştır")
     parser.add_argument("--run-scheduler", action="store_true", help="Arka plan günlük scheduler\x27ı sürekli çalıştır")
@@ -76,6 +78,11 @@ if __name__ == "__main__":
     parser.add_argument("--repair-wave-allow-production", action="store_true", help="Production onarımı için zorunlu açık onay bayrağı")
     parser.add_argument("--repair-wave-env", type=str, default="rag_lab", choices=["rag_lab", "production"], help="Dalga hedef ortamı")
     args = parser.parse_args()
+
+    if args.demo:
+        from mufettis.demo import run_demo
+        run_demo()
+        sys.exit(0)
 
     if args.self_test:
         from mufettis.tests.runner import run_self_tests  # ağır test modülleri yalnız burada yüklenir
