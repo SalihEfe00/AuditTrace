@@ -90,6 +90,17 @@ def _people(value) -> List[frozenset]:
     return out
 
 
+def _name_key(value) -> str:
+    """Karşılaştırma için ad: küçük harf, Türkçe harfler sadeleşmiş, noktalama atılmış sözcükler."""
+    text = turkish_lower(str(value or "")).replace("̇", "").translate(_ASCII)
+    return " ".join(re.findall(r"[a-z0-9]+", text))
+
+
+def _contains_words(part: str, whole: str) -> bool:
+    """`part` sözcük dizisi `whole` içinde sözcük sınırlarında geçiyor mu ("can er" ⊄ "can eren")."""
+    return bool(re.search(r"(?<![a-z0-9])" + re.escape(part) + r"(?![a-z0-9])", whole))
+
+
 def _same_person(a: frozenset, b: frozenset) -> bool:
     return a <= b or b <= a  # ikinci ad yazılmamış olabilir ("Ali Veli" ↔ "Ali Rıza Veli")
 
@@ -134,13 +145,16 @@ def _passes(rule: Rule, fields: Dict[str, FieldValue], text: str) -> Optional[bo
         a, b = _get(fields, check["field"]), _get(fields, check["other"])
         if a.state != FILLED or b.state != FILLED:
             return None
-        x, y = _norm(a.value), _norm(b.value)
         # Ticaret şirketi / tüzel kişi ile gerçek kişi, unvan kişinin adını içerse de ayrı kişidir (M9.7c);
         # şahıs işletmesi ("Arslan Kuaförlüğü - Selim Arslan") tüzel kişi değildir, sahibiyle aynı kişidir.
         # Biri eksiz yazılmış aynı unvansa ("Arslan Gıda" / "Arslan Gıda A.Ş.") aynı kişidir.
         if _legal_entity(a.value) != _legal_entity(b.value):
             return _without_entity(a.value) != _without_entity(b.value)
-        return not (x and y and (x in y or y in x))
+        # Ad, ötekinin içinde bütün sözcükler olarak geçiyorsa aynı kişidir; harf düzeyinde değil: "Can Er" ile
+        # "Can Eren", "Ayşe Kaya" ile "Ayşe Kayalı" ayrı kişilerdir. Büyük / küçük harf ve Türkçe harfler sadeleşir
+        # ("SELİM ARSLAN" = "Selim Arslan").
+        x, y = _name_key(a.value), _name_key(b.value)
+        return not (x and y and (_contains_words(x, y) or _contains_words(y, x)))
     if kind == "date_order":
         a, b = _get(fields, check["before"]), _get(fields, check["after"])
         if a.state != FILLED or b.state != FILLED:

@@ -32,23 +32,26 @@ _DATE = re.compile(r"\b(\d{1,2})" + _SEP + r"(\d{1,2})" + _SEP + r"(\d{4})\b")
 _ISO_DATE = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
 _MONTHS = ["ocak", "şubat", "mart", "nisan", "mayıs", "haziran", "temmuz", "ağustos", "eylül", "ekim", "kasım", "aralık"]
 _WORD_DATE = re.compile(r"\b(\d{1,2})\s+(" + "|".join(_MONTHS) + r")\s+(\d{4})\b")
-_AMOUNT = re.compile(r"(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:,\d{1,2})?)\s*(?:TL|₺|türk lirası)", re.I)
+# Tutar yalnızca Türkçe biçimde okunur (1.000.000,00 ya da ayraçsız 1000000). Sayının ortasından başlayan ya da
+# ortasında biten eşleşme yasak: "1000000.50 TL" içinden "50", "1,000,000.00" içinden "1,00" okunmasın; tanınmayan
+# biçim None olur ve kural belirsiz der (sessizce yanlış tutar yerine).
+_NUM = r"(?<![\d.,])(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:,\d{1,2})?)(?!\d|[.,]\d)"
+_AMOUNT = re.compile(_NUM + r"\s*(?:TL|₺|türk lirası)", re.I)
 
 
 def as_date(raw: str) -> Optional[dt.date]:
-    """GG.AA.YYYY (/ ya da -), YYYY-AA-GG ya da "12 Mart 2024"."""
-    try:
-        m = _DATE.search(raw)
-        if m:
-            return dt.date(int(m.group(3)), int(m.group(2)), int(m.group(1)))
-        m = _ISO_DATE.search(raw)
-        if m:
-            return dt.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
-        m = _WORD_DATE.search(turkish_lower(raw))
-        if m:
-            return dt.date(int(m.group(3)), _MONTHS.index(m.group(2)) + 1, int(m.group(1)))
-    except ValueError:
-        return None
+    """GG.AA.YYYY (/ ya da -), YYYY-AA-GG ya da "12 Mart 2024". Geçersiz bir tarih (OCR: "31.02.2024") aramayı
+    bitirmez; sıradaki eşleşmeye bakılır."""
+    for pattern, text, parts in (
+            (_DATE, raw, lambda m: (int(m.group(3)), int(m.group(2)), int(m.group(1)))),
+            (_ISO_DATE, raw, lambda m: (int(m.group(1)), int(m.group(2)), int(m.group(3)))),
+            (_WORD_DATE, turkish_lower(raw),
+             lambda m: (int(m.group(3)), _MONTHS.index(m.group(2)) + 1, int(m.group(1))))):
+        for m in pattern.finditer(text):
+            try:
+                return dt.date(*parts(m))
+            except ValueError:
+                continue
     return None
 
 
@@ -61,7 +64,7 @@ def as_amount(raw: str) -> Optional[str]:
 _CURRENCIES = (("TRY", r"tl|₺|türk lirası|try"), ("USD", r"usd|\$|abd doları|amerikan doları"),
                ("EUR", r"eur|€|avro|euro"), ("GBP", r"gbp|£|sterlin"), ("CHF", r"chf|isviçre frangı"))
 _MONEY = re.compile(r"(?:(?P<pre>" + "|".join(p for _, p in _CURRENCIES) + r")\s*)?"
-                    r"(?P<num>\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:,\d{1,2})?)"
+                    r"(?<![\d.,])(?P<num>\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:,\d{1,2})?)(?!\d|[.,]\d)"
                     r"(?:\s*(?P<post>" + "|".join(p for _, p in _CURRENCIES) + r"))?", re.I)
 
 
@@ -81,13 +84,22 @@ def as_money(raw: str) -> Optional[str]:
 UNDECIDED = object()
 
 
+# Eşleşmeden hemen sonra (en fazla bir sözcük arayla) gelen olumsuzluk: "Evli değil", "Şirket ortağı değildir",
+# "Müteselsil olmayan". Böyle bir eşleşme o kategoriyi göstermez; sıradaki kalıba geçilir.
+_NEGATION = re.compile(r"\W*(?:[^\W\d_]+\s+)?(?:değil|olmayan|olmadığ)")
+
+
 def one_of(choices: List[Tuple[str, str]]) -> Callable[[str], object]:
     """Değeri (kalıp, normal değer) listesinden ilk eşleşene çevirir. Hiçbiri eşleşmezse UNDECIDED: tanınmayan
     kategori değeri ("Rotatif kredi") ham metin olarak kalsaydı kural onu "uygulanmaz" ya da "karşılanmadı" sayardı;
-    alan bulunamadı kalır ve müfettişe sorulur (M9.4c)."""
+    alan bulunamadı kalır ve müfettişe sorulur (M9.4c). Ardından olumsuzluk gelen eşleşme sayılmaz ("Evli değil"
+    evli değildir; bekâr mı boşanmış mı bilinmediğinden müfettişe sorulur)."""
     def convert(raw: str) -> object:
         low = turkish_lower(raw)
-        return next((value for pattern, value in choices if re.search(pattern, low)), UNDECIDED)
+        for pattern, value in choices:
+            if any(not _NEGATION.match(low, m.end()) for m in re.finditer(pattern, low)):
+                return value
+        return UNDECIDED
     return convert
 
 
