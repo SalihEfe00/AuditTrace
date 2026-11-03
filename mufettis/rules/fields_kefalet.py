@@ -46,8 +46,9 @@ CONVERT = {
     "azami_tutar": as_amount,
     "kefalet_turu": one_of([(r"müteselsil", "müteselsil"), (r"\badi\b", "adi")]),
     "kefil_medeni_hal": one_of([(r"evli", "evli"), (r"bek[aâ]r", "bekar"), (r"boşanmış", "boşanmış"), (r"\bdul\b", "dul")]),
-    "kredi_turu": one_of([(r"tüketici|bireysel|ihtiyaç|konut|taşıt", "tüketici"),
-                          (r"ticari|kurumsal|işletme|kobi", "ticari")]),
+    # Ticari ibare önce: "Ticari taşıt kredisi", "KOBİ konut kredisi" ürün adına rağmen ticaridir
+    "kredi_turu": one_of([(r"ticari|kurumsal|işletme|kobi", "ticari"),
+                          (r"tüketici|bireysel|ihtiyaç|konut|taşıt", "tüketici")]),
     # 5070 md. 5 (ikinci cümle) yalnızca güvenli elektronik imzayı yasaklar; türü yazmayan "elektronik imza" karar için yetersiz
     "imza_turu": one_of([(r"güvenli elektronik|nitelikli elektronik", "guvenli_e_imza"),
                          (r"basit elektronik|güvenli olmayan|ekrana|tablet", "diger_elektronik"),
@@ -59,7 +60,9 @@ CONVERT = {
     # Tanınmayan meslek tahmin edilmez: müfettişe sorulur (UNDECIDED, M9.4c)
     "kefil_ticari_sifat": one_of([
         # "Servis müdürü" gibi çalışan unvanı şirket yöneticiliği değildir: yalnızca ortaklık / şirket yöneticiliği
-        (r"ortağı|ortak|şirket (?:müdürü|yöneticisi)|yönetim kurulu|limited.{0,20}müdür", "sirket_ortagi_yoneticisi"),
+        # Sözcük sınırı: "Ortaköy şubesi çalışanı" ortak değildir
+        (r"\bortağı|\bortak\b|şirket (?:müdürü|yöneticisi)|yönetim kurulu|limited.{0,20}müdür",
+         "sirket_ortagi_yoneticisi"),
         (r"esnaf|sanatkâr|sanatkar|berber|terzi|bakkal|kuaför|kasap|fırın|manav|tamirci|marangoz|nalbur|"
          r"dükkan|dükkân|zanaat", "esnaf_sanatkar"),
         (r"tacir|işletme sahibi|ticari işletme|şahıs şirketi", "tacir_isletme_sahibi"),
