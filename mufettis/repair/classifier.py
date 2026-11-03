@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import List
 
-from repair.models import (
+from mufettis.repair.models import (
     ClassificationResult,
     ClassificationType,
     DocumentScanResult,

@@ -31,9 +31,9 @@ from unittest.mock import MagicMock, patch
 from tests.data_integrity import data_integrity_problems
 from mufettis.common.utils import sha256_bytes, now_iso
 from mufettis.rag.index import IngestIndex
-from repair.audit import RepairAuditLogger, verify_audit_integrity
-from repair.models import AuditEventType
-from repair.quarantine import (
+from mufettis.repair.audit import RepairAuditLogger, verify_audit_integrity
+from mufettis.repair.models import AuditEventType
+from mufettis.repair.quarantine import (
     save_quarantine_payload,
     verify_quarantine_payload_integrity,
     list_quarantined_documents,
@@ -41,7 +41,7 @@ from repair.quarantine import (
     review_quarantine_document,
     retry_quarantined_document,
 )
-from repair.telemetry import compute_operational_telemetry
+from mufettis.repair.telemetry import compute_operational_telemetry
 from tests.test_quarantine_operational import MockLocalRAG
 from mufettis.ui.admin import (
     render_quarantine_admin_panel,

@@ -200,7 +200,7 @@ def apply(rag, index, the_plan: Dict[str, Any]) -> Dict[str, Any]:
     from mufettis.importers.bulk_importer import BulkRegulationImporter
     from mufettis.legal.parser import extract_legal_metadata
     from mufettis.rag.maintenance import versioned_ingest_text
-    from repair.ingestion_gate import AutoHealingIngestionGate
+    from mufettis.repair.ingestion_gate import AutoHealingIngestionGate
 
     report: Dict[str, Any] = {}
 

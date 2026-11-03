@@ -16,15 +16,15 @@ Strict principles:
 3. Every repair strictly enforces:
    SNAPSHOT -> COMMIT -> VERIFY -> RESCAN.
 4. Fail-safe:
-   VERIFY or RESCAN failure triggers canonical FAZ 14 rollback (repair/rollback.py).
+   VERIFY or RESCAN failure triggers canonical FAZ 14 rollback (mufettis/repair/rollback.py).
 5. Cross-hash / cross-document isolation:
    Any unexpected cross-document mutation immediately triggers rollback and halts wave.
 6. Single Write Authorities Preserved:
-   - Commit: repair/committer.py
-   - Rollback: repair/rollback.py
-   - Audit: repair/audit.py
-   - Scan & Rescan: repair/scanner.py
-   - Verification: repair/verifier.py
+   - Commit: mufettis/repair/committer.py
+   - Rollback: mufettis/repair/rollback.py
+   - Audit: mufettis/repair/audit.py
+   - Scan & Rescan: mufettis/repair/scanner.py
+   - Verification: mufettis/repair/verifier.py
 """
 from __future__ import annotations
 
@@ -47,12 +47,12 @@ from mufettis.config import (
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex, store_path
 
-from repair.audit import RepairAuditLogger, get_audit_logger
-from repair.classifier import classify_document
-from repair.committer import CommitPolicy, acquire_commit_lock, commit_candidate
-from repair.comparator import build_snapshot, compare_quality
-from repair.extractor import extract_candidate
-from repair.models import (
+from mufettis.repair.audit import RepairAuditLogger, get_audit_logger
+from mufettis.repair.classifier import classify_document
+from mufettis.repair.committer import CommitPolicy, acquire_commit_lock, commit_candidate
+from mufettis.repair.comparator import build_snapshot, compare_quality
+from mufettis.repair.extractor import extract_candidate
+from mufettis.repair.models import (
     AuditEvent,
     AuditEventType,
     ClassificationType,
@@ -70,11 +70,11 @@ from repair.models import (
     WaveStatus,
     WaveSummary,
 )
-from repair.orchestrator import ApprovalManager
-from repair.retrieval_comparator import evaluate_final_gate
-from repair.rollback import rollback_commit
-from repair.scanner import _calc_sha256, scan_document
-from repair.verifier import verify_committed_repair
+from mufettis.repair.orchestrator import ApprovalManager
+from mufettis.repair.retrieval_comparator import evaluate_final_gate
+from mufettis.repair.rollback import rollback_commit
+from mufettis.repair.scanner import _calc_sha256, scan_document
+from mufettis.repair.verifier import verify_committed_repair
 
 logger = logging.getLogger("mufettis.repair.wave")
 

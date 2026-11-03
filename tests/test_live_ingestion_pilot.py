@@ -24,13 +24,13 @@ from mufettis.common.http import build_http_session
 from mufettis.common.utils import now_iso
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.maintenance import versioned_ingest_text
-from repair.audit import RepairAuditLogger
-from repair.quarantine import (
+from mufettis.repair.audit import RepairAuditLogger
+from mufettis.repair.quarantine import (
     save_quarantine_payload,
     verify_quarantine_payload_integrity,
     retry_quarantined_document,
 )
-from repair.telemetry import compute_operational_telemetry
+from mufettis.repair.telemetry import compute_operational_telemetry
 from tests.test_quarantine_operational import MockLocalRAG
 from mufettis.ui.admin import (
     render_quarantine_admin_panel,
@@ -215,7 +215,7 @@ class TestLiveIngestionPilot(unittest.TestCase):
         }
 
         # Inject audit logger into gate context
-        from repair.ingestion_gate import AutoHealingIngestionGate
+        from mufettis.repair.ingestion_gate import AutoHealingIngestionGate
         gate = AutoHealingIngestionGate(audit_logger=self.audit_logger)
 
         res = gate.ingest(

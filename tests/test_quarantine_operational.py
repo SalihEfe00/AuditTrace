@@ -27,9 +27,9 @@ from typing import Any, Dict, List, Optional
 from mufettis.common.utils import sha256_bytes
 from mufettis.rag.index import IngestIndex
 from mufettis.rag.maintenance import versioned_ingest_text
-from repair.audit import RepairAuditLogger
-from repair.models import AuditEventType
-from repair.quarantine import (
+from mufettis.repair.audit import RepairAuditLogger
+from mufettis.repair.models import AuditEventType
+from mufettis.repair.quarantine import (
     save_quarantine_payload,
     load_quarantine_payload,
     verify_quarantine_payload_integrity,
@@ -38,7 +38,7 @@ from repair.quarantine import (
     review_quarantine_document,
     retry_quarantined_document,
 )
-from repair.telemetry import compute_operational_telemetry
+from mufettis.repair.telemetry import compute_operational_telemetry
 
 
 class MockCollection:

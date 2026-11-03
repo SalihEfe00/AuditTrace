@@ -26,7 +26,7 @@ involved_entities
 target_domains
 output_schema
 
-# dataclass / enum alanları: kaydedilen ve raporlanan veri şeması (repair/models.py, gold_set.py, corpus/model.py).
+# dataclass / enum alanları: kaydedilen ve raporlanan veri şeması (mufettis/repair/models.py, gold_set.py, corpus/model.py).
 SOURCE_PATH_MISSING
 # İndirme kaydı (harvesting/official_legislation.py FetchResult): downloads.json'a yazılır.
 fetched_at
@@ -112,8 +112,8 @@ _.style
 
 # Demet açmada kullanılmayan öğeler (değer diğer öğeler için açılıyor).
 badge_desc  # mufettis/ui/analysis_view.py
-appr_rec  # repair/orchestrator.py, repair/wave.py
-c_id  # repair/scanner.py
+appr_rec  # mufettis/repair/orchestrator.py, mufettis/repair/wave.py
+c_id  # mufettis/repair/scanner.py
 
 # Chroma istemcisiyle aynı imza (store.py SqliteVectorClient.get_or_create_collection).
 embedding_function

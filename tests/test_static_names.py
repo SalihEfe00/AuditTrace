@@ -24,7 +24,7 @@ _ALWAYS_DEFINED = set(dir(builtins)) | {
 
 
 def _project_files() -> List[Path]:
-    files = list((ROOT / "mufettis").rglob("*.py")) + list((ROOT / "repair").rglob("*.py"))
+    files = list((ROOT / "mufettis").rglob("*.py"))  # mufettis/repair dahil
     files += list((ROOT / "tests").glob("*.py")) + [ROOT / "app.py", ROOT / "conftest.py"]
     return sorted(p for p in files if "__pycache__" not in p.parts)
 

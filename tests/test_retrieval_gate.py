@@ -5,12 +5,12 @@ import json
 import unittest
 
 from mufettis.config import DATA_DIR, EMBEDDING_MODEL
-from repair.models import (
+from mufettis.repair.models import (
     ComparisonResult,
     ComparisonStatus,
     RetrievalComparisonResult,
 )
-from repair.retrieval_comparator import (
+from mufettis.repair.retrieval_comparator import (
     RetrievalGatePolicy,
     compare_retrieval,
     evaluate_final_gate,

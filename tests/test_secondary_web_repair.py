@@ -26,20 +26,20 @@ from mufettis.config import (
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex
 
-from repair.comparator import (
+from mufettis.repair.comparator import (
     ComparisonStatus,
     build_snapshot,
     compare_quality,
 )
-from repair.retrieval_comparator import evaluate_final_gate
-from repair.extractor import extract_candidate
-from repair.models import (
+from mufettis.repair.retrieval_comparator import evaluate_final_gate
+from mufettis.repair.extractor import extract_candidate
+from mufettis.repair.models import (
     RetrievalComparisonResult,
     WaveConfig,
     WaveDocumentStatus,
     WaveStatus,
 )
-from repair.wave import WaveOrchestrator
+from mufettis.repair.wave import WaveOrchestrator
 
 
 SAMPLE_WEB_URL = "https://www.mevzuat.org/"

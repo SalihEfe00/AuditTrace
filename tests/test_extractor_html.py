@@ -12,7 +12,7 @@ import hashlib
 import unittest
 
 from mufettis.config import CHUNK_SCHEMA_VERSION
-from repair.extractor import extract_candidate
+from mufettis.repair.extractor import extract_candidate
 
 HTML = (
     "<html><body><h1>Yönetmelik</h1>"

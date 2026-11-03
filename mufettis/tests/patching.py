@@ -28,7 +28,7 @@ import sys
 from types import ModuleType
 from typing import Any, Dict, Iterator
 
-_PROJECT_MODULE_PREFIXES = ("mufettis", "repair", "tests", "app", "__main__")
+_PROJECT_MODULE_PREFIXES = ("mufettis", "tests", "app", "__main__")
 _MISSING = object()
 
 

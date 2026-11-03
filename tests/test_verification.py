@@ -22,8 +22,8 @@ from unittest.mock import MagicMock
 
 from mufettis.config import CHUNK_SCHEMA_VERSION, EMBEDDING_MODEL, DATA_DIR, DB_PATH
 from mufettis.rag.engine import LocalRAG
-from repair.committer import commit_candidate
-from repair.models import (
+from mufettis.repair.committer import commit_candidate
+from mufettis.repair.models import (
     CommitResult,
     CommitStatus,
     ComparisonStatus,
@@ -31,7 +31,7 @@ from repair.models import (
     FinalGateDecision,
     VerificationStatus,
 )
-from repair.verifier import verify_committed_repair, run_baseline_benchmarks
+from mufettis.repair.verifier import verify_committed_repair, run_baseline_benchmarks
 
 # ── constants ────────────────────────────────────────────────────────────────
 _SAMPLE_HASH = "a" * 64

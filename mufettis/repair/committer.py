@@ -30,7 +30,7 @@ from mufettis.corpus.validity import preserved_status
 from mufettis.extraction.text_repair import repair_extracted_spacing
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex, store_path
-from repair.models import (
+from mufettis.repair.models import (
     BeforeSnapshot,
     CommitResult,
     CommitStatus,

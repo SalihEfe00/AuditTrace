@@ -17,9 +17,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from repair.committer import capture_before_snapshot
-from repair.models import RollbackStatus
-from repair.rollback import calculate_state_fingerprint, restore_source_cache, rollback_commit
+from mufettis.repair.committer import capture_before_snapshot
+from mufettis.repair.models import RollbackStatus
+from mufettis.repair.rollback import calculate_state_fingerprint, restore_source_cache, rollback_commit
 
 HASH = "a" * 64
 
@@ -134,8 +134,8 @@ class TestResetChromaCollection(unittest.TestCase):
 
 class TestAuditChainHead(_Base):
     def test_unreadable_log_rejects_append_instead_of_restarting_chain(self):
-        from repair.audit import RepairAuditLogger
-        from repair.models import AuditEvent
+        from mufettis.repair.audit import RepairAuditLogger
+        from mufettis.repair.models import AuditEvent
 
         log_path = self.tmp / "repair_audit.jsonl"
         log_path.mkdir()  # exists() True, open() OSError verir
@@ -145,8 +145,8 @@ class TestAuditChainHead(_Base):
         self.assertIn("zincir", error)
 
     def test_healthy_log_links_events(self):
-        from repair.audit import RepairAuditLogger
-        from repair.models import AuditEvent
+        from mufettis.repair.audit import RepairAuditLogger
+        from mufettis.repair.models import AuditEvent
 
         logger = RepairAuditLogger(log_path=self.tmp / "repair_audit.jsonl")
         ok1, first, _ = logger.log_event(AuditEvent(event_id="e1", event_type="TEST", timestamp="2026-09-26 00:00:00"))

@@ -24,7 +24,7 @@ import unittest
 from pathlib import Path
 from typing import List
 
-from repair.audit import (
+from mufettis.repair.audit import (
     REPAIR_AUDIT_LOG_FILE,
     RepairAuditLogger,
     generate_event_id,
@@ -37,7 +37,7 @@ from repair.audit import (
     read_all_events,
     verify_audit_integrity,
 )
-from repair.models import (
+from mufettis.repair.models import (
     AuditEvent,
     AuditEventType,
 )

@@ -84,7 +84,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
                 print(f"\n[{test}]\n{detail}")
         raise SystemExit(0 if result.wasSuccessful() else 1)
     if args.repair_audit or args.repair_audit_repair_id or args.repair_audit_document:
-        from repair.audit import (
+        from mufettis.repair.audit import (
             get_repair_audit,
             get_document_audit,
             list_recent_repairs,
@@ -136,7 +136,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
         print("=" * 60)
         raise SystemExit(0)
     if args.repair_rollback:
-        from repair.rollback import rollback_commit
+        from mufettis.repair.rollback import rollback_commit
         print("=" * 60)
         print("SAFE REPAIR ROLLBACK")
         if args.repair_rollback_dry_run:
@@ -171,8 +171,8 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
         print("=" * 60)
         raise SystemExit(0 if res.status in {"ROLLBACK_SUCCESS", "ROLLBACK_ALREADY_RESTORED"} else 1)
     if args.repair_automation or args.repair_automation_approve:
-        from repair.orchestrator import ControlledAutomationOrchestrator
-        from repair.models import AutomationPolicy, AutomationMode
+        from mufettis.repair.orchestrator import ControlledAutomationOrchestrator
+        from mufettis.repair.models import AutomationPolicy, AutomationMode
         print("=" * 60)
         print("MÜFETTİŞ AI — FAZ 16: CONTROLLED AUTOMATION ORCHESTRATION")
         print(f"MODE       : {args.repair_automation_mode.upper()}")
@@ -235,7 +235,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
             print(json.dumps(safe_json(summary.to_dict()), ensure_ascii=False, indent=2))
             raise SystemExit(0 if summary.status in ("SUCCESS", "PARTIAL") else 1)
     if args.repair_wave:
-        from repair.wave import WaveOrchestrator, WaveConfig, check_production_corpus
+        from mufettis.repair.wave import WaveOrchestrator, WaveConfig, check_production_corpus
         print("=" * 60)
         print("MÜFETTİŞ AI — FAZ 17: CONTROLLED PRODUCTION REPAIR WAVES")
         print(f"SCOPE      : {args.repair_wave_scope.upper()}")
@@ -301,7 +301,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
         print("READ-ONLY REPAIR SCAN")
         print("PRODUCTION WRITE: DISABLED")
         print("=" * 60)
-        from repair.scanner import scan_production
+        from mufettis.repair.scanner import scan_production
         rag = LocalRAG(allow_download=False)
         index = IngestIndex()
         report = scan_production(index=index, rag=rag)
@@ -319,7 +319,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
         print(json.dumps(safe_json(report.to_dict()), ensure_ascii=False, indent=2))
         raise SystemExit(0)
     if args.repair_extract_pdf:
-        from repair.extractor import extract_candidate
+        from mufettis.repair.extractor import extract_candidate
         pdf_p = Path(args.repair_extract_pdf)
         expected_h = args.repair_expected_hash.strip().lower() or None
         candidate = extract_candidate(pdf_path=pdf_p, expected_hash=expected_h)
@@ -358,8 +358,8 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
         print("\nPRODUCTION WRITE:")
         if args.repair_commit:
             print("ENABLED (EXPLICIT COMMIT)")
-            from repair.committer import commit_candidate
-            from repair.models import FinalGateDecision, ComparisonStatus
+            from mufettis.repair.committer import commit_candidate
+            from mufettis.repair.models import FinalGateDecision, ComparisonStatus
             # Default decision for explicit CLI commit with valid candidate
             decision = FinalGateDecision(
                 faz11a_status=ComparisonStatus.READY_TO_COMMIT.value,
@@ -374,7 +374,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
             if args.repair_verify:
                 print("\nPOST-REPAIR VERIFICATION (write: 0)")
                 print("=" * 60)
-                from repair.verifier import verify_committed_repair
+                from mufettis.repair.verifier import verify_committed_repair
                 from mufettis.config import SOURCE_CACHE_DIR
                 verify_res = verify_committed_repair(
                     commit_result=commit_res,

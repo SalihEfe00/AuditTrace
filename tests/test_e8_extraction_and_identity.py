@@ -164,8 +164,8 @@ class TestChromaBatchLimits(unittest.TestCase):
         from unittest.mock import patch
 
         from mufettis.rag.index import IngestIndex
-        from repair import ingestion_gate
-        from repair.audit import RepairAuditLogger
+        from mufettis.repair import ingestion_gate
+        from mufettis.repair.audit import RepairAuditLogger
 
         tmp = Path(tempfile.mkdtemp(prefix="gate_batch_"))
         try:

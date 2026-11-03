@@ -41,15 +41,15 @@ from mufettis.rag.maintenance import (
     reset_chroma_collection,
     versioned_ingest_text,
 )
-from repair.quarantine import (
+from mufettis.repair.quarantine import (
     list_quarantined_documents,
     get_quarantine_detail,
     review_quarantine_document,
     retry_quarantined_document,
     verify_quarantine_payload_integrity,
 )
-from repair.telemetry import compute_operational_telemetry
-from repair.audit import verify_audit_integrity, REPAIR_AUDIT_LOG_FILE, RepairAuditLogger
+from mufettis.repair.telemetry import compute_operational_telemetry
+from mufettis.repair.audit import verify_audit_integrity, REPAIR_AUDIT_LOG_FILE, RepairAuditLogger
 
 if TYPE_CHECKING:  # yalnızca tür ipucu; çalışma anında döngüsel içe aktarım yok
     from mufettis.rag.engine import LocalRAG

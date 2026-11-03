@@ -31,7 +31,7 @@ class TestArchitectureBoundaries(unittest.TestCase):
             "audit": list((cls.root / "audit").glob("*.py")),
             "reporting": list((cls.root / "exports").glob("*.py")),
             "ui": list((cls.root / "ui").glob("*.py")),
-            "repair": list((Path(__file__).resolve().parent.parent / "repair").glob("*.py")),
+            "repair": list((Path(__file__).resolve().parent.parent / "mufettis" / "repair").glob("*.py")),
         }
 
     def _get_imports(self, file_path: Path):

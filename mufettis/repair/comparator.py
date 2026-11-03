@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from repair.models import (
+from mufettis.repair.models import (
     ComparisonResult,
     ComparisonStatus,
     ExtractionCandidate,

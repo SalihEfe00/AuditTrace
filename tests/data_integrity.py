@@ -14,7 +14,7 @@ import sqlite3
 from typing import List
 
 from mufettis.config import BASE_DIR, DATA_DIR, DB_PATH, INGEST_INDEX_FILE
-from repair.audit import REPAIR_AUDIT_LOG_FILE, verify_audit_integrity
+from mufettis.repair.audit import REPAIR_AUDIT_LOG_FILE, verify_audit_integrity
 
 
 def data_integrity_problems() -> List[str]:

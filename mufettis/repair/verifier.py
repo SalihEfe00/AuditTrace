@@ -24,7 +24,7 @@ from typing import Any, Dict, List, Optional
 
 from mufettis.config import CHUNK_SCHEMA_VERSION
 from mufettis.legal.parser import _chunk_is_retrievable
-from repair.models import (
+from mufettis.repair.models import (
     CheckResult,
     CommitResult,
     VerificationResult,

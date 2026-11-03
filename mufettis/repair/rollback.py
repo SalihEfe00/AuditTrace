@@ -7,7 +7,7 @@ fails or controlled rollback is required:
   BEFORE STATE -> COMMIT -> VERIFY FAILURE -> RESTORE BEFORE STATE -> VERIFY RESTORED
 
 Strictly adheres to:
-- Single rollback authority (repair/rollback.py)
+- Single rollback authority (mufettis/repair/rollback.py)
 - Identity matching (commit_id, document_id, source_sha256)
 - Snapshot integrity verification before mutation
 - Atomic cache restoration (content + existence state)
@@ -37,7 +37,7 @@ from mufettis.config import (
 from mufettis.common.utils import now_iso
 from mufettis.rag.engine import LocalRAG
 from mufettis.rag.index import IngestIndex
-from repair.models import (
+from mufettis.repair.models import (
     RollbackResult,
     RollbackStatus,
     VerificationResult,
