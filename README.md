@@ -55,12 +55,61 @@ pytest
 | Klasör | İçerik |
 |---|---|
 | `mufettis/` | Uygulama: belge okuma, alan çıkarma, kurallar, mevzuat arama, arayüz |
+| `repair/` | Mevzuat kütüphanesinin bakım ve onarım hattı (tarama, aday onarım, doğrulama, geri alma); yalnızca Admin ve CLI |
 | `mufettis/rules/catalog/` | Kural kataloğu (JSON) |
 | `tests/` | Birim ve uçtan uca testler |
 | `benchmarks/` | Sentetik vakalar ve ölçüm betikleri |
 | `scripts/` | Mevzuat derleme, envanter ve bakım betikleri |
 | `packaging/` | Windows paketi ve kurulum |
 | `docs/` | Kapsam, plan ve mimari kararlar |
+
+## In English
+
+AuditTrace checks the documents of a bank-branch credit file (credit approval, drawdown instruction, mortgage
+deed, guarantee contract, signature circular, …) against Turkish legislation and internal control requirements.
+It is a personal portfolio project, not a bank product; all sample documents and personal data in the repository
+are synthetic.
+
+### How it works
+
+```
+document (PDF, scanned PDF, DOCX, DOC, HTML, TXT)
+  → text extraction       pypdfium2 + quality gate; Tesseract OCR for scanned pages (local)
+  → document type         deterministic title / body signals
+  → field extraction      labelled fields, each one of three states: filled (value + line) / empty / not found
+  → rule engine           43 rules in a JSON catalogue (mufettis/rules/catalog/)
+  → findings              criterion (article or internal requirement) + verbatim quote + recommendation
+  → inspector questions   what the document cannot answer is asked, never guessed
+  → Word working paper    decisions kept in an audit trail
+```
+
+### Design decisions
+
+- **Missing evidence is never "met".** A rule passes only on positive evidence. An empty field (label present,
+  value blank) and a field that was not found at all (OCR may have missed it) are different: the first can be a
+  finding, the second makes the result *undecided*.
+- **Unrecognised input stays unknown.** A value the parser cannot read with certainty ("Evli değil", an amount in
+  a non-Turkish number format) becomes *undecided* and is asked to the inspector instead of being turned into a
+  plausible but wrong value.
+- **Every finding is traceable.** Each rule carries its legal basis with the quoted article text, the exceptions
+  and the rationale; each result carries the document line it was read from. Inspector answers are recorded as
+  "inspector statement" evidence and the rule is re-evaluated.
+- **Rules apply by date.** A rule is evaluated against the text of the law in force on the event date.
+- **The language model cannot create findings.** The legislation assistant searches a local library of 836
+  regulations (embedding similarity + lexical search + re-ranking). An optional local LLM (Ollama) may only
+  *reject* weak matches.
+- **Everything runs locally.** Documents never leave the machine.
+
+### Quick start
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+pytest
+```
+
+Tests that need the legislation library (`data/`, not in the repository), Tesseract or Windows are skipped when
+those are absent.
 
 ## Lisans
 
