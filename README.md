@@ -13,6 +13,23 @@ belgeler bilgisayardan çıkmaz.
 (Turkish legislation). Every finding comes with its criterion, a verbatim quote from the document and a
 recommendation. Personal portfolio project, not a bank product.*
 
+![Örnek kredi dosyasının kontrol sonucu: 15 kontrolden 4 bulgu, müfettişe sorulan soru ve kontrol çizelgesi](docs/images/kontrol_ozeti.png)
+
+## Hemen deneyin
+
+Mevzuat kütüphanesi, Tesseract ya da dil modeli gerekmez. Örnek kredi dosyası (uydurma bilgili 4 belge: kredi
+onayı, kullandırım talimatı, ipotek, imza sirküleri) arayüzsüz kontrol edilir ve bulgular terminale yazılır:
+
+```bash
+pip install -r requirements.txt
+python app.py --demo
+```
+
+Aynı dosya arayüzde `streamlit run app.py` → **Örnek dosyayla dene** ile açılır. Her bulgu, dayanağı ve belgedeki
+satırıyla gelir:
+
+![Bulgu kartı: tespit, ölçüt, belgedeki satırlarıyla kanıt ve öneri](docs/images/bulgu_kaniti.png)
+
 ## Neler yapar
 
 - **Kural kontrolü:** 43 kural, 7 belge türü (kredi onayı, kullandırım talimatı, ipotek, kefalet sözleşmesi,
@@ -106,7 +123,8 @@ document (PDF, scanned PDF, DOCX, DOC, HTML, TXT)
 
 ```bash
 pip install -r requirements.txt
-streamlit run app.py
+python app.py --demo     # checks the sample credit file in the terminal; no legislation library needed
+streamlit run app.py     # UI; "Örnek dosyayla dene" opens the same sample file
 pytest
 ```
 
