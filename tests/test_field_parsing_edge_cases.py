@@ -6,7 +6,7 @@ import datetime as dt
 import pytest
 
 from mufettis.rules.catalog import load_catalog
-from mufettis.rules.engine import INSPECTOR, MET, NOT_APPLICABLE, NOT_MET, FieldValue, evaluate
+from mufettis.rules.engine import INSPECTOR, MET, NOT_APPLICABLE, NOT_MET, UNKNOWN, FieldValue, evaluate
 from mufettis.rules.fields import UNDECIDED, as_amount, as_date, as_money
 from mufettis.rules.fields_kefalet import CONVERT, extract_kefalet_fields
 
@@ -123,3 +123,34 @@ def test_money_never_reads_a_fragment(raw, expected):
 ])
 def test_dates(raw, expected):
     assert as_date(raw) == expected
+
+
+@pytest.mark.parametrize("kefil, borclu", [
+    ("Ayşe Kaya", "Ayşe Nur Kaya"),      # ikinci ad yazılmamış olabilir
+    ("M. Ali Veli", "Mehmet Ali Veli"),  # kısaltma
+])
+def test_possibly_same_person_is_undecided_not_met(kefil, borclu):
+    rule = next(r for r in load_catalog() if r.id == "TBK581-kefil-ucuncu-kisi")
+    res = evaluate([rule], "kefalet_sozlesmesi", {"kefil": F(kefil), "borclu": F(borclu)})[0]
+    assert res.status == UNKNOWN  # eskiden "karşılandı": kefil borçlunun kendisi olabilir, bulgu kaçardı
+    assert "aynı kişi olabilir" in res.finding and "kimlik" in res.finding
+
+
+@pytest.mark.parametrize("kefil, borclu", [("Av. Ali Veli", "Ali Veli"), ("Dr. Ayşe Kaya", "AYŞE KAYA")])
+def test_titles_do_not_hide_the_same_person(kefil, borclu):
+    assert _differ_status(kefil, borclu) == NOT_MET
+
+
+@pytest.mark.parametrize("signer, allowed, expected", [
+    ("Av. Ali Veli", "Ali Veli, Ayşe Kaya", MET),
+    ("Dr. Ayşe Kaya", "Ali Veli, Ayşe Kaya", MET),
+    ("M. Ali Veli", "Mehmet Ali Veli", MET),
+    ("ALİ VELİ", "Ali Veli", MET),
+    ("ŞÜKRÜ ÖZTÜRK", "Şükrü Öztürk", MET),
+    ("Ali Velioğlu", "Ali Veli, Ayşe Kaya", NOT_MET),
+    ("Can Er", "Can Eren", NOT_MET),
+])
+def test_signer_matching(signer, allowed, expected):
+    rule = next(r for r in load_catalog() if r.id == "MASAK-7-imzalayan-yetkili")
+    fields = {"kullandirim.musteri_imzalayan": F(signer), "imza_sirkuleri.yetkili": F(allowed)}
+    assert evaluate([rule], "kredi_dosyasi", fields)[0].status == expected

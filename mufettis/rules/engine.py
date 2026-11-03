@@ -154,7 +154,13 @@ def _passes(rule: Rule, fields: Dict[str, FieldValue], text: str) -> Optional[bo
         # "Can Eren", "Ayşe Kaya" ile "Ayşe Kayalı" ayrı kişilerdir. Büyük / küçük harf ve Türkçe harfler sadeleşir
         # ("SELİM ARSLAN" = "Selim Arslan").
         x, y = _name_key(a.value), _name_key(b.value)
-        return not (x and y and (_contains_words(x, y) or _contains_words(y, x)))
+        if x and y and (_contains_words(x, y) or _contains_words(y, x)):
+            return False
+        # İkinci ad ya da kısaltma farkı ("Ayşe Kaya" / "Ayşe Nur Kaya", "M. Ali Veli" / "Mehmet Ali Veli"): aynı kişi
+        # olabilir; "farklı" denirse bulgu kaçar. Karar verilmez, kimlik bilgisiyle kontrol edilir.
+        if _possibly_same_person(a.value, b.value):
+            return None
+        return True
     if kind == "date_order":
         a, b = _get(fields, check["before"]), _get(fields, check["after"])
         if a.state != FILLED or b.state != FILLED:
@@ -219,6 +225,22 @@ def _passes(rule: Rule, fields: Dict[str, FieldValue], text: str) -> Optional[bo
     return None
 
 
+def _possibly_same_person(a, b) -> bool:
+    """İki gerçek kişi adı ikinci ad / kısaltma farkıyla aynı kişiyi gösterebilir mi (imza yetkisi kontrolündeki
+    eşleştirmeyle aynı: `_people` + `_same_person`)."""
+    if _legal_entity(a) or _legal_entity(b):
+        return False
+    return any(_same_person(p, q) for p in _people(a) for q in _people(b))
+
+
+def _similar_names_unknown(rule: Rule, fields: Dict[str, FieldValue]) -> bool:
+    check = rule.check
+    if check.get("type") != "fields_differ":
+        return False
+    a, b = _get(fields, check["field"]), _get(fields, check["other"])
+    return a.state == FILLED and b.state == FILLED and _possibly_same_person(a.value, b.value)
+
+
 def _same_day_unknown(rule: Rule, fields: Dict[str, FieldValue]) -> bool:
     check = rule.check
     if check.get("type") != "date_order" or not check.get("equal_unknown"):
@@ -275,6 +297,11 @@ def evaluate_rule(rule: Rule, fields: Dict[str, FieldValue], text: str = "",
         return result(UNKNOWN, "aynı gün: saat bilgisi yok, sıra belirlenemedi",
                       finding=f"{before} ile {after} aynı gün; saat bilgisi olmadığından şartın sağlanıp sağlanmadığı "
                               f"belirlenemedi ({rule.title})", ev=evidence)
+    if outcome is None and _similar_names_unknown(rule, fields):
+        first, other = rule.check["field"], rule.check["other"]
+        return result(UNKNOWN, "adlar benzer: ikinci ad ya da kısaltma farkı, aynı kişi olabilir",
+                      finding=f"{first} ile {other} aynı kişi olabilir (adlar yalnızca ikinci ad ya da kısaltmayla "
+                              f"ayrılıyor); kimlik numarasıyla kontrol edilmeli ({rule.title})", ev=evidence)
     if outcome is True:
         return result(MET, "olumlu kanıt", ev=evidence)
     # Karşılanmadı demeden önce istisna: koşulu sağlanıyorsa istisna, bilinmiyorsa belirsiz.
