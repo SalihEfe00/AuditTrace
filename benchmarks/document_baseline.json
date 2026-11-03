@@ -1,8 +1,8 @@
 {
  "levels": {
   "understanding": {
-   "note": "M7.1: olay tarihi ölçütü eklendi (12/13, 30 gün tolerans); diğer sayılar değişmedi",
-   "cases_fingerprint": "15d5504c57301ccc",
+   "note": "Parmak izi yenilendi: vaka kümesi b8cdb25'ten beri değişmedi, ölçümler aynı; Windows ve Linux'ta parmak izi 97240b5df4b06b35 (CI)",
+   "cases_fingerprint": "97240b5df4b06b35",
    "splits": {
     "dev": {
      "type_correct": 15,
